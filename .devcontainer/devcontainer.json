@@ -1,4 +1,3 @@
-
 {
 	"name": "Typst",
 	"image": "mcr.microsoft.com/devcontainers/base:ubuntu",
@@ -9,8 +8,8 @@
 		"vscode": {
 			"extensions": [
 				"myriad-dreamin.tinymist",
-				"mgt19937.typst-preview",
-				"tomoki1207.pdf"
+				"analytic-signal.preview-pdf",
+				"PKief.material-icon-theme"
 			]
 		}
 	},
