@@ -1,0 +1,18 @@
+
+{
+	"name": "Typst",
+	"image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+	"features": {
+		"ghcr.io/devcontainers/features/git:1": {}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"myriad-dreamin.tinymist",
+				"mgt19937.typst-preview",
+				"tomoki1207.pdf"
+			]
+		}
+	},
+	"postCreateCommand": "curl -L -o typst.tar.xz https://github.com/typst/typst/releases/latest/download/typst-x86_64-unknown-linux-musl.tar.xz && tar -xvf typst.tar.xz && sudo mv typst-x86_64-unknown-linux-musl/typst /usr/local/bin/ && rm -rf typst.tar.xz typst-x86_64-unknown-linux-musl"
+}
