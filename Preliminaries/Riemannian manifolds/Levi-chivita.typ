@@ -84,7 +84,7 @@ The next proposition gives several alternative characterizations of metric conne
   + In terms of any smooth local frame $(E_i)$ the connection coefficient of $nabla$ satisfy :
   $
     Gamma^(l)_(k i)g_(l j)+ Gamma^(l)_(k j)g_(i l)=E_(k)(g_(l j))
-  $
+  $ <proposition5.5_c>
 ]
 
 #proof[
@@ -178,7 +178,7 @@ If the connection is *symmetric* (Torsion is zero), we will end up at the exact 
 ]
 
 #proof[
-  First, let's prove the uniqueness. To show the uniqueness, we compute the arbitrary commections and compare them. To compute, we neede to use the compatible and symmetric conditions actively. Since the connection is compatible with $g$, it is understandable to pick $X,Y,Z in frak(X)(M)$. Then let's compute all of possible connection made by $X,Y,Z$.#footnote[Since our goal is computing connection directly, the more information we have, the better.]
+  First, let's prove the uniqueness. To show the uniqueness, #highlight[we compute the arbitrary commections and compare them.] To compute, we neede to use the compatible and symmetric conditions actively. Since the connection is compatible with $g$, it is understandable to pick $X,Y,Z in frak(X)(M)$. Then let's compute all of possible connection made by $X,Y "and" Z$.#footnote[Since our goal is computing connection directly, the more information we have, the better.]
   $
     cases(
       nabla_X (Y,Z) = X chevron.l Y comma Z chevron.r = chevron.l nabla_X Y comma Z chevron.r + markrect(chevron.l Y comma nabla_X Z chevron.r, color: #purple, tag: #<term_1>),
@@ -206,13 +206,72 @@ If the connection is *symmetric* (Torsion is zero), we will end up at the exact 
   Finally, solving for $chevron.l nabla_X Y comma Z chevron.r$, we obtain :
   $
     chevron.l nabla_X Y comma Z chevron.r & = frac(1,2) (X chevron.l Y comma Z chevron.r + Y chevron.l Z comma X chevron.r - Z chevron.l X comma Y chevron.r \ & 
-    - chevron.l Y comma [X comma Z] chevron.r - chevron.l Z comma [Y comma X] chevron.r + chevron.l X comma [Z comma Y] chevron.r)
-  $ <result_of_connection_compatibility_and_symmetry>
+    - chevron.l Y comma [X comma Z] chevron.r - chevron.l Z comma [Y comma X] chevron.r + chevron.l X comma [Z comma Y] chevron.r) #dots_space #footnote[It is called 'Koszul formula'.]
+  $ <Koszul_formula>
 
-  Now, suppose $nabla^1$ and $nabla^2$ are two connections on $T M$ that are compatible with $g$ and symmetric. #highlighted[Since the right-hand side of @result_of_connection_compatibility_and_symmetry doesn't depend on the any connections, the result of any connections will be same. It implies that $chevron.l nabla^(1)_X Y - nabla^(2)_X Y comma Z chevron.r=0$ for all $X,Y,Z in frak(X)(M)$.] Hence, there exists a unique connection on $T M$ that is compatible with $g$ and symmetric.
+  Now, suppose $nabla^1$ and $nabla^2$ are two connections on $T M$ that are compatible with $g$ and symmetric. #highlighted[Since the right-hand side of @Koszul_formula doesn't depend on the any connections, the result of any connections will be same. It implies that $chevron.l nabla^(1)_X Y - nabla^(2)_X Y comma Z chevron.r=0$ for all $X,Y,Z in frak(X)(M)$.] Hence, there exists a unique connection on $T M$ that is compatible with $g$ and symmetric.
 
   #paragraph_tab
-  Now, let's prove the existence.
+  Now, let's prove the existence. By the uniqueness, we search the existence of connection in the single chart. Let's define a single smooth local coordinate chart $(U, (x^i))$. Then, how can we naturally derive the connection in this chart? First of all, #highlighted[Since what we want to show is about naturality, it is natural to use basis vector fields, instead of general vector fields $X,Y "and" Z$.] Moreover, because we are treating the coordinate chart $U$ and it is flat by the definition of manifold, the parallelism is guaranteed :
+  $
+    [partial_i comma partial_j]=0
+  $ <parallelism_of_chart>
+
+  #paragraph_tab
+  Since we know @Koszul_formula is true when the connection is compatible with the metric and symmetric as considering the induction process of @Koszul_formula, we will use @Koszul_formula with @parallelism_of_chart. Since the RHS of @Koszul_formula doesn't depend on the connection and it could be computed without any assumptions,#footnote[In other words, the RHS of @Koszul_formula is naturall exist or well-defined.] #highlighted[it is good to define a new connection $nabla^("new")$ which satisfies @Koszul_formula then show that it is compatible with the metric and symmetric.]#footnote[If we show that $nabla^("new")$ is compatible with the metric and symmetric, then we prove that the connection is unique, compatible with $g$ and symmetric if and only if it satisfies Koszul formula(@Koszul_formula).]
+
+  $
+    chevron.l nabla^("new")_(partial_i) partial_j comma partial_k chevron.r & = frac(1,2) (partial_i chevron.l partial_j comma partial_k chevron.r + partial_j chevron.l partial_k comma partial_i chevron.r - partial_k chevron.l partial_i comma partial_j chevron.r \ & 
+    - cancel(partial_j chevron.l partial_k comma [partial_i comma partial_j] chevron.r - partial_k chevron.l partial_i comma [partial_j comma partial_k] chevron.r + partial_i chevron.l partial_k comma [partial_j comma partial_i] chevron.r paren.r, stroke: #(paint : red))
+    \
+    & = frac(1,2) paren.l partial_i markrect(chevron.l partial_j comma partial_k chevron.r, color: #blue, tag: #<term_1_theorem5.10>) + partial_j markrect(chevron.l partial_k comma partial_i chevron.r, color: #green, tag: #<term_2_theorem5.10>) - partial_k markrect(chevron.l partial_i comma partial_j chevron.r, color: #purple, tag: #<term_3_theorem5.10>) paren.r
+    \
+    & = frac(1,2) (partial_i g_(j k) + partial_j g_(k i) - partial_k g_(i j)) #dots_space #footnote[By special lemma13.1 of @Manifolds.]
+  $ #annot(<term_1_theorem5.10>, pos: bottom)[$g_(j k)$]
+  #annot(<term_2_theorem5.10>, pos: bottom)[$g_(k i)$]
+  #annot(<term_3_theorem5.10>, pos: bottom)[$g_(i j)$]
+  Also, by the definition of Christoffel symbols, we have :
+  $
+    chevron.l nabla^("new")_(partial_i) partial_j comma partial_k chevron.r & = Gamma^l_(i j) chevron.l partial_l comma partial_k chevron.r
+    \
+    &= Gamma^l_(i j) g_(l k)
+  $
+  Therefore, we have :
+  #flowbox[
+    $
+    Gamma^l_(i j) g_(l k) = frac(1,2) (partial_i g_(j k) + partial_j g_(k i) - partial_k g_(i j))
+    $ <theorem5.10_2>
+    $arrow.b$
+
+    $
+      therefore Gamma^l_(i j) = g^(l k)frac(1,2) (partial_i g_(j k) + partial_j g_(k i) - partial_k g_(i j))
+    $ <result_of_theorem_5.10>
+  ]
+  
+  #paragraph_tab
+  Now, let's verify that $nabla^("new")$ is compatible with the metric and symmetric. First of all, let's check the symmetry.
+  #flowbox[
+    $
+    chevron.l nabla^("new")_(partial_i) partial_j comma partial_k chevron.r - chevron.l nabla^("new")_(partial_j) partial_i comma partial_k chevron.r & = Gamma^l_(i j) g_(l k) - Gamma^l_(j i) g_(l k) 
+    \ &
+    =0  #dots_space #footnote[By the definition of Christoffel symbols : $Gamma^l_(i j) = Gamma^l_(j i)$]
+    \ &
+    =bracket.l partial_i comma partial_j bracket.r partial_k & #[By @parallelism_of_chart]
+    $
+    $arrow.b$
+    $
+      therefore  nabla^("new")_(partial_i) partial_j -  nabla^("new")_(partial_j) partial_i=bracket.l partial_i comma partial_j bracket.r
+    $
+  ] Therefore, $nabla^("new")$ is symmetric.
+
+  #paragraph_tab
+  Now, let's check the compatibility with the metric. #highlight[What does it mean "compatible with $g$" intuitively? We already treated it at Proposition 5.5.] Among the statements of Proposition 5.5, @proposition5.5_c will be useful, becuase the Christoffel symbol is used. Thus using @theorem5.10_2 twice, we get :
+  $
+    Gamma^(l)_(k i)g_(l j)+Gamma^(l)_(k j)g_(i l) & = frac(1,2) paren.l partial_k g_(i j) + cancel(partial_i g_(k j), stroke: #(paint : red)) - cancel(partial_j g_(k i) paren.r, stroke: #(paint : blue)) + frac(1,2) paren.l partial_k g_(j i) + cancel(partial_j g_(k i), stroke: #(paint : blue)) - cancel(partial_i g_(k j), stroke: #(paint : red)) paren.r
+    \
+    &= partial_k g_(i j) 
+  $ <result_of_compatibility_theorem5.10>
+  Since @result_of_compatibility_theorem5.10 is definitely the same as @proposition5.5_c, $nabla^("new")$ is compatible with the metric by proposition 5.5.
 ]
 
 #definition(title: "Levi-Civita Connection")[
