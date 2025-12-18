@@ -243,7 +243,7 @@ $
 #paragraph_tab
 Hence we have the specific equation of Christoffel symbol:
 
-$ Gamma_(i j)^k = g^(k l) 1 / 2 ( (partial g_(l j)) / (partial x^i) + (partial g_(l i)) / (partial x^j) - (partial g_(i j)) / (partial x^l) ) $
+$ Gamma_(i j)^k = g^(k l) 1 / 2 ( (partial g_(l j)) / (partial x^i) + (partial g_(l i)) / (partial x^j) - (partial g_(i j)) / (partial x^l) ) $ <geodesics_equation_with_metric>
 where $l$ is dummy index.
 
 === Exponential Maps
