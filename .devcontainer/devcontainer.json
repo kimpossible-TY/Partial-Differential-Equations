@@ -2,7 +2,8 @@
 	"name": "Typst",
 	"image": "mcr.microsoft.com/devcontainers/base:ubuntu",
 	"features": {
-		"ghcr.io/devcontainers/features/git:1": {}
+		"ghcr.io/devcontainers/features/git:1": {},
+		"ghcr.io/tailscale/codespace/tailscale:latest": {}
 	},
 	"customizations": {
 		"vscode": {
@@ -15,13 +16,6 @@
 		}
 	},
 	"postCreateCommand": "curl -L -o typst.tar.xz https://github.com/typst/typst/releases/latest/download/typst-x86_64-unknown-linux-musl.tar.xz && tar -xvf typst.tar.xz && sudo mv typst-x86_64-unknown-linux-musl/typst /usr/local/bin/ && rm -rf typst.tar.xz typst-x86_64-unknown-linux-musl",
-	"postStartCommand": "echo 'Wellcome back!' && git pull",
-	"postAttachCommand": "echo 'Reconnected!' && git pull",
-	{
-  "name": "My Tailscale Codespace",
-  "image": "mcr.microsoft.com/devcontainers/universal:2",
-  "features": {
-    "ghcr.io/tailscale/codespace/tailscale:latest": {}
-  }
-}
+	"postStartCommand": "echo 'Welcome back!' && git pull",
+	"postAttachCommand": "echo 'Reconnected!' && git pull"
 }
