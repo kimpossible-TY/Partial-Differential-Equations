@@ -3,7 +3,10 @@
 	"image": "mcr.microsoft.com/devcontainers/base:ubuntu",
 	"features": {
 		"ghcr.io/devcontainers/features/git:1": {},
-		"ghcr.io/tailscale/codespace/tailscale:latest": {}
+		"ghcr.io/tailscale/codespace/tailscale:latest": {},
+		"ghcr.io/devcontainers/features/sshd:1": {
+			"version": "latest"
+		}
 	},
 	"customizations": {
 		"vscode": {
