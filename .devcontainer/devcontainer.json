@@ -15,7 +15,7 @@
 			]
 		}
 	},
-	"postCreateCommand": "sudo apt-get update && sudo apt-get install -y openssh-server tmux && mkdir -p ~/.ssh && curl https://github.com/kimpossible-TY.keys >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys && curl -L -o typst.tar.xz https://github.com/typst/typst/releases/latest/download/typst-x86_64-unknown-linux-musl.tar.xz && tar -xvf typst.tar.xz && sudo mv typst-x86_64-unknown-linux-musl/typst /usr/local/bin/ && rm -rf typst.tar.xz typst-x86_64-unknown-linux-musl",
+	"postCreateCommand": "sudo apt-get update && sudo apt-get install -y openssh-server tmux gawk && mkdir -p ~/.ssh && curl https://github.com/kimpossible-TY.keys >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys && curl -L -o typst.tar.xz https://github.com/typst/typst/releases/latest/download/typst-x86_64-unknown-linux-musl.tar.xz && tar -xvf typst.tar.xz && sudo mv typst-x86_64-unknown-linux-musl/typst /usr/local/bin/ && rm -rf typst.tar.xz typst-x86_64-unknown-linux-musl && git clone --recursive --depth 1 https://github.com/akinomyoga/ble.sh.git && make -C ble.sh install PREFIX=~/.local && echo '[[ $- == *i* ]] && source ~/.local/share/blesh/ble.sh' >> ~/.bashrc",
 	"postStartCommand": "sudo service ssh start && echo '--- Updating Code ---' && git pull && echo '--- Ready! ---'",
 	"postAttachCommand": "sudo service ssh start && echo '--- Updating Code ---' && git pull"
 }
