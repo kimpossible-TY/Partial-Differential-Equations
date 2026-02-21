@@ -15,9 +15,9 @@ Actually, $X_( ; j )^k$ is directly driven by Proposition 4.6 (@basic_formula_of
 
 $
 nabla_A B &= [ (A(B^k) + sum_(i,m) A^i B^m Gamma_(i m)^k) ] E_k & "by proposition 4.6" \
-&= [ partial_j(X^k) + sum_(i,m) partial_j|_i X^m Gamma_(i m)^k ] E_k & "by putting " X, partial_j "to" B, A \
-&= [ partial_j(X^k) + sum_(i,m) delta_i^j X^m Gamma_(j m)^k ] E_k & "by i-th component of " partial_j \
-&= [ partial_j(X^k) + sum_m X^m Gamma_(j m)^k ] E_k & j" is free index"
+&= [ partial_j (X^k) + sum_(i,m) partial_j|_i X^m Gamma_(i m)^k ] E_k & "by putting " X, partial_j "to" B, A \
+&= [ partial_j (X^k) + sum_(i,m) delta_i^j X^m Gamma_(j m)^k ] E_k & "by i-th component of " partial_j \
+&= [ partial_j (X^k) + sum_m X^m Gamma_(j m)^k ] E_k & j" is free index"
 $
 
 This is $ X_( ; j )^k $
