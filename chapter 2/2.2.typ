@@ -75,4 +75,4 @@ $
 d(i_X omega) &= ( sum_i partial_i (X^i sqrt(det g)) ) d x^1 and dots and d x^n \
 therefore op("div") X &= 1 / sqrt(det g) partial_j (sqrt(det g) X^j) 
 #dots_space #footnote[where the summation convention is used.]
-$
+$ <formula_of_divergence>
