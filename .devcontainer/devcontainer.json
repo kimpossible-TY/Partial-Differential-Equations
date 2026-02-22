@@ -3,7 +3,8 @@
 	"image": "mcr.microsoft.com/devcontainers/base:ubuntu",
 	"features": {
 		"ghcr.io/devcontainers/features/git:1": {},
-		"ghcr.io/tailscale/codespace/tailscale:latest": {}
+		"ghcr.io/tailscale/codespace/tailscale:latest": {},
+		"ghcr.io/devcontainers/features/node:1": { "version": "lts" }
 	},
 	"customizations": {
 		"vscode": {
@@ -15,7 +16,7 @@
 			]
 		}
 	},
-	"postCreateCommand": "sudo apt-get update && sudo apt-get install -y openssh-server tmux gawk && mkdir -p ~/.ssh && curl https://github.com/kimpossible-TY.keys >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys && curl -L -o typst.tar.xz https://github.com/typst/typst/releases/latest/download/typst-x86_64-unknown-linux-musl.tar.xz && tar -xvf typst.tar.xz && sudo mv typst-x86_64-unknown-linux-musl/typst /usr/local/bin/ && rm -rf typst.tar.xz typst-x86_64-unknown-linux-musl && git clone --recursive --depth 1 https://github.com/akinomyoga/ble.sh.git && make -C ble.sh install PREFIX=~/.local && echo '[[ $- == *i* ]] && source ~/.local/share/blesh/ble.sh' >> ~/.bashrc",
-	"postStartCommand": "sudo service ssh start && echo '--- Updating Code ---' && git pull && echo '--- Ready! ---'",
-	"postAttachCommand": "sudo service ssh start && echo '--- Updating Code ---' && git pull"
+	"postCreateCommand": "bash .devcontainer/setup.sh",
+	"postStartCommand": "sudo service ssh start && git pull",
+	"postAttachCommand": "sudo service ssh start && git pull"
 }
