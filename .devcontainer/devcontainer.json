@@ -16,7 +16,7 @@
 			]
 		}
 	},
-	"postCreateCommand": "bash .devcontainer/setup.sh",
+	"postCreateCommand": "bash /workspaces/Partial-Differential-Equations/devcontainer/setup.sh",
 	"postStartCommand": "sudo service ssh start && git pull",
 	"postAttachCommand": "sudo service ssh start && git pull"
 }
