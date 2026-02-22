@@ -3,6 +3,7 @@
 	"image": "mcr.microsoft.com/devcontainers/base:ubuntu",
 	"features": {
 		"ghcr.io/devcontainers/features/git:1": {},
+		"ghcr.io/devcontainers/features/github-cli:1": {},
 		"ghcr.io/tailscale/codespace/tailscale:latest": {},
 		"ghcr.io/devcontainers/features/node:1": { "version": "lts" }
 	},
@@ -16,7 +17,7 @@
 			]
 		}
 	},
-	"postCreateCommand": "chmod +x /workspaces/Partial-Differential-Equations/devcontainer/setup.sh && bash /workspaces/Partial-Differential-Equations/devcontainer/setup.sh",
-	"postStartCommand": "sudo service ssh start && git pull",
-	"postAttachCommand": "sudo service ssh start && git pull"
+	"postCreateCommand": "chmod +x ${containerWorkspaceFolder}/.devcontainer/setup.sh && bash ${containerWorkspaceFolder}/.devcontainer/setup.sh",
+	"postStartCommand": "sudo service ssh start",
+	"postAttachCommand": "sudo service ssh start"
 }
