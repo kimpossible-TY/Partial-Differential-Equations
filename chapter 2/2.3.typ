@@ -30,7 +30,7 @@ $ op("div") X = sum_j X_( ; j )^j $
 ]
 
 #proof[Since $X_( ; j )^j$ is related to the geodesic, it is good way to use the following formula defining with $frak(g) := det g$.:
-$ op("div") X = 1 / sqrt(frak(g)) partial_j (sqrt(frak(g)) X^j) $
+$ op("div") X = 1 / sqrt(frak(g)) partial_j (sqrt(frak(g)) X^j) #dots_space #footnote[by using @formula_of_divergence] $
 Then our goal is to represent right side to $X_( ; j )^j$.
 
 #paragraph_tab
