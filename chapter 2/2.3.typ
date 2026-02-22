@@ -29,10 +29,9 @@ The divergence of a vector field has an important expression in terms of the cov
 $ op("div") X = sum_j X_( ; j )^j $
 ]
 
-#proof[Since $X_( ; j )^j$ is related to the geodesic, it is good way to use the following formula:
-$ op("div") X = 1 / sqrt(g) partial_j (sqrt(g) X^j) $
+#proof[Since $X_( ; j )^j$ is related to the geodesic, it is good way to use the following formula defining with $frak(g) := det g$.:
+$ op("div") X = 1 / sqrt(frak(g)) partial_j (sqrt(frak(g)) X^j) $
 Then our goal is to represent right side to $X_( ; j )^j$.
-Let $frak(g) := det g$.
 
 #paragraph_tab
 First, let's compute the partial derivative. By the chain rule, we get:
@@ -53,8 +52,8 @@ $ therefore 1 / frak(g) partial_k frak(g) = (g^(i j) partial_k g_(i j)) $ (where
 Now applying all of the above things. We have:
 
 $
-op("div") X &= 1 / sqrt(g) partial_j (sqrt(g) X^j) & "formula for divergence" \
-&= partial_j X^j + 1 / sqrt(g) (partial_j sqrt(g)) X^j & "by distributing" partial_j "(product rule)" \
+op("div") X &= 1 / sqrt(frak(g)) partial_j (sqrt(frak(g)) X^j) & "formula for divergence" \
+&= partial_j X^j + 1 / sqrt(frak(g)) (partial_j sqrt(frak(g))) X^j & "by distributing" partial_j "(product rule)" \
 &= partial_j X^j + (1 / (2 frak(g)) partial_j frak(g)) X^j & "by the chain rule" \
 &= partial_j X^j + (1/2 (g^(d_1 d_2) partial_j g_(d_1 d_2))) X^j & "by Jacobi's formula"
 $
