@@ -53,7 +53,7 @@ $ therefore 1 / frak(g) partial_k frak(g) = (g^(i j) partial_k g_(i j)) $ (where
 Now applying all of the above things. We have:
 
 $
-op("div") X &= 1 / sqrt(g) partial_j(sqrt(g) X^j) & "formula for divergence" \
+op("div") X &= 1 / sqrt(g) partial_j (sqrt(g) X^j) & "formula for divergence" \
 &= partial_j X^j + 1 / sqrt(g) (partial_j sqrt(g)) X^j & "by distributing" partial_j "(product rule)" \
 &= partial_j X^j + (1 / (2 frak(g)) partial_j frak(g)) X^j & "by the chain rule" \
 &= partial_j X^j + (1/2 (g^(d_1 d_2) partial_j g_(d_1 d_2))) X^j & "by Jacobi's formula"
