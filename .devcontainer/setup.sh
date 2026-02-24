@@ -37,3 +37,32 @@ echo "Installing Gemini CLI..."
 sudo npm install -g @google/gemini-cli
 
 echo "--- Setup Complete ---"
+
+# 6. Python Requirements & Virtual Environment
+echo "Setting up Python environment for gemini_Tutor..."
+VENV_PATH="${containerWorkspaceFolder}/.venv"
+
+if [ -f "gemini_Tutor/requirements.txt" ]; then
+    # 가상 환경 생성 (없을 경우에만)
+    if [ ! -d "$VENV_PATH" ]; then
+        python3 -m venv "$VENV_PATH"
+    fi
+    
+    # 활성화 및 설치
+    source "$VENV_PATH/bin/activate"
+    pip install --upgrade pip
+    pip install -r gemini_Tutor/requirements.txt
+    
+    # [핵심] .bashrc에 자동 활성화 코드 추가
+    # 중복 추가 방지를 위해 체크 후 삽입
+    if ! grep -q "source $VENV_PATH/bin/activate" ~/.bashrc; then
+        echo "source $VENV_PATH/bin/activate" >> ~/.bashrc
+    fi
+    
+    echo "Python dependencies installed and auto-activation enabled."
+else
+    echo "Warning: gemini_Tutor/requirements.txt not found."
+fi
+
+echo "--- Setup Complete ---"
+
