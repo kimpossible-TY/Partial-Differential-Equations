@@ -21,7 +21,11 @@
 				"PKief.material-icon-theme",
 				"Google.gemini",
 				"ms-python.python"
-			]
+			],
+			"settings": {
+				"python.defaultInterpreterPath": "${containerWorkspaceFolder}/.venv/bin/python",
+				"python.terminal.activateEnvironment": true
+			}
 		}
 	},
 	"postCreateCommand": "chmod +x ${containerWorkspaceFolder}/.devcontainer/setup.sh && bash ${containerWorkspaceFolder}/.devcontainer/setup.sh",
