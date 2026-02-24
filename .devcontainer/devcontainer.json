@@ -5,7 +5,13 @@
 		"ghcr.io/devcontainers/features/git:1": {},
 		"ghcr.io/devcontainers/features/github-cli:1": {},
 		"ghcr.io/tailscale/codespace/tailscale:latest": {},
-		"ghcr.io/devcontainers/features/node:1": { "version": "lts" }
+		"ghcr.io/devcontainers/features/node:1": {
+			"version": "lts"
+		},
+		"ghcr.io/devcontainers/features/python:1": {
+			"installPip": true,
+			"version": "latest"
+		}
 	},
 	"customizations": {
 		"vscode": {
@@ -13,11 +19,12 @@
 				"myriad-dreamin.tinymist",
 				"analytic-signal.preview-pdf",
 				"PKief.material-icon-theme",
-				"Google.gemini"
+				"Google.gemini",
+				"ms-python.python"
 			]
 		}
 	},
 	"postCreateCommand": "chmod +x ${containerWorkspaceFolder}/.devcontainer/setup.sh && bash ${containerWorkspaceFolder}/.devcontainer/setup.sh",
-	"postStartCommand": "sudo service ssh start",
-	"postAttachCommand": "sudo service ssh start"
+	"postStartCommand": "sudo service ssh start && git pull",
+	"postAttachCommand": "sudo service ssh start && git pull"
 }
