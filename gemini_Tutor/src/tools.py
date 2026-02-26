@@ -2,23 +2,46 @@ import os
 import re
 
 def get_project_root():
-    """
-    Codespace / Dev Container 환경 변수를 통해 프로젝트 루트를 반환합니다.
-    컨테이너 네이티브(Container-Native) 환경에 최적화된 방식입니다.
-    """
-    # CONTAINER_WORKSPACE_FOLDER가 없으면 GITHUB_WORKSPACE를 찾음
-    env_root = os.getenv("CONTAINER_WORKSPACE_FOLDER") or os.getenv("GITHUB_WORKSPACE")
+    """컨테이너 환경 변수를 기반으로 프로젝트 루트를 반환합니다."""
+    root = os.getenv("CONTAINER_WORKSPACE_FOLDER") or os.getenv("GITHUB_WORKSPACE")
+    if not root:
+        raise EnvironmentError("❌ 에러: 컨테이너 환경 변수를 찾을 수 없습니다. Dev Container 내부에서 실행하세요.")
+    return root
+
+def update_knowledge_map():
+    """프로젝트 전체의 Typst 헤더를 추출하여 지식 지도를 갱신합니다."""
+    project_root = get_project_root()
+    output_path = os.path.join(project_root, 'Gemini_Tutor', 'data', 'knowledge_map.txt')
     
-    if not env_root:
-        # 이 도구가 컨테이너 밖에서 실행되는 참사를 막기 위한 하드 스톱(Hard Stop)
-        raise EnvironmentError("❌ 치명적 오류: 이 에이전트는 Dev Container 또는 GitHub Codespaces 환경 내부에서만 실행되어야 합니다.")
-        
-    return env_root
+    exclude_dirs = {'.git', 'Gemini_Tutor', 'Styles', 'Tools', 'fonts', 'test'}
+    knowledge_map = []
+    
+    for root, dirs, files in os.walk(project_root):
+        dirs[:] = [d for d in dirs if d not in exclude_dirs]
+        for file in files:
+            if file.endswith('.typ'):
+                path = os.path.join(root, file)
+                rel_path = os.path.relpath(path, project_root)
+                knowledge_map.append(f"📄 File: {rel_path}")
+                try:
+                    with open(path, 'r', encoding='utf-8') as f:
+                        for line in f:
+                            if line.strip().startswith('='):
+                                match = re.match(r'^(={1,6})\s+(.+)$', line.strip())
+                                if match:
+                                    level = len(match.group(1))
+                                    knowledge_map.append(f"{'  ' * (level-1)}- {match.group(2).strip()}")
+                    knowledge_map.append("")
+                except Exception as e:
+                    print(f"⚠️ {rel_path} 읽기 실패: {e}")
+
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write("# PROJECT KNOWLEDGE MAP\n\n" + "\n".join(knowledge_map))
 
 def read_project_knowledge():
-    """Gemini가 호출할 함수: 프로젝트 내 모든 수학 노트를 읽어 반환합니다."""
+    """Gemini가 스스로 판단하여 호출하는 도구: 프로젝트 전체 노트를 읽어 반환합니다."""
     project_root = get_project_root()
-    
     exclude_dirs = {'.git', 'Gemini_Tutor', 'Styles', 'Tools', 'fonts', 'test'}
     full_context = []
     
@@ -27,12 +50,7 @@ def read_project_knowledge():
         for file in files:
             if file.endswith('.typ'):
                 path = os.path.join(root, file)
-                try:
-                    with open(path, 'r', encoding='utf-8') as f:
-                        rel_path = os.path.relpath(path, project_root)
-                        full_context.append(f"--- PATH: {rel_path} ---\n{f.read()}\n")
-                except Exception as e:
-                    print(f"⚠️ {rel_path} 읽기 실패: {e}")
-                    
+                rel_path = os.path.relpath(path, project_root)
+                with open(path, 'r', encoding='utf-8') as f:
+                    full_context.append(f"--- PATH: {rel_path} ---\n{f.read()}\n")
     return "\n".join(full_context)
-
