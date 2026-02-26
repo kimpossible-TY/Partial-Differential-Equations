@@ -1,20 +1,22 @@
 import os
 from google import genai
 from google.genai import types
-from .tools import read_project_knowledge
+from .tools import get_project_root, read_project_knowledge
 
 class TutorAgent:
     def __init__(self, api_key):
         self.client = genai.Client(api_key=api_key)
         
-        # 시스템 명령문 로드
-        with open('config/system_instructions.md', 'r', encoding='utf-8') as f:
+        project_root = get_project_root()
+        config_path = os.path.join(project_root, 'Gemini_Tutor', 'config', 'system_instructions.md')
+        
+        with open(config_path, 'r', encoding='utf-8') as f:
             instructions = f.read()
             
         self.chat = self.client.chats.create(
-            model="gemini-2.0-pro",
+            model="gemini-2.0-flash", # 고성능 추론을 원할 시 gemini-2.0-pro 권장
             config=types.GenerateContentConfig(
-                tools=[read_project_knowledge], # 함수 호출 활성화
+                tools=[read_project_knowledge],
                 system_instruction=instructions,
                 temperature=0.1
             )
