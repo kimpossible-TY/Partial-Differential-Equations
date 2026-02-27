@@ -42,9 +42,23 @@ class TutorAgent:
         self.session.create_session(history=current_history)
         return True
 
-    def send_query(self, message):
-        return self.session.chat.send_message(message)
-
+        def send_query(self, message, file_payloads=None):
+            """
+            Sends a message and returns the textual response.
+            """
+            contents = []
+            if file_payloads:
+                contents.extend(file_payloads)
+            contents.append(message)
+            
+            # 1. Capture the response object
+            response = self.session.chat.send_message(contents)
+            
+            # 2. Extract and return only the text part
+            if response and hasattr(response, 'text'):
+                return response.text
+            return "⚠️ Error: The model produced an empty response."
+    
     def shutdown(self):
         history = getattr(self.session.chat, 'history', [])
         return self.logger.save(history, self.session.model_name)
