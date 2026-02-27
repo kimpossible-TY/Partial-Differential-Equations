@@ -55,25 +55,33 @@ class TutorAgent:
         self.session.create_session(history=current_history)
         return True
 
-    # FIXED: This method must be at the same indentation level as switch_model
     def send_query(self, message, file_payloads=None):
-        """
-        Sends a message and returns the textual response.
-        """
         contents = []
         if file_payloads:
             contents.extend(file_payloads)
-        
         if message:
             contents.append(message)
         
-        # Capture and return the text
+        # 1. API 전송
         response = self.session.chat.send_message(contents)
         
-        if response and hasattr(response, 'text'):
+        # 2. 텍스트가 정상적으로 존재할 경우 반환
+        if response and response.text: # None이 아니며 비어있지 않은지 검사
             return response.text
-        return "⚠️ Error: The model produced an empty response."
-    
+            
+        # 3. 텍스트가 None인 경우: 원인 해부 (X-Ray)
+        diagnostic = []
+        if response and response.candidates:
+            candidate = response.candidates[0]
+            diagnostic.append(f"종료 사유: {candidate.finish_reason}")
+            
+            if candidate.content and candidate.content.parts:
+                for part in candidate.content.parts:
+                    if part.function_call:
+                        diagnostic.append(f"함수 호출 시도: {part.function_call.name}")
+                        
+        return f"⚠️ 텍스트 응답이 없습니다. 내부 상태 -> [{' / '.join(diagnostic)}]"
+
     def shutdown(self):
         """Saves logs before closing."""
         history = getattr(self.session.chat, 'history', [])
