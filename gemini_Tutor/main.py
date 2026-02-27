@@ -1,68 +1,61 @@
 import os
-from google import genai
-from google.genai import types
-from .tools import get_project_root, read_project_knowledge
-from .logger import HistoryLogger
+import sys
+# Absolute imports are required for the main execution script
+from src.core import TutorAgent 
+from src.tools import update_knowledge_map, get_project_root #
 
-class SessionManager:
-    """Manages the Gemini API session and model switching."""
-    def __init__(self, api_key, model_name):
-        self.client = genai.Client(api_key=api_key)
-        self.model_name = model_name
-        self.chat = None
+def main():
+    try:
+        root = get_project_root()
+    except EnvironmentError as e:
+        print(f"❌ {e}")
+        return
 
-    def create_session(self, history=None):
-        project_root = get_project_root()
-        config_path = os.path.join(project_root, 'gemini_Tutor', 'config', 'system_instructions.md')
-        
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        print("❌ ERROR: GEMINI_API_KEY is not set in environment variables.")
+        return
+
+    # Update knowledge map before starting
+    update_knowledge_map()
+    
+    # Initialize with the 2026 standard model
+    agent = TutorAgent(api_key, model_name="gemini-2.5-flash")
+    
+    print(f"🎓 Riemannian Geometry Tutor Active")
+    print(f"💡 Commands: ':pro' (2.5 Pro), ':flash' (2.5 Flash), ':exit' (Save & Quit)")
+
+    while True:
         try:
-            with open(config_path, 'r', encoding='utf-8') as f:
-                instructions = f.read()
-        except FileNotFoundError:
-            instructions = "You are a strict Riemannian Geometry Tutor."
+            model_label = "PRO" if "pro" in agent.model_name else "FLASH"
+            user_input = input(f"\n[{model_label}] User >> ").strip()
+            
+            if not user_input: continue
 
-        # Initialize the chat session
-        self.chat = self.client.chats.create(
-            model=self.model_name,
-            config=types.GenerateContentConfig(
-                tools=[read_project_knowledge],
-                system_instruction=instructions,
-                temperature=0.1
-            ),
-            history=history
-        )
+            if user_input.startswith(":"):
+                cmd = user_input.lower()
+                if cmd == ":pro":
+                    if agent.switch_model("gemini-2.5-pro"): #
+                        print("🔥 Engine Switched: Gemini 2.5 Pro (High-Performance Reasoning)")
+                    continue
+                elif cmd == ":flash":
+                    if agent.switch_model("gemini-2.5-flash"): #
+                        print("⚡ Engine Switched: Gemini 2.5 Flash (High-Speed Analysis)")
+                    continue
+                elif cmd in [":exit", ":quit"]:
+                    log_path = agent.shutdown()
+                    if log_path:
+                        print(f"💾 Session logs saved to: {log_path}")
+                    break
 
-class TutorAgent:
-    """Facade class for the user interface."""
-    def __init__(self, api_key, model_name="gemini-2.5-flash"):
-        self.session = SessionManager(api_key, model_name)
-        self.logger = HistoryLogger()
-        self.session.create_session()
+            response = agent.send_query(user_input)
+            print(f"\nTutor >> {response.text}")
+            
+        except Exception as e:
+            if "429" in str(e): #
+                print("\n⚠️ Quota Exceeded. Please wait 1 minute or upgrade to Option C (Billing).")
+            else:
+                print(f"\n⚠️ Unexpected Error: {e}")
 
-    @property
-    def model_name(self):
-        return self.session.model_name
-
-    def switch_model(self, new_model_name):
-        """Switches model while migrating history safely."""
-        if self.session.model_name == new_model_name:
-            return False
-        
-        # FIX: Safer access to history to avoid AttributeError
-        current_history = getattr(self.session.chat, 'history', [])
-        
-        self.session.model_name = new_model_name
-        self.session.create_session(history=current_history)
-        return True
-
-    def send_query(self, message, file_payloads=None):
-        contents = []
-        if file_payloads:
-            contents.extend(file_payloads)
-        contents.append(message)
-        return self.session.chat.send_message(contents)
-
-    def shutdown(self):
-        # FIX: Safer access to history during shutdown
-        history = getattr(self.session.chat, 'history', [])
-        return self.logger.save(history, self.session.model_name)
+if __name__ == "__main__":
+    main()
