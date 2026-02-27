@@ -34,7 +34,7 @@ def main():
                     path = agent.shutdown(); print(f"💾 Saved: {path}"); break
 
             response = agent.send_query(user_input)
-            print(f"\nTutor >> {response.text}")
+            print(f"\nTutor >> {response}")
         except Exception as e:
             print(f"⚠️ Error: {e}")
 
