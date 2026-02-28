@@ -21,13 +21,16 @@ class SessionManager:
         except FileNotFoundError:
             instructions = "You are a strict Riemannian Geometry Tutor."
 
-        # history가 제공되면 해당 기록을 가지고 세션을 시작합니다.
+        # [핵심 수정] automatic_function_calling을 활성화하여 
+        # 도구 실행 후 별도의 대기 없이 즉시 최종 답변을 생성하도록 설정합니다.
         self.chat = self.client.chats.create(
             model=self.model_name,
             config=types.GenerateContentConfig(
                 tools=[read_project_knowledge],
                 system_instruction=instructions,
-                temperature=0.1
+                temperature=0.1,
+                # SDK 규격에 맞게 자동 함수 호출 설정을 명시합니다.
+                automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=False)
             ),
             history=history if history else []
         )
@@ -41,7 +44,7 @@ class TutorAgent:
         """
         self.session = SessionManager(api_key, model_name)
         self.logger = HistoryLogger()
-        self.source_file = source_file  # 복구된 세션의 근원 정보를 저장합니다. [cite: 2025-11-22]
+        self.source_file = source_file  # 복구된 세션의 근원 정보 저장
         
         # 세션 생성 시 history 주입
         self.session.create_session(history=history)
@@ -68,6 +71,7 @@ class TutorAgent:
         """사용자의 질문을 보내고 튜터의 응답을 받습니다."""
         response = self.session.chat.send_message(message)
         
+        # 자동 함수 호출이 활성화되면 response.text에 최종 도구 실행 결과가 포함됩니다.
         if response and response.text:
             return response.text
         
@@ -77,7 +81,7 @@ class TutorAgent:
         """종료 시 대화 기록을 추출하여 로컬 및 클라우드에 저장합니다. 
            이때 세션의 출처(source_file) 정보도 함께 기록합니다."""
         history = self.get_safe_history()
-        # 수정된 logger.save는 세 번째 인자로 source_file을 받습니다.
+        #
         return self.logger.save(
             history, 
             self.session.model_name, 
