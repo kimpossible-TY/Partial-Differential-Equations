@@ -17,7 +17,6 @@ class HistoryLogger:
         files = [os.path.join(self.log_dir, f) for f in os.listdir(self.log_dir) if f.endswith('.md')]
         if not files:
             return None
-        # 파일 수정 시간(mtime) 기준으로 정렬하여 가장 최근 파일 선택
         return max(files, key=os.path.getmtime)
 
     def load_history(self, file_path):
@@ -31,17 +30,16 @@ class HistoryLogger:
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
 
-            # 정규표현식을 사용하여 ### User와 ### Tutor 섹션을 분리합니다.
-            # 데이터의 일관성을 위해 마크다운 헤더를 기준으로 파싱합니다.
+            # ### User와 ### Tutor 섹션을 기준으로 분리
             sections = re.split(r'### (User|Tutor)\n', content)
             
-            # sections[0]은 메타데이터 섹션이며, 이후 [role, text, role, text...] 순서임
             for i in range(1, len(sections), 2):
                 role_str = sections[i].strip()
                 text = sections[i+1].strip()
                 
                 role = "user" if role_str == "User" else "model"
-                history.append({"role": role, "parts": [{"text":text}]})
+                # Pydantic 검증 에러 방지를 위한 딕셔너리 구조 유지
+                history.append({"role": role, "parts": [{"text": text}]})
             
             return history, os.path.basename(file_path)
         except Exception as e:
@@ -49,35 +47,50 @@ class HistoryLogger:
             return [], None
 
     def save(self, history, model_name, source_file=None):
-        """대화 기록을 로컬과 구글 드라이브에 저장하며, 출처 정보를 남깁니다."""
+        """대화 기록을 로컬과 구글 드라이브에 저장하며, 도구 호출 기록도 안전하게 텍스트화합니다."""
         if not history or len(history) == 0:
             return "No history to save."
 
-        # 1. 디렉토리 준비
         os.makedirs(self.log_dir, exist_ok=True)
         filename = f"chat_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
         local_path = os.path.join(self.log_dir, filename)
         
         try:
             with open(local_path, 'w', encoding='utf-8') as f:
-                # 헤더 정보 작성 (출처 기록 포함) [cite: 2025-11-22]
                 f.write(f"# 🎓 Riemannian Geometry Session\n")
                 f.write(f"- Model: {model_name}\n")
                 f.write(f"- Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
                 if source_file:
-                    f.write(f"- Source File: {source_file}\n") # 복구된 파일 정보 기록
+                    f.write(f"- Source File: {source_file}\n")
                 f.write(f"\n---\n")
 
-                # 대화 내용 기록
                 for content in history:
                     role = "User" if content.role == "user" else "Tutor"
-                    # Gemini Content 객체에서 텍스트 추출
-                    text = "".join([p.text for p in content.parts if hasattr(p, 'text')])
-                    f.write(f"### {role}\n{text}\n\n")
+                    
+                    # [핵심 수정] NoneType 에러 방지를 위한 파트별 안전 처리 로직
+                    parts_text = []
+                    for p in content.parts:
+                        # 1. 일반 텍스트가 있는 경우
+                        if hasattr(p, 'text') and p.text is not None:
+                            parts_text.append(p.text)
+                        
+                        # 2. 모델이 도구 호출(Function Call)을 생성한 경우
+                        elif hasattr(p, 'function_call') and p.function_call is not None:
+                            call = p.function_call
+                            parts_text.append(f"\n> 🛠️ **Tool Call**: `{call.name}`\n> **Args**: `{call.args}`\n")
+                        
+                        # 3. 도구 실행 결과(Function Response)가 돌아온 경우
+                        elif hasattr(p, 'function_response') and p.function_response is not None:
+                            parts_text.append(f"\n> 📥 **Knowledge Retrieved**\n")
+                    
+                    # 수집된 파트들을 하나의 문자열로 결합 (None이 섞이지 않음)
+                    full_text = "".join(parts_text)
+                    if full_text.strip():
+                        f.write(f"### {role}\n{full_text.strip()}\n\n")
         except Exception as e:
-            return f"Local save failed: {e}"
+            # 상세한 에러 메시지를 반환하여 디버깅 지원
+            return f"Local save failed: {str(e)}"
 
-        # 2. 구글 드라이브 업로드
         try:
             drive = DriveService()
             drive_id = drive.upload_log(local_path)
