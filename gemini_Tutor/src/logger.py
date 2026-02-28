@@ -32,7 +32,7 @@ class HistoryLogger:
                 content = f.read()
 
             # 정규표현식을 사용하여 ### User와 ### Tutor 섹션을 분리합니다.
-            # [cite: 2025-11-22] 데이터의 일관성을 위해 마크다운 헤더를 기준으로 파싱합니다.
+            # 데이터의 일관성을 위해 마크다운 헤더를 기준으로 파싱합니다.
             sections = re.split(r'### (User|Tutor)\n', content)
             
             # sections[0]은 메타데이터 섹션이며, 이후 [role, text, role, text...] 순서임
@@ -41,7 +41,7 @@ class HistoryLogger:
                 text = sections[i+1].strip()
                 
                 role = "user" if role_str == "User" else "model"
-                history.append({"role": role, "parts": [text]})
+                history.append({"role": role, "parts": [{"text":text}]})
             
             return history, os.path.basename(file_path)
         except Exception as e:
