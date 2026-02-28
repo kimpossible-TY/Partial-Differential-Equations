@@ -11,6 +11,7 @@ class SessionManager:
         self.chat = None
 
     def create_session(self, history=None):
+        """시스템 지침을 로드하고 도구 스키마가 정의된 세션을 생성합니다."""
         project_root = get_project_root()
         config_path = os.path.join(project_root, 'gemini_Tutor', 'config', 'system_instructions.md')
         try:
@@ -19,21 +20,21 @@ class SessionManager:
         except FileNotFoundError:
             instructions = "You are a strict Riemannian Geometry Tutor."
 
-        # [핵심] 모델이 임의로 인자를 누락하지 못하도록 엄격한 스키마(Schema)를 강제합니다. [cite: 2025-11-22]
+        # [스키마 강제] 모델이 인자를 누락하지 못하도록 엄격하게 정의합니다. [cite: 2025-11-22]
         project_knowledge_tool = types.Tool(
             function_declarations=[
                 types.FunctionDeclaration(
                     name="read_project_knowledge",
-                    description="사용자의 프로젝트 디렉토리 내에 있는 .typ (Typst) 연구 노트 파일들을 읽어옵니다.",
+                    description="프로젝트 내의 .typ 및 가이드라인(.md) 파일을 읽어 연구 지식을 제공합니다.",
                     parameters=types.Schema(
                         type=types.Type.OBJECT,
                         properties={
                             "query": types.Schema(
                                 type=types.Type.STRING,
-                                description="찾고자 하는 수학적 개념이나 키워드 (예: 'divergence', 'metric')"
+                                description="찾고자 하는 수학적 개념, 스타일 가이드, 혹은 LaTeX-Typst 비교 지침"
                             )
                         },
-                        required=["query"] # query를 필수로 지정하여 빈 값(None) 반환을 원천 차단합니다.
+                        required=["query"]
                     )
                 )
             ]
@@ -42,7 +43,7 @@ class SessionManager:
         self.chat = self.client.chats.create(
             model=self.model_name,
             config=types.GenerateContentConfig(
-                tools=[project_knowledge_tool], # 파이썬 함수 대신 스키마 객체를 주입합니다.
+                tools=[project_knowledge_tool],
                 system_instruction=instructions,
                 temperature=0.1
             ),
@@ -56,36 +57,49 @@ class TutorAgent:
         self.source_file = source_file
         self.session.create_session(history=history)
 
+    def write_document(self):
+        """
+        현재까지의 논의를 바탕으로 Typst 코드 초안을 작성합니다.
+        가이드라인과 스타일 가이드를 참조하도록 모델을 유도합니다. [cite: 2025-11-22]
+        """
+        prompt = (
+            "지금까지 우리가 나눈 수학적 논의를 바탕으로 Typst(.typ) 코드 초안을 작성해줘. "
+            "작성 시 반드시 다음 지침을 엄격히 따라야 해:\n"
+            "1. 'read_project_knowledge' 도구를 사용하여 'code_style_guide.md'와 "
+            "'LaTeX-Typst 비교 문서'를 찾아 그 스타일과 문법을 완벽히 준수할 것.\n"
+            "2. LaTeX 스타일의 명령어가 아닌 순수한 Typst 문법을 사용할 것.\n"
+            "3. 모든 수식은 우리가 합의한 정의와 기호를 사용할 것.\n"
+            "설명 없이 코드만 깔끔하게 출력해줘."
+        )
+        return self.send_query(prompt)
+
     def send_query(self, message):
-        """수동 루프를 통해 도구 호출과 답변 생성을 완벽히 제어합니다."""
+        """수동 루프를 통해 도구 호출을 제어하며, 비텍스트 응답 경고를 방지합니다."""
         try:
             response = self.session.chat.send_message(message)
             
-            # 도구 호출 루프 (최대 5회 시도) [cite: 2025-11-22]
             for _ in range(5):
-                if response.text:
+                # [경고 방지] 텍스트 파트가 실제로 존재할 때만 .text에 접근합니다.
+                has_text = any(hasattr(p, 'text') and p.text for p in response.candidates[0].content.parts)
+                if has_text:
                     return response.text
                 
-                # [방어적 코딩] 응답 객체의 필수 속성 누락 시 크래시 방지
-                if not getattr(response, 'candidates', None) or not response.candidates[0].content:
+                # 도구 호출(Function Call) 분석 및 실행
+                if not response.candidates or not response.candidates[0].content:
                     break
                 
                 parts = response.candidates[0].content.parts
-                if not parts: 
-                    break
-
                 tool_calls = [p.function_call for p in parts if getattr(p, 'function_call', None)]
+                
                 if not tool_calls:
                     break 
 
                 tool_responses = []
                 for call in tool_calls:
-                    # 인자가 비어있을 경우 빈 딕셔너리로 초기화하여 'NoneType' 에러 차단
                     args = call.args if call.args else {}
                     print(f"🛠️ Tool Calling: {call.name}({args})")
                     
                     if call.name == "read_project_knowledge":
-                        # 수동으로 tools.py의 함수를 실행하고 결과를 패키징합니다.
                         result = read_project_knowledge(**args)
                         tool_responses.append(types.Part.from_function_response(
                             name=call.name,
