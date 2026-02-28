@@ -34,7 +34,6 @@ def main():
             history, source_file = logger.load_history(last_log)
             print(f"🔄 최근 대화 복구됨: {source_file}")
     elif args.file:
-        # 파일명만 입력받아 전체 경로 생성
         file_path = os.path.join(logger.log_dir, args.file)
         history, source_file = logger.load_history(file_path)
         if source_file:
@@ -58,22 +57,32 @@ def main():
             user_input = input(f"\n[{agent.session.model_name}] User >> ").strip()
             if not user_input: continue
 
+            # 명령어 처리부
             if user_input.startswith(":"):
                 cmd = user_input.lower()
-                if cmd == ":pro":
+                
+                # [기능 추가] 문서화 모드: 현재 맥락을 Typst 코드로 변환 [cite: 2025-11-22]
+                if cmd == ":write":
+                    print("📝 문서화 모드 가동: 가이드라인 및 프로젝트 문서를 분석하여 Typst 코드를 생성합니다...")
+                    typst_code = agent.write_document()
+                    print(f"\n--- GENERATED TYPST CODE ---\n{typst_code}\n---------------------------")
+                    continue
+
+                elif cmd == ":pro":
                     agent.switch_model("gemini-2.5-pro")
                     print("🔥 Switched to Pro"); continue
                 elif cmd == ":flash":
                     agent.switch_model("gemini-2.5-flash")
                     print("⚡ Switched to Flash"); continue
                 elif cmd in [":exit", ":quit"]:
-                    # 종료 시 기록을 저장하고 클라우드 동기화 수행
                     path = agent.shutdown()
                     print(f"💾 Saved & Synced: {path}")
                     break
 
+            # 일반 대화 처리
             response = agent.send_query(user_input)
             print(f"\nTutor >> {response}")
+            
         except Exception as e:
             print(f"⚠️ Error: {e}")
 
