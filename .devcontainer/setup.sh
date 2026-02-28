@@ -71,6 +71,9 @@ if [ -f "gemini_Tutor/requirements.txt" ]; then
     source "$VENV_PATH/bin/activate"
     pip install --upgrade pip
     pip install -r gemini_Tutor/requirements.txt
+    echo "Installing Google Drive API libraries..."
+    pip install google-api-python-client google-auth-httplib2 google-auth-oauthlib
+
     
     echo "--- Configuring .bashrc ---"
     
