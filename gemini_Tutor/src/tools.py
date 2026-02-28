@@ -29,18 +29,16 @@ def update_knowledge_map():
     print(f"✅ 지식 지도가 갱신되었습니다: {output_path}")
 
 def read_project_knowledge(query: str):
-    """
-    프로젝트 내부의 모든 .typ 파일을 읽어 연구 지식을 제공합니다.
-    :param query: 모델이 찾고자 하는 구체적인 연구 주제나 질문입니다.
-    """
-    # [디버그 로그 추가] 모델이 어떤 쿼리로 지식을 요청했는지 실시간 확인 [cite: 2025-11-22]
-    print(f"\n🔍 DEBUG: Reading project knowledge with query -> '{query}'")
+    """지정된 주제(query)와 관련된 연구 내용을 프로젝트 파일에서 찾아냅니다."""
+    print(f"\n🔍 DEBUG: 튜터가 '{query}'에 관한 지식을 검색 중입니다...")
     
     root = get_project_root()
     exclude_dirs = {'.git', 'gemini_Tutor', 'Styles', 'Tools', 'fonts', 'test'}
     full_context = []
     
-    file_count = 0
+    # 텍스트가 너무 길어지는 것을 방지하기 위해 파일당 읽기 제한을 둡니다. [cite: 2025-11-22]
+    max_chars_per_file = 10000 
+    
     for r, dirs, files in os.walk(root):
         dirs[:] = [d for d in dirs if d not in exclude_dirs]
         for file in files:
@@ -48,15 +46,12 @@ def read_project_knowledge(query: str):
                 file_path = os.path.join(r, file)
                 try:
                     with open(file_path, 'r', encoding='utf-8') as f:
-                        content = f.read()
+                        content = f.read(max_chars_per_file) # 부분 읽기로 최적화
                         full_context.append(f"--- PATH: {os.path.relpath(file_path, root)} ---\n{content}\n")
-                        file_count += 1
                 except Exception as e:
-                    print(f"⚠️ Failed to read {file}: {e}")
+                    print(f"⚠️ 읽기 실패 {file}: {e}")
 
-    print(f"📦 DEBUG: Total {file_count} files loaded into context.\n")
-    
     if not full_context:
-        return "No .typ files found in the project root."
+        return "검색된 지식이 없습니다."
         
     return "\n".join(full_context)
