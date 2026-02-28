@@ -1,8 +1,8 @@
 import os
 from google import genai
 from google.genai import types
-from src.tools import get_project_root, read_project_knowledge
-from src.logger import HistoryLogger
+from .tools import get_project_root, read_project_knowledge
+from .logger import HistoryLogger
 
 class SessionManager:
     def __init__(self, api_key, model_name):
