@@ -19,11 +19,30 @@ class SessionManager:
         except FileNotFoundError:
             instructions = "You are a strict Riemannian Geometry Tutor."
 
-        # 도구 목록 정의
+        # [핵심] 모델이 임의로 인자를 누락하지 못하도록 엄격한 스키마(Schema)를 강제합니다. [cite: 2025-11-22]
+        project_knowledge_tool = types.Tool(
+            function_declarations=[
+                types.FunctionDeclaration(
+                    name="read_project_knowledge",
+                    description="사용자의 프로젝트 디렉토리 내에 있는 .typ (Typst) 연구 노트 파일들을 읽어옵니다.",
+                    parameters=types.Schema(
+                        type=types.Type.OBJECT,
+                        properties={
+                            "query": types.Schema(
+                                type=types.Type.STRING,
+                                description="찾고자 하는 수학적 개념이나 키워드 (예: 'divergence', 'metric')"
+                            )
+                        },
+                        required=["query"] # query를 필수로 지정하여 빈 값(None) 반환을 원천 차단합니다.
+                    )
+                )
+            ]
+        )
+
         self.chat = self.client.chats.create(
             model=self.model_name,
             config=types.GenerateContentConfig(
-                tools=[read_project_knowledge],
+                tools=[project_knowledge_tool], # 파이썬 함수 대신 스키마 객체를 주입합니다.
                 system_instruction=instructions,
                 temperature=0.1
             ),
@@ -40,36 +59,43 @@ class TutorAgent:
     def send_query(self, message):
         """수동 루프를 통해 도구 호출과 답변 생성을 완벽히 제어합니다."""
         try:
-            # 1. 사용자의 질문 전송
             response = self.session.chat.send_message(message)
             
-            # 2. 도구 호출 루프 (최대 3회 시도) [cite: 2025-11-22]
-            for _ in range(3):
-                # 답변 텍스트가 있으면 즉시 반환
+            # 도구 호출 루프 (최대 5회 시도) [cite: 2025-11-22]
+            for _ in range(5):
                 if response.text:
                     return response.text
                 
-                # 도구 호출(Tool Call)이 있는지 확인
-                parts = response.candidates[0].content.parts
-                tool_calls = [p.function_call for p in parts if p.function_call]
+                # [방어적 코딩] 응답 객체의 필수 속성 누락 시 크래시 방지
+                if not getattr(response, 'candidates', None) or not response.candidates[0].content:
+                    break
                 
-                if not tool_calls:
-                    break # 더 이상 호출할 도구가 없음
+                parts = response.candidates[0].content.parts
+                if not parts: 
+                    break
 
-                # 도구 실행 및 결과 수집
+                tool_calls = [p.function_call for p in parts if getattr(p, 'function_call', None)]
+                if not tool_calls:
+                    break 
+
                 tool_responses = []
                 for call in tool_calls:
-                    print(f"🛠️ Tool Calling: {call.name}({call.args})")
+                    # 인자가 비어있을 경우 빈 딕셔너리로 초기화하여 'NoneType' 에러 차단
+                    args = call.args if call.args else {}
+                    print(f"🛠️ Tool Calling: {call.name}({args})")
+                    
                     if call.name == "read_project_knowledge":
-                        # tools.py의 함수를 직접 실행
-                        result = read_project_knowledge(**call.args)
+                        # 수동으로 tools.py의 함수를 실행하고 결과를 패키징합니다.
+                        result = read_project_knowledge(**args)
                         tool_responses.append(types.Part.from_function_response(
                             name=call.name,
                             response={"result": result}
                         ))
                 
-                # 결과를 모델에게 다시 전달하여 최종 답변 생성 유도
-                response = self.session.chat.send_message(tool_responses)
+                if tool_responses:
+                    response = self.session.chat.send_message(tool_responses)
+                else:
+                    break
             
             return response.text if response.text else "Tutor finished without text response."
             
