@@ -94,3 +94,5 @@ $
 
 Thus we can argue $1/2 (g^(d_1 d_2) partial_j g_(d_1 d_2)) = Gamma_(j d)^j$ where $d$ and $j$ are dummy indices.
 ]
+
+=== The Killing vector field#footnote[Nobody is actually killed. The concept is named after the 19th-century german mathematician wihelm killing.]
