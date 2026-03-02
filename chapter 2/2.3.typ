@@ -110,4 +110,7 @@ Now, we consider the two conditions.
 
 #paragraph_tab
 To develop our argument, let's investigate @second_condition_of_killing_vector_field more. For arbitrary vector fields $U$ and $V$, we have :
-
+$
+cal(L)_X g (U, V) &= - chevron.l cal(L)_X U comma V chevron.r - chevron.l U comma cal(L)_X V chevron.r + X chevron.l U comma V chevron.r #dots_space #footnote[by proposition 12.32 of @Manifolds] \
+&= chevron.l nabla_X U - cal(L)_X U comma V chevron.r + chevron.l U comma nabla_X V - cal(L)_X V chevron.r + X chevron.l U comma V chevron.r #dots_space #footnote[by torsion free condition]
+$
