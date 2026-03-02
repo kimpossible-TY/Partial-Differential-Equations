@@ -103,7 +103,7 @@ $
 	cal(L)_X g =0
 $ <second_condition_of_killing_vector_field>
 Now, we consider the two conditions.
-#emphasis(title="The conditions that are needed to killing vector field")[
+#emphasis(title: "The conditions that are needed to killing vector field")[
 	+ torsion free condition(Levi-Civita condition)
 	+ g is invariant to X($cal(L)_X g =0$).
 ]
