@@ -57,7 +57,8 @@ fi
 
 # 5. Gemini CLI
 echo "Installing Gemini CLI..."
-sudo npm install -g @google/gemini-cli
+npm install -g npm@latest
+npm install -g @google/gemini-cli
 
 # 6. Python Requirements & Virtual Environment
 echo "Setting up Python environment..."
