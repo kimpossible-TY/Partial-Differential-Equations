@@ -101,10 +101,13 @@ Thus we can argue $1/2 (g^(d_1 d_2) partial_j g_(d_1 d_2)) = Gamma_(j d)^j$ wher
 In the view of @divergence_and_semi_comma, we know that a vector field $X$ generates a volume-preserving flow if and only if $X_( ; j )^j=0$. Complementing this, we investigate that the flow leaves the metric g imvariant, or equivalently :
 $
 	cal(L)_X g =0
-$
+$ <second_condition_of_killing_vector_field>
 Now, we consider the two conditions.
-#emphasis[
+#emphasis(title="The conditions that are needed to killing vector field")[
 	+ torsion free condition(Levi-Civita condition)
 	+ g is invariant to X($cal(L)_X g =0$).
 ]
+
+#paragraph_tab
+To develop our argument, let's investigate @second_condition_of_killing_vector_field more. For arbitrary vector fields $U$ and $V$, we have :
 
