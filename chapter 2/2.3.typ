@@ -26,7 +26,7 @@ This is $ X_( ; j )^k $
 The divergence of a vector field has an important expression in terms of the covariant derivative.
 
 #proposition(title: "3.1")[Given a vector field $X$ with components $X^k$, then
-$ op("div") X = sum_j X_( ; j )^j $
+$ op("div") X = sum_j X_( ; j )^j $ <divergence_and_semi_comma>
 ]
 
 #proof[Since $X_( ; j )^j$ is related to the geodesic, it is good way to use the following formula defining with $frak(g) := det g$.:
@@ -96,3 +96,13 @@ Thus we can argue $1/2 (g^(d_1 d_2) partial_j g_(d_1 d_2)) = Gamma_(j d)^j$ wher
 ]
 
 === The Killing vector field#footnote[Nobody is actually killed. The concept is named after the 19th-century german mathematician wihelm killing.]
+
+#paragraph_tab
+In the view of @divergence_and_semi_comma, we know that a vector field $X$ generates a volume-preserving flow if and only if $X_( ; j )^j=0$. Complementing this, we investigate that the flow leaves the metric g imvariant, or equivalently :
+$
+	cal(L)_X g =0
+$
+Now, we consider the two conditions.
++ torsion free condition(Levi-Civita condition)
++ g is invariant to X($cal(L)_X g =0$).
+
