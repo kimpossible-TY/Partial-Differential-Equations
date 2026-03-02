@@ -103,6 +103,8 @@ $
 	cal(L)_X g =0
 $
 Now, we consider the two conditions.
-+ torsion free condition(Levi-Civita condition)
-+ g is invariant to X($cal(L)_X g =0$).
+#emphasis[
+	+ torsion free condition(Levi-Civita condition)
+	+ g is invariant to X($cal(L)_X g =0$).
+]
 
