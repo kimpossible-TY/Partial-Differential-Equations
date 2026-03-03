@@ -147,3 +147,5 @@ Since $g_(l k)$ and $g_(j l)$ are actually used to the 'flat operator', which su
 ]
 Now, we want to make the superscripts of $X_( ; j )^l$ and $X_( ; k )^l$ to be lower indices naturally. To do this, we have to define the following first :
 	$ cases(X_(k ; j) := partial_j X_k - sum_l Gamma_(j k)^l X_l , X_( j; k ):= partial_k X_j - sum_l Gamma_(k j)^l X_l) $ <defining_X_semicolon_j_k_and_X_semicolon_k_j>
+Then, the following is understandable :
+$ cases(g_(k l) X_( ; j)^l = X_(k ; j) , g_(j l) X_( ; k )^l = X_( j; k )) $ 
