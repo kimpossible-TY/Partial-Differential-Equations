@@ -128,6 +128,12 @@ $
 	paren.l cal(L)_X g paren.r (D_j, D_k) &= chevron.l nabla_(D_j) X comma D_k chevron.r + chevron.l D_j comma nabla_(D_k) X chevron.r #dots_space #footnote[by using @Lie_derivative_of_metric_when_torsion_free] \
 	&= chevron.l X_( ; j )^l D_l comma D_k chevron.r + chevron.l D_j comma X_( ; k )^l D_l chevron.r #dots_space #footnote[by the definition of semi-colon convention, see @easy_definition_of_semi-colon_convention]
 	\
-	&= X_( ; j)^l markul(chevron.l D_l comma D_k chevron.r, color: #blue) + X_( ; k )^l markul(chevron.l D_j comma D_l chevron.r, color: #red) #dots_space #footnote[Since $X_( ; j)^l$ is a scalar function, we can extract it due to the linearity of inner product] \
+	&= X_( ; j)^l markul(chevron.l D_l comma D_k chevron.r, color: #blue) + X_( ; k )^l markul(chevron.l D_j comma D_l chevron.r, color: #red) #dots_space #footnote[Since $X_( ; j)^l$ is a scalar function, we can extract it due to the linearity of inner product] 
+	\
 	&= X_( ; j )^l markul(g_(l k), color: #blue)+ X_( ; k )^l markul(g_(j l), color: #red) #dots_space #footnote[by definition of Riemannian metric]
 $
+
+Since $g_(l k)$ and $g_(j l)$ are actually used to the 'flat operator', which subjects to 'muscial isomorphism', we can apply the following :
+#flowbox[
+	
+]
