@@ -131,14 +131,17 @@ $
 	&= X_( ; j)^l markul(chevron.l D_l comma D_k chevron.r, color: #blue) + X_( ; k )^l markul(chevron.l D_j comma D_l chevron.r, color: #red) #dots_space #footnote[Since $X_( ; j)^l$ is a scalar function, we can extract it due to the linearity of inner product] 
 	\
 	&= X_( ; j )^l markul(g_(l k), color: #blue)+ X_( ; k )^l markul(g_(j l), color: #red) #dots_space #footnote[by definition of Riemannian metric]
-$
+$ <identitiy_of_Lie_derivative_of_metric_when_torsion_free>
 
 Since $g_(l k)$ and $g_(j l)$ are actually used to the 'flat operator', which subjects to 'muscial isomorphism', we can apply the following :
 #flowbox[
 	Define the coefficients of covector fields $X_k$ and $X_j$ naturally which are satisfied :
-	$ X_k := g_(k l) X^l , X_j := g_(j l) X^l $
+	$ X_k := g_(k l) X^l , X_j := g_(j l) X^l $ <defining_X_k_and_X_j>
 	
 	$arrow.b$
 
-
+	make @identitiy_of_Lie_derivative_of_metric_when_torsion_free to easily be shown the relationships(@defining_X_k_and_X_j) :
+	$	
+		cal(L)_X g (D_j, D_k) &= g_(k l) X_( ; j )^l + g_(j l) X_( ; k )^l #dots_space #footnote[by using the symmetry of Riemannian metric]
+	$
 ]
