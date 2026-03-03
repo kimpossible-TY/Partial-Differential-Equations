@@ -127,6 +127,6 @@ $
 	paren.l cal(L)_X g paren.r (D_j, D_k) &= chevron.l nabla_(D_j) X comma D_k chevron.r + chevron.l D_j comma nabla_(D_k) X chevron.r #dots_space #footnote[by using @Lie_derivative_of_metric_when_torsion_free] \
 	&= chevron.l X_( ; j )^l D_l comma D_k chevron.r + chevron.l D_j comma X_( ; k )^l D_l chevron.r #dots_space #footnote[by the definition of semi-colon convention, see @easy_definition_of_semi-colon_convention]
 	\
-	&= X_( ; j)^l chevron.l D_l comma D_k chevron.r + X_( ; k )^l chevron.l D_j comma D_l chevron.r #dots_space #footnote[Since $X_( ; j)^l$ is a scalar function, we can extract it due to the linearity of inner product] \
-	&= X_( ; j )^l g_(l k) + X_( ; k )^l g_(j l) #dots_space #footnote[by definition of covariant derivative]
+	&= X_( ; j)^l #underline(stroke: blue)[chevron.l D_l comma D_k chevron.r] + X_( ; k )^l #underline(stroke: red)[chevron.l D_j comma D_l chevron.r] #dots_space #footnote[Since $X_( ; j)^l$ is a scalar function, we can extract it due to the linearity of inner product] \
+	&= X_( ; j )^l #underline(stroke: blue)[g_(l k)] + X_( ; k )^l #underline(stroke: red)[g_(j l)] #dots_space #footnote[by definition of Riemannian metric]
 $
