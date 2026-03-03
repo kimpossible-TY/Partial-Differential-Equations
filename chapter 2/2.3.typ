@@ -135,6 +135,10 @@ $
 
 Since $g_(l k)$ and $g_(j l)$ are actually used to the 'flat operator', which subjects to 'muscial isomorphism', we can apply the following :
 #flowbox[
-	Define the covector fields $X_k$ and $X_j$ naturally which are satisfied :
-$ X_k := g_(k l) X^l $ and $ X_j := g_(j l) X^l $ (where $l$ is dummy index).
+	Define the coefficients of covector fields $X_k$ and $X_j$ naturally which are satisfied :
+	$ X_k := g_(k l) X^l , X_j := g_(j l) X^l $
+	
+	$arrow.b$
+
+
 ]
