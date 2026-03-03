@@ -117,5 +117,16 @@ $X chevron.l U comma V chevron.r = nabla_X (chevron.l U comma V chevron.r_g)$.
 Moreover, we already know that if torsion free condition is satisfied, then $nabla$ is compatible with $g$. Hence we get :
 $nabla_X (chevron.l U comma V chevron.r_g) = chevron.l nabla_X U comma V chevron.r + chevron.l U comma nabla_X V chevron.r$.
 ] \
-&= chevron.l cancel(nabla_X U, stroke: #(paint: blue)) - shell.l cancel(nabla_X U, stroke: #(paint: blue)) - nabla_V X shell.r comma V chevron.r + chevron.l U comma  cancel(nabla_X V, stroke: #(paint: red)) - shell.l  cancel(nabla_X V, stroke: #(paint: red)) - nabla_U X shell.r chevron.r #dots_space #footnote[As we know, the torsion tensor is : $T(X comma V):= nabla_X V - nabla_V X - [X comma V]$. If torsion free condition is satisfied, then $T(X comma V) = 0$ and thus we get : $nabla_X V - nabla_V X = [X comma V]$. By theorem9.38 of @Manifolds, we have : $cal(L)_X V = [X comma V]$. Hence we get : $cal(L)_X V = nabla_X V - nabla_V X$. Similarly, we can get : $cal(L)_X U = nabla_X U - nabla_U X$.]
+&= chevron.l cancel(nabla_X U, stroke: #(paint: blue)) - shell.l cancel(nabla_X U, stroke: #(paint: blue)) - nabla_V X shell.r comma V chevron.r + chevron.l U comma  cancel(nabla_X V, stroke: #(paint: red)) - shell.l  cancel(nabla_X V, stroke: #(paint: red)) - nabla_U X shell.r chevron.r #dots_space #footnote[As we know, the torsion tensor is : $T(X comma V):= nabla_X V - nabla_V X - [X comma V]$. If torsion free condition is satisfied, then $T(X comma V) = 0$ and thus we get : $nabla_X V - nabla_V X = [X comma V]$. By theorem9.38 of @Manifolds, we have : $cal(L)_X V = [X comma V]$. Hence we get : $cal(L)_X V = nabla_X V - nabla_V X$. Similarly, we can get : $cal(L)_X U = nabla_X U - nabla_U X$.] \
+&= nabla_U X comma V chevron.r + chevron.l U comma nabla_V X chevron.r
+$ <Lie_derivative_of_metric_when_torsion_free>
+
+#paragraph_tab
+If $U$ and $V$ are coordinate vector fields, then we can write identity as :
+$
+	paren.l cal(L)_X g paren.r (D_j, D_k) &= chevron.l nabla_(D_j) X comma D_k chevron.r + chevron.l D_j comma nabla_(D_k) X chevron.r #dots_space #footnote[by using @Lie_derivative_of_metric_when_torsion_free] \
+	&= chevron.l X_( ; j )^l D_l comma D_k chevron.r + chevron.l D_j comma X_( ; k )^l D_l chevron.r & "by the definition of semi-colon convention" 
+	\
+	&= X_( ; j)^l chevron.l D_l comma D_k chevron.r + X_( ; k )^l chevron.l D_j comma D_l chevron.r #dots_space #footnote[Since $X_( ; j)^l$ is a scalar function, we can extract it due to the linearity of inner product] \
+	&= X_( ; j )^l g_(l k) + X_( ; k )^l g_(j l) & "by definition of covariant derivative"
 $
