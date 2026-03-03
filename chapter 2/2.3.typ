@@ -112,7 +112,7 @@ Now, we consider the two conditions.
 To develop our argument, let's investigate @second_condition_of_killing_vector_field more. For arbitrary vector fields $U$ and $V$, we have :
 $
 cal(L)_X g (U, V) &= - chevron.l cal(L)_X U comma V chevron.r - chevron.l U comma cal(L)_X V chevron.r + X chevron.l U comma V chevron.r #dots_space #footnote[by proposition 12.32 of @Manifolds] \
-&= chevron.l nabla_X U - cal(L)_X U comma V chevron.r + chevron.l U comma nabla_X V - cal(L)_X V chevron.r #dots_space #footnote[Since $chevron.l U comma V chevron.r_g$ is a scalar function, we get : 
+&= chevron.l nabla_X U - cal(L)_X U comma V chevron.r + chevron.l U comma nabla_X V - cal(L)_X V chevron.r #footnote[Since $chevron.l U comma V chevron.r_g$ is a scalar function, we get : 
 $X chevron.l U comma V chevron.r = nabla_X (chevron.l U comma V chevron.r_g)$.
 Moreover, we already know that if torsion free condition is satisfied, then $nabla$ is compatible with $g$. Hence we get :
 $nabla_X (chevron.l U comma V chevron.r_g) = chevron.l nabla_X U comma V chevron.r + chevron.l U comma nabla_X V chevron.r$.
