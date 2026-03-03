@@ -8,7 +8,7 @@ Now we combine the divergence with the covariant derivative and geodesics.
 If $X = X^k D_k$ and $D_k = partial / (partial x_k)$, then we can use the convension of @semicolon_standard_practice : 
 $ X_( ; j )^k := partial_j X^k + sum_l Gamma_(l j)^k X^l $ 
 which satisfies 
-$ nabla_(D_j) X = X_( ; j )^k D_k $
+$ nabla_(D_j) X = X_( ; j )^k D_k $ <easy_definition_of_semi-colon_convention>
 
 
 Actually, $X_( ; j )^k$ is directly driven by Proposition 4.6 (@basic_formula_of_connection_in_tangent_bundle) of @Riemannian
@@ -125,8 +125,8 @@ $ <Lie_derivative_of_metric_when_torsion_free>
 If $U$ and $V$ are coordinate vector fields, then we can write identity as :
 $
 	paren.l cal(L)_X g paren.r (D_j, D_k) &= chevron.l nabla_(D_j) X comma D_k chevron.r + chevron.l D_j comma nabla_(D_k) X chevron.r #dots_space #footnote[by using @Lie_derivative_of_metric_when_torsion_free] \
-	&= chevron.l X_( ; j )^l D_l comma D_k chevron.r + chevron.l D_j comma X_( ; k )^l D_l chevron.r & "by the definition of semi-colon convention" 
+	&= chevron.l X_( ; j )^l D_l comma D_k chevron.r + chevron.l D_j comma X_( ; k )^l D_l chevron.r #dots_space #footnote[by the definition of semi-colon convention, see @easy_definition_of_semi-colon_convention]
 	\
 	&= X_( ; j)^l chevron.l D_l comma D_k chevron.r + X_( ; k )^l chevron.l D_j comma D_l chevron.r #dots_space #footnote[Since $X_( ; j)^l$ is a scalar function, we can extract it due to the linearity of inner product] \
-	&= X_( ; j )^l g_(l k) + X_( ; k )^l g_(j l) & "by definition of covariant derivative"
+	&= X_( ; j )^l g_(l k) + X_( ; k )^l g_(j l) #dots_space #footnote[by definition of covariant derivative]
 $
