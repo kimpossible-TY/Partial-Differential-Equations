@@ -116,5 +116,6 @@ cal(L)_X g (U, V) &= - chevron.l cal(L)_X U comma V chevron.r - chevron.l U comm
 $X chevron.l U comma V chevron.r = nabla_X (chevron.l U comma V chevron.r_g)$.
 Moreover, we already know that if torsion free condition is satisfied, then $nabla$ is compatible with $g$. Hence we get :
 $nabla_X (chevron.l U comma V chevron.r_g) = chevron.l nabla_X U comma V chevron.r + chevron.l U comma nabla_X V chevron.r$.
-]
+] \
+&= chevron.l nabla_X U - shell.l nabla_X U - nabla_V X shell.r comma V chevron.r + chevron.l U comma nabla_X V - shell.l nabla_X V - nabla_U X shell.r chevron.r #dots_space #footnote[As we know, the torsion tensor is : $T(X comma V):= nabla_X V - nabla_V X - [X comma V]$. If torsion free condition is satisfied, then $T(X comma V) = 0$ and thus we get : $nabla_X V - nabla_V X = [X comma V]$. By the definition of Lie derivative, we have : $cal(L)_X V = [X comma V]$. Hence we get : $cal(L)_X V = nabla_X V - nabla_V X$. Similarly, we can get : $cal(L)_X U = nabla_X U - nabla_U X$.]
 $
