@@ -153,8 +153,8 @@ To concrete $scr(C)$, define :
 #flowbox[
 $
 cases(
-  F_1 colon (x, comma p) mapsto (d_p phi(x, comma p), comma p) = (q, comma p),
-  F_2 colon (x, comma p) mapsto (x, comma d_x phi(x, comma p)) = (x, comma xi)
+  F_1 colon (x comma p) mapsto (d_p phi(x comma p) comma p) = (q comma p),
+  F_2 colon (x comma p) mapsto (x comma d_x phi(x comma p)) = (x comma xi)
 ) 
 $
 
@@ -165,7 +165,7 @@ scr(C) := F_1 compose F_2^(-1) #dots_space #footnote["canonical transformation"]
 $
 ]
 
-Then, is it okay to use $u compose scr(C) = tilde(u)(q, comma p) = u(x, comma xi)$? Since it must treats Hamiltonian vector field, we have to check whether it preserves the symplectic form.
+Then, is it okay to use $u compose scr(C) = tilde(u)(q comma p) = u(x comma xi)$? Since it must treats Hamiltonian vector field, we have to check whether it preserves the symplectic form.
 #flowbox[
 $
 F_2^* (sum_j d xi_j and d x_j) = sum_j 
@@ -190,27 +190,27 @@ The fact $F_1$ preserves that symplectic form can be proved similar to above. Th
 The perfect example of Completely integrable system, canonical transforms and linearization is central forces problem. Let's construct the problem:
 
 #emphasis(title: "Central forces problem")[
-+ *Problem:* We are analyzing the motion of a particle in a 2D plane, $RR^2$. This means it has $n=2$ degrees of freedom (e.g., coordinates $x_1, comma x_2$).
++ *Problem:* We are analyzing the motion of a particle in a 2D plane, $RR^2$. This means it has $n=2$ degrees of freedom (e.g., coordinates $x_1 comma x_2$).
 + *Phase Space:* The corresponding phase space $T^* RR^2$ is $2n=4$-dimensional, with coordinates.
-+ *Complete Integrability:* To prove this system is completely integrable, we must find $n=2$ independent functions, $u_1$ and $u_2$, that are in involution (i.e., ${u_1, comma u_2} = 0$).]
++ *Complete Integrability:* To prove this system is completely integrable, we must find $n=2$ independent functions, $u_1$ and $u_2$, that are in involution (i.e., ${u_1 comma u_2} = 0$).]
 
 #paragraph_tab
 The first function, $u_1$, is always the Hamiltonian $H$, which represents the total energy of the system.
 
-$ u_1 (x, comma xi) = H(x, comma xi) = frac(1, 2) |xi|^2 + V(|x|) = frac(1, 2) |xi_1^2 + xi_2^2| + V(sqrt(x_1^2 + x_2^2)) $
+$ u_1 (x comma xi) = H(x comma xi) = frac(1, 2) |xi|^2 + V(|x|) = frac(1, 2) |xi_1^2 + xi_2^2| + V(sqrt(x_1^2 + x_2^2)) $
 
-where $V$ is potential energy and $cases(x = sum_i x_i, xi = sum_i xi_i)$. Now, we have to fine $u_2$ which satisfying ${u_1, comma u_2} = 0$. By Proposition 22.21 of _Introduction to Smooth Manifolds_ @Manifolds, we know that $u_2$ is conserved quantity, because $u_1$ is actually Hamiltonian. By Noether's theorem, we already know the angular momentum is conserved. Thus define $u_2$ as the angular momentum.
+where $V$ is potential energy and $cases(x = sum_i x_i, xi = sum_i xi_i)$. Now, we have to fine $u_2$ which satisfying ${u_1 comma u_2} = 0$. By Proposition 22.21 of _Introduction to Smooth Manifolds_ @Manifolds, we know that $u_2$ is conserved quantity, because $u_1$ is actually Hamiltonian. By Noether's theorem, we already know the angular momentum is conserved. Thus define $u_2$ as the angular momentum.
 
 #flowbox[
 $
-u_2 (x, comma xi) &= x_1 xi_2 - x_2 xi_1 \
+u_2 (x comma xi) &= x_1 xi_2 - x_2 xi_1 \
 &= ||x times xi||
 $
 $arrow.b$
 
 
 $
-{u_1, comma u_2} = 0 #dots_space #footnote[by Noether's theorem and Proposition 22.21 of _Introduction to Smooth Manifolds_ @Manifolds]
+{u_1 comma u_2} = 0 #dots_space #footnote[by Noether's theorem and Proposition 22.21 of _Introduction to Smooth Manifolds_ @Manifolds]
 $
 ]
 Thus the system is completely integrable system.
@@ -218,22 +218,22 @@ Thus the system is completely integrable system.
 #paragraph_tab
 Now, let's apply the canonical transformation and linearization to the problem. Let's define the canonical transformation. Before constructing the transformation, we must construct the following:
 
-#emphasis[Define $p = (p_1, comma p_2)$, $p_1 := H$("total energy") and $p_2 :=$ "angular momentum".
+#emphasis[Define $p = (p_1 comma p_2)$, $p_1 := H$("total energy") and $p_2 :=$ "angular momentum".
 
-Define $phi(x, comma p)$ where $x = (r, comma theta)$ #footnote[make $(x_1, comma x_2)$ specifically to $(r, comma theta)$ which is polar coordinates for the comfortable.] and $p = (E, comma L)$.]
+Define $phi(x comma p)$ where $x = (r comma theta)$ #footnote[make $(x_1 comma x_2)$ specifically to $(r comma theta)$ which is polar coordinates for the comfortable.] and $p = (E comma L)$.]
 
 We already know that $d_x phi$ which is $frac(partial phi, partial r) + frac(partial phi, partial theta)$ and each are satisfied:
 
 $ F_2^(-1) = cases(frac(partial p, partial r) |-> p_1 tilde.eq xi_1, frac(partial p, partial theta) |-> p_2 approx xi_2) $
 
 #paragraph_tab
-Then we can reformulate $u$ to $overline(u)$ by $(p_1, comma p_2)$ and polar coordinate representation.
+Then we can reformulate $u$ to $overline(u)$ by $(p_1 comma p_2)$ and polar coordinate representation.
 
 #flowbox[
 $
 cases(
-  overline(u)_1 (x, comma p) = frac(1, 2) (p_1^2 + frac(1, r^2) p_2^2) + V(r),
-  overline(u)_2 (x, comma p) = p_2
+  overline(u)_1 (x comma p) = frac(1, 2) (p_1^2 + frac(1, r^2) p_2^2) + V(r),
+  overline(u)_2 (x comma p) = p_2
 ) #dots_space #footnote[$frac(1, r^2)$ is due to polar coordinate representation]
 $
 
@@ -259,14 +259,14 @@ As combining $frac(partial phi, partial r)$ and $frac(partial phi, partial theta
 #flowbox[
 1. Compute the partial integral $integral frac(partial phi, partial theta)$.
 $
-markrect(integral frac(partial phi, partial theta), color: #blue, tag: #<example_fist>) &= L theta + markrect(H(r, comma E, comma L), color: #red, tag:#<example_hamiltonian>)
+markrect(integral frac(partial phi, partial theta), color: #blue, tag: #<example_fist>) &= L theta + markrect(H(r comma E comma L), color: #red, tag:#<example_hamiltonian>)
 
 #annot(<example_fist>,pos:top+left)[partial integral]
 #annot(<example_hamiltonian>)[constant of integral]
 \
 &= phi #dots_space #footnote[by directly computing inside of integral]
 $
-2. Differentiate both sides of $phi = L theta + H(r, comma E, comma L)$ by $r$
+2. Differentiate both sides of $phi = L theta + H(r comma E comma L)$ by $r$
 $
 frac(partial phi, partial r) &= cancel(frac(partial, partial r)(L theta)) + frac(partial H, partial r) \
 &= sqrt(2(E - V(r) - frac(L, 2 r^2))) #dots_space #footnote[the cancelation is that we already know that]
@@ -279,20 +279,20 @@ $frac(partial H, partial r) = sqrt(2(E - V(r) - frac(L, 2 r^2)))$
 3. Compute $H$ by using partial integral to substitute $phi = L theta + H$
 
 $
-H &= integral sqrt(2(E - V - frac(L^2, 2 r^2))) + G(E, comma L) #dots_space #footnote[partial integral]
+H &= integral sqrt(2(E - V - frac(L^2, 2 r^2))) + G(E comma L) #dots_space #footnote[partial integral]
 $
 
 $arrow.b$
 
-$therefore phi &= L theta + integral sqrt(2(E - V - frac(L^2, 2 r^2))) + G(E, comma L)$
+$therefore phi &= L theta + integral sqrt(2(E - V - frac(L^2, 2 r^2))) + G(E comma L)$
 
 
 4. Compute $q_1$ by computing $frac(partial q, partial E)$
 
 $
-q_1 &:= frac(partial phi, partial E)(r, comma theta, comma E, comma L) \
-&= frac(partial, partial E) [cancel(L theta) + integral sqrt(2(E - V - frac(L^2, 2 r^2))) + G(E, comma L)] \
-&= integral markrect(frac(partial, partial E) sqrt(2(E - V - frac(L^2, 2 r^2))), color: #blue, tag: #<example_fist>) + frac(partial G, partial E)(E, comma L) #dots_space #footnote["by Leibniz's rule, insert" $frac(partial, partial E)$ "to integral"] \
+q_1 &:= frac(partial phi, partial E)(r comma theta comma E comma L) \
+&= frac(partial, partial E) [cancel(L theta) + integral sqrt(2(E - V - frac(L^2, 2 r^2))) + G(E comma L)] \
+&= integral markrect(frac(partial, partial E) sqrt(2(E - V - frac(L^2, 2 r^2))), color: #blue, tag: #<example_fist>) + frac(partial G, partial E)(E comma L) #dots_space #footnote["by Leibniz's rule, insert" $frac(partial, partial E)$ "to integral"] \
 &= integral frac(1, sqrt(2(E - V - frac(L^2, 2 s^2)))) d s + frac(partial G, partial E)
 $
 
@@ -303,8 +303,8 @@ $
 
 $
 q_2 &:= frac(partial phi, partial L) \
-&= frac(partial, partial L) [L theta + integral sqrt(2(E - V - frac(L^2, 2 r^2))) + G(E, comma L)] \
-&= theta + integral frac(partial, partial L) sqrt(2(E - V - frac(L^2, 2 r^2))) + frac(partial G, partial L)(E, comma L) #dots_space #footnote[by Leibniz's rule again] \
+&= frac(partial, partial L) [L theta + integral sqrt(2(E - V - frac(L^2, 2 r^2))) + G(E comma L)] \
+&= theta + integral frac(partial, partial L) sqrt(2(E - V - frac(L^2, 2 r^2))) + frac(partial G, partial L)(E comma L) #dots_space #footnote[by Leibniz's rule again] \
 &= theta - integral frac(L \/ s^2, 2 sqrt(E - V - frac(L^2, 2 s^2))) d s + frac(partial G, partial L)
 $
 ]
@@ -316,7 +316,7 @@ Now, let's think $H_(tilde(u)_1)$. #highlighted[We already know that $H_(overlin
 $
 gamma'(t) &= H_(tilde(u)_1) (gamma(t)) #dots_space #footnote[by the definition of integral curves]
 \
-&= gamma'_i frac(partial, partial alpha_i) #dots_space #footnote[where $alpha_i = q_1, comma q_2, comma p_1, comma p_2$]
+&= gamma'_i frac(partial, partial alpha_i) #dots_space #footnote[where $alpha_i = q_1 comma q_2 comma p_1 comma p_2$]
 $
 
 $arrow.b$
@@ -341,7 +341,7 @@ cases(
 )
 $
 
-Where $delta_1, comma delta_2$ are constants of integral. 
+Where $delta_1 comma delta_2$ are constants of integral. 
 
 $arrow.b$
 
