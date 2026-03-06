@@ -104,10 +104,10 @@ $
 	cal(L)_X g =0
 $ <second_condition_of_killing_vector_field>
 Now, we consider the two conditions.
-#emphasis(title: "The conditions that are needed to killing vector field")[
+#definition(title: "The conditions that are needed to killing vector field")[
 	+ torsion free condition(Levi-Civita condition)
 	+ g is invariant to X($cal(L)_X g =0$).
-]
+] <definition_of_killing_vector_field>
 
 #paragraph_tab
 To develop our argument, let's investigate @second_condition_of_killing_vector_field more. For arbitrary vector fields $U$ and $V$, we have :
@@ -152,4 +152,28 @@ $ cases(g_(k l) X_( ; j)^l = X_(k ; j) , g_(j l) X_( ; k )^l = X_( j; k )) $
 Finally, we can reformulate @identitiy_of_Lie_derivative_of_metric_when_torsion_free as :
 $
 	cal(L)_X g (D_j, D_k) &= X_(k ; j) + X_( j; k )
+$ <identitiy_of_Lie_derivative_of_metric_when_torsion_free_2>
+
+#paragraph_tab
+By the above statement, we can argue the following : 
+#proposition(title: "3.2")[$X$ is a Killing vector field if and only if 
 $
+	X_(k ; j) + X_( j; k ) = 0 #dots_space #footnote[the left side is called the deformation tensor of $X$]
+$ <condition_of_proposition_3.2>
+]
+
+#proof[
+	By using @identitiy_of_Lie_derivative_of_metric_when_torsion_free_2, we know that @condition_of_proposition_3.2 is the same as the Lie derivative of metric when torsion free. By the definition of Killing vector field(@definition_of_killing_vector_field), we know that :
+	$
+		X_(k ; j) + X_( j; k ) & = cal(L)_X g (D_j, D_k) #dots_space #footnote[by @identitiy_of_Lie_derivative_of_metric_when_torsion_free_2] \
+		& = 0 #dots_space #footnote[by @definition_of_killing_vector_field]
+	$
+	which proves the proposition.
+]
+
+#note(title: "definition of deformation tensor")[
+	we call $X_(k ; j) + X_( j; k )$ as a deformation tensor.
+] <definition_of_deformation_tensor>
+
+#paragraph_tab
+If we denote by $xi := sum X_j dx_j$, the deformation tensor(@definition_of_deformation_tensor) is the symmetric part of $nabla xi$, a tensor field of type $(0, 2)$. It is also useful to identify the anti-symmetric part of $nabla xi$, which is naturally regarded as a 2-form.
