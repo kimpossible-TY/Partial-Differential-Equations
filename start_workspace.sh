@@ -32,21 +32,30 @@ SERVER_PID=$!
 TAILSCALE_IP=$(tailscale ip -4)
 SERVER_URL="http://${TAILSCALE_IP}:${HTTP_PORT}/main.pdf"
 
+# .env 파일이 있다면 로드하여 환경변수로 적용 (API Key 등)
+if [ -f .env ]; then
+    export $(cat .env | grep -v '^#' | xargs)
+fi
+
+# 5. tmux 세션 시작 및 안내 메시지 출력 (화면 도배 방지)
+tmux new-session -d -s pde_workspace 2>/dev/null || true
+
+# 안내 메시지를 임시 셸 스크립트로 생성하여 실행 (문자열 깨짐 방지)
+cat << EOF > .pde_welcome.sh
+clear
 echo -e "\n${GREEN}=====================================================${NC}"
 echo -e "${GREEN}✨ 서버 구동 완료! Safari 북마크로 바로 열기 가능  ${NC}"
 echo -e "   → ${BLUE}${SERVER_URL}${NC}"
 echo -e "${GREEN}=====================================================${NC}"
 echo -e "💡 작업 후 'exit'를 입력하면 모든 서버가 자동 종료됩니다.\n"
-sleep 1
-
-# .env 파일이 있다면 로드하여 환경변수로 적용 (API Key 등)
 if [ -f .env ]; then
-    export $(cat .env | grep -v '^#' | xargs)
-    echo -e "💡 .env 파일이 로드되었습니다. (API 키 적용됨)"
+    echo -e "💡 .env 파일이 로드되었습니다. (API 키 적용됨)\n"
 fi
+EOF
 
-# 5. tmux 환경으로 진입 (터치 스크롤 지원)
-tmux new-session -A -s pde_workspace
+tmux send-keys -t pde_workspace "bash .pde_welcome.sh && rm .pde_welcome.sh" C-m
+
+tmux attach-session -t pde_workspace
 
 # 6. tmux 종료 시 모든 백그라운드 서버 정리
 echo -e "\n🛑 서버를 종료합니다..."
