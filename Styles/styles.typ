@@ -7,7 +7,7 @@
 // ---------- TITLE OF BOOK ----------
 #let book-title(body) = {
   v(8em)
-  text(font: "Rockwell Nova", size: 36pt, weight: "bold")[#body]
+  text(font: "Rockwell", size: 36pt, weight: "bold")[#body]
 }
 
 // ---------- AUTHOR ----------
