@@ -39,6 +39,12 @@ echo -e "${GREEN}=====================================================${NC}"
 echo -e "💡 작업 후 'exit'를 입력하면 모든 서버가 자동 종료됩니다.\n"
 sleep 1
 
+# .env 파일이 있다면 로드하여 환경변수로 적용 (API Key 등)
+if [ -f .env ]; then
+    export $(cat .env | grep -v '^#' | xargs)
+    echo -e "💡 .env 파일이 로드되었습니다. (API 키 적용됨)"
+fi
+
 # 5. tmux 환경으로 진입 (터치 스크롤 지원)
 tmux new-session -A -s pde_workspace
 
