@@ -218,9 +218,12 @@ There is a useful generalization of the concept of a Killing field, namely a con
 #definition(title: "conformal Killing field")[
   A vector field $X$ is called a conformal Killing field if $cal(L)_X g = lambda(x) g$ for some smooth function $lambda(x)$.
 ] <definition_of_conformal_killing_field>
+#note(title: "intuitive explanation of conformal Killing field")[
+	The conformal Killing field(@definition_of_conformal_killing_field) means that at every point, the "stretching" or "shrinking" caused by the vector field is the same in every direction.
 
-The conformal Killing field(@definition_of_conformal_killing_field) means that at every point, the "stretching" or "shrinking" caused by the vector field is the same in every direction.
+	#align(center)[
+		#conformal_killing_field_visualization()
+	]
 
-#align(center)[
-  #conformal_killing_field_visualization()
-]
+] <intuitive_explanation_of_conformal_killing_field>
+
