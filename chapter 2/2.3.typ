@@ -177,3 +177,33 @@ $ <condition_of_proposition_3.2>
 
 #paragraph_tab
 If we denote by $xi := sum X_j dx_j$, the deformation tensor(@definition_of_deformation_tensor) is the symmetric part of $nabla xi$, a tensor field of type $(0, 2)$. It is also useful to identify the anti-symmetric part of $nabla xi$, which is naturally regarded as a 2-form.
+
+#proposition(title: "3.3")[We have :
+$
+	d xi = frac(1,2) sum_(j comma k)(X_(j ; k) - X_(k ; j)) dx_k and dx_j
+$
+]
+
+#proof[
+	Since, $xi$ is 1-form, by the definition of exterior derivative, we have :
+	$
+		d xi = frac(1,2) sum_(j comma k) (partial_k X_j - partial_j X_k) dx_k and dx_j #dots_space #footnote[At @Manifolds, the definition of exterior derivative is $d xi = sum_(j < k) (partial_k X_j - partial_j X_k) dx_k and dx_j$. However both are the same, becuase of the anti-symmetric property of wedge product and $dx_k and dx_k=0$.]
+	$ <d_xi_proposition_3.3>
+	By the definition of semi-colon convention of covector field(@defining_X_semicolon_j_k_and_X_semicolon_k_j), we have :
+	#flowbox[
+		$
+			X_(j ; k) - X_(k ; j) & = (partial_k X_j - markul(cancel(sum_l Gamma_(j k)^l X_l, stroke: #(paint: red)), tag: #<cancel_gamma_in_semicolon_convention_of_covector_field_1>)) - (partial_j X_k - markul(cancel(sum_l Gamma_(k j)^l X_l, stroke: #(paint: red)), tag: #<cancel_gamma_in_semicolon_convention_of_covector_field_2>)) #dots_space #footnote[by @defining_X_semicolon_j_k_and_X_semicolon_k_j] \
+			& = partial_k X_j - partial_j X_k
+
+			#annot((<cancel_gamma_in_semicolon_convention_of_covector_field_1>, <cancel_gamma_in_semicolon_convention_of_covector_field_2>), pos: bottom, dx: 8em, dy: 1em)[by $Gamma_(j k)^l = Gamma_(k j)^l$ (@symmetry_of_christoffel_symbols)]
+		$
+
+		$arrow.b$
+
+		replace $partial_k X_j - partial_j X_k$ with $X_(j ; k) - X_(k ; j)$ at the right side of @d_xi_proposition_3.3.
+		$
+			therefore d xi = frac(1,2) sum_(j comma k) (X_(j ; k) - X_(k ; j)) dx_k and dx_j
+		$
+	]
+	
+]
