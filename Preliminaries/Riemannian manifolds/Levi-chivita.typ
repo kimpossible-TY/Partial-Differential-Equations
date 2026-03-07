@@ -147,7 +147,7 @@ Define the 'torsion tensor' of the connection. #definition[
   The torsion tensor $tau: frak(X)(M) times frak(X)(M) arrow frak(X)(M)$ of a connection $nabla$ on the tangent bundle $T M$ is defined by
   $ tau(X, Y) = nabla_X Y - nabla_Y X - [X, Y] $
   for vector fields $X, Y in frak(X)(M)$.
-]
+] <definition_of_torsion_tensor>
 
 #figure(
   torsion_tensor_visualization(),
@@ -172,6 +172,36 @@ How can we understand the torsion tensor intuitively? Imagine we are at point $p
 
 If the connection is *symmetric* (Torsion is zero), we will end up at the exact same point ($p_1 = p_2$). The "parallelogram" formed by the flows closes perfectly. If $p_1 != p_2$, the "gap" vector extending from $p_2$ to $p_1$ is the Torsion $T(X, Y)$. It represents a "twisting" or "dislocation" of the tangent spaces as we move.
 #figure(torsion_intuition_visualization(), caption: "Torsion as Dislocation")
+
+
+#special_lemma(title: "symmetry of Christoffel symbols")[
+  when torsion tensor is zero, Christoffel symbol is symmetric :
+  $
+    Gamma^(l)_(i j)=Gamma^(l)_(j i)
+  $ 
+] <symmetry_of_christoffel_symbols>
+
+#proof[
+  As considering the definition of torsion tensor (@definition_of_torsion_tensor) and the torsion-free condition, we have :
+  $
+    nabla_X Y - nabla_Y X = [X, Y]
+  $ 
+  As seeing, the LHS of the above equation, we can introduce Christoffel symbols by using the parallel coordinate frame $(partial_i)$#footnote[$(partial_i)$ is guaranteed by the definition of manifold. we can extract the frame from the coordinate chart.]. Then we have :
+  #flowbox[
+    $
+      underbrace(cancel([partial_i, partial_j]), "by the parallelism") &= nabla_(partial_i) partial_j - nabla_(partial_j) partial_i \
+      &= Gamma^(l)_(i j) partial_l - Gamma^(l)_(j i) partial_l #dots_space #footnote[by the definition of Christoffel symbols(@definition_of_christoffel_symbol)]
+      \
+      &= 0
+    $
+
+    $arrow.b$
+
+    $
+      therefore Gamma^(l)_(i j) = Gamma^(l)_(j i)
+    $
+  ]
+]
 
 #theorem(title: "5.10 (Fundamental Theorem of Riemannian Geometry)")[
   Let $(M, g)$ be a smooth Riemannian manifold or pseudo-Riemannian manifold. Then there exists a unique connection $nabla$ on $T M$ that is compatible with $g$ and symmetric.
@@ -254,7 +284,7 @@ If the connection is *symmetric* (Torsion is zero), we will end up at the exact 
     $
     chevron.l nabla^("new")_(partial_i) partial_j comma partial_k chevron.r - chevron.l nabla^("new")_(partial_j) partial_i comma partial_k chevron.r & = Gamma^l_(i j) g_(l k) - Gamma^l_(j i) g_(l k) 
     \ &
-    =0  #dots_space #footnote[By the definition of Christoffel symbols : $Gamma^l_(i j) = Gamma^l_(j i)$]
+    =0  #dots_space #footnote[By @symmetry_of_christoffel_symbols]
     \ &
     =bracket.l partial_i comma partial_j bracket.r partial_k & #[By @parallelism_of_chart]
     $
