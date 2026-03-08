@@ -31,7 +31,7 @@ The divergence of a vector field has an important expression in terms of the cov
   $ op("div") X = sum_j X_( ; j )^j $ <divergence_and_semi_comma>
 ]
 
-#proof[Since $X_( ; j )^j$ is related to the geodesic, it is good way to use the following formula defining with $frak(g) := det g$.:
+#proof[Since $X_( ; j )^j$ is related to the geodesic, it is good way to use the following formula defining with $frak(g) := det g$ :
   $
     op("div") X = 1 / sqrt(frak(g)) partial_j (sqrt(frak(g)) X^j) #dots_space #footnote[by using @formula_of_divergence]
   $
@@ -151,7 +151,7 @@ Since $g_(l k)$ and $g_(j l)$ are actually used to the 'flat operator', which su
 ]
 Now, we want to make the superscripts of $X_( ; j )^l$ and $X_( ; k )^l$ to be lower indices naturally. To do this, we have to define the following first :
 $
-  cases(X_(k ; j) := partial_j X_k - sum_l Gamma_(j k)^l X_l, X_( j; k ):= partial_k X_j - sum_l Gamma_(k j)^l X_l)
+  cases(X_(k ; j) := partial_j X_k - sum_l Gamma_(j k)^l X_l, X_( j; k ):= partial_k X_j - sum_l Gamma_(k j)^l X_l) #dots_space #footnote[we already did the simiar things at @covector_semi-colon_convention]
 $ <defining_X_semicolon_j_k_and_X_semicolon_k_j>
 Then, the following is understandable :
 $ cases(g_(k l) X_( ; j)^l = X_(k ; j), g_(j l) X_( ; k )^l = X_( j; k )) $
@@ -177,12 +177,9 @@ By the above statement, we can argue the following :
   which proves the proposition.
 ]
 
-#note(title: "definition of deformation tensor")[
-  we call $X_(k ; j) + X_( j; k )$ as a deformation tensor.
+#definition(title: "definition of deformation tensor")[
+  If we denote by $xi := sum X_j dx_j$, the deformation tensor is the symmetric part of $nabla xi$, a tensor field of type $(0, 2)$.
 ] <definition_of_deformation_tensor>
-
-#paragraph_tab
-If we denote by $xi := sum X_j dx_j$, the deformation tensor(@definition_of_deformation_tensor) is the symmetric part of $nabla xi$, a tensor field of type $(0, 2)$. It is also useful to identify the anti-symmetric part of $nabla xi$, which is naturally regarded as a 2-form.
 
 #proposition(title: "3.3")[We have :
   $
@@ -227,3 +224,5 @@ There is a useful generalization of the concept of a Killing field, namely a con
 
 ] <intuitive_explanation_of_conformal_killing_field>
 
+#paragraph_tab
+To make this idea useful, we need to know what $lambda(x)$ actually is.
