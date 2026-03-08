@@ -259,4 +259,4 @@ $
 Hence we finally have :
 $
   nabla omega&:=omega_(i;j)epsilon^i times.o epsilon^j, quad & "with" omega_(i;j):=E_j omega_i - omega_k Gamma^(k)_("ji")
-$
+$ <covector_semi-colon_convention>
