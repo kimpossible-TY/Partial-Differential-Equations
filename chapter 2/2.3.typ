@@ -177,10 +177,6 @@ By the above statement, we can argue the following :
   which proves the proposition.
 ]
 
-#definition(title: "definition of deformation tensor")[
-  If we denote by $xi := sum X_j dx_j$, the deformation tensor is the symmetric part of $nabla xi$, a tensor field of type $(0, 2)$.
-] <definition_of_deformation_tensor>
-
 #proposition(title: "3.3")[We have :
   $
     d xi = frac(1, 2) sum_(j comma k)(X_(j ; k) - X_(k ; j)) dx_k and dx_j
@@ -208,6 +204,8 @@ By the above statement, we can argue the following :
     $
   ]
 ]
+#note[As considering @semicolon_convention_is_related_to_nabla, Proposition 3.3 shows the relationships between the exterior derivative and total covariant derivative.]
+
 
 #paragraph_tab
 There is a useful generalization of the concept of a Killing field, namely a conformal Killing field, which is a vector field $X$ whose flow consists of conformal diffeomorphisms of $M$, that is, preseves the metric tensor up to a scalar factor.
@@ -224,5 +222,3 @@ There is a useful generalization of the concept of a Killing field, namely a con
 
 ] <intuitive_explanation_of_conformal_killing_field>
 
-#paragraph_tab
-To make this idea useful, we need to know what $lambda(x)$ actually is.
