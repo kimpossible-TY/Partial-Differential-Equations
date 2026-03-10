@@ -12,6 +12,11 @@ NC='\033[0m'
 MAIN_FILE="main.typ"
 HTTP_PORT=8000
 
+# .env 파일이 있다면 환경변수로 미리 로드 (API Key를 OpenClaw 등에 전달하기 위함)
+if [ -f .env ]; then
+    export $(cat .env | grep -v '^#' | xargs)
+fi
+
 # 1. 예외 처리: main.typ 파일이 없으면 즉시 종료
 if [ ! -f "$MAIN_FILE" ]; then
     echo -e "❌ 오류: 현재 디렉토리에 'main.typ' 파일이 없습니다."
@@ -42,11 +47,6 @@ tailscale serve --yes --bg --https=18789 http://127.0.0.1:18789 > /dev/null 2>&1
 TAILNET_DOMAIN=$(tailscale status --json | python3 -c 'import sys, json; print(json.load(sys.stdin).get("CertDomains", [""])[0])')
 SERVER_URL="https://${TAILNET_DOMAIN}/main.pdf"
 OPENCLAW_URL="https://${TAILNET_DOMAIN}:18789"
-
-# .env 파일이 있다면 로드하여 환경변수로 적용 (API Key 등)
-if [ -f .env ]; then
-    export $(cat .env | grep -v '^#' | xargs)
-fi
 
 # 5. tmux 세션 시작 및 안내 메시지 출력 (화면 도배 방지)
 tmux new-session -d -s pde_workspace 2>/dev/null || true
