@@ -25,12 +25,23 @@ typst watch "$MAIN_FILE" --open /dev/null > /dev/null 2>&1 &
 TYPST_PID=$!
 
 # 3. Python 로컬 웹서버 실행 (viewer.html과 main.pdf 서빙)
-python3 -m http.server $HTTP_PORT > /dev/null 2>&1 &
+# (127.0.0.1로 바인딩하여 안전하게 실행)
+python3 -m http.server $HTTP_PORT --bind 127.0.0.1 > /dev/null 2>&1 &
 SERVER_PID=$!
 
-# 4. 모바일 접속 주소 안내
-TAILSCALE_IP=$(tailscale ip -4)
-SERVER_URL="http://${TAILSCALE_IP}:${HTTP_PORT}/main.pdf"
+# 3.1. OpenClaw WebChat Gateway 실행 (백그라운드)
+# (--bind loopback 을 사용하여 안전하게 실행)
+openclaw gateway run --bind loopback > /dev/null 2>&1 &
+OPENCLAW_PID=$!
+
+# 3.2. Tailscale Serve HTTPS 프록시 연결 (경고창 방지)
+tailscale serve --yes --bg --https=443 http://127.0.0.1:$HTTP_PORT > /dev/null 2>&1
+tailscale serve --yes --bg --https=18789 http://127.0.0.1:18789 > /dev/null 2>&1
+
+# 4. 모바일 접속 주소 안내 (HTTPS 최적화)
+TAILNET_DOMAIN=$(tailscale status --json | python3 -c 'import sys, json; print(json.load(sys.stdin).get("CertDomains", [""])[0])')
+SERVER_URL="https://${TAILNET_DOMAIN}/main.pdf"
+OPENCLAW_URL="https://${TAILNET_DOMAIN}:18789"
 
 # .env 파일이 있다면 로드하여 환경변수로 적용 (API Key 등)
 if [ -f .env ]; then
@@ -45,7 +56,8 @@ cat << EOF > .pde_welcome.sh
 clear
 echo -e "\n${GREEN}=====================================================${NC}"
 echo -e "${GREEN}✨ 서버 구동 완료! Safari 북마크로 바로 열기 가능  ${NC}"
-echo -e "   → ${BLUE}${SERVER_URL}${NC}"
+echo -e "   → 📄 PDF 뷰어: ${BLUE}${SERVER_URL}${NC}"
+echo -e "   → 💬 AI 챗봇(OpenClaw): ${BLUE}${OPENCLAW_URL}${NC}"
 echo -e "${GREEN}=====================================================${NC}"
 echo -e "💡 작업 후 'exit'를 입력하면 모든 서버가 자동 종료됩니다.\n"
 if [ -f .env ]; then
@@ -61,4 +73,5 @@ tmux attach-session -t pde_workspace
 echo -e "\n🛑 서버를 종료합니다..."
 kill $TYPST_PID 2>/dev/null
 kill $SERVER_PID 2>/dev/null
+kill $OPENCLAW_PID 2>/dev/null
 echo "수고하셨습니다! 👋"
