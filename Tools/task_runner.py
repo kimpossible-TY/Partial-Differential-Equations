@@ -8,7 +8,6 @@ TASKS.md를 파싱하여 첫 번째 미완료 태스크를 추출하고,
 import re
 import sys
 import json
-import subprocess
 from pathlib import Path
 
 # ==============================================================================
@@ -20,23 +19,24 @@ TASKS_FILE = WORKSPACE_ROOT / "TASKS.md"
 
 MODEL_ROUTES = {
     "FLASH": "google/gemini-3.0-flash",
-    "PRO":   "google/gemini-3.1-pro-preview",
+    "PRO": "google/gemini-3.1-pro-preview",
 }
 
 # ==============================================================================
 # 파서
 # ==============================================================================
 
+
 def parse_next_task(tasks_path: Path) -> dict | None:
     """
     TASKS.md에서 첫 번째 미완료 항목을 파싱합니다.
-    
+
     지원 포맷:
         ## [FLASH] 제목
         ## [PRO] 제목
-    
+
     완료 항목(# [x])은 스킵합니다.
-    
+
     Returns:
         {"tag": "FLASH"|"PRO", "title": str, "body": str, "model": str} or None
     """
@@ -59,7 +59,7 @@ def parse_next_task(tasks_path: Path) -> dict | None:
         # 직전 라인이 '# [x]' 또는 완료 표시이면 스킵
         prev_lines = preceding.split("\n")
         last_meaningful = next(
-            (l.strip() for l in reversed(prev_lines) if l.strip()), ""
+            (line.strip() for line in reversed(prev_lines) if line.strip()), ""
         )
         if last_meaningful.startswith("# [x]") or last_meaningful.startswith("[x]"):
             continue
@@ -102,6 +102,7 @@ def mark_task_done(tasks_path: Path, title: str) -> None:
 # 메인 실행
 # ==============================================================================
 
+
 def main():
     task = parse_next_task(TASKS_FILE)
 
@@ -109,14 +110,14 @@ def main():
         print("🎉 모든 태스크가 완료되었습니다!")
         sys.exit(0)
 
-    print(f"\n{'='*60}")
-    print(f"📋 다음 태스크")
-    print(f"{'='*60}")
+    print(f"\n{'=' * 60}")
+    print("📋 다음 태스크")
+    print(f"{'=' * 60}")
     print(f"  태그   : [{task['tag']}]")
     print(f"  제목   : {task['title']}")
     print(f"  모델   : {task['model']}")
     print(f"  본문   :\n{task['body']}")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
     # JSON 출력 (다른 스크립트에서 파이프로 받을 때 사용)
     if "--json" in sys.argv:
