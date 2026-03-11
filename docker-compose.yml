@@ -4,22 +4,33 @@
 # ==============================================================================
 
 services:
+  # OpenClaw Gateway Service (Stable Connection)
+  openclaw-gateway:
+    image: ghcr.io/kimpossible-ty/partial-differential-equations/nightwatch-agent:latest
+    container_name: openclaw-gateway
+    command: openclaw gateway run --bind lan --port 18789 --auth none
+    volumes:
+      - .:/workspace:rw
+      - ./tests:/workspace/tests:ro
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    network_mode: bridge
+    ports:
+      - "18789:18789"
+
   nightwatch-agent:
     image: ghcr.io/kimpossible-ty/partial-differential-equations/nightwatch-agent:latest
     build:
       context: .
       dockerfile: Dockerfile.nightwatch
     container_name: nightwatch-agent
+    depends_on:
+      - openclaw-gateway
     volumes:
-      - .:/workspace:rw                  # 전체 워크스페이스 (읽기/쓰기)
-      - ./tests:/workspace/tests:ro      # ← AI는 tests/ 에 쓰기 불가 (절대 규칙)
+      - .:/workspace:rw
+      - ./tests:/workspace/tests:ro
     environment:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
-      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - OPENCLAW_GATEWAY_URL=ws://openclaw-gateway:18789
     working_dir: /workspace
-    tty: true
-    stdin_open: true
-    restart: "no"                        # 수동으로만 기동 (야간 자율 루프에서 제어)
-    # 네트워크: host 대신 격리된 bridge (보안)
     network_mode: bridge
