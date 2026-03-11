@@ -78,7 +78,9 @@ jobs:
 
       - name: Pull NightWatch Agent Images
         if: steps.parse.outputs.no_task != 'true'
-        run: docker compose pull
+        run: |
+          docker pull ghcr.io/kimpossible-ty/partial-differential-equations/nightwatch-agent:latest
+          docker compose pull
 
       # 7. OpenClaw로 태스크 수행 (Docker Sandbox)
       - name: Execute task (OpenClaw inside Sandbox)
