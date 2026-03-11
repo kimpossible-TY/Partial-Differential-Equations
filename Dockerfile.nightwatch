@@ -35,7 +35,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && rm -rf /var/lib/apt/lists/*
 
 # 5. OpenClaw CLI 전역 설치
-RUN npm install -g @openclaw/cli
+RUN npm install -g openclaw
 
 # 6. Typst 설치 (최신 릴리즈 추출)
 RUN curl -L -o /tmp/typst.tar.xz \
