@@ -10,6 +10,10 @@
 
 # 🔄 대기 중인 작업 (상단 항목부터 처리)
 
+## [FLASH] E2E Verification: Create NightWatch status file
+- 목표: 시스템이 정상 작동하는지 확인하기 위해 `STATUS_NIGHTWATCH.md` 파일을 생성하고 시스템 정보를 기록합니다.
+- 기대 결과: NightWatch가 이 태스크를 읽고 파일을 생성한 뒤 PR을 자동으로 올려야 함.
+
 ## [FLASH] Example: Fix minor Typst compilation warning in `main.typ`
 - 파일: `main.typ`
 - 현상: 경고 메시지 발생 (실제 렌더링 영향 없음)
