@@ -5,6 +5,7 @@
 
 services:
   nightwatch-agent:
+    image: ghcr.io/kimpossible-ty/partial-differential-equations/nightwatch-agent:latest
     build:
       context: .
       dockerfile: Dockerfile.nightwatch
