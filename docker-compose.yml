@@ -1,0 +1,24 @@
+# ==============================================================================
+# Project NightWatch — docker-compose.yml
+# OrbStack(Docker 호환)으로 실행. tests/ 볼륨은 ro(read-only) — 절대 규칙.
+# ==============================================================================
+
+services:
+  nightwatch-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.nightwatch
+    container_name: nightwatch-agent
+    volumes:
+      - .:/workspace:rw                  # 전체 워크스페이스 (읽기/쓰기)
+      - ./tests:/workspace/tests:ro      # ← AI는 tests/ 에 쓰기 불가 (절대 규칙)
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    working_dir: /workspace
+    tty: true
+    stdin_open: true
+    restart: "no"                        # 수동으로만 기동 (야간 자율 루프에서 제어)
+    # 네트워크: host 대신 격리된 bridge (보안)
+    network_mode: bridge
