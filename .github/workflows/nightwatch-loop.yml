@@ -106,7 +106,7 @@ jobs:
               -e GEMINI_API_KEY="$GEMINI_API_KEY" \
               -e "TASK_BODY=$TASK_BODY" \
               nightwatch-agent \
-              /bin/bash -c "openclaw setup --non-interactive --accept-risk --mode local --workspace /workspace && openclaw agents list && openclaw agent --agent tool-architect --message \"\$TASK_BODY\" --local"
+              /bin/bash -c "openclaw onboard --non-interactive --accept-risk --mode local --workspace /workspace --gemini-api-key \"\$GEMINI_API_KEY\" && openclaw agents list && openclaw agent --agent tool-architect --message \"\$TASK_BODY\" --local"
             
             # 변경 사항 확인 및 커밋
             git add .
