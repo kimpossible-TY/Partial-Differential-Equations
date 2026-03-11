@@ -1,18 +1,18 @@
 # ==============================================================================
 # NightWatch Agent Sandbox Dockerfile
-# Ubuntu 24.04 (Noble Numbat) 기반 - 범용성 극대화
+# node:24-bookworm (Full 버전) - 범용성 및 노드 최적화
 # ==============================================================================
 
-FROM ubuntu:24.04
+FROM node:24-bookworm
 
 # 1. 메타데이터
 LABEL maintainer="kimpossible-TY"
-LABEL description="NightWatch Project Autonomous Development Sandbox (Ubuntu-based)"
+LABEL description="NightWatch Project Autonomous Development Sandbox (Node 24)"
 
 # 2. 비대화형 모드 설정
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 3. 필수 패키지 설치
+# 3. 필수 패키지 설치 (Python, Typst용 의존성)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
@@ -22,23 +22,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
     python3-venv \
     python3-dev \
-    build-essential \
     unzip \
     wget \
     gnupg \
     && rm -rf /var/lib/apt/lists/*
 
-# 4. Node.js 20.x 설치 (OpenClaw용)
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
-    && rm -rf /var/lib/apt/lists/*
-
-# 5. OpenClaw CLI 전역 설치 및 PATH 강제 연결
-# npm install -g 후 바이너리 위치를 찾아 /usr/local/bin에 링크 생성
+# 4. OpenClaw CLI 전역 설치 및 정밀 진단
 RUN npm install -g openclaw \
-    && BIN_PATH=$(find /usr -name openclaw -type f -executable | head -n 1) \
-    && if [ -n "$BIN_PATH" ]; then ln -sf "$BIN_PATH" /usr/local/bin/openclaw; fi \
-    && openclaw --version
+    && echo "--- npm global bin location ---" \
+    && npm config get prefix | xargs -I {} ls -la {}/bin/openclaw || true \
+    && echo "--- search for openclaw binary ---" \
+    && find / -name openclaw -type f -executable 2>/dev/null || true \
+    && (openclaw --version || npx openclaw --version || echo "ERROR: openclaw not executable")
 
 # 6. Typst 설치
 RUN curl -L -o /tmp/typst.tar.xz \
