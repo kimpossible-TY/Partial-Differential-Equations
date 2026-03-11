@@ -52,6 +52,10 @@ tmux send-keys -t pde_workspace:1 "python3 -m http.server $HTTP_PORT --bind 127.
 tmux new-window -t pde_workspace -n 'openclaw' -c "$WORKDIR"
 tmux send-keys -t pde_workspace:2 "openclaw gateway run --bind loopback" C-m
 
+# window 3: NightWatch 컨테이너 샌드박스 (OrbStack)
+tmux new-window -t pde_workspace -n 'nightwatch' -c "$WORKDIR"
+tmux send-keys -t pde_workspace:3 "docker compose up --build nightwatch-agent" C-m
+
 # 5. 서버 구동 대기 (포트 준비될 때까지 최대 10초)
 echo -e "${BLUE}▶ 서버 포트 준비 대기 중...${NC}"
 for i in $(seq 1 10); do
@@ -70,6 +74,13 @@ for i in $(seq 1 10); do
     sleep 1
 done
 
+# 컨테이너 기동 확인
+if docker compose ps --status running 2>/dev/null | grep -q 'nightwatch-agent'; then
+    echo -e "${GREEN}✔ NightWatch 컨테이너 기동 확인${NC}"
+else
+    echo -e "${BLUE}▷ NightWatch 컨테이너 빌드 중 (첫 실행 시 시간이 걸릴 수 있어요)${NC}"
+fi
+
 # 6. Tailscale Serve HTTPS 프록시 연결
 tailscale serve --yes --bg --https=443 http://127.0.0.1:$HTTP_PORT > /dev/null 2>&1
 tailscale serve --yes --bg --https=18789 http://127.0.0.1:18789 > /dev/null 2>&1
@@ -79,7 +90,7 @@ TAILNET_DOMAIN=$(tailscale status --json | python3 -c 'import sys, json; print(j
 SERVER_URL="https://${TAILNET_DOMAIN}/main.pdf"
 OPENCLAW_URL="https://${TAILNET_DOMAIN}:18789"
 
-# 8. 안내 창(window 3)을 메인 뷰로 생성하여 attach
+# 8. 안내 창(window 4)을 메인 뷰로 생성하여 attach
 tmux new-window -t pde_workspace -n 'info' -c "$WORKDIR"
 cat <<EOF > "$WORKDIR/.pde_welcome.sh"
 clear
@@ -92,15 +103,15 @@ echo -e "💡 이 창을 닫으면(exit) 세션이 종료되고 모든 서버가
 if [ -f "$WORKDIR/.env" ]; then
     echo -e "💡 .env 파일이 로드되었습니다. (API 키 적용됨)\n"
 fi
-echo -e "💡 다른 창 보기: Ctrl+B → 숫자(0=typst, 1=http, 2=openclaw)\n"
-# exit 시 세션 전체 종료
-trap 'tmux kill-session -t pde_workspace' EXIT
+echo -e "💡 다른 창 보기: Ctrl+B → 숫자(0=typst, 1=http, 2=openclaw, 3=nightwatch)\n"
+# exit 시 세션 전체 + 컨테이너 종료
+trap 'docker compose -f "$WORKDIR/docker-compose.yml" down 2>/dev/null; tmux kill-session -t pde_workspace' EXIT
 exec /bin/zsh -l
 EOF
-tmux send-keys -t pde_workspace:3 "bash '$WORKDIR/.pde_welcome.sh' && rm '$WORKDIR/.pde_welcome.sh'" C-m
+tmux send-keys -t pde_workspace:4 "bash '$WORKDIR/.pde_welcome.sh' && rm '$WORKDIR/.pde_welcome.sh'" C-m
 
 # 9. info 창으로 포커스 후 attach
-tmux select-window -t pde_workspace:3
+tmux select-window -t pde_workspace:4
 tmux attach-session -t pde_workspace
 
 echo -e "\n🛑 pde_workspace 세션이 종료되었습니다. 수고하셨습니다! 👋"
