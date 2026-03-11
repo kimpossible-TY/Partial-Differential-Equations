@@ -33,10 +33,11 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# 5. OpenClaw CLI 전역 설치 및 PATH 고정
-# npm global prefix를 /usr/local로 강제하여 PATH 문제를 방지
-RUN npm config set prefix /usr/local \
-    && npm install -g openclaw \
+# 5. OpenClaw CLI 전역 설치 및 PATH 강제 연결
+# npm install -g 후 바이너리 위치를 찾아 /usr/local/bin에 링크 생성
+RUN npm install -g openclaw \
+    && BIN_PATH=$(find /usr -name openclaw -type f -executable | head -n 1) \
+    && if [ -n "$BIN_PATH" ]; then ln -sf "$BIN_PATH" /usr/local/bin/openclaw; fi \
     && openclaw --version
 
 # 6. Typst 설치
