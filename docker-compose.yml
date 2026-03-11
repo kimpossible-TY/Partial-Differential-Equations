@@ -8,12 +8,16 @@ services:
   openclaw-gateway:
     image: ghcr.io/kimpossible-ty/partial-differential-equations/nightwatch-agent:latest
     container_name: openclaw-gateway
-    command: openclaw gateway run --bind lan --port 18789 --auth none
+    command: >
+      /bin/bash -c "openclaw setup --workspace /workspace --non-interactive && 
+                    openclaw agents add /workspace/agents/tool-architect && 
+                    openclaw gateway run --bind lan --port 18789 --auth none"
     volumes:
       - .:/workspace:rw
       - ./tests:/workspace/tests:ro
     environment:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - OPENCLAW_WORKSPACE=/workspace
     network_mode: bridge
     ports:
       - "18789:18789"
@@ -32,5 +36,6 @@ services:
     environment:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - OPENCLAW_GATEWAY_URL=ws://openclaw-gateway:18789
+      - OPENCLAW_WORKSPACE=/workspace
     working_dir: /workspace
     network_mode: bridge
