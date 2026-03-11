@@ -100,12 +100,13 @@ jobs:
           else
             echo "⚡ [FLASH] 태스크: OpenClaw 실행 (Sandbox)"
             # Docker 컨테이너 내에서 OpenClaw 실행
-            # npx를 사용하여 설치된 바이너리를 확실하게 실행
+            # 환경 변수를 통해 TASK_BODY를 안전하게 전달
+            # /workspace 경로에서 실행됨 (docker-compose.yml 설정 반영)
             docker compose run --rm \
               -e GEMINI_API_KEY="$GEMINI_API_KEY" \
               -e "TASK_BODY=$TASK_BODY" \
               nightwatch-agent \
-              /bin/bash -c "npx openclaw agent --agent tool-architect --message \"\$TASK_BODY\" --local"
+              /bin/bash -c "openclaw agent --agent tool-architect --message \"\$TASK_BODY\" --local"
             
             # 변경 사항 확인 및 커밋
             git add .
