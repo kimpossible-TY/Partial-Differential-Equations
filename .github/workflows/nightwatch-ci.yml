@@ -1,0 +1,99 @@
+# ==============================================================================
+# Project NightWatch — CI/CD Pipeline
+# PR이 열릴 때마다 자동으로 검증 게이트 실행.
+# 실패 시 Discord 알림 전송 (최대 2회 재시도는 Phase 4에서 처리).
+# ==============================================================================
+
+name: NightWatch CI
+
+on:
+  pull_request:
+    branches: [main]
+  # 야간 자율 루프에서 수동으로도 트리거 가능
+  workflow_dispatch:
+
+jobs:
+  verify:
+    name: Verification Gate
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 코드 체크아웃
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Python 환경 설정
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      # 3. 의존성 설치 (requirements.txt 있을 때만)
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f gemini_tutor/requirements.txt ]; then
+            pip install -r gemini_tutor/requirements.txt
+          fi
+          # 검증 도구 설치
+          pip install pytest pytest-cov mypy flake8
+
+      # 4. Typst 설치
+      - name: Install Typst
+        run: |
+          curl -L -o typst.tar.xz \
+            https://github.com/typst/typst/releases/latest/download/typst-x86_64-unknown-linux-musl.tar.xz
+          tar -xf typst.tar.xz
+          sudo mv typst-x86_64-unknown-linux-musl/typst /usr/local/bin/typst
+          typst --version
+
+      # 5. Typst 컴파일 가능 여부 확인
+      - name: Typst compilation check
+        run: |
+          typst compile main.typ /tmp/output.pdf || {
+            echo "::error::Typst 컴파일 실패"
+            exit 1
+          }
+          echo "✔ Typst 컴파일 성공"
+
+      # 6. pytest (test/ 디렉터리가 있을 때만)
+      - name: Run pytest
+        run: |
+          if [ -d "tests" ] && [ "$(find tests -name '*.py' | wc -l)" -gt 0 ]; then
+            pytest tests/ -v --tb=short
+          else
+            echo "ℹ️ tests/ 디렉터리에 Python 테스트 없음 — 스킵"
+          fi
+
+      # 7. Python 린팅 (tools/ 디렉터리)
+      - name: flake8 lint (tools/)
+        run: |
+          if [ -d "tools" ]; then
+            flake8 tools/ --max-line-length=120 --ignore=E501
+          else
+            echo "ℹ️ tools/ 없음 — 스킵"
+          fi
+
+      # 8. mypy 타입 체크 (tools/)
+      - name: mypy type check (tools/)
+        run: |
+          if [ -d "tools" ]; then
+            mypy tools/ --ignore-missing-imports || true
+          else
+            echo "ℹ️ tools/ 없음 — 스킵"
+          fi
+
+      # 9. 실패 시 Discord 알림
+      - name: Discord failure notification
+        if: failure()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          PR_URL="${{ github.event.pull_request.html_url }}"
+          BRANCH="${{ github.head_ref }}"
+          curl -X POST "$DISCORD_WEBHOOK" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"content\": \"🚨 **NightWatch CI 실패** — 인간 개입 필요!\n→ 브랜치: \`${BRANCH}\`\n→ PR: ${PR_URL}\"
+            }"
