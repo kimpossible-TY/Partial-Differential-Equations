@@ -1,0 +1,150 @@
+# ==============================================================================
+# Project NightWatch — 야간 자율 실행 루프
+# GitHub Actions schedule로 매일 KST 01:00 (UTC 16:00)에 실행.
+# TASKS.md를 파싱 → 브랜치 생성 → 코드 구현(컨테이너) → PR 제출 → CI 결과 확인.
+# ==============================================================================
+
+name: NightWatch Autonomous Loop
+
+on:
+  schedule:
+    - cron: "0 16 * * *"   # KST 01:00 (UTC 16:00)
+  workflow_dispatch:        # 수동 트리거 (테스트용)
+
+jobs:
+  nightwatch-loop:
+    name: Autonomous Task Execution
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write       # 브랜치 생성 및 파일 수정
+      pull-requests: write  # PR 생성
+      issues: read
+
+    steps:
+      # 1. 체크아웃
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}   # GITHUB_TOKEN 대신 PAT 사용 (PR 트리거를 위해)
+          fetch-depth: 0
+
+      # 2. Python 환경 & 도구 설치
+      - name: Set up Python + tools
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+
+      # 3. TASKS.md 파싱 — 다음 태스크 추출
+      - name: Parse next task
+        id: parse
+        run: |
+          TASK_JSON=$(python3 Tools/task_runner.py --json 2>/dev/null)
+          if [ -z "$TASK_JSON" ] || echo "$TASK_JSON" | grep -q "모든 태스크가 완료"; then
+            echo "no_task=true" >> $GITHUB_OUTPUT
+            echo "🎉 TASKS.md에 미완료 태스크 없음. 루프 종료."
+            exit 0
+          fi
+          echo "task_json=$TASK_JSON" >> $GITHUB_OUTPUT
+          echo "tag=$(echo $TASK_JSON | python3 -c 'import sys,json; print(json.load(sys.stdin)["tag"])')" >> $GITHUB_OUTPUT
+          echo "title=$(echo $TASK_JSON | python3 -c 'import sys,json; print(json.load(sys.stdin)["title"])')" >> $GITHUB_OUTPUT
+          echo "model=$(echo $TASK_JSON | python3 -c 'import sys,json; print(json.load(sys.stdin)["model"])')" >> $GITHUB_OUTPUT
+
+      # 4. 태스크 없으면 종료
+      - name: Skip if no task
+        if: steps.parse.outputs.no_task == 'true'
+        run: echo "태스크 없음. 종료." && exit 0
+
+      # 5. 작업 브랜치 생성
+      - name: Create task branch
+        if: steps.parse.outputs.no_task != 'true'
+        run: |
+          BRANCH_NAME="nightwatch/$(echo '${{ steps.parse.outputs.title }}' | tr ' ' '-' | tr -cd '[:alnum:]-' | cut -c1-50 | tr '[:upper:]' '[:lower:]')"
+          git config user.name "NightWatch Bot"
+          git config user.email "nightwatch@kimpossible-ty"
+          git checkout -b "$BRANCH_NAME"
+          echo "branch=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "🌿 작업 브랜치 생성: $BRANCH_NAME"
+
+      # 6. Typst 설치 (컨테이너 환경)
+      - name: Install Typst
+        if: steps.parse.outputs.no_task != 'true'
+        run: |
+          curl -L -o typst.tar.xz \
+            https://github.com/typst/typst/releases/latest/download/typst-x86_64-unknown-linux-musl.tar.xz
+          tar -xf typst.tar.xz
+          sudo mv typst-x86_64-unknown-linux-musl/typst /usr/local/bin/typst
+
+      # 7. OpenClaw / Gemini CLI로 태스크 수행
+      #    NOTE: PRO 태그 → Architecture_Plan.md 생성 후 PR 대기
+      #          FLASH 태그 → 코드 구현 바로 진행
+      - name: Execute task (Gemini CLI)
+        if: steps.parse.outputs.no_task != 'true'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          TAG="${{ steps.parse.outputs.tag }}"
+          TITLE="${{ steps.parse.outputs.title }}"
+          TASK_BODY=$(python3 Tools/task_runner.py --json | python3 -c 'import sys,json; print(json.load(sys.stdin)["body"])')
+
+          if [ "$TAG" = "PRO" ]; then
+            echo "🧠 [PRO] 태스크: Architecture_Plan.md 생성 후 대기"
+            cat > Architecture_Plan.md << EOF
+          # Architecture Plan: $TITLE
+
+          ## 태스크 설명
+          $TASK_BODY
+
+          ## 제안 설계
+          > 이 파일을 인간이 검토하고 PR을 Approve하면 다음 야간 사이클에서 구현됩니다.
+
+          ## 작성일
+          $(date -u +"%Y-%m-%d %H:%M UTC")
+          EOF
+            git add Architecture_Plan.md
+            git commit -m "plan: [PRO] $TITLE"
+          else
+            echo "⚡ [FLASH] 태스크: 직접 구현"
+            # gemini-cli를 통해 태스크 수행 (설치된 경우)
+            # npm install -g @google/gemini-cli
+            # gemini --model ${{ steps.parse.outputs.model }} "..."
+            echo "플레이스홀더: 실제 Gemini CLI 연동은 gemini-cli 설치 후 활성화"
+            git commit --allow-empty -m "feat: [FLASH] $TITLE (placeholder)"
+          fi
+
+      # 8. 브랜치 푸시
+      - name: Push branch
+        if: steps.parse.outputs.no_task != 'true'
+        run: git push origin "$branch"
+
+      # 9. PR 생성
+      - name: Create Pull Request
+        if: steps.parse.outputs.no_task != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          gh pr create \
+            --title "[${{ steps.parse.outputs.tag }}] ${{ steps.parse.outputs.title }}" \
+            --body "## NightWatch 자율 태스크\n\n**태그:** \`${{ steps.parse.outputs.tag }}\`\n**모델:** \`${{ steps.parse.outputs.model }}\`\n\n### 태스크 내용\n$(python3 Tools/task_runner.py --json | python3 -c 'import sys,json; print(json.load(sys.stdin)[\"body\"])')\n\n---\n> 🤖 NightWatch Bot이 자동 생성한 PR입니다." \
+            --base main \
+            --head "$branch"
+
+      # 10. Discord 성공 알림
+      - name: Discord success notification
+        if: success() && steps.parse.outputs.no_task != 'true'
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          curl -X POST "$DISCORD_WEBHOOK" \
+            -H "Content-Type: application/json" \
+            -d "{\"content\": \"✅ **NightWatch PR 생성 완료** — 아침에 검토해주세요!\n→ 태스크: \`${{ steps.parse.outputs.title }}\`\n→ 모델: \`${{ steps.parse.outputs.model }}\`\"}"
+
+      # 11. 실패 시 Discord 알림
+      - name: Discord failure notification
+        if: failure()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          curl -X POST "$DISCORD_WEBHOOK" \
+            -H "Content-Type: application/json" \
+            -d "{\"content\": \"🚨 **NightWatch 야간 루프 실패** — 인간 개입 필요!\n→ 태스크: \`${{ steps.parse.outputs.title }}\`\"}"
