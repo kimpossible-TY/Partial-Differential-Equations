@@ -75,16 +75,15 @@ jobs:
           tar -xf typst.tar.xz
           sudo mv typst-x86_64-unknown-linux-musl/typst /usr/local/bin/typst
 
-      # 7. OpenClaw / Gemini CLI로 태스크 수행
-      #    NOTE: PRO 태그 → Architecture_Plan.md 생성 후 PR 대기
-      #          FLASH 태그 → 코드 구현 바로 진행
-      - name: Execute task (Gemini CLI)
+      # 7. OpenClaw로 태스크 수행 (Delegated Worker)
+      - name: Execute task (OpenClaw)
         if: steps.parse.outputs.no_task != 'true'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           TAG="${{ steps.parse.outputs.tag }}"
           TITLE="${{ steps.parse.outputs.title }}"
+          # 본문 추출 시 Tools/ 경로 확인
           TASK_BODY=$(python3 Tools/task_runner.py --json | python3 -c 'import sys,json; print(json.load(sys.stdin)["body"])')
 
           if [ "$TAG" = "PRO" ]; then
@@ -104,12 +103,19 @@ jobs:
             git add Architecture_Plan.md
             git commit -m "plan: [PRO] $TITLE"
           else
-            echo "⚡ [FLASH] 태스크: 직접 구현"
-            # gemini-cli를 통해 태스크 수행 (설치된 경우)
-            # npm install -g @google/gemini-cli
-            # gemini --model ${{ steps.parse.outputs.model }} "..."
-            echo "플레이스홀더: 실제 Gemini CLI 연동은 gemini-cli 설치 후 활성화"
-            git commit --allow-empty -m "feat: [FLASH] $TITLE (placeholder)"
+            echo "⚡ [FLASH] 태스크: OpenClaw 실행"
+            # OpenClaw CLI를 사용하여 태스크 수행
+            # --local 모드로 실행하여 컨테이너 내 환경에서 직접 코드 수정
+            openclaw agent --agent tool-architect --message "$TASK_BODY" --local
+            
+            # 변경 사항 확인 및 커밋
+            git add .
+            if ! git diff --cached --quiet; then
+              git commit -m "feat: [FLASH] $TITLE"
+            else
+              echo "ℹ️ 변경 사항 없음 — 빈 커밋 생성"
+              git commit --allow-empty -m "feat: [FLASH] $TITLE (no changes)"
+            fi
           fi
 
       # 8. 브랜치 푸시
