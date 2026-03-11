@@ -66,24 +66,19 @@ jobs:
           echo "branch=$BRANCH_NAME" >> $GITHUB_ENV
           echo "🌿 작업 브랜치 생성: $BRANCH_NAME"
 
-      # 6. Typst 설치 (컨테이너 환경)
-      - name: Install Typst
+      # 6. 컨테이너 빌드
+      - name: Build NightWatch Agent
         if: steps.parse.outputs.no_task != 'true'
-        run: |
-          curl -L -o typst.tar.xz \
-            https://github.com/typst/typst/releases/latest/download/typst-x86_64-unknown-linux-musl.tar.xz
-          tar -xf typst.tar.xz
-          sudo mv typst-x86_64-unknown-linux-musl/typst /usr/local/bin/typst
+        run: docker compose build nightwatch-agent
 
-      # 7. OpenClaw로 태스크 수행 (Delegated Worker)
-      - name: Execute task (OpenClaw)
+      # 7. OpenClaw로 태스크 수행 (Docker Sandbox)
+      - name: Execute task (OpenClaw inside Sandbox)
         if: steps.parse.outputs.no_task != 'true'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           TAG="${{ steps.parse.outputs.tag }}"
           TITLE="${{ steps.parse.outputs.title }}"
-          # 본문 추출 시 Tools/ 경로 확인
           TASK_BODY=$(python3 Tools/task_runner.py --json | python3 -c 'import sys,json; print(json.load(sys.stdin)["body"])')
 
           if [ "$TAG" = "PRO" ]; then
@@ -103,10 +98,12 @@ jobs:
             git add Architecture_Plan.md
             git commit -m "plan: [PRO] $TITLE"
           else
-            echo "⚡ [FLASH] 태스크: OpenClaw 실행"
-            # OpenClaw CLI를 사용하여 태스크 수행
+            echo "⚡ [FLASH] 태스크: OpenClaw 실행 (Sandbox)"
+            # Docker 컨테이너 내에서 OpenClaw 실행
             # --local 모드로 실행하여 컨테이너 내 환경에서 직접 코드 수정
-            openclaw agent --agent tool-architect --message "$TASK_BODY" --local
+            # GEMINI_API_KEY를 컨테이너에 전달
+            docker compose run --rm -e GEMINI_API_KEY="$GEMINI_API_KEY" nightwatch-agent \
+              openclaw agent --agent tool-architect --message "$TASK_BODY" --local
             
             # 변경 사항 확인 및 커밋
             git add .
