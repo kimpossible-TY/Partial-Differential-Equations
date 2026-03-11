@@ -30,13 +30,13 @@ MODEL_ROUTES = {
 def parse_next_task(tasks_path: Path) -> dict | None:
     """
     TASKS.md에서 첫 번째 미완료 항목을 파싱합니다.
-    
+
     지원 포맷:
         ## [FLASH] 제목
         ## [PRO] 제목
 
     완료 항목(# [x])은 스킵합니다.
-    
+
     Returns:
         {"tag": "FLASH"|"PRO", "title": str, "body": str, "model": str} or None
     """
