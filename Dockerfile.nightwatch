@@ -1,19 +1,18 @@
 # ==============================================================================
 # NightWatch Agent Sandbox Dockerfile
-# Ubuntu 24.04 (Noble Numbat) 기반
+# node:20-bookworm-slim (Debian 기반)
 # ==============================================================================
 
-FROM ubuntu:24.04
+FROM node:20-bookworm-slim
 
 # 1. 메타데이터
 LABEL maintainer="kimpossible-TY"
-LABEL description="NightWatch Project Autonomous Development Sandbox"
+LABEL description="NightWatch Project Autonomous Development Sandbox (Node-based)"
 
 # 2. 비대화형 모드 설정
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 3. 필수 패키지 설치
-# git, curl, python3, pip, nodejs, npm 등
+# 3. 필수 패키지 설치 (Python 포함)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
@@ -29,16 +28,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gnupg \
     && rm -rf /var/lib/apt/lists/*
 
-# 4. Node.js 20.x 설치 (OpenClaw용)
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
-    && rm -rf /var/lib/apt/lists/*
-
-# 5. OpenClaw CLI 전역 설치 및 검증
+# 4. OpenClaw CLI 전역 설치 및 검증
 RUN npm install -g openclaw \
     && openclaw --version
 
-# 6. Typst 설치 (최신 릴리즈 추출)
+# 5. Typst 설치
 RUN curl -L -o /tmp/typst.tar.xz \
     https://github.com/typst/typst/releases/latest/download/typst-x86_64-unknown-linux-musl.tar.xz \
     && mkdir -p /tmp/typst-bin \
@@ -46,16 +40,15 @@ RUN curl -L -o /tmp/typst.tar.xz \
     && mv /tmp/typst-bin/typst /usr/local/bin/typst \
     && rm -rf /tmp/typst*
 
-# 7. 작업 디렉토리 설정
+# 6. 작업 디렉토리 설정
 WORKDIR /workspace
 
-# 8. Python 가상 환경 설정
+# 7. Python 가상 환경 설정
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
-# venv bin을 PATH에 추가 (이미 위에서 정의된 PATH에 덧붙임)
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# 9. 기본적인 Python 패키지 설치
+# 8. 기본적인 Python 패키지 설치
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
     && pip install --no-cache-dir \
     pytest \
@@ -64,9 +57,8 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
     mypy \
     requests
 
-# 10. OpenClaw 에이전트 설정 및 소스 루트 마운트 준비
-# (docker-compose에서 실제 소스가 마운트됨)
-ENV PYTHONPATH=/app
+# 9. 소스 루트 마운트 준비 (docker-compose 반영)
+ENV PYTHONPATH=/workspace
 
-# 11. 컨테이너 유지용 기본 명령어 (docker compose run 으로 명령 전달 시 무시됨)
+# 10. 컨테이너 유지용 기본 명령어
 CMD ["tail", "-f", "/dev/null"]
