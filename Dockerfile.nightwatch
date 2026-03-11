@@ -66,5 +66,5 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
 # (docker-compose에서 실제 소스가 마운트됨)
 ENV PYTHONPATH=/app
 
-# 11. 컨테이너 유지용 더미 명령어 (NightWatch Loop에서 exec로 작업 수행)
-ENTRYPOINT ["tail", "-f", "/dev/null"]
+# 11. 컨테이너 유지용 기본 명령어 (docker compose run 으로 명령 전달 시 무시됨)
+CMD ["tail", "-f", "/dev/null"]
