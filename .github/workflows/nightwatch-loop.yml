@@ -76,9 +76,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Pull NightWatch Agent Image
+      - name: Pull NightWatch Agent Images
         if: steps.parse.outputs.no_task != 'true'
-        run: docker compose pull nightwatch-agent
+        run: docker compose pull
 
       # 7. OpenClaw로 태스크 수행 (Docker Sandbox)
       - name: Execute task (OpenClaw inside Sandbox)
@@ -108,15 +108,21 @@ jobs:
             git commit -m "plan: [PRO] $TITLE"
           else
             echo "⚡ [FLASH] 태스크: OpenClaw 실행 (Sandbox)"
+            # Gateway 서비스 시작
+            docker compose up -d openclaw-gateway
+            sleep 5
+            
             # Docker 컨테이너 내에서 OpenClaw 실행
-            # 1. Gateway를 백그라운드에서 실행하여 연결 오류 방지
-            # 2. onboard로 초기 설정 완료
-            # 3. agent 실행
+            # 1. onboard로 원격 게이트웨이(서비스) 연결 설정
+            # 2. agent 실행
             docker compose run --rm \
               -e GEMINI_API_KEY="$GEMINI_API_KEY" \
               -e "TASK_BODY=$TASK_BODY" \
               nightwatch-agent \
-              /bin/bash -c "openclaw gateway --port 18789 > /dev/null 2>&1 & sleep 5 && openclaw onboard --non-interactive --accept-risk --mode local --workspace /workspace --gemini-api-key \"\$GEMINI_API_KEY\" && openclaw agents list && openclaw agent --agent tool-architect --message \"\$TASK_BODY\""
+              /bin/bash -c "openclaw onboard --non-interactive --accept-risk --mode remote --remote-url ws://openclaw-gateway:18789 --gemini-api-key \"\$GEMINI_API_KEY\" && openclaw agents list && openclaw agent --agent tool-architect --message \"\$TASK_BODY\""
+            
+            # Gateway 중지
+            docker compose stop openclaw-gateway
             
             # 변경 사항 확인 및 커밋
             git add .
