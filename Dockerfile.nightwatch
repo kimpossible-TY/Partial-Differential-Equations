@@ -34,8 +34,11 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
+# PATH 설정 (npm global 및 venv 경로 포함)
+ENV PATH="/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:$PATH"
+
 # 5. OpenClaw CLI 전역 설치
-RUN npm install -g openclaw && openclaw --version && which openclaw
+RUN npm install -g openclaw && npx openclaw --version
 
 # 6. Typst 설치 (최신 릴리즈 추출)
 RUN curl -L -o /tmp/typst.tar.xz \
@@ -50,8 +53,9 @@ WORKDIR /workspace
 
 # 8. Python 가상 환경 설정
 ENV VIRTUAL_ENV=/opt/venv
-ENV PATH="/usr/local/bin:$VIRTUAL_ENV/bin:$PATH"
 RUN python3 -m venv $VIRTUAL_ENV
+# venv bin을 PATH에 추가 (이미 위에서 정의된 PATH에 덧붙임)
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # 9. 기본적인 Python 패키지 설치
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
