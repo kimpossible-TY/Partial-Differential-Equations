@@ -6,7 +6,7 @@
 services:
   # OpenClaw Gateway Service (Stable Connection)
   openclaw-gateway:
-    image: ghcr.io/kimpossible-TY/Partial-Differential-Equations/nightwatch-agent:latest
+    image: ghcr.io/kimpossible-ty/partial-differential-equations/nightwatch-agent:latest
     container_name: openclaw-gateway
     command: openclaw gateway run --bind lan --port 18789 --auth none
     volumes:
@@ -21,7 +21,7 @@ services:
       - "18789:18789"
 
   nightwatch-agent:
-    image: ghcr.io/kimpossible-TY/Partial-Differential-Equations/nightwatch-agent:latest
+    image: ghcr.io/kimpossible-ty/partial-differential-equations/nightwatch-agent:latest
     container_name: nightwatch-agent
     depends_on:
       - openclaw-gateway
