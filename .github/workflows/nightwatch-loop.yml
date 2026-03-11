@@ -19,6 +19,7 @@ jobs:
       contents: write       # 브랜치 생성 및 파일 수정
       pull-requests: write  # PR 생성
       issues: read
+      packages: read        # GHCR에서 이미지 가져오기
 
     steps:
       # 1. 체크아웃
