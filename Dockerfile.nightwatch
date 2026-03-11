@@ -1,18 +1,18 @@
 # ==============================================================================
 # NightWatch Agent Sandbox Dockerfile
-# node:20-bookworm-slim (Debian 기반)
+# Ubuntu 24.04 (Noble Numbat) 기반 - 범용성 극대화
 # ==============================================================================
 
-FROM node:20-bookworm-slim
+FROM ubuntu:24.04
 
 # 1. 메타데이터
 LABEL maintainer="kimpossible-TY"
-LABEL description="NightWatch Project Autonomous Development Sandbox (Node-based)"
+LABEL description="NightWatch Project Autonomous Development Sandbox (Ubuntu-based)"
 
 # 2. 비대화형 모드 설정
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 3. 필수 패키지 설치 (Python 포함)
+# 3. 필수 패키지 설치
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
@@ -28,11 +28,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gnupg \
     && rm -rf /var/lib/apt/lists/*
 
-# 4. OpenClaw CLI 전역 설치 및 검증
-RUN npm install -g openclaw \
+# 4. Node.js 20.x 설치 (OpenClaw용)
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+# 5. OpenClaw CLI 전역 설치 및 PATH 고정
+# npm global prefix를 /usr/local로 강제하여 PATH 문제를 방지
+RUN npm config set prefix /usr/local \
+    && npm install -g openclaw \
     && openclaw --version
 
-# 5. Typst 설치
+# 6. Typst 설치
 RUN curl -L -o /tmp/typst.tar.xz \
     https://github.com/typst/typst/releases/latest/download/typst-x86_64-unknown-linux-musl.tar.xz \
     && mkdir -p /tmp/typst-bin \
@@ -40,15 +47,15 @@ RUN curl -L -o /tmp/typst.tar.xz \
     && mv /tmp/typst-bin/typst /usr/local/bin/typst \
     && rm -rf /tmp/typst*
 
-# 6. 작업 디렉토리 설정
+# 7. 작업 디렉토리 설정
 WORKDIR /workspace
 
-# 7. Python 가상 환경 설정
+# 8. Python 가상 환경 설정
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+ENV PATH="$VIRTUAL_ENV/bin:/usr/local/bin:$PATH"
 
-# 8. 기본적인 Python 패키지 설치
+# 9. 기본적인 Python 패키지 설치
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
     && pip install --no-cache-dir \
     pytest \
@@ -57,8 +64,8 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
     mypy \
     requests
 
-# 9. 소스 루트 마운트 준비 (docker-compose 반영)
+# 10. 소스 루트 마운트 및 환경 설정
 ENV PYTHONPATH=/workspace
 
-# 10. 컨테이너 유지용 기본 명령어
+# 11. 컨테이너 유지용 기본 명령어
 CMD ["tail", "-f", "/dev/null"]
