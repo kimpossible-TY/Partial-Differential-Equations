@@ -114,12 +114,13 @@ jobs:
             
             # Docker 컨테이너 내에서 OpenClaw 실행
             # 1. onboard로 원격 게이트웨이(서비스) 연결 설정
-            # 2. agent 실행
+            # 2. agent 추가 (Discovery 보장)
+            # 3. agent 실행
             docker compose run --rm \
               -e GEMINI_API_KEY="$GEMINI_API_KEY" \
               -e "TASK_BODY=$TASK_BODY" \
               nightwatch-agent \
-              /bin/bash -c "openclaw onboard --non-interactive --accept-risk --mode remote --remote-url ws://openclaw-gateway:18789 --gemini-api-key \"\$GEMINI_API_KEY\" && openclaw agents list && openclaw agent --agent tool-architect --message \"\$TASK_BODY\""
+              /bin/bash -c "openclaw onboard --non-interactive --accept-risk --mode remote --remote-url ws://openclaw-gateway:18789 --gemini-api-key \"\$GEMINI_API_KEY\" && openclaw agents add /workspace/agents/tool-architect && openclaw agents list && openclaw agent --agent tool-architect --message \"\$TASK_BODY\""
             
             # Gateway 중지
             docker compose stop openclaw-gateway
