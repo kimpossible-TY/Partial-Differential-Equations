@@ -100,10 +100,9 @@ jobs:
           else
             echo "⚡ [FLASH] 태스크: OpenClaw 실행 (Sandbox)"
             # Docker 컨테이너 내에서 OpenClaw 실행
-            # --local 모드로 실행하여 컨테이너 내 환경에서 직접 코드 수정
-            # GEMINI_API_KEY를 컨테이너에 전달
+            # bash -c를 통해 PATH를 명시적으로 확인하고 실행
             docker compose run --rm -e GEMINI_API_KEY="$GEMINI_API_KEY" nightwatch-agent \
-              openclaw agent --agent tool-architect --message "$TASK_BODY" --local
+              /bin/bash -c "export PATH=\$PATH:/usr/local/bin:/usr/bin && openclaw agent --agent tool-architect --message \"$TASK_BODY\" --local"
             
             # 변경 사항 확인 및 커밋
             git add .
