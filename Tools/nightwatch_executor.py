@@ -3,10 +3,12 @@ import json
 import os
 import subprocess
 import sys
+import secrets
 from datetime import datetime
 
 
 import re
+import shlex
 
 
 def run_command(command, shell=True, env=None):
@@ -36,7 +38,7 @@ def run_command(command, shell=True, env=None):
     return process.returncode, "".join(output)
 
 
-def patch_openclaw_config(gemini_api_key):
+def patch_openclaw_config(gemini_api_key, gateway_token=None):
     """OpenClaw 구성을 CI 환경에 맞게 동적 패치"""
     path = '.openclaw_config/openclaw.json'
     if not os.path.exists(path):
@@ -51,7 +53,15 @@ def patch_openclaw_config(gemini_api_key):
         config['gateway'] = config.get('gateway', {})
         config['gateway']['remote'] = {'url': 'ws://openclaw-gateway:18789'}
         config['gateway']['mode'] = 'remote'
-        config.pop('auth', None)  # 인증 제거 (로컬 게이트웨이용)
+
+        # 1.5 Gateway 인증 설정 (토큰 방식)
+        if gateway_token:
+            config['gateway']['auth'] = {
+                "mode": "token",
+                "token": gateway_token
+            }
+        else:
+            config.pop('auth', None)  # 인증 제거 (기본값)
 
         # 2. Google Provider 설정 및 API Key 주입
         models_config = config.setdefault('models', {})
@@ -159,21 +169,22 @@ def main():
         run_command("cp .openclaw/openclaw.json .openclaw_config/openclaw.json")
 
         # 2. 설정 패치 (컨테이너 외부에서 실행)
-        patch_openclaw_config(gemini_api_key)
+        gateway_token = secrets.token_hex(24)
+        patch_openclaw_config(gemini_api_key, gateway_token)
 
         # 3. Gateway 서비스 시작
-        run_command("docker compose up -d openclaw-gateway")
+        run_command(f"GATEWAY_TOKEN={gateway_token} docker compose up -d openclaw-gateway")
         run_command("sleep 5")
 
         # 4. Agent 실행
         # docker compose run 내에서 GEMINI_API_KEY가 전달되도록 설정
         agent_cmd = [
             "docker compose run --rm -T",
-            f"-e GEMINI_API_KEY='{gemini_api_key}'",
-            f"-e TASK_BODY='{task_body}'",
+            f"-e GEMINI_API_KEY={shlex.quote(gemini_api_key)}",
+            f"-e TASK_BODY={shlex.quote(task_body)}",
             "-e OPENCLAW_ACCEPT_RISK=true",
             "nightwatch-agent",
-            f"openclaw agent --agent tool-architect --message '{task_body}'"
+            f"openclaw agent --agent tool-architect --message {shlex.quote(task_body)}"
         ]
         rc, _ = run_command(" ".join(agent_cmd))
 
