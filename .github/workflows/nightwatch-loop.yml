@@ -9,7 +9,11 @@ name: NightWatch Autonomous Loop
 on:
   schedule:
     - cron: "0 16 * * *"   # KST 01:00 (UTC 16:00)
-  workflow_dispatch:        # 수동 트리거 (테스트용)
+    inputs:
+      branch_name:
+        description: 'Target branch name'
+        required: false
+        default: ''
 
 jobs:
   nightwatch-loop:
@@ -56,16 +60,26 @@ jobs:
         if: steps.parse.outputs.no_task == 'true'
         run: echo "태스크 없음. 종료." && exit 0
 
-      # 5. 작업 브랜치 생성
-      - name: Create task branch
+      # 5. 작업 브랜치 설정/생성
+      - name: Setup task branch
         if: steps.parse.outputs.no_task != 'true'
         run: |
-          BRANCH_NAME="nightwatch/$(echo '${{ steps.parse.outputs.title }}' | tr ' ' '-' | tr -cd '[:alnum:]-' | cut -c1-50 | tr '[:upper:]' '[:lower:]')"
+          # 1. 입력값이 있으면 사용, 없으면 제목 기반 생성
+          INPUT_BRANCH="${{ github.event.inputs.branch_name }}"
+          if [ -n "$INPUT_BRANCH" ]; then
+            BRANCH_NAME="$INPUT_BRANCH"
+          else
+            BRANCH_NAME="nightwatch/$(echo '${{ steps.parse.outputs.title }}' | tr ' ' '-' | tr -cd '[:alnum:]-' | cut -c1-50 | tr '[:upper:]' '[:lower:]')"
+          fi
+          
           git config user.name "NightWatch Bot"
           git config user.email "nightwatch@kimpossible-ty"
-          git checkout -b "$BRANCH_NAME"
+          
+          # 2. 이미 해당 브랜치에 있거나 존재하는 경우 처리 (-B는 강제 생성/리셋)
+          git checkout -B "$BRANCH_NAME"
+          
           echo "branch=$BRANCH_NAME" >> $GITHUB_ENV
-          echo "🌿 작업 브랜치 생성: $BRANCH_NAME"
+          echo "🌿 작업 브랜치 설정 완료: $BRANCH_NAME"
 
       # 6. 컨테이너 이미지 가져오기 (GHCR 최적화)
       - name: Log in to the Container registry
