@@ -112,21 +112,26 @@ jobs:
             echo "⚡ [FLASH] 태스크: OpenClaw 실행 (Sandbox)"
             # 1. 공용 설정 및 에이전트 초기화 (Host-path Bind Mount 사용)
             mkdir -p ./.openclaw_config
+            chmod 777 ./.openclaw_config
             docker compose run --rm \
               nightwatch-agent \
               /bin/bash -c "openclaw setup --workspace /workspace --non-interactive && openclaw agents add tool-architect --agent-dir /workspace/agents/tool-architect"
+            
+            # [DEBUG] 설정파일 동기화 확인
+            echo "🔍 [DEBUG] .openclaw_config 내용:"
+            ls -la ./.openclaw_config
             
             # 2. Gateway 서비스 시작 (위에서 생성된 설정을 로드함)
             docker compose up -d openclaw-gateway
             sleep 5
             
             # 3. Docker 컨테이너 내에서 OpenClaw 실행
-            # onboard로 원격 게이트웨이 연결 설정 후 에이전트 명령 전달
+            # [DEBUG] onboard 도움말 확인 및 실행
             docker compose run --rm \
               -e GEMINI_API_KEY="$GEMINI_API_KEY" \
               -e "TASK_BODY=$TASK_BODY" \
               nightwatch-agent \
-              /bin/bash -c "openclaw onboard --non-interactive --mode remote --remote-url ws://openclaw-gateway:18789 --gemini-api-key \"\$GEMINI_API_KEY\" && openclaw agents list && openclaw agent --agent tool-architect --message \"\$TASK_BODY\""
+              /bin/bash -c "openclaw onboard --help && openclaw onboard --accept-risk --non-interactive --mode remote --remote-url ws://openclaw-gateway:18789 --gemini-api-key \"\$GEMINI_API_KEY\" && openclaw agents list && openclaw agent --agent tool-architect --message \"\$TASK_BODY\""
             
             # 4. Gateway 중지
             docker compose stop openclaw-gateway
