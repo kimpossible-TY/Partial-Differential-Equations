@@ -99,7 +99,6 @@ jobs:
           docker pull ghcr.io/kimpossible-ty/partial-differential-equations/nightwatch-agent:latest
           docker compose pull
 
-      # 7. OpenClaw로 태스크 수행 (Docker Sandbox)
       # 7. 태스크 실행 (전용 스크립트로 외부화)
       - name: Execute task (NightWatch Executor)
         if: steps.parse.outputs.no_task != 'true'
