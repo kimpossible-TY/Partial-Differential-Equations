@@ -143,7 +143,7 @@ jobs:
               -e "TASK_BODY=$TASK_BODY" \
               -e OPENCLAW_ACCEPT_RISK=true \
               nightwatch-agent \
-              openclaw agent --agent tool-architect --message "$TASK_BODY" --workspace /workspace
+              openclaw agent --agent tool-architect --message "$TASK_BODY"
             
             # 4. Gateway 중지
             docker compose stop openclaw-gateway
