@@ -52,3 +52,7 @@ Desktop.ini
 
 #test
 test/
+
+### 🛠 Workspace Scripts
+# start_workspace.sh 가 생성하는 임시 스크립트 파일
+.pde_welcome.sh
