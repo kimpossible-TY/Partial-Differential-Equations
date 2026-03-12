@@ -110,16 +110,19 @@ jobs:
             git commit -m "plan: [PRO] $TITLE"
           else
             echo "⚡ [FLASH] 태스크: OpenClaw 실행 (Sandbox)"
-            # 1. 공용 설정 및 에이전트 초기화 (Silent Injection)
+            # 1. 공용 설정 및 에이전트 초기화 (Dual-Layer Bootstrap)
             mkdir -p ./.openclaw_config
             chmod 777 ./.openclaw_config
             
-            # 기초 설정 생성 (OpenClaw Setup)
+            # 기초 구조 및 보안 승인 (OpenClaw Onboard - Dual-Layer Part 1)
+            # --accept-risk를 가장 앞에 배치하여 플래그 인식 문제 방지 시도
             docker compose run --rm -T \
               nightwatch-agent \
-              openclaw setup --workspace /workspace --non-interactive
+              openclaw onboard --accept-risk --non-interactive \
+              --secret-input-mode ref --auth-choice gemini-api-key \
+              --mode remote --remote-url ws://openclaw-gateway:18789 || echo "Onboard command failed, relying on Silent Injection fallback"
             
-            # Python으로 정밀 주입 (Schema-compliant & Bypass interactive)
+            # Python으로 정밀 주입 및 스키마 보정 (OpenClaw Injection - Dual-Layer Part 2)
             python3 -c "
             import json, os
             path = './.openclaw_config/openclaw.json'
@@ -129,6 +132,7 @@ jobs:
                 config = {}
             config['gateway'] = {'remote': {'url': 'ws://openclaw-gateway:18789'}}
             if 'models' not in config: config['models'] = {}
+            # Google Provider 정합성 강제 (baseUrl, models 필수)
             config['models']['providers'] = {'google': {
                 'baseUrl': 'https://generativelanguage.googleapis.com/v1beta',
                 'apiKey': {'source': 'env', 'id': 'GEMINI_API_KEY'},
