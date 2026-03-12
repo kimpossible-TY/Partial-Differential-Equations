@@ -115,27 +115,27 @@ jobs:
             chmod 777 ./.openclaw_config
             
             # openclaw.json (JSON5 형식 - 원격 게이트웨이 및 API 키 참조 설정)
-            cat > ./.openclaw_config/openclaw.json <<EOF
-            {
-              "gateway": {
-                "remote": {
-                  "url": "ws://openclaw-gateway:18789"
-                }
-              },
-              "models": {
-                "providers": {
-                  "google": {
-                    "apiKey": { "source": "env", "id": "GEMINI_API_KEY" }
-                  }
-                }
-              }
-            }
-            EOF
+            cat <<'EOF' > ./.openclaw_config/openclaw.json
+{
+  "gateway": {
+    "remote": {
+      "url": "ws://openclaw-gateway:18789"
+    }
+  },
+  "models": {
+    "providers": {
+      "google": {
+        "apiKey": { "source": "env", "id": "GEMINI_API_KEY" }
+      }
+    }
+  }
+}
+EOF
             
             # manifest.yaml (기본 워크스페이스 경로 설정)
-            cat > ./.openclaw_config/manifest.yaml <<EOF
-            workspace: /workspace
-            EOF
+            cat <<'EOF' > ./.openclaw_config/manifest.yaml
+workspace: /workspace
+EOF
 
             # 에이전트 등록 (이 단계는 리스크 승인이 필요 없을 것으로 예상됨)
             docker compose run --rm -T \
