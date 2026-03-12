@@ -100,88 +100,16 @@ jobs:
           docker compose pull
 
       # 7. OpenClaw로 태스크 수행 (Docker Sandbox)
-      - name: Execute task (OpenClaw inside Sandbox)
+      # 7. 태스크 실행 (전용 스크립트로 외부화)
+      - name: Execute task (NightWatch Executor)
         if: steps.parse.outputs.no_task != 'true'
         env:
+          TAG: ${{ steps.parse.outputs.tag }}
+          TITLE: ${{ steps.parse.outputs.title }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          TAG="${{ steps.parse.outputs.tag }}"
-          TITLE="${{ steps.parse.outputs.title }}"
-          TASK_BODY=$(cat task_body.txt)
-
-          if [ "$TAG" = "PRO" ]; then
-            echo "🧠 [PRO] 태스크: Architecture_Plan.md 생성 후 대기"
-            cat > Architecture_Plan.md << EOF
-          # Architecture Plan: $TITLE
-
-          ## 태스크 설명
-          $TASK_BODY
-
-          ## 제안 설계
-          > 이 파일을 인간이 검토하고 PR을 Approve하면 다음 야간 사이클에서 구현됩니다.
-
-          ## 작성일
-          $(date -u +"%Y-%m-%d %H:%M UTC")
-          EOF
-            git add Architecture_Plan.md
-            git commit -m "plan: [PRO] $TITLE"
-          else
-            echo "⚡ [FLASH] 태스크: OpenClaw 실행 (Sandbox)"
-            # 1. 공용 설정 및 에이전트 초기화 (Template-based Injection)
-            mkdir -p ./.openclaw_config
-            chmod 777 ./.openclaw_config
-            
-            # 프로젝트 루트의 설정을 템플릿으로 복사
-            cp .openclaw/openclaw.json ./.openclaw_config/openclaw.json
-            
-            # Python으로 정밀 패치: 보안(API Key), 네트워크(Gateway), 경로(Workspace) 최적화
-            docker compose run --rm -T \
-              nightwatch-agent \
-              python3 -c "import json, os; path = '/root/.openclaw/openclaw.json'; \
-              if not os.path.exists(path): exit(0); \
-              config = json.load(open(path)); \
-              # 1. Gateway 설정 보정 \
-              config['gateway'] = config.get('gateway', {}); config['gateway']['remote'] = {'url': 'ws://openclaw-gateway:18789'}; \
-              config['gateway']['mode'] = 'remote'; config.pop('auth', None); \
-              # 2. Google Provider 설정 및 API Key 주입 \
-              google_prov = config.setdefault('models', {}).setdefault('providers', {}).setdefault('google', {}); \
-              google_prov['apiKey'] = '${GEMINI_API_KEY}'; google_prov.setdefault('models', []); \
-              if not any(m['id'] == 'gemini-3.0-flash' for m in google_prov['models']): \
-                google_prov['models'].insert(0, {'id': 'gemini-3.0-flash', 'name': 'Gemini 3.0 Flash'}); \
-              # 3. 모든 경로를 /workspace 기준으로 치환 (기존 JSON 내부 경로 자동 탐지) \
-              old_ws = config.get('agents', {}).get('defaults', {}).get('workspace'); \
-              if old_ws: \
-                config_str = json.dumps(config); \
-                config = json.loads(config_str.replace(old_ws, '/workspace')); \
-              json.dump(config, open(path, 'w'), indent=2)"
-            
-            # 2. Gateway 서비스 시작
-            docker compose up -d openclaw-gateway
-            sleep 5
-            
-            # 3. Docker 컨테이너 내에서 OpenClaw 실행
-            docker compose run --rm -T \
-              -e GEMINI_API_KEY="$GEMINI_API_KEY" \
-              -e "TASK_BODY=$TASK_BODY" \
-              -e OPENCLAW_ACCEPT_RISK=true \
-              nightwatch-agent \
-              openclaw agent --agent tool-architect --message "$TASK_BODY"
-            
-            # 4. Gateway 중지
-            docker compose stop openclaw-gateway
-            
-            # 컨테이너에서 생성/수정한 파일 권한 복구 (root -> runner)
-            sudo chown -R $USER:$USER .
-            
-            # 변경 사항 확인 및 커밋
-            git add .
-            if ! git diff --cached --quiet; then
-              git commit -m "feat: [FLASH] $TITLE"
-            else
-              echo "ℹ️ 변경 사항 없음 — 빈 커밋 생성"
-              git commit --allow-empty -m "feat: [FLASH] $TITLE (no changes)"
-            fi
-          fi
+          chmod +x Tools/nightwatch_executor.py
+          python3 Tools/nightwatch_executor.py
 
       # 8. 브랜치 푸시
       - name: Push branch
