@@ -74,7 +74,7 @@ fi
 
 # 4. 변경 사항 커밋 및 푸시
 echo "💾 변경 사항 저장 중..."
-git add "$TASKS_FILE"
+git add .
 
 if git diff --cached --quiet; then
     echo "ℹ️ 변경 사항 없음 — 푸시를 시도합니다."
