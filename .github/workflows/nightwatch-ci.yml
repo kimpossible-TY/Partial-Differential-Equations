@@ -47,7 +47,7 @@ jobs:
       # 5. Typst 컴파일 가능 여부 확인
       - name: Typst compilation check
         run: |
-          typst compile main.typ /tmp/output.pdf || {
+          typst compile Typst_project/main.typ /tmp/output.pdf || {
             echo "::error::Typst 컴파일 실패"
             exit 1
           }
