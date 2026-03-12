@@ -126,7 +126,7 @@ jobs:
             # 컨테이너 외부에서 접근 시 권한 문제(root 소유)가 발생하므로, 컨테이너 내부에서 실행
             docker compose run --rm -T \
               nightwatch-agent \
-              python3 -c "import json, os; path = '/root/.openclaw/openclaw.json'; config = json.load(open(path)) if os.path.exists(path) else {}; config['gateway'] = {'remote': {'url': 'ws://openclaw-gateway:18789'}}; config.setdefault('models', {})['providers'] = {'google': {'baseUrl': 'https://generativelanguage.googleapis.com/v1beta', 'apiKey': {'source': 'env', 'id': 'GEMINI_API_KEY'}, 'models': [{'id': 'gemini-1.5-flash', 'name': 'Gemini 1.5 Flash'}, {'id': 'gemini-2.0-flash', 'name': 'Gemini 2.0 Flash'}]}}; json.dump(config, open(path, 'w'), indent=2)"
+              python3 -c "import json, os; path = '/root/.openclaw/openclaw.json'; config = json.load(open(path)) if os.path.exists(path) else {}; config['gateway'] = {'remote': {'url': 'ws://openclaw-gateway:18789'}}; config.setdefault('models', {})['providers'] = {'google': {'baseUrl': 'https://generativelanguage.googleapis.com/v1beta', 'apiKey': '${GEMINI_API_KEY}', 'models': [{'id': 'gemini-1.5-flash', 'name': 'Gemini 1.5 Flash'}, {'id': 'gemini-2.0-flash', 'name': 'Gemini 2.0 Flash'}]}}; json.dump(config, open(path, 'w'), indent=2)"
             
             # 에이전트 등록
             docker compose run --rm -T \
