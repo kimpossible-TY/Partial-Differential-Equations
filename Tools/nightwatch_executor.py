@@ -4,9 +4,6 @@ import os
 import subprocess
 import sys
 import secrets
-from datetime import datetime
-
-
 import re
 import shlex
 
@@ -38,7 +35,7 @@ def run_command(command, shell=True, env=None):
     return process.returncode, "".join(output)
 
 
-def patch_openclaw_config(gemini_api_key, gateway_token=None):
+def patch_openclaw_config(gemini_api_key, tag, gateway_token=None):
     """OpenClaw 구성을 CI 환경에 맞게 동적 패치"""
     path = '.openclaw_config/openclaw.json'
     if not os.path.exists(path):
@@ -63,18 +60,28 @@ def patch_openclaw_config(gemini_api_key, gateway_token=None):
         else:
             config.pop('auth', None)  # 인증 제거 (기본값)
 
-        # 2. Google Provider 설정 및 API Key 주입
+        # 2. 모델 설정 및 API Key 주입
+        # 태그에 따라 사용할 모델 결정
+        target_model = 'google/gemini-3.1-pro-preview' if tag == 'PRO' else 'google/gemini-3.0-flash'
+        print(f"🎯 타겟 모델 설정: {target_model}")
+
+        # 기본 모델 설정 (Primary)
+        agents_config = config.setdefault('agents', {})
+        defaults = agents_config.setdefault('defaults', {})
+        model_defaults = defaults.setdefault('model', {})
+        model_defaults['primary'] = target_model
+
         models_config = config.setdefault('models', {})
         providers = models_config.setdefault('providers', {})
         google_prov = providers.setdefault('google', {})
         google_prov['baseUrl'] = 'https://generativelanguage.googleapis.com/v1beta'
         google_prov['apiKey'] = gemini_api_key
 
-        # 필수 모델(gemini-3.0-flash) 확인 및 추가 (최우선순위)
+        # 필수 모델 목록 보정
         google_models = google_prov.setdefault('models', [])
-        # 중복 제거 후 가장 앞에 추가
-        google_models = [m for m in google_models if m.get('id') != 'gemini-3.0-flash']
-        google_models.insert(0, {'id': 'gemini-3.0-flash', 'name': 'Gemini 3.0 Flash'})
+        # 중복 제거 후 target_model을 가장 앞에 추가
+        google_models = [m for m in google_models if m.get('id') != target_model]
+        google_models.insert(0, {'id': target_model, 'name': target_model.split('/')[-1]})
         google_prov['models'] = google_models
 
         # 3. 모든 경로를 /workspace 기준으로 치환
@@ -139,67 +146,45 @@ def main():
 
     print(f"🚀 NightWatch Executor 시작: [{tag}] {title}")
 
-    if tag == "PRO":
-        print("🧠 [PRO] 태스크 진행: Architecture Plan 작성")
-        elevate_agent_permissions()
-        plan_content = f"""# Architecture Plan: {title}
+    # 1. 공통 준비: 에이전트 권한 승격 및 설정 디렉토리 준비
+    elevate_agent_permissions()
+    os.makedirs('.openclaw_config', exist_ok=True)
+    run_command("chmod 777 .openclaw_config")
+    run_command("cp .openclaw/openclaw.json .openclaw_config/openclaw.json")
 
-## 태스크 설명
-{task_body}
+    # 2. 설정 패치 (태그에 따른 모델 주입 포함)
+    gateway_token = secrets.token_hex(24)
+    patch_openclaw_config(gemini_api_key, tag, gateway_token)
 
-## 제안 설계
-> 이 파일을 인간이 검토하고 PR을 Approve하면 다음 야간 사이클에서 구현됩니다.
+    # 3. Gateway 서비스 시작
+    run_command(f"GATEWAY_TOKEN={gateway_token} docker compose up -d openclaw-gateway")
+    run_command("sleep 5")
 
-## 작성일
-{datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}
-"""
-        with open('Architecture_Plan.md', 'w') as f:
-            f.write(plan_content)
+    # 4. Agent 실행
+    # PRO든 FLASH든 실제 에이전트를 실행하여 TASKS.md의 지시사항을 완수하도록 함
+    print(f"⚡ OpenClaw 실행 중... (Tag: {tag}, Title: {title})")
+    agent_cmd = [
+        "docker compose run --rm -T",
+        f"-e GEMINI_API_KEY={shlex.quote(gemini_api_key)}",
+        f"-e TASK_BODY={shlex.quote(task_body)}",
+        "-e OPENCLAW_ACCEPT_RISK=true",
+        "nightwatch-agent",
+        f"openclaw agent --agent tool-architect --message {shlex.quote(task_body)}"
+    ]
+    rc, _ = run_command(" ".join(agent_cmd))
 
-        run_command("git add Architecture_Plan.md")
-        run_command(f'git commit -m "plan: [PRO] {title}"')
+    # 5. 사후 처리
+    run_command("docker compose stop openclaw-gateway")
+    run_command("sudo chown -R $USER:$USER .")
 
+    # 변경 사항 커밋
+    run_command("git add .")
+    rc_diff, _ = run_command("git diff --cached --quiet")
+    if rc_diff != 0:  # 변경 사항이 있으면
+        run_command(f'git commit -m "feat: [{tag}] {title}"')
     else:
-        print("⚡ [FLASH] 태스크 진행: OpenClaw 실행 (Sandbox)")
-        elevate_agent_permissions()
-
-        # 1. 설정 디렉토리 준비 및 템플릿 복사
-        os.makedirs('.openclaw_config', exist_ok=True)
-        run_command("chmod 777 .openclaw_config")
-        run_command("cp .openclaw/openclaw.json .openclaw_config/openclaw.json")
-
-        # 2. 설정 패치 (컨테이너 외부에서 실행)
-        gateway_token = secrets.token_hex(24)
-        patch_openclaw_config(gemini_api_key, gateway_token)
-
-        # 3. Gateway 서비스 시작
-        run_command(f"GATEWAY_TOKEN={gateway_token} docker compose up -d openclaw-gateway")
-        run_command("sleep 5")
-
-        # 4. Agent 실행
-        # docker compose run 내에서 GEMINI_API_KEY가 전달되도록 설정
-        agent_cmd = [
-            "docker compose run --rm -T",
-            f"-e GEMINI_API_KEY={shlex.quote(gemini_api_key)}",
-            f"-e TASK_BODY={shlex.quote(task_body)}",
-            "-e OPENCLAW_ACCEPT_RISK=true",
-            "nightwatch-agent",
-            f"openclaw agent --agent tool-architect --message {shlex.quote(task_body)}"
-        ]
-        rc, _ = run_command(" ".join(agent_cmd))
-
-        # 5. 사후 처리
-        run_command("docker compose stop openclaw-gateway")
-        run_command("sudo chown -R $USER:$USER .")
-
-        # 변경 사항 커밋
-        run_command("git add .")
-        rc_diff, _ = run_command("git diff --cached --quiet")
-        if rc_diff != 0:  # 변경 사항이 있으면
-            run_command(f'git commit -m "feat: [FLASH] {title}"')
-        else:
-            print("ℹ️ 변경 사항 없음 — 빈 커밋 생성")
-            run_command(f'git commit --allow-empty -m "feat: [FLASH] {title} (no changes)"')
+        print("ℹ️ 변경 사항 없음 — 빈 커밋 생성")
+        run_command(f'git commit --allow-empty -m "feat: [{tag}] {title} (no changes)"')
 
     print("✅ NightWatch Executor 완료")
 
