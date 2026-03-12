@@ -8,7 +8,7 @@ set -e
 
 # 설정
 TASKS_FILE="TASKS.md"
-WORKFLOW_NAME="NightWatch Autonomous Loop"
+WORKFLOW_NAME="nightwatch-loop.yml"
 
 # 1. TASKS.md 확인
 if [ ! -f "$TASKS_FILE" ]; then
