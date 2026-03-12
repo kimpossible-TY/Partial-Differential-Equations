@@ -74,7 +74,7 @@ fi
 
 # 4. 변경 사항 커밋 및 푸시
 echo "💾 변경 사항 저장 중..."
-git add "$TASKS_FILE"
+git add .
 
 if git diff --cached --quiet; then
     echo "ℹ️ 변경 사항 없음 — 푸시를 시도합니다."
@@ -83,7 +83,7 @@ else
 fi
 
 echo "🚀 GitHub에 푸시 중..."
-git push origin "$CURRENT_BRANCH"
+git push origin .
 
 # 5. NightWatch Workflow 트리거
 echo "🌙 NightWatch 루프를 깨우는 중..."
