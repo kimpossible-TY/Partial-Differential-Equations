@@ -30,9 +30,30 @@ TITLE=$(echo "$NEXT_TASK" | sed 's/^## //')
 
 echo "🔍 발견된 태스크: $TITLE"
 
-# 3. Git 상태 확인
+# 3. Git 및 브랜치 상태 확인
 CURRENT_BRANCH=$(git branch --show-current)
 echo "🌿 현재 브랜치: $CURRENT_BRANCH"
+
+# 브랜치 관리 로직
+if [ "$CURRENT_BRANCH" == "main" ]; then
+    echo "⚠️  경고: 현재 'main' 브랜치에 있습니다. 자율 작업은 별도의 브랜치에서 진행해야 합니다."
+    read -p "🆕 새로운 브랜치 이름 (nightwatch/ 이후의 이름 입력): " BRANCH_SUFFIX
+    NEW_BRANCH="nightwatch/$BRANCH_SUFFIX"
+    echo "🌱 새 브랜치 생성 및 전환: $NEW_BRANCH"
+    git checkout -b "$NEW_BRANCH"
+    CURRENT_BRANCH="$NEW_BRANCH"
+else
+    read -p "❓ 새로운 작업을 위한 브랜치를 생성하시겠습니까? (y/n, 기본 n): " CREATE_NEW
+    if [[ "$CREATE_NEW" =~ ^[Yy]$ ]]; then
+        read -p "🆕 새로운 브랜치 이름 (nightwatch/ 이후의 이름 입력): " BRANCH_SUFFIX
+        NEW_BRANCH="nightwatch/$BRANCH_SUFFIX"
+        echo "🌱 새 브랜치 생성 및 전환: $NEW_BRANCH"
+        git checkout -b "$NEW_BRANCH"
+        CURRENT_BRANCH="$NEW_BRANCH"
+    else
+        echo "✅ 현재 브랜치($CURRENT_BRANCH)를 그대로 유지합니다."
+    fi
+fi
 
 # 4. 변경 사항 커밋 및 푸시
 echo "💾 변경 사항 저장 중..."
