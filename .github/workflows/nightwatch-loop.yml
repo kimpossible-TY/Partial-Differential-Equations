@@ -19,6 +19,7 @@ jobs:
       contents: write       # 브랜치 생성 및 파일 수정
       pull-requests: write  # PR 생성
       issues: read
+      packages: read        # GHCR에서 이미지 가져오기
 
     steps:
       # 1. 체크아웃
@@ -66,24 +67,29 @@ jobs:
           echo "branch=$BRANCH_NAME" >> $GITHUB_ENV
           echo "🌿 작업 브랜치 생성: $BRANCH_NAME"
 
-      # 6. Typst 설치 (컨테이너 환경)
-      - name: Install Typst
+      # 6. 컨테이너 이미지 가져오기 (GHCR 최적화)
+      - name: Log in to the Container registry
+        if: steps.parse.outputs.no_task != 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull NightWatch Agent Images
         if: steps.parse.outputs.no_task != 'true'
         run: |
-          curl -L -o typst.tar.xz \
-            https://github.com/typst/typst/releases/latest/download/typst-x86_64-unknown-linux-musl.tar.xz
-          tar -xf typst.tar.xz
-          sudo mv typst-x86_64-unknown-linux-musl/typst /usr/local/bin/typst
+          docker pull ghcr.io/kimpossible-ty/partial-differential-equations/nightwatch-agent:latest
+          docker compose pull
 
-      # 7. OpenClaw로 태스크 수행 (Delegated Worker)
-      - name: Execute task (OpenClaw)
+      # 7. OpenClaw로 태스크 수행 (Docker Sandbox)
+      - name: Execute task (OpenClaw inside Sandbox)
         if: steps.parse.outputs.no_task != 'true'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           TAG="${{ steps.parse.outputs.tag }}"
           TITLE="${{ steps.parse.outputs.title }}"
-          # 본문 추출 시 Tools/ 경로 확인
           TASK_BODY=$(python3 Tools/task_runner.py --json | python3 -c 'import sys,json; print(json.load(sys.stdin)["body"])')
 
           if [ "$TAG" = "PRO" ]; then
@@ -103,10 +109,47 @@ jobs:
             git add Architecture_Plan.md
             git commit -m "plan: [PRO] $TITLE"
           else
-            echo "⚡ [FLASH] 태스크: OpenClaw 실행"
-            # OpenClaw CLI를 사용하여 태스크 수행
-            # --local 모드로 실행하여 컨테이너 내 환경에서 직접 코드 수정
-            openclaw agent --agent tool-architect --message "$TASK_BODY" --local
+            echo "⚡ [FLASH] 태스크: OpenClaw 실행 (Sandbox)"
+            # 1. 공용 설정 및 에이전트 초기화 (Dual-Layer Bootstrap)
+            mkdir -p ./.openclaw_config
+            chmod 777 ./.openclaw_config
+            
+            # 기초 구조 및 보안 승인 (OpenClaw Onboard - Dual-Layer Part 1)
+            # --accept-risk를 가장 앞에 배치하여 플래그 인식 문제 방지 시도
+            docker compose run --rm -T \
+              nightwatch-agent \
+              openclaw onboard --accept-risk --non-interactive --workspace /workspace \
+              --secret-input-mode ref --auth-choice gemini-api-key \
+              --mode remote --remote-url ws://openclaw-gateway:18789 || echo "Onboard command failed, relying on Silent Injection fallback"
+            
+            # Python으로 정밀 주입 및 스키마 보정 (OpenClaw Injection - Dual-Layer Part 2)
+            # 컨테이너 외부에서 접근 시 권한 문제(root 소유)가 발생하므로, 컨테이너 내부에서 실행
+            docker compose run --rm -T \
+              nightwatch-agent \
+              python3 -c "import json, os; path = '/root/.openclaw/openclaw.json'; config = json.load(open(path)) if os.path.exists(path) else {}; config['gateway'] = {'remote': {'url': 'ws://openclaw-gateway:18789'}}; config.setdefault('models', {})['providers'] = {'google': {'baseUrl': 'https://generativelanguage.googleapis.com/v1beta', 'apiKey': '${GEMINI_API_KEY}', 'models': [{'id': 'gemini-1.5-flash', 'name': 'Gemini 1.5 Flash'}, {'id': 'gemini-2.0-flash', 'name': 'Gemini 2.0 Flash'}]}}; json.dump(config, open(path, 'w'), indent=2)"
+            
+            # 에이전트 등록
+            docker compose run --rm -T \
+              nightwatch-agent \
+              openclaw agents add tool-architect --agent-dir /workspace/agents/tool-architect --workspace /workspace --non-interactive
+            
+            # 2. Gateway 서비스 시작
+            docker compose up -d openclaw-gateway
+            sleep 5
+            
+            # 3. Docker 컨테이너 내에서 OpenClaw 실행
+            docker compose run --rm -T \
+              -e GEMINI_API_KEY="$GEMINI_API_KEY" \
+              -e "TASK_BODY=$TASK_BODY" \
+              -e OPENCLAW_ACCEPT_RISK=true \
+              nightwatch-agent \
+              openclaw agent --agent tool-architect --message "$TASK_BODY"
+            
+            # 4. Gateway 중지
+            docker compose stop openclaw-gateway
+            
+            # 컨테이너에서 생성/수정한 파일 권한 복구 (root -> runner)
+            sudo chown -R $USER:$USER .
             
             # 변경 사항 확인 및 커밋
             git add .
