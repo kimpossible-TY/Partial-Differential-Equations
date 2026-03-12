@@ -54,12 +54,15 @@ def patch_openclaw_config(gemini_api_key):
         models_config = config.setdefault('models', {})
         providers = models_config.setdefault('providers', {})
         google_prov = providers.setdefault('google', {})
+        google_prov['baseUrl'] = 'https://generativelanguage.googleapis.com/v1beta'
         google_prov['apiKey'] = gemini_api_key
 
-        # 필수 모델(gemini-3.0-flash) 확인 및 추가
+        # 필수 모델(gemini-3.0-flash) 확인 및 추가 (최우선순위)
         google_models = google_prov.setdefault('models', [])
-        if not any(m.get('id') == 'gemini-3.0-flash' for m in google_models):
-            google_models.insert(0, {'id': 'gemini-3.0-flash', 'name': 'Gemini 3.0 Flash'})
+        # 중복 제거 후 가장 앞에 추가
+        google_models = [m for m in google_models if m.get('id') != 'gemini-3.0-flash']
+        google_models.insert(0, {'id': 'gemini-3.0-flash', 'name': 'Gemini 3.0 Flash'})
+        google_prov['models'] = google_models
 
         # 3. 모든 경로를 /workspace 기준으로 치환
         # 기존 workspace 경로를 자동으로 찾아 치환
@@ -130,14 +133,14 @@ def main():
         run_command("sleep 5")
 
         # 4. Agent 실행
-        # docker compose run 내에서 GEMINI_API_KEY가 전달되도록 설정 (이미 YAML/Compose에 있음)
+        # docker compose run 내에서 GEMINI_API_KEY가 전달되도록 설정
         agent_cmd = [
             "docker compose run --rm -T",
-            f"-e GEMINI_API_KEY=\"{gemini_api_key}\"",
-            f"-e \"TASK_BODY={task_body}\"",
+            f"-e GEMINI_API_KEY='{gemini_api_key}'",
+            f"-e TASK_BODY='{task_body}'",
             "-e OPENCLAW_ACCEPT_RISK=true",
             "nightwatch-agent",
-            f"openclaw agent --agent tool-architect --message \"{task_body}\""
+            f"openclaw agent --agent tool-architect --message '{task_body}'"
         ]
         rc, _ = run_command(" ".join(agent_cmd))
 
