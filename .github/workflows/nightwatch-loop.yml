@@ -124,25 +124,25 @@ jobs:
             
             # Python으로 정밀 주입 및 스키마 보정 (OpenClaw Injection - Dual-Layer Part 2)
             python3 -c "
-import json, os
-path = './.openclaw_config/openclaw.json'
-if os.path.exists(path):
-    with open(path, 'r') as f: config = json.load(f)
-else:
-    config = {}
-config['gateway'] = {'remote': {'url': 'ws://openclaw-gateway:18789'}}
-if 'models' not in config: config['models'] = {}
-# Google Provider 정합성 강제 (baseUrl, models 필수)
-config['models']['providers'] = {'google': {
-    'baseUrl': 'https://generativelanguage.googleapis.com/v1beta',
-    'apiKey': {'source': 'env', 'id': 'GEMINI_API_KEY'},
-    'models': [
-        {'id': 'gemini-1.5-flash', 'name': 'Gemini 1.5 Flash'},
-        {'id': 'gemini-2.0-flash', 'name': 'Gemini 2.0 Flash'}
-    ]
-}}
-with open(path, 'w') as f: json.dump(config, f, indent=2)
-"
+            import json, os
+            path = './.openclaw_config/openclaw.json'
+            if os.path.exists(path):
+                with open(path, 'r') as f: config = json.load(f)
+            else:
+                config = {}
+            config['gateway'] = {'remote': {'url': 'ws://openclaw-gateway:18789'}}
+            if 'models' not in config: config['models'] = {}
+            # Google Provider 정합성 강제 (baseUrl, models 필수)
+            config['models']['providers'] = {'google': {
+                'baseUrl': 'https://generativelanguage.googleapis.com/v1beta',
+                'apiKey': {'source': 'env', 'id': 'GEMINI_API_KEY'},
+                'models': [
+                    {'id': 'gemini-1.5-flash', 'name': 'Gemini 1.5 Flash'},
+                    {'id': 'gemini-2.0-flash', 'name': 'Gemini 2.0 Flash'}
+                ]
+            }}
+            with open(path, 'w') as f: json.dump(config, f, indent=2)
+            "
             
             # 에이전트 등록
             docker compose run --rm -T \
