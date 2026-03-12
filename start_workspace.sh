@@ -19,18 +19,34 @@ if [ -f "$WORKDIR/.env" ]; then
     export $(cat "$WORKDIR/.env" | grep -v '^#' | xargs)
 fi
 
+# 호스트 CLI가 프로젝트 디렉토리의 설정을 사용하도록 강제
+export OPENCLAW_CONFIG_DIR="$WORKDIR/.openclaw"
+
+if [ -f "$WORKDIR/.env" ]; then
+    export $(cat "$WORKDIR/.env" | grep -v '^#' | xargs)
+fi
+
 # 1. 예외 처리: main.typ 파일이 없으면 즉시 종료
 if [ ! -f "$WORKDIR/$MAIN_FILE" ]; then
     echo -e "❌ 오류: '$WORKDIR'에 'main.typ' 파일이 없습니다."
     exit 1
 fi
 
-# 2. 기존 tmux 세션이 있으면 먼저 정리
+# 2. 기존 tmux 세션 및 로컬 OpenClaw 프로세스 정리
 if tmux has-session -t pde_workspace 2>/dev/null; then
     echo -e "${BLUE}▶ 기존 pde_workspace 세션을 종료합니다...${NC}"
     tmux kill-session -t pde_workspace
     sleep 1
 fi
+# Mac 본체에서 혹시 돌고 있을지 모르는 게이트웨이 정리
+openclaw gateway stop > /dev/null 2>&1
+killall openclaw > /dev/null 2>&1
+
+# 2.5 OpenClaw 컨테이너 환경 준비 (원본 보안 패치)
+echo -e "${BLUE}▶ OpenClaw 컨테이너 보안 패치 중...${NC}"
+chmod +x "$WORKDIR/Tools/patch_openclaw_config.py"
+python3 "$WORKDIR/Tools/patch_openclaw_config.py" "$WORKDIR"
+
 
 echo -e "${BLUE}▶ tmux 세션을 생성하고 서버를 가동합니다...${NC}"
 
@@ -48,13 +64,10 @@ tmux send-keys -t pde_workspace:0 "typst watch '$MAIN_FILE' --open /dev/null" C-
 tmux new-window -t pde_workspace -n 'http-server' -c "$WORKDIR"
 tmux send-keys -t pde_workspace:1 "python3 -m http.server $HTTP_PORT --bind 127.0.0.1" C-m
 
-# window 2: openclaw gateway
-tmux new-window -t pde_workspace -n 'openclaw' -c "$WORKDIR"
-tmux send-keys -t pde_workspace:2 "openclaw gateway run --bind loopback" C-m
-
-# window 3: NightWatch 컨테이너 샌드박스 (OrbStack)
+# window 2: NightWatch 통합 센터 (Gateway + Specialists)
 tmux new-window -t pde_workspace -n 'nightwatch' -c "$WORKDIR"
-tmux send-keys -t pde_workspace:3 "docker compose up --build nightwatch-agent" C-m
+tmux send-keys -t pde_workspace:2 "docker compose up --build -d" C-m
+tmux send-keys -t pde_workspace:2 "docker compose logs -f" C-m
 
 # 5. 서버 구동 대기 (포트 준비될 때까지 최대 10초)
 echo -e "${BLUE}▶ 서버 포트 준비 대기 중...${NC}"
@@ -68,18 +81,12 @@ done
 
 for i in $(seq 1 10); do
     if curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:18789/ | grep -qv "^000"; then
-        echo -e "${GREEN}✔ OpenClaw(포트 18789) 준비 완료${NC}"
+        echo -e "${GREEN}✔ NightWatch 통합 센터(포트 18789) 준비 완료${NC}"
         break
     fi
     sleep 1
 done
 
-# 컨테이너 기동 확인
-if docker compose ps --status running 2>/dev/null | grep -q 'nightwatch-agent'; then
-    echo -e "${GREEN}✔ NightWatch 컨테이너 기동 확인${NC}"
-else
-    echo -e "${BLUE}▷ NightWatch 컨테이너 빌드 중 (첫 실행 시 시간이 걸릴 수 있어요)${NC}"
-fi
 
 # 6. Tailscale Serve HTTPS 프록시 연결
 tailscale serve --yes --bg --https=443 http://127.0.0.1:$HTTP_PORT > /dev/null 2>&1
@@ -90,7 +97,7 @@ TAILNET_DOMAIN=$(tailscale status --json | python3 -c 'import sys, json; print(j
 SERVER_URL="https://${TAILNET_DOMAIN}/Typst_project/main.pdf"
 OPENCLAW_URL="https://${TAILNET_DOMAIN}:18789"
 
-# 8. 안내 창(window 4)을 메인 뷰로 생성하여 attach
+# 8. 안내 창(window 3)을 메인 뷰로 생성하여 attach
 tmux new-window -t pde_workspace -n 'info' -c "$WORKDIR"
 cat <<EOF > "$WORKDIR/.pde_welcome.sh"
 clear
@@ -103,7 +110,9 @@ echo -e "💡 이 창을 닫으면(exit) 세션이 종료되고 모든 서버가
 if [ -f "$WORKDIR/.env" ]; then
     echo -e "💡 .env 파일이 로드되었습니다. (API 키 적용됨)\n"
 fi
-echo -e "💡 다른 창 보기: Ctrl+B → 숫자(0=typst, 1=http, 2=openclaw, 3=nightwatch)\n"
+echo -e "💡 컨테이너 명령어 실행 예시:"
+echo -e "   ${BLUE}docker exec -it openclaw-gateway openclaw agents list${NC}\n"
+echo -e "💡 다른 창 보기: Ctrl+B → 숫자(0=typst, 1=http, 2=nightwatch, 3=info)\n"
 
 # exit 시 세션 전체 + 컨테이너 종료
 cleanup() {
@@ -116,10 +125,10 @@ trap cleanup EXIT
 
 /bin/zsh -l
 EOF
-tmux send-keys -t pde_workspace:4 "bash '$WORKDIR/.pde_welcome.sh'" C-m
+tmux send-keys -t pde_workspace:3 "bash '$WORKDIR/.pde_welcome.sh'" C-m
 
 # 9. info 창으로 포커스 후 attach
-tmux select-window -t pde_workspace:4
+tmux select-window -t pde_workspace:3
 tmux attach-session -t pde_workspace
 
 echo -e "\n🛑 pde_workspace 세션이 종료되었습니다. 수고하셨습니다! 👋"

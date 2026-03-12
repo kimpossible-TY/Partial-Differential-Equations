@@ -1,29 +1,29 @@
 # ==============================================================================
-# Project NightWatch — docker-compose.yml
-# OrbStack(Docker 호환)으로 실행. tests/ 볼륨은 ro(read-only) — 절대 규칙.
+# Project NightWatch — docker-compose.yml (Unified Version)
 # ==============================================================================
 
 services:
-  # OpenClaw Gateway Service (Stable Connection)
+  # 🏢 OpenClaw Main Office (Gateway + Local Agents)
   openclaw-gateway:
     image: ghcr.io/kimpossible-ty/partial-differential-equations/nightwatch-agent:latest
     build:
       context: .
       dockerfile: Dockerfile.nightwatch
     container_name: openclaw-gateway
-    command: openclaw gateway run --bind lan --port 18789 --auth token --token ${OPENCLAW_GATEWAY_TOKEN}
+    # 게이트웨이를 로컬 신뢰 모드로 실행 (토큰 없이 로컬 접속 허용)
+    command: openclaw gateway run --port 18789 --allow-unconfigured
     volumes:
       - .:/workspace:rw
       - ./tests:/workspace/tests:ro
-      - ./.openclaw_config:/root/.openclaw:rw
+      - ./.openclaw:/root/.openclaw:rw
     environment:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - OPENCLAW_WORKSPACE=/workspace
       - OPENCLAW_ACCEPT_RISK=true
-    network_mode: bridge
-    ports:
-      - "18789:18789"
+      - HOST=0.0.0.0
+    network_mode: host
 
+  # 💻 CI & One-off Task Worker (CI 스크립트 호환용)
   nightwatch-agent:
     image: ghcr.io/kimpossible-ty/partial-differential-equations/nightwatch-agent:latest
     build:
@@ -35,11 +35,13 @@ services:
     volumes:
       - .:/workspace:rw
       - ./tests:/workspace/tests:ro
-      - ./.openclaw_config:/root/.openclaw:rw
+      - ./.openclaw:/root/.openclaw:rw
     environment:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - OPENCLAW_GATEWAY_URL=ws://openclaw-gateway:18789
+      - OPENCLAW_GATEWAY_URL=ws://127.0.0.1:18789
       - OPENCLAW_WORKSPACE=/workspace
       - OPENCLAW_ACCEPT_RISK=true
     working_dir: /workspace
-    network_mode: bridge
+    network_mode: host
+    # CI 환경에서는 외부에서 명령어를 주입받지만, 로컬에서는 전문가들을 상시 출근시킴
+    command: [ "sh", "-c", "echo '🚀 Nightwatch CI/CD Agent is standing by...'; tail -f /dev/null" ]
