@@ -7,6 +7,7 @@ from datetime import datetime
 
 
 import re
+import shlex
 
 
 def run_command(command, shell=True, env=None):
@@ -169,11 +170,11 @@ def main():
         # docker compose run 내에서 GEMINI_API_KEY가 전달되도록 설정
         agent_cmd = [
             "docker compose run --rm -T",
-            f"-e GEMINI_API_KEY='{gemini_api_key}'",
-            f"-e TASK_BODY='{task_body}'",
+            f"-e GEMINI_API_KEY={shlex.quote(gemini_api_key)}",
+            f"-e TASK_BODY={shlex.quote(task_body)}",
             "-e OPENCLAW_ACCEPT_RISK=true",
             "nightwatch-agent",
-            f"openclaw agent --agent tool-architect --message '{task_body}'"
+            f"openclaw agent --agent tool-architect --message {shlex.quote(task_body)}"
         ]
         rc, _ = run_command(" ".join(agent_cmd))
 
