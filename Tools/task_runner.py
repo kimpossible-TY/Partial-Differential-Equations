@@ -107,9 +107,24 @@ def main():
     task = parse_next_task(TASKS_FILE)
 
     if task is None:
-        print("🎉 모든 태스크가 완료되었습니다!")
+        if "--json" in sys.argv:
+            print(json.dumps({"error": "모든 태스크가 완료되었습니다."}, ensure_ascii=False))
+        else:
+            print("🎉 모든 태스크가 완료되었습니다!")
         sys.exit(0)
 
+    # JSON 출력 모드 (다른 스크립트에서 파이프로 받을 때 사용)
+    # 최우선 순위로 체크하여 장식 문자가 섞이지 않게 함
+    if "--json" in sys.argv:
+        print(json.dumps(task, ensure_ascii=False))
+        return
+
+    # --mark-done: 태스크 완료 마킹 모드
+    if "--mark-done" in sys.argv:
+        mark_task_done(TASKS_FILE, task["title"])
+        return
+
+    # 일반 사용자용 출력
     print(f"\n{'=' * 60}")
     print("📋 다음 태스크")
     print(f"{'=' * 60}")
@@ -118,16 +133,6 @@ def main():
     print(f"  모델   : {task['model']}")
     print(f"  본문   :\n{task['body']}")
     print(f"{'=' * 60}\n")
-
-    # JSON 출력 (다른 스크립트에서 파이프로 받을 때 사용)
-    if "--json" in sys.argv:
-        print(json.dumps(task, ensure_ascii=False, indent=2))
-        return
-
-    # --mark-done: 태스크 완료 마킹 모드
-    if "--mark-done" in sys.argv:
-        mark_task_done(TASKS_FILE, task["title"])
-        return
 
 
 if __name__ == "__main__":

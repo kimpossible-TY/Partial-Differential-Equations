@@ -104,11 +104,19 @@ if [ -f "$WORKDIR/.env" ]; then
     echo -e "💡 .env 파일이 로드되었습니다. (API 키 적용됨)\n"
 fi
 echo -e "💡 다른 창 보기: Ctrl+B → 숫자(0=typst, 1=http, 2=openclaw, 3=nightwatch)\n"
+
 # exit 시 세션 전체 + 컨테이너 종료
-trap 'docker compose -f "$WORKDIR/docker-compose.yml" down 2>/dev/null; tmux kill-session -t pde_workspace' EXIT
-exec /bin/zsh -l
+cleanup() {
+    echo -e "\n${RED}▶ 서비스를 종료합니다...${NC}"
+    docker compose -f "$WORKDIR/docker-compose.yml" down 2>/dev/null
+    rm -f "$WORKDIR/.pde_welcome.sh"
+    tmux kill-session -t pde_workspace
+}
+trap cleanup EXIT
+
+/bin/zsh -l
 EOF
-tmux send-keys -t pde_workspace:4 "bash '$WORKDIR/.pde_welcome.sh' && rm '$WORKDIR/.pde_welcome.sh'" C-m
+tmux send-keys -t pde_workspace:4 "bash '$WORKDIR/.pde_welcome.sh'" C-m
 
 # 9. info 창으로 포커스 후 attach
 tmux select-window -t pde_workspace:4
