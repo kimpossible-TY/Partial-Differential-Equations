@@ -53,7 +53,7 @@ def patch_openclaw_config(gemini_api_key, gateway_token=None):
         config['gateway'] = config.get('gateway', {})
         config['gateway']['remote'] = {'url': 'ws://openclaw-gateway:18789'}
         config['gateway']['mode'] = 'remote'
-        
+
         # 1.5 Gateway 인증 설정 (토큰 방식)
         if gateway_token:
             config['gateway']['auth'] = {
