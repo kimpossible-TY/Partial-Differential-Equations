@@ -52,6 +52,8 @@ jobs:
             exit 0
           fi
           echo "task_json=$TASK_JSON" >> $GITHUB_OUTPUT
+          # 태스크 본문을 파일로 저장 (이스케이프 문제 방지)
+          echo "$TASK_JSON" | python3 -c 'import sys,json; print(json.load(sys.stdin)["body"])' > task_body.txt
           echo "tag=$(echo $TASK_JSON | python3 -c 'import sys,json; print(json.load(sys.stdin)["tag"])')" >> $GITHUB_OUTPUT
           echo "title=$(echo $TASK_JSON | python3 -c 'import sys,json; print(json.load(sys.stdin)["title"])')" >> $GITHUB_OUTPUT
           echo "model=$(echo $TASK_JSON | python3 -c 'import sys,json; print(json.load(sys.stdin)["model"])')" >> $GITHUB_OUTPUT
@@ -105,7 +107,7 @@ jobs:
         run: |
           TAG="${{ steps.parse.outputs.tag }}"
           TITLE="${{ steps.parse.outputs.title }}"
-          TASK_BODY=$(python3 Tools/task_runner.py --json | python3 -c 'import sys,json; print(json.load(sys.stdin)["body"])')
+          TASK_BODY=$(cat task_body.txt)
 
           if [ "$TAG" = "PRO" ]; then
             echo "🧠 [PRO] 태스크: Architecture_Plan.md 생성 후 대기"
@@ -130,7 +132,6 @@ jobs:
             chmod 777 ./.openclaw_config
             
             # 기초 구조 및 보안 승인 (OpenClaw Onboard - Dual-Layer Part 1)
-            # --accept-risk를 가장 앞에 배치하여 플래그 인식 문제 방지 시도
             docker compose run --rm -T \
               nightwatch-agent \
               openclaw onboard --accept-risk --non-interactive --workspace /workspace \
@@ -138,10 +139,9 @@ jobs:
               --mode remote --remote-url ws://openclaw-gateway:18789 || echo "Onboard command failed, relying on Silent Injection fallback"
             
             # Python으로 정밀 주입 및 스키마 보정 (OpenClaw Injection - Dual-Layer Part 2)
-            # 컨테이너 외부에서 접근 시 권한 문제(root 소유)가 발생하므로, 컨테이너 내부에서 실행
             docker compose run --rm -T \
               nightwatch-agent \
-              python3 -c "import json, os; path = '/root/.openclaw/openclaw.json'; config = json.load(open(path)) if os.path.exists(path) else {}; config['gateway'] = {'remote': {'url': 'ws://openclaw-gateway:18789'}}; config.setdefault('models', {})['providers'] = {'google': {'baseUrl': 'https://generativelanguage.googleapis.com/v1beta', 'apiKey': '${GEMINI_API_KEY}', 'models': [{'id': 'gemini-1.5-flash', 'name': 'Gemini 1.5 Flash'}, {'id': 'gemini-2.0-flash', 'name': 'Gemini 2.0 Flash'}]}}; json.dump(config, open(path, 'w'), indent=2)"
+              python3 -c "import json, os; path = '/root/.openclaw/openclaw.json'; config = json.load(open(path)) if os.path.exists(path) else {}; config['gateway'] = {'remote': {'url': 'ws://openclaw-gateway:18789'}}; config.setdefault('models', {})['providers'] = {'google': {'baseUrl': 'https://generativelanguage.googleapis.com/v1beta', 'apiKey': '${GEMINI_API_KEY}', 'models': [{'id': 'gemini-1.5-flash', 'name': 'Gemini 1.5 Flash'}, {'id': 'gemini-2.0-flash', 'name': 'Gemini 2.0 Flash'}, {'id': 'gemini-3.0-flash', 'name': 'Gemini 3.0 Flash'}]}}; json.dump(config, open(path, 'w'), indent=2)"
             
             # 에이전트 등록
             docker compose run --rm -T \
@@ -179,7 +179,7 @@ jobs:
       # 8. 브랜치 푸시
       - name: Push branch
         if: steps.parse.outputs.no_task != 'true'
-        run: git push origin "$branch"
+        run: git push origin "$branch" --force
 
       # 9. PR 생성
       - name: Create Pull Request
@@ -187,11 +187,25 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
+          # PR 본문 파일 생성 (이스케이프 완전 차단)
+          cat > pr_body.txt << EOF
+          ## NightWatch 자율 태스크
+
+          **태그:** \`${{ steps.parse.outputs.tag }}\`
+          **모델:** \`${{ steps.parse.outputs.model }}\`
+
+          ### 태스크 내용
+          $(cat task_body.txt)
+
+          ---
+          > 🤖 NightWatch Bot이 자동 생성한 PR입니다.
+          EOF
+
           gh pr create \
             --title "[${{ steps.parse.outputs.tag }}] ${{ steps.parse.outputs.title }}" \
-            --body "## NightWatch 자율 태스크\n\n**태그:** \`${{ steps.parse.outputs.tag }}\`\n**모델:** \`${{ steps.parse.outputs.model }}\`\n\n### 태스크 내용\n$(python3 Tools/task_runner.py --json | python3 -c 'import sys,json; print(json.load(sys.stdin)[\"body\"])')\n\n---\n> 🤖 NightWatch Bot이 자동 생성한 PR입니다." \
+            --body-file pr_body.txt \
             --base main \
-            --head "$branch"
+            --head "$branch" || echo "이미 PR이 존재하거나 생성 실패 (무시)"
 
       # 10. Discord 성공 알림
       - name: Discord success notification
