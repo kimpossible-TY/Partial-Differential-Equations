@@ -3,6 +3,7 @@ import json
 import os
 import sys
 
+
 def patch_config(workdir):
     path = os.path.join(workdir, '.openclaw', 'openclaw.json')
     if not os.path.exists(path):
@@ -20,10 +21,10 @@ def patch_config(workdir):
 
         # 2. 보안 패치 (Proxy 신뢰 및 Origin 허용)
         gw = config.setdefault('gateway', {})
-        
+
         # 신뢰하는 프록시 대역 (로컬, 컨테이너 내부, Tailscale)
         trusted = [
-            '127.0.0.1', '::1', 
+            '127.0.0.1', '::1',
             '100.64.0.0/10',    # Tailscale IPv4
             'fd00::/8',         # Tailscale IPv6
             '172.16.0.0/12',    # Docker bridge 기본
@@ -37,25 +38,26 @@ def patch_config(workdir):
 
         ui = gw.setdefault('controlUi', {})
         origins = ui.setdefault('allowedOrigins', [])
-        
+
         # 주소 등록 (통합 센터 18789 포트 집중)
         if tailnet_domain:
             t_url = f'https://{tailnet_domain}:18789'
             if t_url not in origins:
                 origins.append(t_url)
-        
+
         for local_url in ['http://localhost:18789', 'http://127.0.0.1:18789']:
             if local_url not in origins:
                 origins.append(local_url)
 
         with open(path, 'w') as f:
             json.dump(config, f, indent=2)
-        
+
         print(f"✅ OpenClaw 보안 패치 완료 (원본 파일: {path})")
         print(f"   - 신뢰 프록시: {ts_ip4}, {ts_ip6}")
 
     except Exception as e:
         print(f"❌ 보안 패치 중 오류 발생: {e}")
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
