@@ -52,6 +52,8 @@ jobs:
             exit 0
           fi
           echo "task_json=$TASK_JSON" >> $GITHUB_OUTPUT
+          # 태스크 본문을 파일로 저장 (이스케이프 문제 방지)
+          echo "$TASK_JSON" | python3 -c 'import sys,json; print(json.load(sys.stdin)["body"])' > task_body.txt
           echo "tag=$(echo $TASK_JSON | python3 -c 'import sys,json; print(json.load(sys.stdin)["tag"])')" >> $GITHUB_OUTPUT
           echo "title=$(echo $TASK_JSON | python3 -c 'import sys,json; print(json.load(sys.stdin)["title"])')" >> $GITHUB_OUTPUT
           echo "model=$(echo $TASK_JSON | python3 -c 'import sys,json; print(json.load(sys.stdin)["model"])')" >> $GITHUB_OUTPUT
@@ -98,100 +100,50 @@ jobs:
           docker compose pull
 
       # 7. OpenClaw로 태스크 수행 (Docker Sandbox)
-      - name: Execute task (OpenClaw inside Sandbox)
+      # 7. 태스크 실행 (전용 스크립트로 외부화)
+      - name: Execute task (NightWatch Executor)
         if: steps.parse.outputs.no_task != 'true'
         env:
+          TAG: ${{ steps.parse.outputs.tag }}
+          TITLE: ${{ steps.parse.outputs.title }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          TAG="${{ steps.parse.outputs.tag }}"
-          TITLE="${{ steps.parse.outputs.title }}"
-          TASK_BODY=$(python3 Tools/task_runner.py --json | python3 -c 'import sys,json; print(json.load(sys.stdin)["body"])')
-
-          if [ "$TAG" = "PRO" ]; then
-            echo "🧠 [PRO] 태스크: Architecture_Plan.md 생성 후 대기"
-            cat > Architecture_Plan.md << EOF
-          # Architecture Plan: $TITLE
-
-          ## 태스크 설명
-          $TASK_BODY
-
-          ## 제안 설계
-          > 이 파일을 인간이 검토하고 PR을 Approve하면 다음 야간 사이클에서 구현됩니다.
-
-          ## 작성일
-          $(date -u +"%Y-%m-%d %H:%M UTC")
-          EOF
-            git add Architecture_Plan.md
-            git commit -m "plan: [PRO] $TITLE"
-          else
-            echo "⚡ [FLASH] 태스크: OpenClaw 실행 (Sandbox)"
-            # 1. 공용 설정 및 에이전트 초기화 (Dual-Layer Bootstrap)
-            mkdir -p ./.openclaw_config
-            chmod 777 ./.openclaw_config
-            
-            # 기초 구조 및 보안 승인 (OpenClaw Onboard - Dual-Layer Part 1)
-            # --accept-risk를 가장 앞에 배치하여 플래그 인식 문제 방지 시도
-            docker compose run --rm -T \
-              nightwatch-agent \
-              openclaw onboard --accept-risk --non-interactive --workspace /workspace \
-              --secret-input-mode ref --auth-choice gemini-api-key \
-              --mode remote --remote-url ws://openclaw-gateway:18789 || echo "Onboard command failed, relying on Silent Injection fallback"
-            
-            # Python으로 정밀 주입 및 스키마 보정 (OpenClaw Injection - Dual-Layer Part 2)
-            # 컨테이너 외부에서 접근 시 권한 문제(root 소유)가 발생하므로, 컨테이너 내부에서 실행
-            docker compose run --rm -T \
-              nightwatch-agent \
-              python3 -c "import json, os; path = '/root/.openclaw/openclaw.json'; config = json.load(open(path)) if os.path.exists(path) else {}; config['gateway'] = {'remote': {'url': 'ws://openclaw-gateway:18789'}}; config.setdefault('models', {})['providers'] = {'google': {'baseUrl': 'https://generativelanguage.googleapis.com/v1beta', 'apiKey': '${GEMINI_API_KEY}', 'models': [{'id': 'gemini-1.5-flash', 'name': 'Gemini 1.5 Flash'}, {'id': 'gemini-2.0-flash', 'name': 'Gemini 2.0 Flash'}]}}; json.dump(config, open(path, 'w'), indent=2)"
-            
-            # 에이전트 등록
-            docker compose run --rm -T \
-              nightwatch-agent \
-              openclaw agents add tool-architect --agent-dir /workspace/agents/tool-architect --workspace /workspace --non-interactive
-            
-            # 2. Gateway 서비스 시작
-            docker compose up -d openclaw-gateway
-            sleep 5
-            
-            # 3. Docker 컨테이너 내에서 OpenClaw 실행
-            docker compose run --rm -T \
-              -e GEMINI_API_KEY="$GEMINI_API_KEY" \
-              -e "TASK_BODY=$TASK_BODY" \
-              -e OPENCLAW_ACCEPT_RISK=true \
-              nightwatch-agent \
-              openclaw agent --agent tool-architect --message "$TASK_BODY"
-            
-            # 4. Gateway 중지
-            docker compose stop openclaw-gateway
-            
-            # 컨테이너에서 생성/수정한 파일 권한 복구 (root -> runner)
-            sudo chown -R $USER:$USER .
-            
-            # 변경 사항 확인 및 커밋
-            git add .
-            if ! git diff --cached --quiet; then
-              git commit -m "feat: [FLASH] $TITLE"
-            else
-              echo "ℹ️ 변경 사항 없음 — 빈 커밋 생성"
-              git commit --allow-empty -m "feat: [FLASH] $TITLE (no changes)"
-            fi
-          fi
+          chmod +x Tools/nightwatch_executor.py
+          python3 Tools/nightwatch_executor.py
 
       # 8. 브랜치 푸시
       - name: Push branch
         if: steps.parse.outputs.no_task != 'true'
-        run: git push origin "$branch"
+        run: git push origin "$branch" --force
 
-      # 9. PR 생성
-      - name: Create Pull Request
+      # 9. PR 생성 또는 업데이트
+      - name: Create or Update Pull Request
         if: steps.parse.outputs.no_task != 'true'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          gh pr create \
-            --title "[${{ steps.parse.outputs.tag }}] ${{ steps.parse.outputs.title }}" \
-            --body "## NightWatch 자율 태스크\n\n**태그:** \`${{ steps.parse.outputs.tag }}\`\n**모델:** \`${{ steps.parse.outputs.model }}\`\n\n### 태스크 내용\n$(python3 Tools/task_runner.py --json | python3 -c 'import sys,json; print(json.load(sys.stdin)[\"body\"])')\n\n---\n> 🤖 NightWatch Bot이 자동 생성한 PR입니다." \
-            --base main \
-            --head "$branch"
+          # PR 본문 파일 빌드 (가장 안전한 방식)
+          echo "## NightWatch 자율 태스크" > pr_body.txt
+          echo "" >> pr_body.txt
+          echo "**태그:** \`${{ steps.parse.outputs.tag }}\`" >> pr_body.txt
+          echo "**모델:** \`${{ steps.parse.outputs.model }}\`" >> pr_body.txt
+          echo "" >> pr_body.txt
+          echo "### 태스크 내용" >> pr_body.txt
+          cat task_body.txt >> pr_body.txt
+          echo "" >> pr_body.txt
+          echo "---" >> pr_body.txt
+          echo "> 🤖 NightWatch Bot이 자동 생성한 PR입니다." >> pr_body.txt
+
+          TITLE="[${{ steps.parse.outputs.tag }}] ${{ steps.parse.outputs.title }}"
+          
+          # 1. PR 생성 시도
+          if gh pr create --title "$TITLE" --body-file pr_body.txt --base main --head "$branch"; then
+            echo "✅ 새 PR이 생성되었습니다."
+          else
+            echo "ℹ️ PR이 이미 존재하거나 생성이 차단되었습니다. 업데이트를 시도합니다."
+            # 2. 기존 PR 업데이트 (제목과 본문 동기화)
+            gh pr edit "$branch" --title "$TITLE" --body-file pr_body.txt || echo "⚠️ PR 업데이트 실패"
+          fi
 
       # 10. Discord 성공 알림
       - name: Discord success notification
