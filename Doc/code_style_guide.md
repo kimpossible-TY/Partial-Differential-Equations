@@ -2,24 +2,25 @@
 
 ## project tree
 ```
-├── Styles
-│   ├── math_styles.typ
-│   └── styles.typ
+├── Typst_project
+│   ├── Styles
+│   │   ├── math_styles.typ
+│   │   └── styles.typ
+│   ├── chapter 1
+│   │   ├── 1.1.typ
+│   │   ├── 1.2.typ
+│   │   └── chapter 1.typ
+│   ├── chapter 2
+│   │   ├── 2.2.typ
+│   │   ├── 2.3.typ
+│   │   └── chapter 2.typ
+│   ├── cover.typ
+│   └── main.typ
 ├── Tools
 │   └── tools.typ
-├── chapter 1
-│   ├── 1.1.typ
-│   ├── 1.2.typ
-│   └── chapter 1.typ
-├── chapter 2
-│   ├── 2.2.typ
-│   ├── 2.3.typ
-│   └── chapter 2.typ
 :
 :
 ├── code_style_guide.md
-├── cover.typ
-├── main.typ
 ```
 
 file of the cover of each chapter should be named the same as the directory name.
