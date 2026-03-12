@@ -8,7 +8,7 @@ echo -e "💡 이 창을 닫으면(exit) 세션이 종료되고 모든 서버가
 if [ -f "/Users/taeyoung/Documents/Department of Defense Typst/Partial Differential Equations/.env" ]; then
     echo -e "💡 .env 파일이 로드되었습니다. (API 키 적용됨)\n"
 fi
-echo -e "💡 다른 창 보기: Ctrl+B → 숫자(0=typst, 1=http, 2=openclaw)\n"
-# exit 시 세션 전체 종료
-trap 'tmux kill-session -t pde_workspace' EXIT
+echo -e "💡 다른 창 보기: Ctrl+B → 숫자(0=typst, 1=http, 2=openclaw, 3=nightwatch)\n"
+# exit 시 세션 전체 + 컨테이너 종료
+trap 'docker compose -f "/Users/taeyoung/Documents/Department of Defense Typst/Partial Differential Equations/docker-compose.yml" down 2>/dev/null; tmux kill-session -t pde_workspace' EXIT
 exec /bin/zsh -l

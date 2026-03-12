@@ -12,10 +12,11 @@ services:
     volumes:
       - .:/workspace:rw
       - ./tests:/workspace/tests:ro
-      - openclaw_data:/root/.openclaw
+      - ./.openclaw_config:/root/.openclaw:rw
     environment:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - OPENCLAW_WORKSPACE=/workspace
+      - OPENCLAW_ACCEPT_RISK=true
     network_mode: bridge
     ports:
       - "18789:18789"
@@ -28,13 +29,11 @@ services:
     volumes:
       - .:/workspace:rw
       - ./tests:/workspace/tests:ro
-      - openclaw_data:/root/.openclaw
+      - ./.openclaw_config:/root/.openclaw:rw
     environment:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - OPENCLAW_GATEWAY_URL=ws://openclaw-gateway:18789
       - OPENCLAW_WORKSPACE=/workspace
+      - OPENCLAW_ACCEPT_RISK=true
     working_dir: /workspace
     network_mode: bridge
-
-volumes:
-  openclaw_data:
