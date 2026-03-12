@@ -141,10 +141,10 @@ def restore_agent_permissions():
                 with open(manifest_path, 'r') as f:
                     content = f.read()
 
-                # write: 섹션 아래의 항목을 "- \"TASKS.md\"" 로 복구
+                # write: 섹션 아래의 항목을 "- \"../../TASKS.md\"" 로 복구
                 new_content = re.sub(
                     r'(write:\s*\n\s*-\s*).+',
-                    r'\1"TASKS.md"',
+                    r'\1"../../TASKS.md"',
                     content
                 )
 
@@ -204,34 +204,35 @@ def main():
         # 5. 사후 처리
         run_command("docker compose stop openclaw-gateway")
         run_command("sudo chown -R $USER:$USER .")
-
-        # 변경 사항 커밋
-        print("📂 변경 사항 확인 및 커밋 중...")
-
-        # 1. Git 유저 정보 확인 및 설정
-        run_command("git config user.name 'NightWatch Bot'")
-        run_command("git config user.email 'nightwatch@kimpossible-ty'")
-
-        # 2. 모든 변경 사항 스테이징
-        run_command("git add .")
-
-        # 3. 변경 내용 상세 로깅 (디버깅용)
-        _, status_output = run_command("git status --porcelain")
-        if status_output.strip():
-            print("📝 변경된 파일 목록:")
-            print(status_output)
-
-        # 4. 커밋 실행
-        rc_diff, _ = run_command("git diff --cached --quiet")
-        if rc_diff != 0:  # 변경 사항이 있으면
-            print(f"✅ 변경 사항 발견: 커밋 생성 중... ([{tag}] {title})")
-            run_command(f'git commit -m "feat: [{tag}] {title}"')
-        else:
-            print("ℹ️ 변경 사항 없음 — 자동 PR 생성을 위해 빈 커밋을 생성합니다.")
-            run_command(f'git commit --allow-empty -m "feat: [{tag}] {title} (no code changes)"')
     finally:
         # 에약된 권한 복구 (어떠한 경우에도 권한은 다시 묶어야 함)
+        # Git 커밋 이전에 복구해야 변경된 권한이 커밋에 포함되지 않음
         restore_agent_permissions()
+
+    # 변경 사항 커밋
+    print("📂 변경 사항 확인 및 커밋 중...")
+
+    # 1. Git 유저 정보 확인 및 설정
+    run_command("git config user.name 'NightWatch Bot'")
+    run_command("git config user.email 'nightwatch@kimpossible-ty'")
+
+    # 2. 모든 변경 사항 스테이징
+    run_command("git add .")
+
+    # 3. 변경 내용 상세 로깅 (디버깅용)
+    _, status_output = run_command("git status --porcelain")
+    if status_output.strip():
+        print("📝 변경된 파일 목록:")
+        print(status_output)
+
+    # 4. 커밋 실행
+    rc_diff, _ = run_command("git diff --cached --quiet")
+    if rc_diff != 0:  # 변경 사항이 있으면
+        print(f"✅ 변경 사항 발견: 커밋 생성 중... ([{tag}] {title})")
+        run_command(f'git commit -m "feat: [{tag}] {title}"')
+    else:
+        print("ℹ️ 변경 사항 없음 — 자동 PR 생성을 위해 빈 커밋을 생성합니다.")
+        run_command(f'git commit --allow-empty -m "feat: [{tag}] {title} (no code changes)"')
 
     print("✅ NightWatch Executor 완료")
 
