@@ -113,7 +113,7 @@ jobs:
       # 8. 브랜치 푸시
       - name: Push branch
         if: steps.parse.outputs.no_task != 'true'
-        run: git push origin "$branch" --force
+        run: git push origin "$branch"
 
       # 9. PR 생성 또는 업데이트
       - name: Create or Update Pull Request
