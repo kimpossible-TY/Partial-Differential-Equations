@@ -1,7 +1,7 @@
 {
   "meta": {
-    "lastTouchedVersion": "2026.3.11",
-    "lastTouchedAt": "2026-03-12T20:20:41.887Z"
+    "lastTouchedVersion": "2026.3.8",
+    "lastTouchedAt": "2026-03-11T02:07:22.906Z"
   },
   "wizard": {
     "lastRunAt": "2026-03-11T00:59:44.805Z",
@@ -19,22 +19,20 @@
         "google-vertex/gemini-3.1-pro-preview": {},
         "google/gemini-3.1-pro-preview": {}
       },
-      "workspace": "/workspace",
+      "workspace": "/Users/taeyoung/Documents/Department of Defense Typst/Partial Differential Equations",
       "compaction": {
         "mode": "safeguard"
       }
     },
     "list": [
       {
-        "id": "main",
-        "name": "Main Agent",
-        "model": "google/gemini-3.1-pro-preview"
+        "id": "main"
       },
       {
         "id": "math-typst-specialist",
-        "name": "Math & Typst Specialist",
-        "workspace": "/workspace",
-        "agentDir": "/workspace/agents/math-typst-specialist",
+        "name": "math-typst-specialist",
+        "workspace": "/Users/taeyoung/Documents/Department of Defense Typst/Partial Differential Equations",
+        "agentDir": "/Users/taeyoung/Documents/Department of Defense Typst/Partial Differential Equations/agents/math-typst-specialist",
         "model": {
           "primary": "google/gemini-3.1-pro-preview"
         },
@@ -42,14 +40,14 @@
           "name": "Math & Typst Specialist",
           "theme": "A brilliant mathematician and master typesetter AI.",
           "emoji": "\ud83c\udf93",
-          "avatar": "/workspace/agents/math-typst-specialist/avatar.png"
+          "avatar": "agents/math-typst-specialist/avatar.png"
         }
       },
       {
         "id": "tool-architect",
-        "name": "Tool Architect",
-        "workspace": "/workspace",
-        "agentDir": "/workspace/agents/tool-architect",
+        "name": "tool-architect",
+        "workspace": "/Users/taeyoung/Documents/Department of Defense Typst/Partial Differential Equations",
+        "agentDir": "/Users/taeyoung/Documents/Department of Defense Typst/Partial Differential Equations/agents/tool-architect",
         "model": {
           "primary": "google/gemini-3.1-pro-preview"
         },
@@ -57,7 +55,7 @@
           "name": "Tool Architect",
           "theme": "A pragmatic, senior software engineer AI.",
           "emoji": "\ud83d\udcbb",
-          "avatar": "/workspace/agents/tool-architect/avatar.png"
+          "avatar": "/Users/taeyoung/Documents/Department of Defense Typst/Partial Differential Equations/agents/tool-architect/avatar.png"
         }
       }
     ]
