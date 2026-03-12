@@ -178,13 +178,29 @@ def main():
     run_command("sudo chown -R $USER:$USER .")
 
     # 변경 사항 커밋
+    print("📂 변경 사항 확인 및 커밋 중...")
+    
+    # 1. Git 유저 정보 확인 및 설정
+    run_command("git config user.name 'NightWatch Bot'")
+    run_command("git config user.email 'nightwatch@kimpossible-ty'")
+    
+    # 2. 모든 변경 사항 스테이징
     run_command("git add .")
+    
+    # 3. 변경 내용 상세 로깅 (디버깅용)
+    _, status_output = run_command("git status --porcelain")
+    if status_output.strip():
+        print("📝 변경된 파일 목록:")
+        print(status_output)
+    
+    # 4. 커밋 실행
     rc_diff, _ = run_command("git diff --cached --quiet")
     if rc_diff != 0:  # 변경 사항이 있으면
+        print(f"✅ 변경 사항 발견: 커밋 생성 중... ([{tag}] {title})")
         run_command(f'git commit -m "feat: [{tag}] {title}"')
     else:
-        print("ℹ️ 변경 사항 없음 — 빈 커밋 생성")
-        run_command(f'git commit --allow-empty -m "feat: [{tag}] {title} (no changes)"')
+        print("ℹ️ 변경 사항 없음 — 자동 PR 생성을 위해 빈 커밋을 생성합니다.")
+        run_command(f'git commit --allow-empty -m "feat: [{tag}] {title} (no code changes)"')
 
     print("✅ NightWatch Executor 완료")
 
