@@ -35,7 +35,7 @@ def run_command(command, shell=True, env=None):
     return process.returncode, "".join(output)
 
 
-def patch_openclaw_config(gemini_api_key, tag, gateway_token=None):
+def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
     """OpenClaw 구성을 CI 환경에 맞게 동적 패치"""
     path = '.openclaw_config/openclaw.json'
     if not os.path.exists(path):
@@ -52,10 +52,10 @@ def patch_openclaw_config(gemini_api_key, tag, gateway_token=None):
         config['gateway']['mode'] = 'remote'
 
         # 1.5 Gateway 인증 설정 (토큰 방식)
-        if gateway_token:
+        if openclaw_gateway_token:
             config['gateway']['auth'] = {
                 "mode": "token",
-                "token": gateway_token
+                "token": openclaw_gateway_token
             }
         else:
             config.pop('auth', None)  # 인증 제거 (기본값)
@@ -153,11 +153,11 @@ def main():
     run_command("cp .openclaw/openclaw.json .openclaw_config/openclaw.json")
 
     # 2. 설정 패치 (태그에 따른 모델 주입 포함)
-    gateway_token = secrets.token_hex(24)
-    patch_openclaw_config(gemini_api_key, tag, gateway_token)
+    openclaw_gateway_token = secrets.token_hex(24) # openclaw_gateway_token이라는 변수명은 변경하면 안됨. 이유는 로컬에서 docker-compose를 할 때 해당 이름의 token을 가져오기 때문.
+    patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token)
 
     # 3. Gateway 서비스 시작
-    run_command(f"GATEWAY_TOKEN={gateway_token} docker compose up -d openclaw-gateway")
+    run_command(f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} docker compose up -d openclaw-gateway")
     run_command("sleep 5")
 
     # 4. Agent 실행
