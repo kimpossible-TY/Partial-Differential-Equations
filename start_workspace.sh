@@ -10,7 +10,7 @@ BLUE='\033[0;34m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-MAIN_FILE="main.typ"
+MAIN_FILE="Typst_project/main.typ"
 HTTP_PORT=8000
 WORKDIR="$(cd "$(dirname "$0")" && pwd)"
 
@@ -87,7 +87,7 @@ tailscale serve --yes --bg --https=18789 http://127.0.0.1:18789 > /dev/null 2>&1
 
 # 7. 모바일 접속 주소 안내
 TAILNET_DOMAIN=$(tailscale status --json | python3 -c 'import sys, json; print(json.load(sys.stdin).get("CertDomains", [""])[0])')
-SERVER_URL="https://${TAILNET_DOMAIN}/main.pdf"
+SERVER_URL="https://${TAILNET_DOMAIN}/Typst_project/main.pdf"
 OPENCLAW_URL="https://${TAILNET_DOMAIN}:18789"
 
 # 8. 안내 창(window 4)을 메인 뷰로 생성하여 attach
