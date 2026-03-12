@@ -83,7 +83,7 @@ else
 fi
 
 echo "🚀 GitHub에 푸시 중..."
-git push origin .
+git push origin "$CURRENT_BRANCH"
 
 # 5. NightWatch Workflow 트리거
 echo "🌙 NightWatch 루프를 깨우는 중..."
