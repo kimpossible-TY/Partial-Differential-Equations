@@ -125,14 +125,14 @@ def main():
         return
 
     # 일반 사용자용 출력
-    print(f"\n{'='*60}")
-    print(f"📋 다음 태스크")
-    print(f"{'='*60}")
+    print(f"\n{'=' * 60}")
+    print("📋 다음 태스크")
+    print(f"{'=' * 60}")
     print(f"  태그   : [{task['tag']}]")
     print(f"  제목   : {task['title']}")
     print(f"  모델   : {task['model']}")
     print(f"  본문   :\n{task['body']}")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
 
 if __name__ == "__main__":
