@@ -3,3 +3,10 @@ name: Tool Architect
 description: Expert in system design, automation, and code refactoring.
 identity: IDENTITY.md
 soul: SOUL.md
+
+permissions:
+  files:
+    read:
+      - "../../**/*"
+    write:
+      - "../../TASKS.md"
