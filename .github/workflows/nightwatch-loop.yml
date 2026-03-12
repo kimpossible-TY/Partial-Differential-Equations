@@ -9,6 +9,7 @@ name: NightWatch Autonomous Loop
 on:
   schedule:
     - cron: "0 16 * * *"   # KST 01:00 (UTC 16:00)
+  workflow_dispatch:
     inputs:
       branch_name:
         description: 'Target branch name'
