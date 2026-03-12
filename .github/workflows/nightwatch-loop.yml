@@ -137,7 +137,9 @@ jobs:
             # Python으로 정밀 패치: 보안(API Key), 네트워크(Gateway), 경로(Workspace) 최적화
             docker compose run --rm -T \
               nightwatch-agent \
-              python3 -c "import json, os; path = '/root/.openclaw/openclaw.json'; config = json.load(open(path)) if os.path.exists(path) else {}; \
+              python3 -c "import json, os; path = '/root/.openclaw/openclaw.json'; \
+              if not os.path.exists(path): exit(0); \
+              config = json.load(open(path)); \
               # 1. Gateway 설정 보정 \
               config['gateway'] = config.get('gateway', {}); config['gateway']['remote'] = {'url': 'ws://openclaw-gateway:18789'}; \
               config['gateway']['mode'] = 'remote'; config.pop('auth', None); \
@@ -146,16 +148,12 @@ jobs:
               google_prov['apiKey'] = '${GEMINI_API_KEY}'; google_prov.setdefault('models', []); \
               if not any(m['id'] == 'gemini-3.0-flash' for m in google_prov['models']): \
                 google_prov['models'].insert(0, {'id': 'gemini-3.0-flash', 'name': 'Gemini 3.0 Flash'}); \
-              # 3. 모든 경로를 /workspace 기준으로 치환 (로컬 경로 -> 컨테이너 경로) \
-              config_str = json.dumps(config); \
-              old_path = '$(pwd)'; new_path = '/workspace'; \
-              config = json.loads(config_str.replace(old_path, new_path)); \
+              # 3. 모든 경로를 /workspace 기준으로 치환 (기존 JSON 내부 경로 자동 탐지) \
+              old_ws = config.get('agents', {}).get('defaults', {}).get('workspace'); \
+              if old_ws: \
+                config_str = json.dumps(config); \
+                config = json.loads(config_str.replace(old_ws, '/workspace')); \
               json.dump(config, open(path, 'w'), indent=2)"
-            
-            # 에이전트 등록
-            docker compose run --rm -T \
-              nightwatch-agent \
-              openclaw agents add tool-architect --agent-dir /workspace/agents/tool-architect --workspace /workspace --non-interactive
             
             # 2. Gateway 서비스 시작
             docker compose up -d openclaw-gateway
