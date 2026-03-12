@@ -181,31 +181,34 @@ jobs:
         if: steps.parse.outputs.no_task != 'true'
         run: git push origin "$branch" --force
 
-      # 9. PR 생성
-      - name: Create Pull Request
+      # 9. PR 생성 또는 업데이트
+      - name: Create or Update Pull Request
         if: steps.parse.outputs.no_task != 'true'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          # PR 본문 파일 생성 (이스케이프 완전 차단)
-          cat > pr_body.txt << EOF
-          ## NightWatch 자율 태스크
+          # PR 본문 파일 빌드 (가장 안전한 방식)
+          echo "## NightWatch 자율 태스크" > pr_body.txt
+          echo "" >> pr_body.txt
+          echo "**태그:** \`${{ steps.parse.outputs.tag }}\`" >> pr_body.txt
+          echo "**모델:** \`${{ steps.parse.outputs.model }}\`" >> pr_body.txt
+          echo "" >> pr_body.txt
+          echo "### 태스크 내용" >> pr_body.txt
+          cat task_body.txt >> pr_body.txt
+          echo "" >> pr_body.txt
+          echo "---" >> pr_body.txt
+          echo "> 🤖 NightWatch Bot이 자동 생성한 PR입니다." >> pr_body.txt
 
-          **태그:** \`${{ steps.parse.outputs.tag }}\`
-          **모델:** \`${{ steps.parse.outputs.model }}\`
-
-          ### 태스크 내용
-          $(cat task_body.txt)
-
-          ---
-          > 🤖 NightWatch Bot이 자동 생성한 PR입니다.
-          EOF
-
-          gh pr create \
-            --title "[${{ steps.parse.outputs.tag }}] ${{ steps.parse.outputs.title }}" \
-            --body-file pr_body.txt \
-            --base main \
-            --head "$branch" || echo "이미 PR이 존재하거나 생성 실패 (무시)"
+          TITLE="[${{ steps.parse.outputs.tag }}] ${{ steps.parse.outputs.title }}"
+          
+          # 1. PR 생성 시도
+          if gh pr create --title "$TITLE" --body-file pr_body.txt --base main --head "$branch"; then
+            echo "✅ 새 PR이 생성되었습니다."
+          else
+            echo "ℹ️ PR이 이미 존재하거나 생성이 차단되었습니다. 업데이트를 시도합니다."
+            # 2. 기존 PR 업데이트 (제목과 본문 동기화)
+            gh pr edit "$branch" --title "$TITLE" --body-file pr_body.txt || echo "⚠️ PR 업데이트 실패"
+          fi
 
       # 10. Discord 성공 알림
       - name: Discord success notification
