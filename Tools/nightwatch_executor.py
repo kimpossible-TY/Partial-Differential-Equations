@@ -4,9 +4,6 @@ import os
 import subprocess
 import sys
 import secrets
-from datetime import datetime
-
-
 import re
 import shlex
 
