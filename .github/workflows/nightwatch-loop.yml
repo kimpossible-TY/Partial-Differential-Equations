@@ -110,17 +110,37 @@ jobs:
             git commit -m "plan: [PRO] $TITLE"
           else
             echo "⚡ [FLASH] 태스크: OpenClaw 실행 (Sandbox)"
-            # 1. 공용 설정 및 에이전트 초기화 (Manual Bootstrap via Python)
+            # 1. 공용 설정 및 에이전트 초기화 (Silent Injection)
             mkdir -p ./.openclaw_config
             chmod 777 ./.openclaw_config
             
-            # openclaw.json 생성
-            python3 -c "import json; config={'gateway':{'remote':{'url':'ws://openclaw-gateway:18789'}},'models':{'providers':{'google':{'apiKey':{'source':'env','id':'GEMINI_API_KEY'}}}}}; open('./.openclaw_config/openclaw.json','w').write(json.dumps(config,indent=2))"
+            # 기초 설정 생성 (OpenClaw Setup)
+            docker compose run --rm -T \
+              nightwatch-agent \
+              openclaw setup --workspace /workspace --non-interactive
             
-            # manifest.yaml 생성
-            python3 -c "open('./.openclaw_config/manifest.yaml','w').write('workspace: /workspace\n')"
+            # Python으로 정밀 주입 (Schema-compliant & Bypass interactive)
+            python3 -c "
+            import json, os
+            path = './.openclaw_config/openclaw.json'
+            if os.path.exists(path):
+                with open(path, 'r') as f: config = json.load(f)
+            else:
+                config = {}
+            config['gateway'] = {'remote': {'url': 'ws://openclaw-gateway:18789'}}
+            if 'models' not in config: config['models'] = {}
+            config['models']['providers'] = {'google': {
+                'baseUrl': 'https://generativelanguage.googleapis.com/v1beta',
+                'apiKey': {'source': 'env', 'id': 'GEMINI_API_KEY'},
+                'models': [
+                    {'id': 'gemini-1.5-flash', 'name': 'Gemini 1.5 Flash'},
+                    {'id': 'gemini-2.0-flash', 'name': 'Gemini 2.0 Flash'}
+                ]
+            }}
+            with open(path, 'w') as f: json.dump(config, f, indent=2)
+            "
 
-            # 에이전트 등록 (이 단계는 리스크 승인이 필요 없을 것으로 예상됨)
+            # 에이전트 등록
             docker compose run --rm -T \
               nightwatch-agent \
               openclaw agents add tool-architect --agent-dir /workspace/agents/tool-architect
