@@ -127,21 +127,30 @@ jobs:
             git commit -m "plan: [PRO] $TITLE"
           else
             echo "⚡ [FLASH] 태스크: OpenClaw 실행 (Sandbox)"
-            # 1. 공용 설정 및 에이전트 초기화 (Dual-Layer Bootstrap)
+            # 1. 공용 설정 및 에이전트 초기화 (Template-based Injection)
             mkdir -p ./.openclaw_config
             chmod 777 ./.openclaw_config
             
-            # 기초 구조 및 보안 승인 (OpenClaw Onboard - Dual-Layer Part 1)
-            docker compose run --rm -T \
-              nightwatch-agent \
-              openclaw onboard --accept-risk --non-interactive --workspace /workspace \
-              --secret-input-mode ref --auth-choice gemini-api-key \
-              --mode remote --remote-url ws://openclaw-gateway:18789 || echo "Onboard command failed, relying on Silent Injection fallback"
+            # 프로젝트 루트의 설정을 템플릿으로 복사
+            cp .openclaw/openclaw.json ./.openclaw_config/openclaw.json
             
-            # Python으로 정밀 주입 및 스키마 보정 (OpenClaw Injection - Dual-Layer Part 2)
+            # Python으로 정밀 패치: 보안(API Key), 네트워크(Gateway), 경로(Workspace) 최적화
             docker compose run --rm -T \
               nightwatch-agent \
-              python3 -c "import json, os; path = '/root/.openclaw/openclaw.json'; config = json.load(open(path)) if os.path.exists(path) else {}; config['gateway'] = {'remote': {'url': 'ws://openclaw-gateway:18789'}}; config['auth'] = {'choice': 'none'}; config.setdefault('models', {})['providers'] = {'google': {'baseUrl': 'https://generativelanguage.googleapis.com/v1beta', 'apiKey': '${GEMINI_API_KEY}', 'models': [{'id': 'gemini-3.0-flash', 'name': 'Gemini 3.0 Flash'}, {'id': 'gemini-2.0-flash', 'name': 'Gemini 2.0 Flash'}, {'id': 'gemini-1.5-flash', 'name': 'Gemini 1.5 Flash'}]}}; json.dump(config, open(path, 'w'), indent=2)"
+              python3 -c "import json, os; path = '/root/.openclaw/openclaw.json'; config = json.load(open(path)) if os.path.exists(path) else {}; \
+              # 1. Gateway 설정 보정 \
+              config['gateway'] = config.get('gateway', {}); config['gateway']['remote'] = {'url': 'ws://openclaw-gateway:18789'}; \
+              config['gateway']['mode'] = 'remote'; config.pop('auth', None); \
+              # 2. Google Provider 설정 및 API Key 주입 \
+              google_prov = config.setdefault('models', {}).setdefault('providers', {}).setdefault('google', {}); \
+              google_prov['apiKey'] = '${GEMINI_API_KEY}'; google_prov.setdefault('models', []); \
+              if not any(m['id'] == 'gemini-3.0-flash' for m in google_prov['models']): \
+                google_prov['models'].insert(0, {'id': 'gemini-3.0-flash', 'name': 'Gemini 3.0 Flash'}); \
+              # 3. 모든 경로를 /workspace 기준으로 치환 (로컬 경로 -> 컨테이너 경로) \
+              config_str = json.dumps(config); \
+              old_path = '$(pwd)'; new_path = '/workspace'; \
+              config = json.loads(config_str.replace(old_path, new_path)); \
+              json.dump(config, open(path, 'w'), indent=2)"
             
             # 에이전트 등록
             docker compose run --rm -T \
