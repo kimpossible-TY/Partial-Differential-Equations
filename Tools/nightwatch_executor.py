@@ -128,6 +128,33 @@ def elevate_agent_permissions():
                 print(f"⚠️ 에이전트 {agent_id} 권한 승격 중 오류: {e}")
 
 
+def restore_agent_permissions():
+    """CI 환경 종료 시 에이전트의 파일 쓰기 권한을 기본(TASKS.md)으로 복구"""
+    agents_dir = 'agents'
+    if not os.path.exists(agents_dir):
+        return
+
+    for agent_id in os.listdir(agents_dir):
+        manifest_path = os.path.join(agents_dir, agent_id, 'manifest.yaml')
+        if os.path.exists(manifest_path):
+            try:
+                with open(manifest_path, 'r') as f:
+                    content = f.read()
+
+                # write: 섹션 아래의 항목을 "- \"TASKS.md\"" 로 복구
+                new_content = re.sub(
+                    r'(write:\s*\n\s*-\s*).+',
+                    r'\1"TASKS.md"',
+                    content
+                )
+
+                with open(manifest_path, 'w') as f:
+                    f.write(new_content)
+                print(f"🔒 에이전트 권한 복구 완료: {agent_id}")
+            except Exception as e:
+                print(f"⚠️ 에이전트 {agent_id} 권한 복구 중 오류: {e}")
+
+
 def main():
     # 환경 변수 로드
     tag = os.getenv('TAG', 'FLASH')
@@ -148,59 +175,63 @@ def main():
 
     # 1. 공통 준비: 에이전트 권한 승격 및 설정 디렉토리 준비
     elevate_agent_permissions()
-    os.makedirs('.openclaw_config', exist_ok=True)
-    run_command("chmod 777 .openclaw_config")
-    run_command("cp .openclaw/openclaw.json .openclaw_config/openclaw.json")
+    try:
+        os.makedirs('.openclaw_config', exist_ok=True)
+        run_command("chmod 777 .openclaw_config")
+        run_command("cp .openclaw/openclaw.json .openclaw_config/openclaw.json")
 
-    # 2. 설정 패치 (태그에 따른 모델 주입 포함)
-    openclaw_gateway_token = secrets.token_hex(24)  # openclaw_gateway_token이라는 변수명은 변경하면 안됨. 이유는 로컬에서 docker-compose를 할 때 해당 이름의 token을 가져오기 때문.
-    patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token)
+        # 2. 설정 패치 (태그에 따른 모델 주입 포함)
+        openclaw_gateway_token = secrets.token_hex(24)  # openclaw_gateway_token이라는 변수명은 변경하면 안됨. 이유는 로컬에서 docker-compose를 할 때 해당 이름의 token을 가져오기 때문.
+        patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token)
 
-    # 3. Gateway 서비스 시작
-    run_command(f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} docker compose up -d openclaw-gateway")
-    run_command("sleep 5")
+        # 3. Gateway 서비스 시작
+        run_command(f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} docker compose up -d openclaw-gateway")
+        run_command("sleep 5")
 
-    # 4. Agent 실행
-    # PRO든 FLASH든 실제 에이전트를 실행하여 TASKS.md의 지시사항을 완수하도록 함
-    print(f"⚡ OpenClaw 실행 중... (Tag: {tag}, Title: {title})")
-    agent_cmd = [
-        "docker compose run --rm -T",
-        f"-e GEMINI_API_KEY={shlex.quote(gemini_api_key)}",
-        f"-e TASK_BODY={shlex.quote(task_body)}",
-        "-e OPENCLAW_ACCEPT_RISK=true",
-        "nightwatch-agent",
-        f"openclaw agent --agent tool-architect --message {shlex.quote(task_body)}"
-    ]
-    rc, _ = run_command(" ".join(agent_cmd))
+        # 4. Agent 실행
+        # PRO든 FLASH든 실제 에이전트를 실행하여 TASKS.md의 지시사항을 완수하도록 함
+        print(f"⚡ OpenClaw 실행 중... (Tag: {tag}, Title: {title})")
+        agent_cmd = [
+            "docker compose run --rm -T",
+            f"-e GEMINI_API_KEY={shlex.quote(gemini_api_key)}",
+            f"-e TASK_BODY={shlex.quote(task_body)}",
+            "-e OPENCLAW_ACCEPT_RISK=true",
+            "nightwatch-agent",
+            f"openclaw agent --agent tool-architect --message {shlex.quote(task_body)}"
+        ]
+        rc, _ = run_command(" ".join(agent_cmd))
 
-    # 5. 사후 처리
-    run_command("docker compose stop openclaw-gateway")
-    run_command("sudo chown -R $USER:$USER .")
+        # 5. 사후 처리
+        run_command("docker compose stop openclaw-gateway")
+        run_command("sudo chown -R $USER:$USER .")
 
-    # 변경 사항 커밋
-    print("📂 변경 사항 확인 및 커밋 중...")
+        # 변경 사항 커밋
+        print("📂 변경 사항 확인 및 커밋 중...")
 
-    # 1. Git 유저 정보 확인 및 설정
-    run_command("git config user.name 'NightWatch Bot'")
-    run_command("git config user.email 'nightwatch@kimpossible-ty'")
+        # 1. Git 유저 정보 확인 및 설정
+        run_command("git config user.name 'NightWatch Bot'")
+        run_command("git config user.email 'nightwatch@kimpossible-ty'")
 
-    # 2. 모든 변경 사항 스테이징
-    run_command("git add .")
+        # 2. 모든 변경 사항 스테이징
+        run_command("git add .")
 
-    # 3. 변경 내용 상세 로깅 (디버깅용)
-    _, status_output = run_command("git status --porcelain")
-    if status_output.strip():
-        print("📝 변경된 파일 목록:")
-        print(status_output)
+        # 3. 변경 내용 상세 로깅 (디버깅용)
+        _, status_output = run_command("git status --porcelain")
+        if status_output.strip():
+            print("📝 변경된 파일 목록:")
+            print(status_output)
 
-    # 4. 커밋 실행
-    rc_diff, _ = run_command("git diff --cached --quiet")
-    if rc_diff != 0:  # 변경 사항이 있으면
-        print(f"✅ 변경 사항 발견: 커밋 생성 중... ([{tag}] {title})")
-        run_command(f'git commit -m "feat: [{tag}] {title}"')
-    else:
-        print("ℹ️ 변경 사항 없음 — 자동 PR 생성을 위해 빈 커밋을 생성합니다.")
-        run_command(f'git commit --allow-empty -m "feat: [{tag}] {title} (no code changes)"')
+        # 4. 커밋 실행
+        rc_diff, _ = run_command("git diff --cached --quiet")
+        if rc_diff != 0:  # 변경 사항이 있으면
+            print(f"✅ 변경 사항 발견: 커밋 생성 중... ([{tag}] {title})")
+            run_command(f'git commit -m "feat: [{tag}] {title}"')
+        else:
+            print("ℹ️ 변경 사항 없음 — 자동 PR 생성을 위해 빈 커밋을 생성합니다.")
+            run_command(f'git commit --allow-empty -m "feat: [{tag}] {title} (no code changes)"')
+    finally:
+        # 에약된 권한 복구 (어떠한 경우에도 권한은 다시 묶어야 함)
+        restore_agent_permissions()
 
     print("✅ NightWatch Executor 완료")
 

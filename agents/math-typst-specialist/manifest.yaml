@@ -8,5 +8,5 @@ permissions:
     read:
       - "../../**/*"
     write:
-      - "../../**/*"
+      - "../../TASKS.md"
 
