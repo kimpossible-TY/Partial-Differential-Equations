@@ -10,6 +10,10 @@
 
 # 🔄 대기 중인 작업 (상단 항목부터 처리)
 
+## [FLASH] Final Handoff Test: Create 'HANDOFF_SUCCESS.md'
+- 목표: `./nightwatch.sh` 스크립트가 정상적으로 워크플로우를 트리거하고 에이전트가 작업을 수행하는지 최종 확인합니다.
+- 기대 결과: 에이전트가 `HANDOFF_SUCCESS.md` 파일을 생성하고 PR을 올려야 함.
+
 ## [FLASH] E2E Verification: Create NightWatch status file
 - 목표: 시스템이 정상 작동하는지 확인하기 위해 `STATUS_NIGHTWATCH.md` 파일을 생성하고 시스템 정보를 기록합니다.
 - 기대 결과: NightWatch가 이 태스크를 읽고 파일을 생성한 뒤 PR을 자동으로 올려야 함.
