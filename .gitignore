@@ -50,8 +50,9 @@ Desktop.ini
 *.swp
 *.swo
 
-#test
+#test or etc
 test/
+*.txt
 
 ### 🛠 Workspace Scripts
 # start_workspace.sh 가 생성하는 임시 스크립트 파일
