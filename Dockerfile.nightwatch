@@ -1,19 +1,18 @@
 # ==============================================================================
 # NightWatch Agent Sandbox Dockerfile
-# Ubuntu 24.04 (Noble Numbat) 기반
+# node:24-bookworm (Full 버전) - 범용성 및 노드 최적화
 # ==============================================================================
 
-FROM ubuntu:24.04
+FROM node:24-bookworm
 
 # 1. 메타데이터
 LABEL maintainer="kimpossible-TY"
-LABEL description="NightWatch Project Autonomous Development Sandbox"
+LABEL description="NightWatch Project Autonomous Development Sandbox (Node 24)"
 
 # 2. 비대화형 모드 설정
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 3. 필수 패키지 설치
-# git, curl, python3, pip, nodejs, npm 등
+# 3. 필수 패키지 설치 (Python, Typst용 의존성)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
@@ -23,21 +22,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
     python3-venv \
     python3-dev \
-    build-essential \
     unzip \
     wget \
     gnupg \
     && rm -rf /var/lib/apt/lists/*
 
-# 4. Node.js 20.x 설치 (OpenClaw용)
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
-    && rm -rf /var/lib/apt/lists/*
+# 4. OpenClaw CLI 전역 설치 및 정밀 진단
+RUN npm install -g openclaw \
+    && echo "--- npm global bin location ---" \
+    && npm config get prefix | xargs -I {} ls -la {}/bin/openclaw || true \
+    && echo "--- search for openclaw binary ---" \
+    && find / -name openclaw -type f -executable 2>/dev/null || true \
+    && (openclaw --version || npx openclaw --version || echo "ERROR: openclaw not executable")
 
-# 5. OpenClaw CLI 전역 설치
-RUN npm install -g @openclaw/cli
-
-# 6. Typst 설치 (최신 릴리즈 추출)
+# 6. Typst 설치
 RUN curl -L -o /tmp/typst.tar.xz \
     https://github.com/typst/typst/releases/latest/download/typst-x86_64-unknown-linux-musl.tar.xz \
     && mkdir -p /tmp/typst-bin \
@@ -46,12 +44,12 @@ RUN curl -L -o /tmp/typst.tar.xz \
     && rm -rf /tmp/typst*
 
 # 7. 작업 디렉토리 설정
-WORKDIR /app
+WORKDIR /workspace
 
 # 8. Python 가상 환경 설정
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+ENV PATH="$VIRTUAL_ENV/bin:/usr/local/bin:$PATH"
 
 # 9. 기본적인 Python 패키지 설치
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
@@ -62,9 +60,8 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
     mypy \
     requests
 
-# 10. OpenClaw 에이전트 설정 및 소스 루트 마운트 준비
-# (docker-compose에서 실제 소스가 마운트됨)
-ENV PYTHONPATH=/app
+# 10. 소스 루트 마운트 및 환경 설정
+ENV PYTHONPATH=/workspace
 
-# 11. 컨테이너 유지용 더미 명령어 (NightWatch Loop에서 exec로 작업 수행)
-ENTRYPOINT ["tail", "-f", "/dev/null"]
+# 11. 컨테이너 유지용 기본 명령어
+CMD ["tail", "-f", "/dev/null"]
