@@ -110,32 +110,15 @@ jobs:
             git commit -m "plan: [PRO] $TITLE"
           else
             echo "⚡ [FLASH] 태스크: OpenClaw 실행 (Sandbox)"
-            # 1. 공용 설정 및 에이전트 초기화 (Manual Bootstrap)
+            # 1. 공용 설정 및 에이전트 초기화 (Manual Bootstrap via Python)
             mkdir -p ./.openclaw_config
             chmod 777 ./.openclaw_config
             
-            # openclaw.json (JSON5 형식 - 원격 게이트웨이 및 API 키 참조 설정)
-            cat <<'EOF' > ./.openclaw_config/openclaw.json
-            {
-              "gateway": {
-                "remote": {
-                  "url": "ws://openclaw-gateway:18789"
-                }
-              },
-              "models": {
-                "providers": {
-                  "google": {
-                    "apiKey": { "source": "env", "id": "GEMINI_API_KEY" }
-                  }
-                }
-              }
-            }
-            EOF
+            # openclaw.json 생성
+            python3 -c "import json; config={'gateway':{'remote':{'url':'ws://openclaw-gateway:18789'}},'models':{'providers':{'google':{'apiKey':{'source':'env','id':'GEMINI_API_KEY'}}}}}; open('./.openclaw_config/openclaw.json','w').write(json.dumps(config,indent=2))"
             
-            # manifest.yaml (기본 워크스페이스 경로 설정)
-            cat <<'EOF' > ./.openclaw_config/manifest.yaml
-            workspace: /workspace
-            EOF
+            # manifest.yaml 생성
+            python3 -c "open('./.openclaw_config/manifest.yaml','w').write('workspace: /workspace\n')"
 
             # 에이전트 등록 (이 단계는 리스크 승인이 필요 없을 것으로 예상됨)
             docker compose run --rm -T \
