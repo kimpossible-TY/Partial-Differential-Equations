@@ -141,7 +141,7 @@ jobs:
             # Python으로 정밀 주입 및 스키마 보정 (OpenClaw Injection - Dual-Layer Part 2)
             docker compose run --rm -T \
               nightwatch-agent \
-              python3 -c "import json, os; path = '/root/.openclaw/openclaw.json'; config = json.load(open(path)) if os.path.exists(path) else {}; config['gateway'] = {'remote': {'url': 'ws://openclaw-gateway:18789'}}; config.setdefault('models', {})['providers'] = {'google': {'baseUrl': 'https://generativelanguage.googleapis.com/v1beta', 'apiKey': '${GEMINI_API_KEY}', 'models': [{'id': 'gemini-1.5-flash', 'name': 'Gemini 1.5 Flash'}, {'id': 'gemini-2.0-flash', 'name': 'Gemini 2.0 Flash'}, {'id': 'gemini-3.0-flash', 'name': 'Gemini 3.0 Flash'}]}}; json.dump(config, open(path, 'w'), indent=2)"
+              python3 -c "import json, os; path = '/root/.openclaw/openclaw.json'; config = json.load(open(path)) if os.path.exists(path) else {}; config['gateway'] = {'remote': {'url': 'ws://openclaw-gateway:18789'}}; config['auth'] = {'choice': 'none'}; config.setdefault('models', {})['providers'] = {'google': {'baseUrl': 'https://generativelanguage.googleapis.com/v1beta', 'apiKey': '${GEMINI_API_KEY}', 'models': [{'id': 'gemini-3.0-flash', 'name': 'Gemini 3.0 Flash'}, {'id': 'gemini-2.0-flash', 'name': 'Gemini 2.0 Flash'}, {'id': 'gemini-1.5-flash', 'name': 'Gemini 1.5 Flash'}]}}; json.dump(config, open(path, 'w'), indent=2)"
             
             # 에이전트 등록
             docker compose run --rm -T \
@@ -158,7 +158,7 @@ jobs:
               -e "TASK_BODY=$TASK_BODY" \
               -e OPENCLAW_ACCEPT_RISK=true \
               nightwatch-agent \
-              openclaw agent --agent tool-architect --message "$TASK_BODY"
+              openclaw agent --agent tool-architect --model "${{ steps.parse.outputs.model }}" --message "$TASK_BODY"
             
             # 4. Gateway 중지
             docker compose stop openclaw-gateway
