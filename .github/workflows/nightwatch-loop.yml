@@ -113,7 +113,7 @@ jobs:
             # 1. 공용 설정 및 에이전트 초기화 (Host-path Bind Mount 사용)
             mkdir -p ./.openclaw_config
             chmod 777 ./.openclaw_config
-            docker compose run --rm \
+            docker compose run --rm -T \
               nightwatch-agent \
               /bin/bash -c "openclaw setup --workspace /workspace --non-interactive && openclaw agents add tool-architect --agent-dir /workspace/agents/tool-architect"
             
@@ -121,14 +121,13 @@ jobs:
             docker compose up -d openclaw-gateway
             sleep 5
             
-            # 3. Docker 컨테이너 내에서 OpenClaw 실행
-            # onboard 시 --secret-input-mode ref 를 사용하여 환경변수 참조 모드로 진행 (Risk 해결책)
-            docker compose run --rm \
+            # 3. Docker 컨테이너 내에서 OpenClaw 실행 (Direct Agent Call - Onboard 패스)
+            docker compose run --rm -T \
               -e GEMINI_API_KEY="$GEMINI_API_KEY" \
               -e "TASK_BODY=$TASK_BODY" \
               -e OPENCLAW_ACCEPT_RISK=true \
               nightwatch-agent \
-              /bin/bash -c "openclaw onboard --non-interactive --accept-risk --secret-input-mode ref --auth-choice gemini-api-key --mode remote --remote-url ws://openclaw-gateway:18789 && openclaw agents list && openclaw agent --agent tool-architect --message \"\$TASK_BODY\""
+              /bin/bash -c "openclaw agent --url ws://openclaw-gateway:18789 --agent tool-architect --message \"\$TASK_BODY\""
             
             # 4. Gateway 중지
             docker compose stop openclaw-gateway
