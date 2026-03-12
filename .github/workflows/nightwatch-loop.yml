@@ -113,9 +113,8 @@ jobs:
             # 1. 공용 설정 및 에이전트 초기화 (Host-path Bind Mount 사용)
             mkdir -p ./.openclaw_config
             docker compose run --rm \
-              -e OPENCLAW_ACCEPT_RISK=true \
               nightwatch-agent \
-              /bin/bash -c "openclaw setup --workspace /workspace --non-interactive --accept-risk && openclaw agents add tool-architect --agent-dir /workspace/agents/tool-architect"
+              /bin/bash -c "openclaw setup --workspace /workspace --non-interactive && openclaw agents add tool-architect --agent-dir /workspace/agents/tool-architect"
             
             # 2. Gateway 서비스 시작 (위에서 생성된 설정을 로드함)
             docker compose up -d openclaw-gateway
@@ -126,9 +125,8 @@ jobs:
             docker compose run --rm \
               -e GEMINI_API_KEY="$GEMINI_API_KEY" \
               -e "TASK_BODY=$TASK_BODY" \
-              -e OPENCLAW_ACCEPT_RISK=true \
               nightwatch-agent \
-              /bin/bash -c "openclaw onboard --non-interactive --accept-risk --mode remote --remote-url ws://openclaw-gateway:18789 --gemini-api-key \"\$GEMINI_API_KEY\" && openclaw agents list && openclaw agent --agent tool-architect --message \"\$TASK_BODY\""
+              /bin/bash -c "openclaw onboard --non-interactive --mode remote --remote-url ws://openclaw-gateway:18789 --gemini-api-key \"\$GEMINI_API_KEY\" && openclaw agents list && openclaw agent --agent tool-architect --message \"\$TASK_BODY\""
             
             # 4. Gateway 중지
             docker compose stop openclaw-gateway
