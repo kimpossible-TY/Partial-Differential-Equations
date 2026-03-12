@@ -148,6 +148,9 @@ jobs:
             # 4. Gateway 중지
             docker compose stop openclaw-gateway
             
+            # 컨테이너에서 생성/수정한 파일 권한 복구 (root -> runner)
+            sudo chown -R $USER:$USER .
+            
             # 변경 사항 확인 및 커밋
             git add .
             if ! git diff --cached --quiet; then
