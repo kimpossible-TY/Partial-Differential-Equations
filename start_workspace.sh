@@ -1,8 +1,12 @@
 #!/bin/bash
-
 # ==============================================================================
-# 📱 Mac 로컬 문서 작성 & 실시간 모바일 서빙 스크립트 📱
-# typst watch + python http.server 의 조합으로 아이폰에서 안정적으로 렌더링합니다.
+# 📱 PDE Workspace: Mac 로컬 문서 작성 & 실시간 모바일 서빙
+#
+# [주요 파이프라인]
+# - Typst: 실시간 문서 컴파일 (watch)
+# - Python HTTP: 렌더링된 PDF 로컬 서빙
+# - Docker: NightWatch 통합 센터 컨테이너 구동
+# - Tailscale: 외부 기기용 안전한 HTTPS 터널 프록시 연결
 # ==============================================================================
 
 GREEN='\033[0;32m'
@@ -13,10 +17,9 @@ NC='\033[0m'
 MAIN_FILE="Typst_project/main.typ"
 HTTP_PORT=8000
 WORKDIR="$(cd "$(dirname "$0")" && pwd)"
-# ... (상단 변수 설정 생략) ...
-WORKDIR="$(cd "$(dirname "$0")" && pwd)"
 
-# 🔑 Docker 인증을 위한 키체인 잠금 해제 (Blink SSH 대응)
+# ==============================================================================
+# [STEP 1] 초기화 및 Mac 키체인 잠금 해제 🔑
 # ==============================================================================
 echo -e "${BLUE}▶ Docker 인증 정보를 가져오기 위해 Mac 키체인 잠금을 해제합니다.${NC}"
 echo -n "Mac 로그인 비밀번호 입력: "
@@ -30,8 +33,10 @@ else
     echo -e "${RED}❌ 실패: 비밀번호가 틀렸습니다. 스크립트를 중단합니다.${NC}"
     exit 1
 fi
-# ==============================================================================
 
+# ==============================================================================
+# [STEP 2] 환경 변수 로드 및 프로젝트 검증 ⚙️
+# ==============================================================================
 # .env 파일이 있다면 환경변수로 미리 로드 (API Key를 OpenClaw 등에 전달하기 위함)
 if [ -f "$WORKDIR/.env" ]; then
     export $(cat "$WORKDIR/.env" | grep -v '^#' | xargs)
@@ -40,62 +45,70 @@ fi
 # 호스트 CLI가 프로젝트 디렉토리의 설정을 사용하도록 강제
 export OPENCLAW_CONFIG_DIR="$WORKDIR/.openclaw"
 
-if [ -f "$WORKDIR/.env" ]; then
-    export $(cat "$WORKDIR/.env" | grep -v '^#' | xargs)
-fi
-
-# 1. 예외 처리: main.typ 파일이 없으면 즉시 종료
+# 예외 처리: main.typ 파일이 없으면 즉시 종료
 if [ ! -f "$WORKDIR/$MAIN_FILE" ]; then
     echo -e "❌ 오류: '$WORKDIR'에 'main.typ' 파일이 없습니다."
     exit 1
 fi
 
-
-# 🔑 OpenClaw 최신 버전 동적 체크 (추가된 부분)
+# ==============================================================================
+# [STEP 3] 버전 체크 및 기존 프로세스 정리 🧹
+# ==============================================================================
 echo -e "${BLUE}▶ OpenClaw 최신 버전을 확인 중입니다...${NC}"
 # npm이 설치되어 있어야 함. 실패 시 기본값 'latest'
 LATEST_OC_VER=$(npm view openclaw version 2>/dev/null || echo "latest")
 export OC_VERSION=$LATEST_OC_VER
 echo -e "${GREEN}✔ 확인된 버전: $OC_VERSION${NC}"
 
-# 2. 기존 tmux 세션 및 로컬 OpenClaw 프로세스 정리
+# 기존 tmux 세션 종료
 if tmux has-session -t pde_workspace 2>/dev/null; then
     echo -e "${BLUE}▶ 기존 pde_workspace 세션을 종료합니다...${NC}"
     tmux kill-session -t pde_workspace
     sleep 1
 fi
-# Mac 본체에서 혹시 돌고 있을지 모르는 게이트웨이 정리
+
+# 로컬 백그라운드 Gateway 프로세스 종료
 openclaw gateway stop > /dev/null 2>&1
 killall openclaw > /dev/null 2>&1
 
-# 2.5 OpenClaw 컨테이너 환경 준비 (원본 보안 패치)
+# OpenClaw 컨테이너 환경 준비 (원본 보안 패치)
 echo -e "${BLUE}▶ OpenClaw 컨테이너 보안 패치 중...${NC}"
 chmod +x "$WORKDIR/Tools/patch_openclaw_config.py"
 python3 "$WORKDIR/Tools/patch_openclaw_config.py" "$WORKDIR"
 
-
+# ==============================================================================
+# [STEP 4] Tmux 세션 생성 및 서비스 구동 🚀
+# ==============================================================================
 echo -e "${BLUE}▶ tmux 세션을 생성하고 서버를 가동합니다...${NC}"
 
-# 3. tmux 세션 생성 (detached)
+# tmux 세션 생성 (detached)
 tmux new-session -d -s pde_workspace -c "$WORKDIR" -x 220 -y 50
 tmux set-option -t pde_workspace default-shell /bin/zsh
 
-# 4. 각 서버를 tmux 창(window)에서 실행 — 세션과 수명을 같이함
-# window 0: typst watch
+# 각 서버를 tmux 창(window)에서 실행
+# ------------------------------------------------------------------------------
+# Window 0: Typst 실시간 문서 컴파일러
+# ------------------------------------------------------------------------------
 tmux rename-window -t pde_workspace:0 'typst'
 tmux set-window-option -t pde_workspace:0 remain-on-exit off
 tmux send-keys -t pde_workspace:0 "typst watch '$MAIN_FILE' --open /dev/null" C-m
 
-# window 1: python http server
+# ------------------------------------------------------------------------------
+# Window 1: 로컬 정적 파일 서버 (PDF 서빙)
+# ------------------------------------------------------------------------------
 tmux new-window -t pde_workspace -n 'http-server' -c "$WORKDIR"
 tmux send-keys -t pde_workspace:1 "python3 -m http.server $HTTP_PORT --bind 127.0.0.1" C-m
 
-# window 2: NightWatch 통합 센터 (Gateway + Specialists)
+# ------------------------------------------------------------------------------
+# Window 2: NightWatch 통합 센터 컨테이너 (Docker Compose)
+# ------------------------------------------------------------------------------
 tmux new-window -t pde_workspace -n 'nightwatch' -c "$WORKDIR"
 tmux send-keys -t pde_workspace:2 "OC_VERSION=$OC_VERSION docker compose up --build -d" C-m
 tmux send-keys -t pde_workspace:2 "docker compose logs -f" C-m
 
-# 5. 서버 구동 대기 (포트 준비될 때까지 최대 10초)
+# ==============================================================================
+# [STEP 5] 서비스 구동 완료 대기 ⏳
+# ==============================================================================
 echo -e "${BLUE}▶ 서버 포트 준비 대기 중...${NC}"
 for i in $(seq 1 10); do
     if curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:$HTTP_PORT/ | grep -qv "^0"; then
@@ -113,27 +126,31 @@ for i in $(seq 1 10); do
     sleep 1
 done
 
-
-# 6. Tailscale Serve HTTPS 프록시 연결
+# ==============================================================================
+# [STEP 6] Tailscale 보안 터널 프록시 연결 🌐
+# ==============================================================================
 tailscale serve --yes --bg --https=443 http://127.0.0.1:$HTTP_PORT > /dev/null 2>&1
 tailscale serve --yes --bg --https=18789 http://127.0.0.1:18789 > /dev/null 2>&1
 
-# 7. 모바일 접속 주소 안내
+# ==============================================================================
+# [STEP 7] 모바일 접속 URL 생성 📱
+# ==============================================================================
 TAILNET_DOMAIN=$(tailscale status --json | python3 -c 'import sys, json; print(json.load(sys.stdin).get("CertDomains", [""])[0])')
 SERVER_URL="https://${TAILNET_DOMAIN}/Typst_project/main.pdf"
 OPENCLAW_URL="https://${TAILNET_DOMAIN}:18789"
 
-# 8. 안내 창(window 3)을 메인 뷰로 생성하여 attach
-tmux new-window -t pde_workspace -n 'info' -c "$WORKDIR"
-# ... (상단 버전 체크 및 tmux 세션 생성 로직은 유지) ...
-
-# 8. 전용 정보 스크립트 호출
-# 필수 변수들을 export하여 show_info.sh가 읽을 수 있게 함
+# ==============================================================================
+# [STEP 8] 정보 패널 생성 및 작업 공간 진입 💻
+# ==============================================================================
 export OC_VERSION SERVER_URL OPENCLAW_URL WORKDIR
+
+# ------------------------------------------------------------------------------
+# Window 3: 전용 정보 패널 스크립트 구동 (show_info.sh)
+# ------------------------------------------------------------------------------
 tmux new-window -t pde_workspace -n 'info' -c "$WORKDIR"
 tmux send-keys -t pde_workspace:3 "bash '$WORKDIR/Tools/show_info.sh'" C-m
 
-# 9. info 창으로 포커스 후 attach
+# info 창으로 포커스 후 attach
 tmux select-window -t pde_workspace:3
 tmux attach-session -t pde_workspace
 

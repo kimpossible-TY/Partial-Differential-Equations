@@ -23,6 +23,8 @@ services:
       - OPENCLAW_WORKSPACE=/workspace
       - OPENCLAW_ACCEPT_RISK=true
       - HOST=0.0.0.0
+      - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN:-}
+      - OPENCLAW_CONFIG_DIR=${OPENCLAW_CONFIG_DIR:-/root/.openclaw}
     network_mode: host
 
   # 💻 CI & One-off Task Worker (CI 스크립트 호환용)
@@ -43,6 +45,8 @@ services:
       - OPENCLAW_GATEWAY_URL=ws://127.0.0.1:18789
       - OPENCLAW_WORKSPACE=/workspace
       - OPENCLAW_ACCEPT_RISK=true
+      - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN:-}
+      - OPENCLAW_CONFIG_DIR=${OPENCLAW_CONFIG_DIR:-/root/.openclaw}
     working_dir: /workspace
     network_mode: host
     # CI 환경에서는 외부에서 명령어를 주입받지만, 로컬에서는 전문가들을 상시 출근시킴
