@@ -9,6 +9,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.nightwatch
+      args:
+        - OPENCLAW_VER=${OC_VERSION:-latest}
     container_name: openclaw-gateway
     # 게이트웨이를 로컬 신뢰 모드로 실행 (토큰 없이 로컬 접속 허용)
     command: openclaw gateway run --port 18789 --allow-unconfigured

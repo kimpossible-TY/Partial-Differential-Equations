@@ -28,7 +28,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # 4. OpenClaw CLI 전역 설치 및 정밀 진단
-RUN npm install -g openclaw \
+ARG OPENCLAW_VER=latest
+RUN echo "Target Version: ${OPENCLAW_VER}" \
+    && npm install -g openclaw@${OPENCLAW_VER} \
     && echo "--- npm global bin location ---" \
     && npm config get prefix | xargs -I {} ls -la {}/bin/openclaw || true \
     && echo "--- search for openclaw binary ---" \

@@ -56,7 +56,6 @@ test/
 
 ### 🛠 Workspace Scripts
 # start_workspace.sh 가 생성하는 임시 스크립트 파일
-.pde_welcome.sh
 .openclaw_config/
 
 # OpenClaw 런타임 데이터 및 세션 기록 제외
