@@ -185,7 +185,7 @@ def main():
         patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token)
 
         # 3. Gateway 서비스 시작
-        run_command(f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} docker compose up -d openclaw-gateway")
+        run_command(f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} docker compose up --build -d openclaw-gateway")
         run_command("sleep 5")
 
         # 4. Agent 실행
