@@ -16,19 +16,18 @@ if [ ! -f "$TASKS_FILE" ]; then
     exit 1
 fi
 
-# 2. 첫 번째 대기 중인 태스크 제목 추출
-# 포맷: ## [TAG] 제목
-NEXT_TASK=$(grep -m 1 "^## \[" "$TASKS_FILE" || true)
-
-if [ -z "$NEXT_TASK" ]; then
+# 2. 첫 번째 대기 중인 태스크 제목 추출 (task_runner.py 사용)
+TASK_JSON=$(python3 Tools/task_runner.py --json 2>/dev/null)
+if [ -z "$TASK_JSON" ] || echo "$TASK_JSON" | grep -q '"error"'; then
     echo "ℹ️ 알림: 대기 중인 태스크가 없습니다. TASKS.md를 확인해주세요."
     exit 0
 fi
 
-# 제목 정제 (## [FLASH] -> [FLASH])
-TITLE=$(echo "$NEXT_TASK" | sed 's/^## //')
+TITLE=$(echo "$TASK_JSON" | python3 -c 'import sys,json; print(json.load(sys.stdin)["title"])')
+TAG=$(echo "$TASK_JSON" | python3 -c 'import sys,json; print(json.load(sys.stdin)["tag"])')
 
-echo "🔍 발견된 태스크: $TITLE"
+echo "🔍 발견된 태스크: [$TAG] $TITLE"
+
 
 # 3. Git 및 브랜치 상태 확인
 CURRENT_BRANCH=$(git branch --show-current)
