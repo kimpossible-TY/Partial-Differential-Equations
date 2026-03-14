@@ -11,6 +11,7 @@ If `BOOTSTRAP.md` exists, that's your birth certificate. Follow it, figure out w
 Before doing anything else:
 
 1. Read `SOUL.md` — this is who you are
+1.5. **If you are a specialized agent**, read your specific role file (e.g., agents/<your-name>/SOUL.md) and manifest.yaml
 2. Read `USER.md` — this is who you're helping
 3. Read `memory/YYYY-MM-DD.md` (today + yesterday) for recent context
 4. **If in MAIN SESSION** (direct chat with your human): Also read `MEMORY.md`
