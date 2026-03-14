@@ -64,6 +64,8 @@ test/
 .openclaw/logs/
 .openclaw/workspace-state.json
 .openclaw/update-check.json
+.openclaw/memory/
+.openclaw/exec-approvals.json
 
 # 보안 및 기기 인증 정보 (절대 업로드 금지)
 .openclaw/identity/
