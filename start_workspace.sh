@@ -13,6 +13,24 @@ NC='\033[0m'
 MAIN_FILE="Typst_project/main.typ"
 HTTP_PORT=8000
 WORKDIR="$(cd "$(dirname "$0")" && pwd)"
+# ... (상단 변수 설정 생략) ...
+WORKDIR="$(cd "$(dirname "$0")" && pwd)"
+
+# 🔑 Docker 인증을 위한 키체인 잠금 해제 (Blink SSH 대응)
+# ==============================================================================
+echo -e "${BLUE}▶ Docker 인증 정보를 가져오기 위해 Mac 키체인 잠금을 해제합니다.${NC}"
+echo -n "Mac 로그인 비밀번호 입력: "
+read -s KEYCHAIN_PASS  # -s 옵션으로 입력 중인 비번이 화면에 보이지 않게 처리
+echo ""
+
+# 입력받은 비밀번호로 키체인 해제 시도
+if security unlock-keychain -p "$KEYCHAIN_PASS" ~/Library/Keychains/login.keychain-db 2>/dev/null; then
+    echo -e "${GREEN}✔ 키체인 잠금이 해제되었습니다.${NC}"
+else
+    echo -e "${RED}❌ 실패: 비밀번호가 틀렸습니다. 스크립트를 중단합니다.${NC}"
+    exit 1
+fi
+# ==============================================================================
 
 # .env 파일이 있다면 환경변수로 미리 로드 (API Key를 OpenClaw 등에 전달하기 위함)
 if [ -f "$WORKDIR/.env" ]; then
