@@ -50,6 +50,14 @@ if [ ! -f "$WORKDIR/$MAIN_FILE" ]; then
     exit 1
 fi
 
+
+# 🔑 OpenClaw 최신 버전 동적 체크 (추가된 부분)
+echo -e "${BLUE}▶ OpenClaw 최신 버전을 확인 중입니다...${NC}"
+# npm이 설치되어 있어야 함. 실패 시 기본값 'latest'
+LATEST_OC_VER=$(npm view openclaw version 2>/dev/null || echo "latest")
+export OC_VERSION=$LATEST_OC_VER
+echo -e "${GREEN}✔ 확인된 버전: $OC_VERSION${NC}"
+
 # 2. 기존 tmux 세션 및 로컬 OpenClaw 프로세스 정리
 if tmux has-session -t pde_workspace 2>/dev/null; then
     echo -e "${BLUE}▶ 기존 pde_workspace 세션을 종료합니다...${NC}"
@@ -84,7 +92,7 @@ tmux send-keys -t pde_workspace:1 "python3 -m http.server $HTTP_PORT --bind 127.
 
 # window 2: NightWatch 통합 센터 (Gateway + Specialists)
 tmux new-window -t pde_workspace -n 'nightwatch' -c "$WORKDIR"
-tmux send-keys -t pde_workspace:2 "docker compose up --build -d" C-m
+tmux send-keys -t pde_workspace:2 "OC_VERSION=$OC_VERSION docker compose up --build -d" C-m
 tmux send-keys -t pde_workspace:2 "docker compose logs -f" C-m
 
 # 5. 서버 구동 대기 (포트 준비될 때까지 최대 10초)
@@ -117,33 +125,13 @@ OPENCLAW_URL="https://${TAILNET_DOMAIN}:18789"
 
 # 8. 안내 창(window 3)을 메인 뷰로 생성하여 attach
 tmux new-window -t pde_workspace -n 'info' -c "$WORKDIR"
-cat <<EOF > "$WORKDIR/.pde_welcome.sh"
-clear
-echo -e "\n${GREEN}=====================================================${NC}"
-echo -e "${GREEN}✨ 서버 구동 완료! Safari 북마크로 바로 열기 가능  ${NC}"
-echo -e "   → 📄 PDF 뷰어: ${BLUE}${SERVER_URL}${NC}"
-echo -e "   → 💬 AI 챗봇(OpenClaw): ${BLUE}${OPENCLAW_URL}${NC}"
-echo -e "${GREEN}=====================================================${NC}"
-echo -e "💡 이 창을 닫으면(exit) 세션이 종료되고 모든 서버가 중지됩니다.\n"
-if [ -f "$WORKDIR/.env" ]; then
-    echo -e "💡 .env 파일이 로드되었습니다. (API 키 적용됨)\n"
-fi
-echo -e "💡 컨테이너 명령어 실행 예시:"
-echo -e "   ${BLUE}docker exec -it openclaw-gateway openclaw agents list${NC}\n"
-echo -e "💡 다른 창 보기: Ctrl+B → 숫자(0=typst, 1=http, 2=nightwatch, 3=info)\n"
+# ... (상단 버전 체크 및 tmux 세션 생성 로직은 유지) ...
 
-# exit 시 세션 전체 + 컨테이너 종료
-cleanup() {
-    echo -e "\n${RED}▶ 서비스를 종료합니다...${NC}"
-    docker compose -f "$WORKDIR/docker-compose.yml" down 2>/dev/null
-    rm -f "$WORKDIR/.pde_welcome.sh"
-    tmux kill-session -t pde_workspace
-}
-trap cleanup EXIT
-
-/bin/zsh -l
-EOF
-tmux send-keys -t pde_workspace:3 "bash '$WORKDIR/.pde_welcome.sh'" C-m
+# 8. 전용 정보 스크립트 호출
+# 필수 변수들을 export하여 show_info.sh가 읽을 수 있게 함
+export OC_VERSION SERVER_URL OPENCLAW_URL WORKDIR
+tmux new-window -t pde_workspace -n 'info' -c "$WORKDIR"
+tmux send-keys -t pde_workspace:3 "bash '$WORKDIR/Tools/show_info.sh'" C-m
 
 # 9. info 창으로 포커스 후 attach
 tmux select-window -t pde_workspace:3
