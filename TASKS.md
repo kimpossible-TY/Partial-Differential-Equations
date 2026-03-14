@@ -1,20 +1,56 @@
-# ==============================================================================
-# Project NightWatch — Task Queue
-# 포맷: ## [TAG] 제목 (TAG: FLASH 또는 PRO)
-#   - FLASH: 단순 버그픽스, 문서화, 린팅 (→ gemini-3.0-flash)
-#   - PRO:   아키텍처, 복잡한 로직, 의존성 얽힌 이슈 (→ gemini-3.1-pro-preview)
-# 반드시 완료된 작업에 대해서 marking 하기!
-# ==============================================================================
+# 🛠️ NightWatch Tasks
 
-# ✅ 완료된 작업
-[x] ## [FLASH] [VERIFY] Autonomous Implementation Test (HANDS-ON)
-- 목표: NightWatch의 **'쓰기 권한 승격'**이 정상 작동하는지 실전 테스트합니다.
-- 세부 작업:
-    1. 프로젝트 루트에 `HEALTH_CHECK.md` 파일을 생성합니다.
-    2. 파일 내에 현재 OpenClaw 설정 상태와 에이전트(`tool-architect`)의 권한이 정상적으로 승격되었는지 확인하는 내용을 작성합니다.
-    3. 이 작업은 반드시 `./nightwatch.sh`를 통해 실행하여, 로컬에서는 쓰기가 막히고 CI에서는 뚫리는지 검증해야 합니다.
-- 기대 결과: NightWatch Bot에 의해 `HEALTH_CHECK.md`가 포함된 PR이 생성됨.
+## [FLASH] start_workspace.sh 주석 깔끔하게 정리
 
-# 🔄 대기 중인 작업 (상단 항목부터 처리)
-## [FLASH] [VERIFY] Architecture Planning Test (BRAIN-ONLY)
-- `Architecture_Plan.md` 마지막 줄에 현재 날짜 및 시간을 추가하면서 "test completed." 라는 문구를 추가하기
+**목표:** `start_workspace.sh` 스크립트의 실행 로직은 100% 동일하게 유지하면서 주석만 구조적이고 가독성 좋게 리팩토링합니다.
+
+### 작업 지침:
+
+1.  **`[STEP]` 단위 넘버링과 역할 분리**
+    기존의 꼬인 번호 체계를 아래와 같이 정리하고 이모지를 추가하세요.
+    - [STEP 1] 초기화 및 Mac 키체인 잠금 해제 🔑
+    - [STEP 2] 환경 변수 로드 및 프로젝트 검증 ⚙️
+    - [STEP 3] 버전 체크 및 기존 프로세스 정리 🧹
+    - [STEP 4] Tmux 세션 생성 및 서비스 구동 🚀
+    - [STEP 5] 서비스 구동 완료 대기 ⏳
+    - [STEP 6] Tailscale 보안 터널 프록시 연결 🌐
+    - [STEP 7] 모바일 접속 URL 생성 📱
+    - [STEP 8] 정보 패널 생성 및 작업 공간 진입 💻
+
+2.  **편집 흔적 및 불필요한 텍스트 제거**
+    - `... (상단 변수 설정 생략) ...` 같은 임시 메모 삭제
+    - `(추가된 부분)` 등의 편집 흔적 삭제
+    - `... (상단 버전 체크 및 tmux 세션 생성 로직은 유지) ...` 등 불필요한 메모 삭제
+    - 구어체 표현 다듬기: "Mac 본체에서 혹시 돌고 있을지 모르는..." → "로컬 백그라운드 Gateway 프로세스 종료"
+
+3.  **Tmux Window 주석의 가독성 향상**
+    서버를 실행하는 블록에서 분산된 주석을 명시적인 헤더 형태로 묶어 배치하세요.
+    - Window 0: Typst 실시간 문서 컴파일러
+    - Window 1: 로컬 정적 파일 서버 (PDF 서빙)
+    - Window 2: NightWatch 통합 센터 컨테이너 (Docker Compose)
+    - Window 3: 전용 정보 패널 스크립트 구동 (show_info.sh)
+
+4.  **메인 헤더 블록 재구성**
+    파일 최상단을 스크립트의 주요 파이프라인을 한눈에 볼 수 있도록 정돈하세요.
+    ```bash
+    #!/bin/bash
+    # ==============================================================================
+    # 📱 PDE Workspace: Mac 로컬 문서 작성 & 실시간 모바일 서빙
+    #
+    # [주요 파이프라인]
+    # - Typst: 실시간 문서 컴파일 (watch)
+    # - Python HTTP: 렌더링된 PDF 로컬 서빙
+    # - Docker: NightWatch 통합 센터 컨테이너 구동
+    # - Tailscale: 외부 기기용 안전한 HTTPS 터널 프록시 연결
+    # ==============================================================================
+    ```
+## [FLASH] AGENTS.md 세션 시작 규칙 개선 (멀티 에이전트 매뉴얼 참조 추가)
+
+**목표:** 멀티 에이전트 환경에서 특수 에이전트들이 세션 시작 시 자신의 전용 설정 파일(`SOUL.md`, `manifest.yaml`)을 반드시 읽도록 `AGENTS.md`의 가이드라인을 수정합니다.
+
+### 작업 지침:
+1. 최상위 디렉토리의 `AGENTS.md` 파일을 엽니다.
+2. `## Session Startup` 섹션을 찾습니다.
+3. 기존 파일 읽기 순서(1번 `SOUL.md` 읽기 이후)에 다음 항목을 명시적으로 추가하세요.
+   - `1.5. **If you are a specialized agent**, read your specific role file (e.g., agents/<your-name>/SOUL.md) and manifest.yaml`
+4. 이를 통해 각 에이전트가 공통 문서에만 의존하지 않고, 자신의 역할(Persona)과 권한(Permissions)을 명확히 인지하고 행동하도록 가이드라인을 강화하는 것이 목적입니다.

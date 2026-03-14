@@ -184,8 +184,8 @@ def main():
         openclaw_gateway_token = secrets.token_hex(24)  # openclaw_gateway_token이라는 변수명은 변경하면 안됨. 이유는 로컬에서 docker-compose를 할 때 해당 이름의 token을 가져오기 때문.
         patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token)
 
-        # 3. Gateway 서비스 시작
-        run_command(f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} docker compose up -d openclaw-gateway")
+        # 3. Gateway 실행
+        run_command(f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} OPENCLAW_CONFIG_DIR=/workspace/.openclaw_config docker compose up --build -d openclaw-gateway")
         run_command("sleep 5")
 
         # 4. Agent 실행
@@ -196,9 +196,13 @@ def main():
             f"-e GEMINI_API_KEY={shlex.quote(gemini_api_key)}",
             f"-e TASK_BODY={shlex.quote(task_body)}",
             "-e OPENCLAW_ACCEPT_RISK=true",
+            f"-e OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token}",
+            "-e OPENCLAW_CONFIG_DIR=/workspace/.openclaw_config",
             "nightwatch-agent",
             f"openclaw agent --agent tool-architect --message {shlex.quote(task_body)}"
         ]
+        rc, _ = run_command(" ".join(agent_cmd))
+
         rc, _ = run_command(" ".join(agent_cmd))
 
         # 5. 사후 처리
