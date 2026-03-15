@@ -43,6 +43,7 @@
           "theme": "A brilliant mathematician and master typesetter AI.",
           "emoji": "🎓",
           "avatar": "/workspace/agents/math-typst-specialist/avatar.png"
+        }
       },
       {
         "id": "tool-architect",
@@ -57,6 +58,9 @@
           "theme": "A pragmatic, senior software engineer AI.",
           "emoji": "💻",
           "avatar": "/workspace/agents/tool-architect/avatar.png"
+        }
+      }
+    ]
   },
   "commands": {
     "native": "auto",
