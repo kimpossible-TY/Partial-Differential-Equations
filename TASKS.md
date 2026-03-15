@@ -11,7 +11,7 @@
    - `1.5. **If you are a specialized agent**, read your specific role file (e.g., agents/<your-name>/SOUL.md) and manifest.yaml`
 4. 이를 통해 각 에이전트가 공통 문서에만 의존하지 않고, 자신의 역할(Persona)과 권한(Permissions)을 명확히 인지하고 행동하도록 가이드라인을 강화하는 것이 목적입니다.
 
-## [PRO] NightWatch 다중 태스크 병렬 및 순차 처리 기능 구현 (Adaptive Mode)
+# [x] ## [PRO] NightWatch 다중 태스크 병렬 및 순차 처리 기능 구현 (Adaptive Mode)
 
 **목표:** `nightwatch.sh`와 `nightwatch_executor.py`의 구조를 개선하여, `TASKS.md`에 여러 개의 미완료 태스크가 있을 때 이를 어떻게 처리할지 사용자에게 선택지(병렬 또는 순차)를 제공하고 다중 태스크를 올바르게 처리하도록 수정합니다.
 
