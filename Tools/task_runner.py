@@ -83,7 +83,7 @@ def parse_tasks(tasks_path: Path, get_all: bool = False) -> list | dict | None:
 
         if not get_all:
             return task
-        
+
         tasks.append(task)
 
     if not get_all:

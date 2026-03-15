@@ -153,7 +153,7 @@ def main():
 
     tasks = []
     bulk_file = 'nightwatch_bulk_tasks.json'
-    
+
     if os.path.exists(bulk_file):
         print(f"📂 {bulk_file} 발견: 다중/병렬 태스크 실행 모드")
         try:
@@ -174,7 +174,7 @@ def main():
                 task_body = f.read().strip()
         except FileNotFoundError:
             task_body = "No task body found."
-        
+
         tasks.append({
             "tag": tag,
             "title": title,
@@ -199,10 +199,10 @@ def main():
             tag = task.get("tag", "FLASH")
             title = task.get("title", "Untitled Task")
             task_body = task.get("body", "No task body found.")
-            
-            print(f"\n==============================================")
+
+            print("\n==============================================")
             print(f"▶️ [태스크 {i}/{len(tasks)}] 시작: [{tag}] {title}")
-            print(f"==============================================")
+            print("==============================================")
 
             # .openclaw_config 매번 초기화
             run_command("cp .openclaw/openclaw.json .openclaw_config/openclaw.json")
@@ -226,7 +226,7 @@ def main():
                 "nightwatch-agent",
                 f"openclaw agent --agent tool-architect --message {shlex.quote(task_body)}"
             ]
-            
+
             rc, _ = run_command(" ".join(agent_cmd))
 
             # 사후 처리
@@ -236,7 +236,7 @@ def main():
             # 현재 태스크 결과 커밋
             print(f"📂 변경 사항 커밋 중... ([{tag}] {title})")
             run_command("git add .")
-            
+
             _, status_output = run_command("git status --porcelain")
             if status_output.strip():
                 print("📝 변경된 파일 목록:")

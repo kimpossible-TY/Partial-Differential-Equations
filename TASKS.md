@@ -11,7 +11,7 @@
    - `1.5. **If you are a specialized agent**, read your specific role file (e.g., agents/<your-name>/SOUL.md) and manifest.yaml`
 4. 이를 통해 각 에이전트가 공통 문서에만 의존하지 않고, 자신의 역할(Persona)과 권한(Permissions)을 명확히 인지하고 행동하도록 가이드라인을 강화하는 것이 목적입니다.
 
-## [PRO] NightWatch 다중 태스크 병렬 및 순차 처리 기능 구현 (Adaptive Mode)
+# [x] ## [PRO] NightWatch 다중 태스크 병렬 및 순차 처리 기능 구현 (Adaptive Mode)
 
 아래에 이미 실행한 목표가 flake8에 실패하였음으로 아래의 로그를 보고 코드 리펙토링 실행 :
 
