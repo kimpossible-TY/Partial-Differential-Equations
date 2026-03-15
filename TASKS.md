@@ -11,7 +11,39 @@
    - `1.5. **If you are a specialized agent**, read your specific role file (e.g., agents/<your-name>/SOUL.md) and manifest.yaml`
 4. 이를 통해 각 에이전트가 공통 문서에만 의존하지 않고, 자신의 역할(Persona)과 권한(Permissions)을 명확히 인지하고 행동하도록 가이드라인을 강화하는 것이 목적입니다.
 
-# [x] ## [PRO] NightWatch 다중 태스크 병렬 및 순차 처리 기능 구현 (Adaptive Mode)
+## [PRO] NightWatch 다중 태스크 병렬 및 순차 처리 기능 구현 (Adaptive Mode)
+
+아래에 이미 실행한 목표가 flake8에 실패하였음으로 아래의 로그를 보고 코드 리펙토링 실행 :
+
+```log
+2026-03-15T08:49:08.3018082Z ##[group]Run if [ -d "Tools" ]; then
+2026-03-15T08:49:08.3018404Z [36;1mif [ -d "Tools" ]; then[0m
+2026-03-15T08:49:08.3018704Z [36;1m  flake8 Tools/ --max-line-length=120 --ignore=E501[0m
+2026-03-15T08:49:08.3019013Z [36;1melse[0m
+2026-03-15T08:49:08.3019196Z [36;1m  echo "ℹ️ Tools/ 없음 — 스킵"[0m
+2026-03-15T08:49:08.3019427Z [36;1mfi[0m
+2026-03-15T08:49:08.3066277Z shell: /usr/bin/bash -e {0}
+2026-03-15T08:49:08.3066519Z env:
+2026-03-15T08:49:08.3066776Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.13/x64
+2026-03-15T08:49:08.3067201Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.13/x64/lib/pkgconfig
+2026-03-15T08:49:08.3067623Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.13/x64
+2026-03-15T08:49:08.3068001Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.13/x64
+2026-03-15T08:49:08.3068361Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.13/x64
+2026-03-15T08:49:08.3068908Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.13/x64/lib
+2026-03-15T08:49:08.3069204Z ##[endgroup]
+2026-03-15T08:49:08.8624706Z Tools/nightwatch_executor.py:156:1: W293 blank line contains whitespace
+2026-03-15T08:49:08.8626454Z Tools/nightwatch_executor.py:177:1: W293 blank line contains whitespace
+2026-03-15T08:49:08.8628537Z Tools/nightwatch_executor.py:202:1: W293 blank line contains whitespace
+2026-03-15T08:49:08.8629277Z Tools/nightwatch_executor.py:203:19: F541 f-string is missing placeholders
+2026-03-15T08:49:08.8630024Z Tools/nightwatch_executor.py:205:19: F541 f-string is missing placeholders
+2026-03-15T08:49:08.8630759Z Tools/nightwatch_executor.py:229:1: W293 blank line contains whitespace
+2026-03-15T08:49:08.8631451Z Tools/nightwatch_executor.py:239:1: W293 blank line contains whitespace
+2026-03-15T08:49:08.8632123Z Tools/nightwatch_executor.py:261:11: W292 no newline at end of file
+2026-03-15T08:49:08.8632749Z Tools/task_runner.py:86:1: W293 blank line contains whitespace
+2026-03-15T08:49:08.8633335Z Tools/task_runner.py:155:11: W292 no newline at end of file
+2026-03-15T08:49:08.8827169Z ##[error]Process completed with exit code 1.
+
+```
 
 **목표:** `nightwatch.sh`와 `nightwatch_executor.py`의 구조를 개선하여, `TASKS.md`에 여러 개의 미완료 태스크가 있을 때 이를 어떻게 처리할지 사용자에게 선택지(병렬 또는 순차)를 제공하고 다중 태스크를 올바르게 처리하도록 수정합니다.
 
