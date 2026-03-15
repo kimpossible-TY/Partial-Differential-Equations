@@ -41,9 +41,13 @@
         "identity": {
           "name": "Math & Typst Specialist",
           "theme": "A brilliant mathematician and master typesetter AI.",
-          "emoji": "\ud83c\udf93",
+          "emoji": "🎓",
           "avatar": "/workspace/agents/math-typst-specialist/avatar.png"
-        }
+        },
+        "contextFiles": [
+          "/workspace/agents/math-typst-specialist/SOUL.md",
+          "/workspace/agents/math-typst-specialist/manifest.yaml"
+        ]
       },
       {
         "id": "tool-architect",
@@ -56,9 +60,13 @@
         "identity": {
           "name": "Tool Architect",
           "theme": "A pragmatic, senior software engineer AI.",
-          "emoji": "\ud83d\udcbb",
+          "emoji": "💻",
           "avatar": "/workspace/agents/tool-architect/avatar.png"
-        }
+        },
+        "contextFiles": [
+          "/workspace/agents/tool-architect/SOUL.md",
+          "/workspace/agents/tool-architect/manifest.yaml"
+        ]
       }
     ]
   },
