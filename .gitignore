@@ -73,3 +73,5 @@ test/
 
 # 백업 파일
 .openclaw/*.bak
+### 🦉 NightWatch
+nightwatch_bulk_tasks.json
