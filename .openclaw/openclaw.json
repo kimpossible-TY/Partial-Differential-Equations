@@ -33,7 +33,7 @@
       {
         "id": "math-typst-specialist",
         "name": "Math & Typst Specialist",
-        "workspace": "/workspace",
+        "workspace": "/workspace/agents/math-typst-specialist",
         "agentDir": "/workspace/agents/math-typst-specialist",
         "model": {
           "primary": "google/gemini-3.1-pro-preview"
@@ -43,16 +43,12 @@
           "theme": "A brilliant mathematician and master typesetter AI.",
           "emoji": "🎓",
           "avatar": "/workspace/agents/math-typst-specialist/avatar.png"
-        },
-        "contextFiles": [
-          "/workspace/agents/math-typst-specialist/SOUL.md",
-          "/workspace/agents/math-typst-specialist/manifest.yaml"
-        ]
+        }
       },
       {
         "id": "tool-architect",
         "name": "Tool Architect",
-        "workspace": "/workspace",
+        "workspace": "/workspace/agents/tool-architect",
         "agentDir": "/workspace/agents/tool-architect",
         "model": {
           "primary": "google/gemini-3.1-pro-preview"
@@ -62,11 +58,7 @@
           "theme": "A pragmatic, senior software engineer AI.",
           "emoji": "💻",
           "avatar": "/workspace/agents/tool-architect/avatar.png"
-        },
-        "contextFiles": [
-          "/workspace/agents/tool-architect/SOUL.md",
-          "/workspace/agents/tool-architect/manifest.yaml"
-        ]
+        }
       }
     ]
   },
