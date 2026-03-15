@@ -1,0 +1,1 @@
+[{"tag": "FLASH", "title": "테스트용 더미 파일 생성 (hello_nightwatch.py)", "body": "**목표:** 다중 태스크 실행이 잘 독립적으로 동작하는지 확인하기 위해, 단순히 \"Hello NightWatch Parallel Execution!\" 문자열을 10번 출력하는 파이썬 스크립트를 만듭니다.\n- 파일 이름: `hello_nightwatch.py`\n- 위치: 프로젝트 루트 디렉토리\n- 파일 맨 위에 주석으로 어떤 태스크에 의해 생성되었는지 표시하세요.", "model": "google/gemini-3.0-flash"}]
