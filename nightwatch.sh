@@ -41,8 +41,8 @@ switch_branch() {
         if [[ ! "$NEW_BRANCH" =~ ^nightwatch/ ]]; then
             NEW_BRANCH="nightwatch/$NEW_BRANCH"
         fi
-        echo "🌱 브랜치 설정: $NEW_BRANCH"
-        git checkout -B "$NEW_BRANCH"
+        echo "🌱 브랜치 설정: $NEW_BRANCH (기반: origin/main)"
+        git checkout -b "$NEW_BRANCH" origin/main
         CURRENT_BRANCH="$NEW_BRANCH"
     else
         read -p "❓ 새로운 작업을 위한 브랜치를 생성/전환하시겠습니까? (y/n, 기본 n): " CREATE_NEW
@@ -54,14 +54,18 @@ switch_branch() {
             if [[ ! "$NEW_BRANCH" =~ ^nightwatch/ ]]; then
                 NEW_BRANCH="nightwatch/$NEW_BRANCH"
             fi
-            echo "🌱 브랜치 설정: $NEW_BRANCH"
-            git checkout -B "$NEW_BRANCH"
+            echo "🌱 브랜치 설정: $NEW_BRANCH (기반: origin/main)"
+            git checkout -b "$NEW_BRANCH" origin/main
             CURRENT_BRANCH="$NEW_BRANCH"
         else
             echo "✅ 현재 브랜치($CURRENT_BRANCH)를 그대로 유지하며 작업을 진행합니다."
         fi
     fi
 }
+
+# 작업 전 항상 최신 main을 가져옵니다.
+echo "🔄 origin/main 최신화 중..."
+git fetch origin main
 
 # ---------------------------------------------------------
 # 단일 태스크 처리
@@ -95,8 +99,8 @@ if [ "$TASK_COUNT" -eq 1 ]; then
 # ---------------------------------------------------------
 else
     echo "🔍 여러 개의 태스크($TASK_COUNT)가 대기 중입니다. 어떻게 실행하시겠습니까?"
-    echo "[P]arallel: 병렬 실행 (각 태스크마다 독립된 브랜치/VM 생성)"
-    echo "[S]eries  : 순차 실행 (하나의 브랜치에서 일괄 처리)"
+    echo "[P]arallel: 병렬 실행 (각 태스크마다 origin/main 기반의 독립된 브랜치 생성)"
+    echo "[S]eries  : 순차 실행 (origin/main 기반의 하나의 브랜치에서 일괄 처리)"
     read -p "선택 (P/S): " EXEC_MODE
 
     # 병렬(Parallel) 모드
@@ -111,8 +115,9 @@ else
             SUGGESTED_SUFFIX=$(echo "$TITLE" | tr ' ' '-' | tr -cd '[:alnum:]-' | cut -c1-50 | tr '[:upper:]' '[:lower:]')
             TARGET_BRANCH="nightwatch/${SUGGESTED_SUFFIX}-${TIMESTAMP}"
             
-            echo "🌱 [태스크 $((i+1))/$TASK_COUNT] 브랜치 생성: $TARGET_BRANCH"
-            git checkout -b "$TARGET_BRANCH"
+            echo "🌱 [태스크 $((i+1))/$TASK_COUNT] 브랜치 생성: $TARGET_BRANCH (기반: origin/main)"
+            # 항상 최신 origin/main에서 새 브랜치를 땁니다.
+            git checkout -b "$TARGET_BRANCH" origin/main
             
             # 각 태스크마다 해당 정보만 담은 임시 파일 생성
             echo "$TASKS_JSON" | python3 -c "import sys,json; print(json.dumps([json.load(sys.stdin)[$i]], ensure_ascii=False))" > nightwatch_bulk_tasks.json
@@ -126,6 +131,7 @@ else
             echo "🌙 NightWatch 루프를 깨우는 중... ($TARGET_BRANCH)"
             gh workflow run "$WORKFLOW_NAME" --ref "$TARGET_BRANCH" -f branch_name="$TARGET_BRANCH"
             
+            # 작업이 끝난 후, 다음 루프를 위해 원래 브랜치로 임시 복귀 (또는 detached 방지)
             git checkout "$ORIGINAL_BRANCH"
         done
         CURRENT_BRANCH=$ORIGINAL_BRANCH
