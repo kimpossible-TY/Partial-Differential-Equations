@@ -1,0 +1,1 @@
+[{"tag": "FLASH", "title": "README.md 업데이트: 다중 태스크 처리 기능 소개", "body": "**목표:** 프로젝트의 `README.md` (혹은 관련 문서) 파일에 NightWatch가 새롭게 지원하는 '다중 태스크 일괄 처리(Adaptive Mode)' 기능에 대한 설명을 추가합니다.\n- `nightwatch.sh` 실행 시 태스크가 여러 개일 경우 병렬(Parallel)과 순차(Series) 모드를 선택할 수 있다는 점을 간결히 문서화하세요.\n- 만약 해당 파일이 없다면 생성하거나 유사한 문서에 작성하세요.", "model": "google/gemini-3.0-flash"}]
