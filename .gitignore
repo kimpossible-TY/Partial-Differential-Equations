@@ -73,3 +73,7 @@ test/
 
 # 백업 파일
 .openclaw/*.bak
+
+### 🌙 NightWatch
+# 다중 태스크 일괄 처리 시 생성되는 임시 파일
+nightwatch_bulk_tasks.json
