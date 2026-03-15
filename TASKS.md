@@ -1,6 +1,6 @@
 # 🛠️ NightWatch Tasks
 
-## [FLASH] AGENTS.md 세션 시작 규칙 개선 (멀티 에이전트 매뉴얼 참조 추가)
+## [x] [FLASH] AGENTS.md 세션 시작 규칙 개선 (멀티 에이전트 매뉴얼 참조 추가)
 
 **목표:** 멀티 에이전트 환경에서 특수 에이전트들이 세션 시작 시 자신의 전용 설정 파일(`SOUL.md`, `manifest.yaml`)을 반드시 읽도록 `AGENTS.md`의 가이드라인을 수정합니다.
 
