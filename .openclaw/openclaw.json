@@ -41,7 +41,7 @@
         "identity": {
           "name": "Math & Typst Specialist",
           "theme": "A brilliant mathematician and master typesetter AI.",
-          "emoji": "🎓",
+          "emoji": "\ud83c\udf93",
           "avatar": "/workspace/agents/math-typst-specialist/avatar.png"
         }
       },
@@ -56,7 +56,7 @@
         "identity": {
           "name": "Tool Architect",
           "theme": "A pragmatic, senior software engineer AI.",
-          "emoji": "💻",
+          "emoji": "\ud83d\udcbb",
           "avatar": "/workspace/agents/tool-architect/avatar.png"
         }
       }
