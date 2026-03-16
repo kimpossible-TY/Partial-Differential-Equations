@@ -91,7 +91,8 @@ jobs:
           if [ -n "$INPUT_BRANCH" ]; then
             BRANCH_NAME="$INPUT_BRANCH"
           else
-            BRANCH_NAME="nightwatch/$(echo '${{ steps.parse.outputs.title }}' | tr ' ' '-' | tr -cd '[:alnum:]-' | cut -c1-50 | tr '[:upper:]' '[:lower:]')"
+            SAFE_TITLE=$(echo '${{ steps.parse.outputs.title }}' | tr ' ' '-' | tr -cd '[:alnum:]-' | cut -c1-50 | tr '[:upper:]' '[:lower:]')
+            BRANCH_NAME="nightwatch/${SAFE_TITLE}-${{ github.run_id }}"
           fi
           
           git config user.name "NightWatch Bot"
