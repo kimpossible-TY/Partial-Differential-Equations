@@ -204,8 +204,16 @@ def main():
             print(f"▶️ [태스크 {i}/{len(tasks)}] 시작: [{tag}] {title}")
             print("==============================================")
 
-            # .openclaw_config 매번 초기화
-            run_command("cp .openclaw/openclaw.json .openclaw_config/openclaw.json")
+                        # .openclaw_config 매번 초기화
+            if os.path.exists('.openclaw/openclaw.json'):
+                run_command("cp .openclaw/openclaw.json .openclaw_config/openclaw.json")
+            else:
+                default_config = {
+                    "workspace": "/workspace",
+                    "agents": {"defaults": {"workspace": "/workspace"}}
+                }
+                with open('.openclaw_config/openclaw.json', 'w') as f:
+                    json.dump(default_config, f, indent=2)
 
             openclaw_gateway_token = secrets.token_hex(24)
             patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token)
