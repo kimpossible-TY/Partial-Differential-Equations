@@ -1,0 +1,1 @@
+[{"tag": "FLASH", "title": "브랜치 분리 테스트 두번째", "body": "**목표:** 병렬 실행 모드(Parallel Mode)에서 브랜치 충돌이 발생하지 않는지 확인하기 위한 두 번째 테스트입니다. `test_branch_2.txt` 파일을 생성하고 \"Test 2\"를 기록하세요.", "model": "google/gemini-3.0-flash"}]
