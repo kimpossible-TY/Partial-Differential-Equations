@@ -42,3 +42,5 @@
    - **버그 수정:** 현재 파일에 `run_command(" ".join(agent_cmd))` 가 중복으로 두 번 연달아 호출되는 오타가 있습니다. 이를 찾아 하나를 제거하세요.
 
 4. 위 사항을 모두 구현한 후, `TASKS.md`의 본 항목을 완료(`# [x]`) 처리합니다.
+## [FLASH] 브랜치 생성 로직 테스트 검증
+**목표:** 병렬 실행 모드(Parallel Mode)에서 브랜치 충돌이 발생하지 않고 각각 독립된 브랜치에 할당되는지 확인하기 위해, 단순히 로그용 텍스트 파일(`test_parallel_branch.txt`)에 "NightWatch Branch Separation Verified"라는 문구를 기록하세요.
