@@ -113,7 +113,7 @@ else
             TAG=$(echo "$TASKS_JSON" | python3 -c "import sys,json; print(json.load(sys.stdin)[$i]['tag'])")
             
             SUGGESTED_SUFFIX=$(echo "$TITLE" | tr ' ' '-' | tr -cd '[:alnum:]-' | cut -c1-50 | tr '[:upper:]' '[:lower:]')
-            TARGET_BRANCH="nightwatch/${SUGGESTED_SUFFIX}-${TIMESTAMP}"
+            TARGET_BRANCH="nightwatch/${SUGGESTED_SUFFIX}-${TIMESTAMP}-${i}"
             
             echo "🌱 [태스크 $((i+1))/$TASK_COUNT] 브랜치 생성: $TARGET_BRANCH (기반: origin/main)"
             # 항상 최신 origin/main에서 새 브랜치를 땁니다.
