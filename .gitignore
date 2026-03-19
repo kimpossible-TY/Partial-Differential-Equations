@@ -73,3 +73,4 @@ test/
 
 # 백업 파일
 .openclaw/*.bak
+.openclaw/openclaw.json
