@@ -81,30 +81,20 @@ python3 "$WORKDIR/Tools/patch_openclaw_config.py" "$WORKDIR"
 # ==============================================================================
 echo -e "${BLUE}▶ tmux 세션을 생성하고 서버를 가동합니다...${NC}"
 
-# tmux 세션 생성 (detached)
-tmux new-session -d -s pde_workspace -c "$WORKDIR" -x 220 -y 50
+# tmux 세션 생성 (detached) 및 Window 0: Typst 실시간 문서 컴파일러
+tmux new-session -d -s pde_workspace -n 'typst' -c "$WORKDIR" -x 220 -y 50 "zsh -c \"typst watch '$MAIN_FILE' --open /dev/null\""
 tmux set-option -t pde_workspace default-shell /bin/zsh
-
-# 각 서버를 tmux 창(window)에서 실행
-# ------------------------------------------------------------------------------
-# Window 0: Typst 실시간 문서 컴파일러
-# ------------------------------------------------------------------------------
-tmux rename-window -t pde_workspace:0 'typst'
 tmux set-window-option -t pde_workspace:0 remain-on-exit off
-tmux send-keys -t pde_workspace:0 "typst watch '$MAIN_FILE' --open /dev/null" C-m
 
 # ------------------------------------------------------------------------------
 # Window 1: 로컬 정적 파일 서버 (PDF 서빙)
 # ------------------------------------------------------------------------------
-tmux new-window -t pde_workspace -n 'http-server' -c "$WORKDIR"
-tmux send-keys -t pde_workspace:1 "python3 -m http.server $HTTP_PORT --bind 127.0.0.1" C-m
+tmux new-window -t pde_workspace -n 'http-server' -c "$WORKDIR" "zsh -c \"python3 -m http.server $HTTP_PORT --bind 127.0.0.1\""
 
 # ------------------------------------------------------------------------------
 # Window 2: NightWatch 통합 센터 컨테이너 (Docker Compose)
 # ------------------------------------------------------------------------------
-tmux new-window -t pde_workspace -n 'nightwatch' -c "$WORKDIR"
-tmux send-keys -t pde_workspace:2 "OC_VERSION=$OC_VERSION docker compose up --build -d" C-m
-tmux send-keys -t pde_workspace:2 "docker compose logs -f" C-m
+tmux new-window -t pde_workspace -n 'nightwatch' -c "$WORKDIR" "zsh -c \"export OC_VERSION=$OC_VERSION; docker compose up --build -d && docker compose logs -f\""
 
 # ==============================================================================
 # [STEP 5] 서비스 구동 완료 대기 ⏳
@@ -147,8 +137,7 @@ export OC_VERSION SERVER_URL OPENCLAW_URL WORKDIR
 # ------------------------------------------------------------------------------
 # Window 3: 전용 정보 패널 스크립트 구동 (show_info.sh)
 # ------------------------------------------------------------------------------
-tmux new-window -t pde_workspace -n 'info' -c "$WORKDIR"
-tmux send-keys -t pde_workspace:3 "bash '$WORKDIR/Tools/show_info.sh'" C-m
+tmux new-window -t pde_workspace -n 'info' -c "$WORKDIR" "zsh '$WORKDIR/Tools/show_info.sh'"
 
 # info 창으로 포커스 후 attach
 tmux select-window -t pde_workspace:3
