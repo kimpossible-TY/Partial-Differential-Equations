@@ -210,7 +210,6 @@ def main():
             else:
                 # CI 환경을 위한 기본 설정 동적 생성
                 default_config = {
-                    "workspace": "/workspace",
                     "agents": {
                         "defaults": {"workspace": "/workspace"},
                         "list": [
