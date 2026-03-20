@@ -47,7 +47,7 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
 
         # 1. Gateway 설정 보정
         config['gateway'] = config.get('gateway', {})
-        config['gateway']['remote'] = {'url': 'ws://openclaw-gateway:18789'}
+        config['gateway']['remote'] = {'url': 'ws://127.0.0.1:18789'}
         config['gateway']['mode'] = 'remote'
 
         # 1.5 Gateway 인증 설정 (토큰 방식)
@@ -257,7 +257,8 @@ def main():
                 f"-e TASK_BODY={shlex.quote(task_body)}",
                 "-e OPENCLAW_ACCEPT_RISK=true",
                 f"-e OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token}",
-                "-e OPENCLAW_CONFIG_DIR=/workspace/.openclaw_config",
+                "-e OPENCLAW_CONFIG_PATH=/workspace/.openclaw_config/openclaw.json",
+                "-e OPENCLAW_STATE_DIR=/workspace/.openclaw_config",
                 "nightwatch-agent",
                 f"openclaw agent --agent tool-architect --message {shlex.quote(task_body)}"
             ]
