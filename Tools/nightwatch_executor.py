@@ -208,9 +208,26 @@ def main():
             if os.path.exists('.openclaw/openclaw.json'):
                 run_command("cp .openclaw/openclaw.json .openclaw_config/openclaw.json")
             else:
+                # CI 환경을 위한 기본 설정 동적 생성
                 default_config = {
                     "workspace": "/workspace",
-                    "agents": {"defaults": {"workspace": "/workspace"}}
+                    "agents": {
+                        "defaults": {"workspace": "/workspace"},
+                        "list": [
+                            {
+                                "id": "tool-architect",
+                                "name": "Tool Architect",
+                                "workspace": "/workspace/agents/tool-architect",
+                                "agentDir": "/workspace/agents/tool-architect"
+                            },
+                            {
+                                "id": "math-typst-specialist",
+                                "name": "Math & Typst Specialist",
+                                "workspace": "/workspace/agents/math-typst-specialist",
+                                "agentDir": "/workspace/agents/math-typst-specialist"
+                            }
+                        ]
+                    }
                 }
                 with open('.openclaw_config/openclaw.json', 'w') as f:
                     json.dump(default_config, f, indent=2)
