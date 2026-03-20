@@ -235,6 +235,16 @@ def main():
             openclaw_gateway_token = secrets.token_hex(24)
             patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token)
 
+            # 에이전트 자동 디스커버리를 위한 심볼릭 링크 생성 (OpenClaw 모든 버전 호환)
+            try:
+                os.makedirs('.openclaw_config/agents/tool-architect', exist_ok=True)
+                run_command("ln -sfn /workspace/agents/tool-architect .openclaw_config/agents/tool-architect/agent")
+                os.makedirs('.openclaw_config/agents/math-typst-specialist', exist_ok=True)
+                run_command("ln -sfn /workspace/agents/math-typst-specialist .openclaw_config/agents/math-typst-specialist/agent")
+                print("✅ 에이전트 디스커버리용 심볼릭 링크 생성 완료")
+            except Exception as e:
+                print(f"⚠️ 심볼릭 링크 생성 중 오류: {e}")
+
             # Gateway 실행
             run_command(f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} OPENCLAW_CONFIG_DIR=/workspace/.openclaw_config docker compose up --build -d openclaw-gateway")
             run_command("sleep 5")

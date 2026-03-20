@@ -67,3 +67,4 @@ ENV PYTHONPATH=/workspace
 
 # 11. 컨테이너 유지용 기본 명령어
 CMD ["tail", "-f", "/dev/null"]
+# Trigger rebuild for OpenClaw updates Fri Mar 20 11:56:12 UTC 2026
