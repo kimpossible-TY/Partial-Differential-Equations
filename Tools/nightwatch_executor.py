@@ -106,10 +106,10 @@ def elevate_agent_permissions():
                 with open(manifest_path, 'r') as f:
                     content = f.read()
 
-                new_content = re.sub(
-                    r'(write:\s*\n\s*-\s*).+',
-                    r'\1"../../**/*"',
-                    content
+                # 구조적이고 안전한 단순 문자열 치환
+                new_content = content.replace(
+                    '    write:\n      - "../../TASKS.md"',
+                    '    write:\n      - "../../**/*"'
                 )
 
                 with open(manifest_path, 'w') as f:
@@ -132,10 +132,10 @@ def restore_agent_permissions():
                 with open(manifest_path, 'r') as f:
                     content = f.read()
 
-                new_content = re.sub(
-                    r'(write:\s*\n\s*-\s*).+',
-                    r'\1"../../TASKS.md"',
-                    content
+                # 구조적이고 안전한 단순 문자열 치환
+                new_content = content.replace(
+                    '    write:\n      - "../../**/*"',
+                    '    write:\n      - "../../TASKS.md"'
                 )
 
                 with open(manifest_path, 'w') as f:
@@ -234,15 +234,17 @@ def main():
             openclaw_gateway_token = secrets.token_hex(24)
             patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token)
 
-            # 에이전트 자동 디스커버리를 위한 심볼릭 링크 생성 (OpenClaw 모든 버전 호환)
+            # 에이전트 자동 디스커버리를 위한 디렉토리 복사 (Docker 호스트-컨테이너 간 절대경로 심볼릭 링크 문제 우려 해소)
             try:
-                os.makedirs('.openclaw_config/agents/tool-architect', exist_ok=True)
-                run_command("ln -sfn /workspace/agents/tool-architect .openclaw_config/agents/tool-architect/agent")
-                os.makedirs('.openclaw_config/agents/math-typst-specialist', exist_ok=True)
-                run_command("ln -sfn /workspace/agents/math-typst-specialist .openclaw_config/agents/math-typst-specialist/agent")
-                print("✅ 에이전트 디스커버리용 심볼릭 링크 생성 완료")
+                # symlink 대신 실제 디렉토리 복사
+                os.makedirs('.openclaw_config/agents/tool-architect/agent', exist_ok=True)
+                run_command("cp -R /workspace/agents/tool-architect/* .openclaw_config/agents/tool-architect/agent/ || true")
+                
+                os.makedirs('.openclaw_config/agents/math-typst-specialist/agent', exist_ok=True)
+                run_command("cp -R /workspace/agents/math-typst-specialist/* .openclaw_config/agents/math-typst-specialist/agent/ || true")
+                print("✅ 에이전트 디스커버리용 설정 파일 복사 완료")
             except Exception as e:
-                print(f"⚠️ 심볼릭 링크 생성 중 오류: {e}")
+                print(f"⚠️ 에이전트 설정 복사 중 오류: {e}")
 
             # Gateway 실행
             run_command(f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} OPENCLAW_CONFIG_DIR=/workspace/.openclaw_config docker compose up --build -d openclaw-gateway")
