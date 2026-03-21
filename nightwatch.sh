@@ -10,6 +10,12 @@ set -e
 TASKS_FILE="TASKS.md"
 WORKFLOW_NAME="nightwatch-loop.yml"
 
+# 0. Git Identity 설정 (NightWatch 트리거용 계정으로 고정)
+# 사용자의 로컬 설정에 의존하지 않고, GitHub Actions에 푸시하는 주체를 명확히 함
+echo "👤 Git Identity 설정 중 (kimpossible-TY)..."
+git config user.name "kimpossible-TY"
+git config user.email "kimpossible.ty@gmail.com"
+
 # 1. TASKS.md 확인
 if [ ! -f "$TASKS_FILE" ]; then
     echo "❌ 에러: $TASKS_FILE 파일을 찾을 수 없습니다."

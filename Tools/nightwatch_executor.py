@@ -186,6 +186,8 @@ def main():
     # Git 유저 정보 확인 및 설정 (루프 시작 전 한 번)
     run_command("git config user.name 'NightWatch Bot'")
     run_command("git config user.email 'nightwatch@kimpossible-ty'")
+    run_command("git config --global user.name 'NightWatch Bot'")
+    run_command("git config --global user.email 'nightwatch@kimpossible-ty'")
 
     # 권한 승격 (루프 시작 전 한 번)
     elevate_agent_permissions()

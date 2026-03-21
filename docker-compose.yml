@@ -18,7 +18,6 @@ services:
       - .:/workspace:rw
       - ./tests:/workspace/tests:ro
       - ./.openclaw:/workspace/.openclaw:rw
-      - ./openclaw.json:/workspace/.openclaw/openclaw.json:ro 
       - ./docker-compose.yml:/workspace/docker-compose.yml:ro
       - ./.env:/workspace/.env:ro               
     environment:
