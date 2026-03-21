@@ -18,8 +18,16 @@ WORKSPACE_ROOT = Path(__file__).parent.parent  # tools/ 상위 = 프로젝트 �
 TASKS_FILE = WORKSPACE_ROOT / "TASKS.md"
 
 MODEL_ROUTES = {
-    "FLASH": "google/gemini-3.0-flash",
+    "LITE": "google/gemini-3.1-flash-lite-preview",
+    "FLASH": "google/gemini-3-flash-preview",
     "PRO": "google/gemini-3.1-pro-preview",
+}
+
+# Model cost weight (approximate tokens)
+MODEL_COSTS = {
+    "LITE": 500,
+    "FLASH": 2000,
+    "PRO": 15000,
 }
 
 # ==============================================================================
@@ -47,7 +55,7 @@ def parse_tasks(tasks_path: Path, get_all: bool = False) -> list | dict | None:
 
     # 미완료 태스크 블록 파싱 (## [TAG] 로 시작하는 섹션)
     pattern = re.compile(
-        r"^##\s+\[(FLASH|PRO)\]\s+(.+?)$",
+        r"^##\s+\[(LITE|FLASH|PRO)\]\s+(.+?)$",
         re.MULTILINE
     )
 
@@ -73,12 +81,14 @@ def parse_tasks(tasks_path: Path, get_all: bool = False) -> list | dict | None:
         body = content[body_start:body_end].strip()
 
         model = MODEL_ROUTES.get(tag, MODEL_ROUTES["PRO"])
+        cost = MODEL_COSTS.get(tag, MODEL_COSTS["PRO"])
 
         task = {
             "tag": tag,
             "title": title,
             "body": body,
             "model": model,
+            "cost": cost,
         }
 
         if not get_all:

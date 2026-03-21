@@ -77,3 +77,6 @@ test/
 .openclaw/openclaw*.json
 agents/*/.openclaw/
 .openclaw/openclaw 2.json
+
+# 📊 NightWatch Budget Metrics
+.usage_metrics.json

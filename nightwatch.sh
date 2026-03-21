@@ -77,6 +77,9 @@ if [ "$TASK_COUNT" -eq 1 ]; then
     
     SUGGESTED_SUFFIX=$(echo "$TITLE" | tr ' ' '-' | tr -cd '[:alnum:]-' | cut -c1-50 | tr '[:upper:]' '[:lower:]')
     SUGGESTED_BRANCH="nightwatch/$SUGGESTED_SUFFIX"
+
+    echo "🛡️  Budget Watchdog: Checking quotas before execution..."
+    python3 Tools/budget_watchdog.py
     
     switch_branch "$SUGGESTED_BRANCH"
     
