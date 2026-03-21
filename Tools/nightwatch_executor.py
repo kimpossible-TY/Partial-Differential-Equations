@@ -182,14 +182,7 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
         google_prov['baseUrl'] = 'https://generativelanguage.googleapis.com/v1beta'
         google_prov['apiKey'] = gemini_api_key
 
-        # --- [2단계 추가] OpenClaw Gateway 수준의 재시도(Retry) 파라미터 강제 주입 ---
-        google_prov['retryParams'] = {
-            "maxRetries": 5,
-            "initialDelayMs": 5000,
-            "backoffMultiplier": 2,
-            "maxDelayMs": 120000,
-            "retryableStatusCodes": [429, 500, 502, 503, 504]
-        }
+        # --- [2단계 추가] OpenClaw Gateway 수준의 재시도(Retry) 파라미터 주입 제거 (Schema 오류 방지) ---
         # ------------------------------------------------------------------------
 
         google_models = google_prov.setdefault('models', [])
@@ -365,8 +358,7 @@ def main():
 
             print(f"⚡ OpenClaw 실행 중... (Tag: {routed_tag}, Title: {title})")
             
-            # --- 재시도 래퍼를 제거하고 평범한 run_command 사용 ---
-            # OpenClaw 내부에서 429 핸들링을 수행하므로 외부에서 컨테이너를 죽일 필요 없음
+            # --- [2단계 추가] 외부 재시도 래퍼 (Exponential Backoff) ---
             agent_cmd = [
                 "docker compose run --rm -T",
                 f"-e GEMINI_API_KEY={shlex.quote(gemini_api_key)}",
@@ -379,11 +371,24 @@ def main():
                 f"openclaw agent --agent tool-architect --message {shlex.quote(task_body)}"
             ]
 
-            rc, output = run_command(" ".join(agent_cmd))
+            max_retries = 5
+            base_delay = 5
             
-            if rc != 0:
-                print(f"❌ Task failed or interrupted. Return code: {rc}")
-                # 실패하더라도 다음 태스크를 위해 멈추지 않음
+            for attempt in range(max_retries):
+                rc, output = run_command(" ".join(agent_cmd))
+                if rc == 0:
+                    break
+                    
+                # 429 Too Many Requests 감지
+                if "429" in output or "Too Many Requests" in output or "quota" in output.lower():
+                    delay = base_delay * (2 ** attempt)
+                    print(f"⚠️ [Rate Limit] 429 오류 발생. {delay}초 후 재시도합니다... (시도: {attempt + 1}/{max_retries})")
+                    time.sleep(delay)
+                else:
+                    print(f"❌ Task failed or interrupted. Return code: {rc}")
+                    break
+            else:
+                print(f"🚨 [Error] 최대 재시도 횟수({max_retries}) 초과. 태스크 실패.")
 
             run_command("docker compose stop openclaw-gateway")
             run_command("sudo chown -R $USER:$USER .")
