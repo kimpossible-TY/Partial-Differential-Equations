@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import json
 import os
 import subprocess
@@ -6,10 +5,119 @@ import sys
 import secrets
 import re
 import shlex
+import time
+import urllib.request
 
+try:
+    import tiktoken
+except ImportError:
+    tiktoken = None
+
+# --- 1. Budget Watchdog & 2. Adaptive Throttling ---
+class RateLimitWatchdog:
+    def __init__(self, tpm_limit=4_000_000, rpm_limit=300, max_budget=10_000_000):
+        self.tpm_limit = tpm_limit
+        self.rpm_limit = rpm_limit
+        self.max_budget = max_budget
+        
+        self.total_tokens_used = 0
+        self.minute_start = time.time()
+        self.requests_this_minute = 0
+        self.tokens_this_minute = 0
+        if tiktoken:
+            try:
+                self.tokenizer = tiktoken.get_encoding("cl100k_base")
+            except Exception:
+                self.tokenizer = None
+        else:
+            self.tokenizer = None
+
+    def estimate_tokens(self, text: str) -> int:
+        if self.tokenizer:
+            return len(self.tokenizer.encode(text))
+        return len(text) // 4  # Fallback approximation
+
+    def check_and_throttle(self, estimated_task_tokens: int):
+        now = time.time()
+        if now - self.minute_start > 60:
+            self.minute_start = now
+            self.requests_this_minute = 0
+            self.tokens_this_minute = 0
+
+        # Halt if we exceed the global session budget
+        if self.total_tokens_used + estimated_task_tokens > self.max_budget:
+            print(f"🚨 Watchdog Alert: Task exceeds global budget ({self.max_budget} tokens). Halting execution.")
+            sys.exit(1)
+
+        # Adaptive Throttling: Check 80% threshold
+        if (self.requests_this_minute >= self.rpm_limit * 0.8) or \
+           (self.tokens_this_minute + estimated_task_tokens >= self.tpm_limit * 0.8):
+            sleep_time = max(0, 60 - (now - self.minute_start)) + 2
+            print(f"⚠️ [Throttling] Approaching 80% of RPM/TPM limit. Delaying execution by {sleep_time:.1f}s...")
+            time.sleep(sleep_time)
+            
+            # Reset minute trackers after sleep
+            self.minute_start = time.time()
+            self.requests_this_minute = 0
+            self.tokens_this_minute = 0
+
+        self.requests_this_minute += 1
+        self.tokens_this_minute += estimated_task_tokens
+        self.total_tokens_used += estimated_task_tokens
+
+watchdog = RateLimitWatchdog()
+
+# --- [3단계 추가] 경량 모델을 활용한 선제적 컨텍스트 가지치기 ---
+def prune_context_via_lite(task_body: str, api_key: str, threshold: int = 30000) -> str:
+    # 텍스트가 임계치보다 작으면 원본을 그대로 유지
+    if len(task_body) < threshold:
+        return task_body
+        
+    print("✂️ [Pruning] 컨텍스트가 너무 방대합니다. Gemini Flash Lite를 사용하여 핵심 구조만 압축합니다...")
+    # OpenClaw 설정의 LITE 모델과 통일
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key={api_key}"
+    
+    # 너무 큰 텍스트로 압축기 자체가 터지는 것을 막기 위해 최대 10만 자로 자름
+    safe_body = task_body[:100000]
+    prompt = (
+        "You are an expert context optimizer. Summarize the following project context, logs, or file contents. "
+        "Keep all essential code structures, file paths, and error messages, but remove redundant logs, "
+        "whitespace, and irrelevant comments to minimize token usage for the next agent.\n\n"
+        f"{safe_body}"
+    )
+
+    data = {
+        "contents": [{"parts": [{"text": prompt}]}]
+    }
+    
+    req = urllib.request.Request(
+        url, 
+        data=json.dumps(data).encode('utf-8'), 
+        headers={'Content-Type': 'application/json'}
+    )
+    
+    try:
+        with urllib.request.urlopen(req) as response:
+            result = json.loads(response.read().decode())
+            pruned_text = result['candidates'][0]['content']['parts'][0]['text']
+            print(f"✅ [Pruning] 압축 완료: 원본 {len(task_body)}자 -> 압축 {len(pruned_text)}자")
+            return pruned_text
+    except Exception as e:
+        print(f"⚠️ [Pruning] 압축 실패. 정규식을 통한 강제 공백 제거로 대체합니다: {e}")
+        # API 호출 실패 시 무식하지만 확실한 정규식 압축 (빈 줄 및 연속된 공백 제거)
+        return re.sub(r'\n\s*\n', '\n', task_body)
+
+# --- 3. 모델 라우팅 (방어적 용도로 유지) ---
+def route_model_by_context(tag: str, task_body: str, estimated_tokens: int) -> str:
+    if estimated_tokens > 30_000 and tag == "PRO":
+        print("📉 [Router] Massive context detected (>30k tokens). Downgrading PRO to FLASH to preserve budget.")
+        return "FLASH"
+    if estimated_tokens > 100_000:
+        print("✂️ [Router] Context exceeds 100k tokens. Forcing LITE and truncating body...")
+        return "LITE"
+    return tag
 
 def run_command(command, shell=True, env=None):
-    """실행 중인 명령어를 실시간으로 출력하며 실행"""
     current_env = os.environ.copy()
     if env:
         current_env.update(env)
@@ -33,9 +141,7 @@ def run_command(command, shell=True, env=None):
         print(f"❌ Command failed with return code {process.returncode}")
     return process.returncode, "".join(output)
 
-
 def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
-    """OpenClaw 구성을 CI 환경에 맞게 동적 패치"""
     path = '.openclaw_config/openclaw.json'
     if not os.path.exists(path):
         print(f"⚠️ {path} 를 찾을 수 없습니다. 패치를 건너뜜")
@@ -45,12 +151,10 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
         with open(path, 'r') as f:
             config = json.load(f)
 
-        # 1. Gateway 설정 보정
         config['gateway'] = config.get('gateway', {})
         config['gateway']['remote'] = {'url': 'ws://127.0.0.1:18789'}
         config['gateway']['mode'] = 'remote'
 
-        # 1.5 Gateway 인증 설정 (토큰 방식)
         if openclaw_gateway_token:
             config['gateway']['auth'] = {
                 "mode": "token",
@@ -59,7 +163,6 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
         else:
             config.pop('auth', None)
 
-        # 2. 모델 설정 및 API Key 주입
         model_map = {
             'PRO': 'google/gemini-3.1-pro-preview',
             'FLASH': 'google/gemini-3-flash-preview',
@@ -79,6 +182,16 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
         google_prov['baseUrl'] = 'https://generativelanguage.googleapis.com/v1beta'
         google_prov['apiKey'] = gemini_api_key
 
+        # --- [2단계 추가] OpenClaw Gateway 수준의 재시도(Retry) 파라미터 강제 주입 ---
+        google_prov['retryParams'] = {
+            "maxRetries": 5,
+            "initialDelayMs": 5000,
+            "backoffMultiplier": 2,
+            "maxDelayMs": 120000,
+            "retryableStatusCodes": [429, 500, 502, 503, 504]
+        }
+        # ------------------------------------------------------------------------
+
         google_models = google_prov.setdefault('models', [])
         google_models = [m for m in google_models if m.get('id') != target_model]
         google_models.insert(0, {'id': target_model, 'name': target_model.split('/')[-1]})
@@ -97,9 +210,7 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
         print(f"❌ 설정 패치 중 오류 발생: {e}")
         return False
 
-
 def elevate_agent_permissions():
-    """CI 환경에서 에이전트에게 전체 파일 쓰기 권한 부여"""
     agents_dir = 'agents'
     if not os.path.exists(agents_dir):
         return
@@ -111,7 +222,6 @@ def elevate_agent_permissions():
                 with open(manifest_path, 'r') as f:
                     content = f.read()
 
-                # 구조적이고 안전한 단순 문자열 치환
                 new_content = content.replace(
                     '    write:\n      - "../../TASKS.md"',
                     '    write:\n      - "../../**/*"'
@@ -123,9 +233,7 @@ def elevate_agent_permissions():
             except Exception as e:
                 print(f"⚠️ 에이전트 {agent_id} 권한 승격 중 오류: {e}")
 
-
 def restore_agent_permissions():
-    """CI 환경 종료 시 에이전트의 파일 쓰기 권한을 기본(TASKS.md)으로 복구"""
     agents_dir = 'agents'
     if not os.path.exists(agents_dir):
         return
@@ -137,7 +245,6 @@ def restore_agent_permissions():
                 with open(manifest_path, 'r') as f:
                     content = f.read()
 
-                # 구조적이고 안전한 단순 문자열 치환
                 new_content = content.replace(
                     '    write:\n      - "../../**/*"',
                     '    write:\n      - "../../TASKS.md"'
@@ -148,7 +255,6 @@ def restore_agent_permissions():
                 print(f"🔒 에이전트 권한 복구 완료: {agent_id}")
             except Exception as e:
                 print(f"⚠️ 에이전트 {agent_id} 권한 복구 중 오류: {e}")
-
 
 def main():
     gemini_api_key = os.getenv('GEMINI_API_KEY')
@@ -164,14 +270,12 @@ def main():
         try:
             with open(bulk_file, 'r') as f:
                 tasks = json.load(f)
-            # 큐 파일을 삭제하고 git rm 처리 (커밋 시 포함되지 않도록 함)
             os.remove(bulk_file)
             run_command(f"git rm {bulk_file} || true")
         except Exception as e:
             print(f"❌ {bulk_file} 읽기/삭제 중 오류: {e}")
             sys.exit(1)
     else:
-        # 파일이 없으면 기존처럼 단일 환경변수로 fallback
         tag = os.getenv('TAG', 'FLASH')
         title = os.getenv('TITLE', 'Untitled Task')
         try:
@@ -188,32 +292,40 @@ def main():
 
     print(f"🚀 NightWatch Executor 시작: 총 {len(tasks)} 개의 태스크")
 
-    # Git 유저 정보 확인 및 설정 (루프 시작 전 한 번)
-    run_command("git config user.name 'NightWatch Bot'")
-    run_command("git config user.email 'nightwatch@kimpossible-ty'")
-    run_command("git config --global user.name 'NightWatch Bot'")
-    run_command("git config --global user.email 'nightwatch@kimpossible-ty'")
+    # --- [1단계 적용] Git Config 통일 및 봇 명칭 제거 ---
+    run_command("git config --global user.name 'kimpossible-TY'")
+    run_command("git config --global user.email '95904582+kimpossible-TY@users.noreply.github.com'")
+    run_command("git config user.name 'kimpossible-TY'")
+    run_command("git config user.email '95904582+kimpossible-TY@users.noreply.github.com'")
 
-    # 권한 승격 (루프 시작 전 한 번)
     elevate_agent_permissions()
 
     try:
         os.makedirs('.openclaw_config', exist_ok=True)
         run_command("chmod 777 .openclaw_config")
 
-        # 핵심 루프: 각 태스크마다 실행
         for i, task in enumerate(tasks, 1):
-            tag = task.get("tag", "FLASH")
+            original_tag = task.get("tag", "FLASH")
             title = task.get("title", "Untitled Task")
-            task_body = task.get("body", "No task body found.")
+            raw_task_body = task.get("body", "No task body found.")
+
+            # --- [3단계 적용] 에이전트에 넘기기 전 컨텍스트 압축 ---
+            task_body = prune_context_via_lite(raw_task_body, gemini_api_key)
+
+            # 1. Estimate Tokens & Watchdog Check (압축된 텍스트 기반으로 계산)
+            # 맹목적인 15000 버퍼를 5000으로 축소
+            estimated_tokens = watchdog.estimate_tokens(task_body) + 5000
+            
+            # 2. Dynamic Routing
+            routed_tag = route_model_by_context(original_tag, task_body, estimated_tokens)
+            
+            # 3. Throttle
+            watchdog.check_and_throttle(estimated_tokens)
 
             print("\n==============================================")
-            print(f"▶️ [태스크 {i}/{len(tasks)}] 시작: [{tag}] {title}")
+            print(f"▶️ [태스크 {i}/{len(tasks)}] 시작: [{routed_tag}] {title} (Est. Tokens: {estimated_tokens})")
             print("==============================================")
 
-                        # .openclaw_config 매번 초기화
-            # .openclaw_config 매번 초기화 (기존 로컬 설정 의존 제거)
-            # CI 환경을 위한 기본 설정 동적 생성 (단일 진실의 원천)
             default_config = {
                 "agents": {
                     "defaults": {"workspace": "/workspace"},
@@ -237,33 +349,24 @@ def main():
                 json.dump(default_config, f, indent=2)
 
             openclaw_gateway_token = secrets.token_hex(24)
-            patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token)
+            patch_openclaw_config(gemini_api_key, routed_tag, openclaw_gateway_token)
 
-<<<<<<< HEAD
-            # 에이전트 자동 디스커버리를 위한 심볼릭 링크 생성 (로컬-컨테이너 간 일관된 경로 매핑)
-            try:
-                os.makedirs('.openclaw_config/agents', exist_ok=True)
-                # OpenClaw가 직접 찾을 수 있도록 중첩 없이 디렉토리 직접 링크
-                run_command("ln -sfn /workspace/agents/tool-architect .openclaw_config/agents/tool-architect")
-                run_command("ln -sfn /workspace/agents/math-typst-specialist .openclaw_config/agents/math-typst-specialist")
-=======
-            # 에이전트 자동 디스커버리를 위한 심볼릭 링크 생성 (OpenClaw 모든 버전 호환)
             try:
                 os.makedirs('.openclaw_config/agents/tool-architect', exist_ok=True)
                 run_command("ln -sfn /workspace/agents/tool-architect .openclaw_config/agents/tool-architect/agent")
                 os.makedirs('.openclaw_config/agents/math-typst-specialist', exist_ok=True)
                 run_command("ln -sfn /workspace/agents/math-typst-specialist .openclaw_config/agents/math-typst-specialist/agent")
->>>>>>> 5cbd3cf (fix: enforce agent discovery via symlinks in CI)
                 print("✅ 에이전트 디스커버리용 심볼릭 링크 생성 완료")
             except Exception as e:
                 print(f"⚠️ 심볼릭 링크 생성 중 오류: {e}")
 
-            # Gateway 실행
             run_command(f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} OPENCLAW_CONFIG_DIR=/workspace/.openclaw_config docker compose up --build -d openclaw-gateway")
             run_command("sleep 5")
 
-            # Agent 실행 (중복 호출 제거)
-            print(f"⚡ OpenClaw 실행 중... (Tag: {tag}, Title: {title})")
+            print(f"⚡ OpenClaw 실행 중... (Tag: {routed_tag}, Title: {title})")
+            
+            # --- 재시도 래퍼를 제거하고 평범한 run_command 사용 ---
+            # OpenClaw 내부에서 429 핸들링을 수행하므로 외부에서 컨테이너를 죽일 필요 없음
             agent_cmd = [
                 "docker compose run --rm -T",
                 f"-e GEMINI_API_KEY={shlex.quote(gemini_api_key)}",
@@ -276,14 +379,16 @@ def main():
                 f"openclaw agent --agent tool-architect --message {shlex.quote(task_body)}"
             ]
 
-            rc, _ = run_command(" ".join(agent_cmd))
+            rc, output = run_command(" ".join(agent_cmd))
+            
+            if rc != 0:
+                print(f"❌ Task failed or interrupted. Return code: {rc}")
+                # 실패하더라도 다음 태스크를 위해 멈추지 않음
 
-            # 사후 처리
             run_command("docker compose stop openclaw-gateway")
             run_command("sudo chown -R $USER:$USER .")
 
-            # 현재 태스크 결과 커밋
-            print(f"📂 변경 사항 커밋 중... ([{tag}] {title})")
+            print(f"📂 변경 사항 커밋 중... ([{routed_tag}] {title})")
             run_command("git add .")
 
             _, status_output = run_command("git status --porcelain")
@@ -293,14 +398,13 @@ def main():
 
             rc_diff, _ = run_command("git diff --cached --quiet")
             if rc_diff != 0:
-                print(f"✅ 변경 사항 발견: 커밋 생성 중... ([{tag}] {title})")
-                run_command(f'git commit -m "feat: [{tag}] {title}"')
+                print(f"✅ 변경 사항 발견: 커밋 생성 중... ([{routed_tag}] {title})")
+                run_command(f'git commit -m "feat: [{routed_tag}] {title}"')
             else:
                 print("ℹ️ 변경 사항 없음 — 자동 PR 생성을 위해 빈 커밋을 생성합니다.")
-                run_command(f'git commit --allow-empty -m "feat: [{tag}] {title} (no code changes)"')
+                run_command(f'git commit --allow-empty -m "feat: [{routed_tag}] {title} (no code changes)"')
 
     finally:
-        # 권한 복구는 루프가 끝나거나 오류가 발생하더라도 반드시 마지막에 수행
         restore_agent_permissions()
 
     print("\n✅ NightWatch Executor 전체 완료")
@@ -308,3 +412,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
