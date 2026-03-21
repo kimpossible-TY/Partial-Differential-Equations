@@ -1,82 +1,55 @@
+# ==========================================
+# .gitignore - Tool Architect Cleaned Version
+# ==========================================
 
-### 🔑 Security & Credentials (MUST HAVE)
-# 구글 클라우드에서 다운로드한 원본 신분증
+### 🛡️ SECURITY & SECRETS
+# Critical: Never commit these
 credentials.json
-# 로컬 인증 결과물
 token.pickle
-# GitHub Secret 등록을 위해 만든 임시 텍스트 파일
 token_base64.txt
-# 기타 환경 변수 저장 파일
 .env
 .env.local
 
-### 🐍 Python Hygiene
-# 컴파일된 바이트코드 및 캐시 (실행 속도와 무관하게 저장소만 어지럽힘)
+### ⚙️ OPENCLAW RUNTIME
+# Local configuration and session data
+.openclaw/
+.openclaw_config/
+.usage_metrics.json
+
+### 🧠 MEMORY & LOGS
+# Personal and session-specific records
+memory/
+agents/*/memory/
+*.log
+gemini_Tutor/logs/
+.bash_history
+
+### 🐍 PYTHON & BUILD
 __pycache__/
 *.py[cod]
 *$py.class
-# 가상 환경 폴더 (Codespace와 로컬의 환경이 다를 수 있어 공유 금지)
 .venv/
 venv/
 env/
 bin/
 lib/
-# 빌드 및 배포 관련
 build/
 dist/
 *.egg-info/
 
-### 📝 Project Specifics
-# 로컬 로그 파일 (이미 구글 드라이브로 동기화되므로 서버에 남길 이유가 없음)
-gemini_Tutor/logs/
-*.log
-# Typst 컴파일 결과물 및 임시 파일
-*.pdf
-# 터미널 세션 기록 등
-.bash_history
-
-### 💻 OS & Editors
-# OS X
+### 💻 OS & EDITORS
 .DS_Store
 .AppleDouble
 .LSOverride
-# Windows
 Thumbs.db
 ehthumbs.db
 Desktop.ini
-# Editors
 .vscode/
 .idea/
 *.swp
 *.swo
 
-#test or etc
+### 📁 PROJECT SPECIFICS & TEMP
+*.pdf
 test/
 *.txt
-
-### 🛠 Workspace Scripts
-# start_workspace.sh 가 생성하는 임시 스크립트 파일
-.openclaw_config/
-
-# OpenClaw 런타임 데이터 및 세션 기록 제외
-.openclaw/agents/*/sessions/
-.openclaw/logs/
-.openclaw/workspace-state.json
-.openclaw/update-check.json
-.openclaw/memory/
-.openclaw/exec-approvals.json
-
-# 보안 및 기기 인증 정보 (절대 업로드 금지)
-.openclaw/identity/
-.openclaw/devices/
-.openclaw/cron/
-
-# 백업 파일
-.openclaw/*.bak
-.openclaw/openclaw.json
-.openclaw/openclaw*.json
-agents/*/.openclaw/
-.openclaw/openclaw 2.json
-
-# 📊 NightWatch Budget Metrics
-.usage_metrics.json
