@@ -9,9 +9,11 @@ set -e
 # 설정
 TASKS_FILE="TASKS.md"
 WORKFLOW_NAME="nightwatch-loop.yml"
+# 로컬 LLM 서버 주소 (MLX-LM)
+LLM_API_URL="http://localhost:8080/v1/chat/completions"
+LLM_MODEL="mlx-community/Qwen2.5-Coder-3B-Instruct-4bit"
 
 # 0. Git Identity 설정 (NightWatch 트리거용 계정으로 고정)
-# 사용자의 로컬 설정에 의존하지 않고, GitHub Actions에 푸시하는 주체를 명확히 함
 echo "👤 Git Identity 설정 중 (kimpossible-TY)..."
 git config user.name "kimpossible-TY"
 git config user.email "95904582+kimpossible-TY@users.noreply.github.com"
@@ -29,13 +31,67 @@ if [ -z "$TASKS_JSON" ] || echo "$TASKS_JSON" | grep -q '"error"'; then
     exit 0
 fi
 
-# 태스크 개수 확인
 TASK_COUNT=$(echo "$TASKS_JSON" | python3 -c 'import sys,json; print(len(json.load(sys.stdin)))')
-
 TIMESTAMP=$(date +%Y%m%d%H%M%S)
 CURRENT_BRANCH=$(git branch --show-current)
 
-# 브랜치 생성 및 전환 로직 (선택형)
+# ==============================================================================
+# [NEW] LLM 기반 브랜치 이름 생성 함수 (Safeguard 포함)
+# ==============================================================================
+generate_branch_name() {
+    local task_title="$1"
+    local fallback_name=$(echo "$task_title" | tr ' ' '-' | tr -cd '[:alnum:]-' | cut -c1-50 | tr '[:upper:]' '[:lower:]')
+    
+    echo "🧠 로컬 LLM(Qwen)으로 최적의 브랜치명 추론 중..." >&2
+
+    # JSON Payload 구성
+    local payload=$(cat <<EOF
+{
+  "model": "$LLM_MODEL",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a Git branch name generator. Analyze the task title and output ONLY a short, meaningful git branch name. Use lowercase, replace spaces with hyphens (-). Maximum 40 characters. DO NOT wrap in quotes. DO NOT add any explanations or prefixes."
+    },
+    {
+      "role": "user",
+      "content": "$task_title"
+    }
+  ],
+  "temperature": 0.1,
+  "max_tokens": 20
+}
+EOF
+)
+
+    # cURL로 로컬 서버 호출 (최대 10초 대기)
+    local response=$(curl -s -m 10 -X POST "$LLM_API_URL" \
+         -H "Content-Type: application/json" \
+         -d "$payload" || echo "")
+
+    # Python을 사용하여 JSON 응답 파싱
+    local llm_name=$(echo "$response" | python3 -c "
+import sys, json
+try:
+    data = json.load(sys.stdin)
+    content = data.get('choices', [{}])[0].get('message', {}).get('content', '').strip()
+    print(content)
+except Exception:
+    print('')
+" 2>/dev/null)
+
+    if [ -n "$llm_name" ]; then
+        # LLM이 헛소리를 했을 경우를 대비해 한 번 더 필터링 (안전장치)
+        llm_name=$(echo "$llm_name" | tr ' ' '-' | tr -cd '[:alnum:]-' | cut -c1-50 | tr '[:upper:]' '[:lower:]')
+        echo "$llm_name"
+    else
+        echo "⚠️ 로컬 LLM 응답 실패 또는 시간 초과. 기본 변환 방식을 사용합니다." >&2
+        echo "$fallback_name"
+    fi
+}
+# ==============================================================================
+
+# 브랜치 생성 및 전환 로직
 switch_branch() {
     local suggested=$1
     if [ "$CURRENT_BRANCH" == "main" ]; then
@@ -69,7 +125,6 @@ switch_branch() {
     fi
 }
 
-# 작업 전 항상 최신 main을 가져옵니다.
 echo "🔄 origin/main 최신화 중..."
 git fetch origin main
 
@@ -81,7 +136,8 @@ if [ "$TASK_COUNT" -eq 1 ]; then
     TAG=$(echo "$TASKS_JSON" | python3 -c 'import sys,json; print(json.load(sys.stdin)[0]["tag"])')
     echo "🔍 발견된 단일 태스크: [$TAG] $TITLE"
     
-    SUGGESTED_SUFFIX=$(echo "$TITLE" | tr ' ' '-' | tr -cd '[:alnum:]-' | cut -c1-50 | tr '[:upper:]' '[:lower:]')
+    # LLM을 호출하여 브랜치명 생성
+    SUGGESTED_SUFFIX=$(generate_branch_name "$TITLE")
     SUGGESTED_BRANCH="nightwatch/$SUGGESTED_SUFFIX"
 
     echo "🛡️  Budget Watchdog: Checking quotas before execution..."
@@ -121,14 +177,13 @@ else
             TITLE=$(echo "$TASKS_JSON" | python3 -c "import sys,json; print(json.load(sys.stdin)[$i]['title'])")
             TAG=$(echo "$TASKS_JSON" | python3 -c "import sys,json; print(json.load(sys.stdin)[$i]['tag'])")
             
-            SUGGESTED_SUFFIX=$(echo "$TITLE" | tr ' ' '-' | tr -cd '[:alnum:]-' | cut -c1-50 | tr '[:upper:]' '[:lower:]')
+            # LLM을 호출하여 브랜치명 생성 (다중 처리이므로 충돌 방지를 위해 뒤에 타임스탬프 등 유지)
+            SUGGESTED_SUFFIX=$(generate_branch_name "$TITLE")
             TARGET_BRANCH="nightwatch/${SUGGESTED_SUFFIX}-${TIMESTAMP}-${i}"
             
             echo "🌱 [태스크 $((i+1))/$TASK_COUNT] 브랜치 생성: $TARGET_BRANCH (기반: origin/main)"
-            # 항상 최신 origin/main에서 새 브랜치를 땁니다.
             git checkout -b "$TARGET_BRANCH" origin/main
             
-            # 각 태스크마다 해당 정보만 담은 임시 파일 생성
             echo "$TASKS_JSON" | python3 -c "import sys,json; print(json.dumps([json.load(sys.stdin)[$i]], ensure_ascii=False))" > nightwatch_bulk_tasks.json
             
             git add nightwatch_bulk_tasks.json
@@ -140,7 +195,6 @@ else
             echo "🌙 NightWatch 루프를 깨우는 중... ($TARGET_BRANCH)"
             gh workflow run "$WORKFLOW_NAME" --ref "$TARGET_BRANCH" -f branch_name="$TARGET_BRANCH"
             
-            # 작업이 끝난 후, 다음 루프를 위해 원래 브랜치로 임시 복귀 (또는 detached 방지)
             git checkout "$ORIGINAL_BRANCH"
         done
         CURRENT_BRANCH=$ORIGINAL_BRANCH
@@ -148,11 +202,14 @@ else
     # 순차(Series) 모드
     else
         echo "🔄 순차 실행 모드를 시작합니다..."
+        
+        # 순차 처리일 경우 제목을 합쳐서 LLM에 물어보는 것도 가능하지만,
+        # 에러 확률과 시간 소요를 줄이기 위해 기존처럼 bulk-run 형태를 띱니다.
+        # 여러 작업을 하나로 아우르는 이름을 짓는 것은 LLM의 강점입니다. 원한다면 아래 로직을 수정하십시오.
         SUGGESTED_BRANCH="nightwatch/bulk-run-${TIMESTAMP}"
         
         switch_branch "$SUGGESTED_BRANCH"
         
-        # 전체 태스크 JSON 저장
         echo "$TASKS_JSON" > nightwatch_bulk_tasks.json
         
         echo "💾 변경 사항 저장 중..."
@@ -170,3 +227,5 @@ fi
 echo "✅ 완료! 성공적으로 NightWatch에게 작업을 넘겼습니다."
 echo "→ 모니터링: gh run watch"
 echo "→ 브라우저: gh run view --web"
+
+
