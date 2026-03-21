@@ -36,7 +36,7 @@ TIMESTAMP=$(date +%Y%m%d%H%M%S)
 CURRENT_BRANCH=$(git branch --show-current)
 
 # ==============================================================================
-# [NEW] LLM 기반 브랜치 이름 생성 함수 (Safeguard 포함)
+# LLM 기반 브랜치 이름 생성 함수
 # ==============================================================================
 generate_branch_name() {
     local task_title="$1"
@@ -44,14 +44,13 @@ generate_branch_name() {
     
     echo "🧠 로컬 LLM(Qwen)으로 최적의 브랜치명 추론 중..." >&2
 
-    # JSON Payload 구성
     local payload=$(cat <<EOF
 {
   "model": "$LLM_MODEL",
   "messages": [
     {
       "role": "system",
-      "content": "You are a Git branch name generator. Analyze the task title and output ONLY a short, meaningful git branch name. Use lowercase, replace spaces with hyphens (-). Maximum 40 characters. DO NOT wrap in quotes. DO NOT add any explanations or prefixes."
+      "content": "You are a Git branch name generator. Analyze the task title(s) and output ONLY a short, meaningful git branch name. Use lowercase, replace spaces with hyphens (-). Maximum 40 characters. DO NOT wrap in quotes. DO NOT add any explanations or prefixes."
     },
     {
       "role": "user",
@@ -64,12 +63,10 @@ generate_branch_name() {
 EOF
 )
 
-    # cURL로 로컬 서버 호출 (최대 10초 대기)
     local response=$(curl -s -m 10 -X POST "$LLM_API_URL" \
          -H "Content-Type: application/json" \
          -d "$payload" || echo "")
 
-    # Python을 사용하여 JSON 응답 파싱
     local llm_name=$(echo "$response" | python3 -c "
 import sys, json
 try:
@@ -81,7 +78,6 @@ except Exception:
 " 2>/dev/null)
 
     if [ -n "$llm_name" ]; then
-        # LLM이 헛소리를 했을 경우를 대비해 한 번 더 필터링 (안전장치)
         llm_name=$(echo "$llm_name" | tr ' ' '-' | tr -cd '[:alnum:]-' | cut -c1-50 | tr '[:upper:]' '[:lower:]')
         echo "$llm_name"
     else
@@ -136,7 +132,6 @@ if [ "$TASK_COUNT" -eq 1 ]; then
     TAG=$(echo "$TASKS_JSON" | python3 -c 'import sys,json; print(json.load(sys.stdin)[0]["tag"])')
     echo "🔍 발견된 단일 태스크: [$TAG] $TITLE"
     
-    # LLM을 호출하여 브랜치명 생성
     SUGGESTED_SUFFIX=$(generate_branch_name "$TITLE")
     SUGGESTED_BRANCH="nightwatch/$SUGGESTED_SUFFIX"
 
@@ -177,7 +172,6 @@ else
             TITLE=$(echo "$TASKS_JSON" | python3 -c "import sys,json; print(json.load(sys.stdin)[$i]['title'])")
             TAG=$(echo "$TASKS_JSON" | python3 -c "import sys,json; print(json.load(sys.stdin)[$i]['tag'])")
             
-            # LLM을 호출하여 브랜치명 생성 (다중 처리이므로 충돌 방지를 위해 뒤에 타임스탬프 등 유지)
             SUGGESTED_SUFFIX=$(generate_branch_name "$TITLE")
             TARGET_BRANCH="nightwatch/${SUGGESTED_SUFFIX}-${TIMESTAMP}-${i}"
             
@@ -203,10 +197,12 @@ else
     else
         echo "🔄 순차 실행 모드를 시작합니다..."
         
-        # 순차 처리일 경우 제목을 합쳐서 LLM에 물어보는 것도 가능하지만,
-        # 에러 확률과 시간 소요를 줄이기 위해 기존처럼 bulk-run 형태를 띱니다.
-        # 여러 작업을 하나로 아우르는 이름을 짓는 것은 LLM의 강점입니다. 원한다면 아래 로직을 수정하십시오.
-        SUGGESTED_BRANCH="nightwatch/bulk-run-${TIMESTAMP}"
+        # [NEW] 모든 태스크 제목을 하나로 추출하여 쉼표로 연결
+        COMBINED_TITLES=$(echo "$TASKS_JSON" | python3 -c 'import sys,json; print(", ".join([t["title"] for t in json.load(sys.stdin)]))')
+        
+        # LLM에게 복합된 태스크들을 하나로 요약하라고 지시
+        SUGGESTED_SUFFIX=$(generate_branch_name "Summarize these multiple tasks into one short branch name: $COMBINED_TITLES")
+        SUGGESTED_BRANCH="nightwatch/${SUGGESTED_SUFFIX}-${TIMESTAMP}"
         
         switch_branch "$SUGGESTED_BRANCH"
         
@@ -227,5 +223,4 @@ fi
 echo "✅ 완료! 성공적으로 NightWatch에게 작업을 넘겼습니다."
 echo "→ 모니터링: gh run watch"
 echo "→ 브라우저: gh run view --web"
-
 
