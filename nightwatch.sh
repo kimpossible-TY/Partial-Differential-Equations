@@ -14,7 +14,7 @@ WORKFLOW_NAME="nightwatch-loop.yml"
 # 사용자의 로컬 설정에 의존하지 않고, GitHub Actions에 푸시하는 주체를 명확히 함
 echo "👤 Git Identity 설정 중 (kimpossible-TY)..."
 git config user.name "kimpossible-TY"
-git config user.email "kimpossible.ty@gmail.com"
+git config user.email "95904582+kimpossible-TY@users.noreply.github.com"
 
 # 1. TASKS.md 확인
 if [ ! -f "$TASKS_FILE" ]; then
