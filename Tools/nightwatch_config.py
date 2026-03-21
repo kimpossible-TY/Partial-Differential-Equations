@@ -1,8 +1,27 @@
+"""
+NightWatch Configuration Module
+
+This module provides tools for managing the OpenClaw environment, patching gateway 
+configurations, managing agent file system permissions, and setting up necessary 
+infrastructure (symlinks) for agent discovery.
+"""
+
 import os
 import json
 import subprocess
 
 def run_command(command, shell=True, env=None):
+    """
+    Executes a shell command and logs output.
+
+    Args:
+        command (str): The shell command string.
+        shell (bool): Whether to run via shell (default: True).
+        env (dict): Environment variable overrides.
+
+    Returns:
+        (int, str): Tuple containing return code and output text.
+    """
     current_env = os.environ.copy()
     if env:
         current_env.update(env)
@@ -27,7 +46,12 @@ def run_command(command, shell=True, env=None):
     return process.returncode, "".join(output)
 
 def setup_docker_symlinks():
-    """Ensure the Docker symlink logic (.openclaw_config/agents/...) is set up."""
+    """
+    Sets up mandatory agent discovery symlinks for the Docker containers.
+
+    These symlinks allow the OpenClaw gateway to discover and mount the local 
+    agent workspace correctly within the containerized environment.
+    """
     try:
         os.makedirs('.openclaw_config/agents/tool-architect', exist_ok=True)
         run_command("ln -sfn /workspace/agents/tool-architect .openclaw_config/agents/tool-architect/agent")
@@ -38,13 +62,28 @@ def setup_docker_symlinks():
         print(f"⚠️ 심볼릭 링크 생성 중 오류: {e}")
 
 def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
+    """
+    Updates the OpenClaw configuration file with the correct model and API keys.
+
+    Args:
+        gemini_api_key (str): The Google Gemini API key.
+        tag (str): The model tag (e.g., 'PRO', 'FLASH', 'LITE').
+        openclaw_gateway_token (str): Optional token for gateway authentication.
+
+    Returns:
+        bool: True if patching succeeded, False otherwise.
+        
+    Note: 
+        To update available model mappings, modify the `model_map` dictionary inside 
+        this function.
+    """
     path = '.openclaw_config/openclaw.json'
     
     # Ensure config dir exists
     os.makedirs('.openclaw_config', exist_ok=True)
     run_command("chmod 777 .openclaw_config")
 
-    # If it doesn't exist, create default
+    # If it doesn't exist, create default structure
     if not os.path.exists(path):
         print(f"ℹ️ {path} 가 존재하지 않습니다. 기본 설정을 생성합니다.")
         default_config = {
@@ -85,6 +124,7 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
         else:
             config.pop('auth', None)
 
+        # Update model mapping: Add/Change model IDs here
         model_map = {
             'PRO': 'google/gemini-3.1-pro-preview',
             'FLASH': 'google/gemini-3-flash-preview',
@@ -109,6 +149,7 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
         google_models.insert(0, {'id': target_model, 'name': target_model.split('/')[-1]})
         google_prov['models'] = google_models
 
+        # Ensure absolute workspace paths are correctly mapped
         old_ws = config.get('agents', {}).get('defaults', {}).get('workspace')
         if old_ws:
             config_str = json.dumps(config)
@@ -123,6 +164,10 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
         return False
 
 def elevate_agent_permissions():
+    """
+    Expands agent manifest permissions to allow write access to the entire 
+    workspace instead of just TASKS.md.
+    """
     agents_dir = 'agents'
     if not os.path.exists(agents_dir):
         return
@@ -134,6 +179,7 @@ def elevate_agent_permissions():
                 with open(manifest_path, 'r') as f:
                     content = f.read()
 
+                # Regex replacement to allow wide-scope write access
                 new_content = content.replace(
                     '    write:\n      - "../../TASKS.md"',
                     '    write:\n      - "../../**/*"'
@@ -146,6 +192,10 @@ def elevate_agent_permissions():
                 print(f"⚠️ 에이전트 {agent_id} 권한 승격 중 오류: {e}")
 
 def restore_agent_permissions():
+    """
+    Restores agent manifest permissions, restricting write access back to 
+    only TASKS.md.
+    """
     agents_dir = 'agents'
     if not os.path.exists(agents_dir):
         return
