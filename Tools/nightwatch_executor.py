@@ -47,7 +47,7 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
 
         # 1. Gateway 설정 보정
         config['gateway'] = config.get('gateway', {})
-        config['gateway']['remote'] = {'url': 'ws://openclaw-gateway:18789'}
+        config['gateway']['remote'] = {'url': 'ws://127.0.0.1:18789'}
         config['gateway']['mode'] = 'remote'
 
         # 1.5 Gateway 인증 설정 (토큰 방식)
@@ -106,10 +106,10 @@ def elevate_agent_permissions():
                 with open(manifest_path, 'r') as f:
                     content = f.read()
 
-                new_content = re.sub(
-                    r'(write:\s*\n\s*-\s*).+',
-                    r'\1"../../**/*"',
-                    content
+                # 구조적이고 안전한 단순 문자열 치환
+                new_content = content.replace(
+                    '    write:\n      - "../../TASKS.md"',
+                    '    write:\n      - "../../**/*"'
                 )
 
                 with open(manifest_path, 'w') as f:
@@ -132,10 +132,10 @@ def restore_agent_permissions():
                 with open(manifest_path, 'r') as f:
                     content = f.read()
 
-                new_content = re.sub(
-                    r'(write:\s*\n\s*-\s*).+',
-                    r'\1"../../TASKS.md"',
-                    content
+                # 구조적이고 안전한 단순 문자열 치환
+                new_content = content.replace(
+                    '    write:\n      - "../../**/*"',
+                    '    write:\n      - "../../TASKS.md"'
                 )
 
                 with open(manifest_path, 'w') as f:
@@ -205,35 +205,42 @@ def main():
             print("==============================================")
 
                         # .openclaw_config 매번 초기화
-            if os.path.exists('.openclaw/openclaw.json'):
-                run_command("cp .openclaw/openclaw.json .openclaw_config/openclaw.json")
-            else:
-                # CI 환경을 위한 기본 설정 동적 생성
-                default_config = {
-                    "workspace": "/workspace",
-                    "agents": {
-                        "defaults": {"workspace": "/workspace"},
-                        "list": [
-                            {
-                                "id": "tool-architect",
-                                "name": "Tool Architect",
-                                "workspace": "/workspace/agents/tool-architect",
-                                "agentDir": "/workspace/agents/tool-architect"
-                            },
-                            {
-                                "id": "math-typst-specialist",
-                                "name": "Math & Typst Specialist",
-                                "workspace": "/workspace/agents/math-typst-specialist",
-                                "agentDir": "/workspace/agents/math-typst-specialist"
-                            }
-                        ]
-                    }
+            # .openclaw_config 매번 초기화 (기존 로컬 설정 의존 제거)
+            # CI 환경을 위한 기본 설정 동적 생성 (단일 진실의 원천)
+            default_config = {
+                "agents": {
+                    "defaults": {"workspace": "/workspace"},
+                    "list": [
+                        {
+                            "id": "tool-architect",
+                            "name": "Tool Architect",
+                            "workspace": "/workspace/agents/tool-architect",
+                            "agentDir": "/workspace/agents/tool-architect"
+                        },
+                        {
+                            "id": "math-typst-specialist",
+                            "name": "Math & Typst Specialist",
+                            "workspace": "/workspace/agents/math-typst-specialist",
+                            "agentDir": "/workspace/agents/math-typst-specialist"
+                        }
+                    ]
                 }
-                with open('.openclaw_config/openclaw.json', 'w') as f:
-                    json.dump(default_config, f, indent=2)
+            }
+            with open('.openclaw_config/openclaw.json', 'w') as f:
+                json.dump(default_config, f, indent=2)
 
             openclaw_gateway_token = secrets.token_hex(24)
             patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token)
+
+            # 에이전트 자동 디스커버리를 위한 심볼릭 링크 생성 (로컬-컨테이너 간 일관된 경로 매핑)
+            try:
+                os.makedirs('.openclaw_config/agents', exist_ok=True)
+                # OpenClaw가 직접 찾을 수 있도록 중첩 없이 디렉토리 직접 링크
+                run_command("ln -sfn /workspace/agents/tool-architect .openclaw_config/agents/tool-architect")
+                run_command("ln -sfn /workspace/agents/math-typst-specialist .openclaw_config/agents/math-typst-specialist")
+                print("✅ 에이전트 디스커버리용 심볼릭 링크 생성 완료")
+            except Exception as e:
+                print(f"⚠️ 심볼릭 링크 생성 중 오류: {e}")
 
             # Gateway 실행
             run_command(f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} OPENCLAW_CONFIG_DIR=/workspace/.openclaw_config docker compose up --build -d openclaw-gateway")
@@ -247,7 +254,8 @@ def main():
                 f"-e TASK_BODY={shlex.quote(task_body)}",
                 "-e OPENCLAW_ACCEPT_RISK=true",
                 f"-e OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token}",
-                "-e OPENCLAW_CONFIG_DIR=/workspace/.openclaw_config",
+                "-e OPENCLAW_CONFIG_PATH=/workspace/.openclaw_config/openclaw.json",
+                "-e OPENCLAW_STATE_DIR=/workspace/.openclaw_config",
                 "nightwatch-agent",
                 f"openclaw agent --agent tool-architect --message {shlex.quote(task_body)}"
             ]
