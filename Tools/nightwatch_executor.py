@@ -205,46 +205,42 @@ def main():
             print("==============================================")
 
                         # .openclaw_config 매번 초기화
-            if os.path.exists('.openclaw/openclaw.json'):
-                run_command("cp .openclaw/openclaw.json .openclaw_config/openclaw.json")
-            else:
-                # CI 환경을 위한 기본 설정 동적 생성
-                default_config = {
-                    "agents": {
-                        "defaults": {"workspace": "/workspace"},
-                        "list": [
-                            {
-                                "id": "tool-architect",
-                                "name": "Tool Architect",
-                                "workspace": "/workspace/agents/tool-architect",
-                                "agentDir": "/workspace/agents/tool-architect"
-                            },
-                            {
-                                "id": "math-typst-specialist",
-                                "name": "Math & Typst Specialist",
-                                "workspace": "/workspace/agents/math-typst-specialist",
-                                "agentDir": "/workspace/agents/math-typst-specialist"
-                            }
-                        ]
-                    }
+            # .openclaw_config 매번 초기화 (기존 로컬 설정 의존 제거)
+            # CI 환경을 위한 기본 설정 동적 생성 (단일 진실의 원천)
+            default_config = {
+                "agents": {
+                    "defaults": {"workspace": "/workspace"},
+                    "list": [
+                        {
+                            "id": "tool-architect",
+                            "name": "Tool Architect",
+                            "workspace": "/workspace/agents/tool-architect",
+                            "agentDir": "/workspace/agents/tool-architect"
+                        },
+                        {
+                            "id": "math-typst-specialist",
+                            "name": "Math & Typst Specialist",
+                            "workspace": "/workspace/agents/math-typst-specialist",
+                            "agentDir": "/workspace/agents/math-typst-specialist"
+                        }
+                    ]
                 }
-                with open('.openclaw_config/openclaw.json', 'w') as f:
-                    json.dump(default_config, f, indent=2)
+            }
+            with open('.openclaw_config/openclaw.json', 'w') as f:
+                json.dump(default_config, f, indent=2)
 
             openclaw_gateway_token = secrets.token_hex(24)
             patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token)
 
-            # 에이전트 자동 디스커버리를 위한 디렉토리 복사 (Docker 호스트-컨테이너 간 절대경로 심볼릭 링크 문제 우려 해소)
+            # 에이전트 자동 디스커버리를 위한 심볼릭 링크 생성 (로컬-컨테이너 간 일관된 경로 매핑)
             try:
-                # symlink 대신 실제 디렉토리 복사
-                os.makedirs('.openclaw_config/agents/tool-architect/agent', exist_ok=True)
-                run_command("cp -R /workspace/agents/tool-architect/* .openclaw_config/agents/tool-architect/agent/ || true")
-                
-                os.makedirs('.openclaw_config/agents/math-typst-specialist/agent', exist_ok=True)
-                run_command("cp -R /workspace/agents/math-typst-specialist/* .openclaw_config/agents/math-typst-specialist/agent/ || true")
-                print("✅ 에이전트 디스커버리용 설정 파일 복사 완료")
+                os.makedirs('.openclaw_config/agents', exist_ok=True)
+                # OpenClaw가 직접 찾을 수 있도록 중첩 없이 디렉토리 직접 링크
+                run_command("ln -sfn /workspace/agents/tool-architect .openclaw_config/agents/tool-architect")
+                run_command("ln -sfn /workspace/agents/math-typst-specialist .openclaw_config/agents/math-typst-specialist")
+                print("✅ 에이전트 디스커버리용 심볼릭 링크 생성 완료")
             except Exception as e:
-                print(f"⚠️ 에이전트 설정 복사 중 오류: {e}")
+                print(f"⚠️ 심볼릭 링크 생성 중 오류: {e}")
 
             # Gateway 실행
             run_command(f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} OPENCLAW_CONFIG_DIR=/workspace/.openclaw_config docker compose up --build -d openclaw-gateway")
