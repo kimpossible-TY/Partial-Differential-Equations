@@ -31,11 +31,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ARG OPENCLAW_VER=latest
 RUN echo "Target Version: ${OPENCLAW_VER}" \
     && npm install -g openclaw@${OPENCLAW_VER} \
-    && echo "--- npm global bin location ---" \
-    && npm config get prefix | xargs -I {} ls -la {}/bin/openclaw || true \
-    && echo "--- search for openclaw binary ---" \
-    && find / -name openclaw -type f -executable 2>/dev/null || true \
-    && (openclaw --version || npx openclaw --version || echo "ERROR: openclaw not executable")
+    && echo "--- Verifying openclaw installation ---" \
+    && openclaw --version || (echo "ERROR: openclaw not executable" && exit 1)
 
 # 6. Typst 설치
 RUN curl -L -o /tmp/typst.tar.xz \
@@ -67,4 +64,3 @@ ENV PYTHONPATH=/workspace
 
 # 11. 컨테이너 유지용 기본 명령어
 CMD ["tail", "-f", "/dev/null"]
-# Trigger rebuild for OpenClaw updates Fri Mar 20 11:56:12 UTC 2026

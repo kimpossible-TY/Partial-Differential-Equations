@@ -21,7 +21,6 @@ services:
       - ./openclaw.json:/workspace/.openclaw/openclaw.json:ro 
       - ./docker-compose.yml:/workspace/docker-compose.yml:ro
       - ./.env:/workspace/.env:ro               
-
     environment:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - OPENCLAW_WORKSPACE=/workspace
@@ -36,9 +35,6 @@ services:
   # 💻 CI & One-off Task Worker (CI 스크립트 호환용)
   nightwatch-agent:
     image: ghcr.io/kimpossible-ty/partial-differential-equations/nightwatch-agent:latest
-    build:
-      context: .
-      dockerfile: Dockerfile.nightwatch
     container_name: nightwatch-agent
     depends_on:
       - openclaw-gateway
@@ -52,7 +48,8 @@ services:
       - OPENCLAW_WORKSPACE=/workspace
       - OPENCLAW_ACCEPT_RISK=true
       - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN:-}
-      - OPENCLAW_CONFIG_PATH=/workspace/.openclaw/      openclaw.json                                     - OPENCLAW_STATE_DIR=/workspace/.openclaw
+      - OPENCLAW_CONFIG_PATH=/workspace/.openclaw/openclaw.json
+      - OPENCLAW_STATE_DIR=/workspace/.openclaw
     working_dir: /workspace
     network_mode: host
     # CI 환경에서는 외부에서 명령어를 주입받지만, 로컬에서는 전문가들을 상시 출근시킴
