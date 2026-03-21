@@ -60,8 +60,13 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
             config.pop('auth', None)
 
         # 2. 모델 설정 및 API Key 주입
-        target_model = 'google/gemini-3.1-pro-preview' if tag == 'PRO' else 'google/gemini-3.0-flash'
-        print(f"🎯 타겟 모델 설정: {target_model}")
+        model_map = {
+            'PRO': 'google/gemini-3.1-pro-preview',
+            'FLASH': 'google/gemini-3.0-flash',
+            'LITE': 'google/gemini-3.1-flash-lite-preview'
+        }
+        target_model = model_map.get(tag, 'google/gemini-3.0-flash')
+        print(f"🎯 타겟 모델 설정: {target_model} (Tag: {tag})")
 
         agents_config = config.setdefault('agents', {})
         defaults = agents_config.setdefault('defaults', {})
