@@ -1,3 +1,3 @@
 def add(a, b):
-    # Intentional bug: subtracting instead of adding
+    # 고의적인 로직 에러: 더하기 대신 빼기 수행
     return a - b
