@@ -22,7 +22,7 @@ except ImportError:
 # ==============================================================================
 # 설정 (Configuration)
 # ==============================================================================
-MAX_RETRIES = 2
+MAX_RETRIES = 3
 FIX_COMMIT_TAG = "fix(ci): self-healing fix for CI failure"
 AGENT_ID = "ci-fixer"
 
