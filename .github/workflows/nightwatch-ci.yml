@@ -16,6 +16,10 @@ jobs:
   verify:
     name: Verification Gate
     runs-on: ubuntu-latest
+    permissions:
+      contents: write       # 자율 수정 커밋 및 푸시용
+      pull-requests: write  # PR 관련 작업용 (필요 시)
+      actions: read        # gh run view 로그 캡처용
 
     steps:
       # 1. 코드 체크아웃

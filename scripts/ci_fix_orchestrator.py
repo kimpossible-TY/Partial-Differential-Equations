@@ -1,7 +1,6 @@
 import sys
 import os
 import subprocess
-<<<<<<< HEAD
 from pathlib import Path
 import json
 
@@ -53,11 +52,6 @@ def call_openclaw_agent(log_content):
 
     # GitHub Actions 환경에서 Docker를 통해 에이전트 실행
     if os.getenv("GITHUB_ACTIONS"):
-<<<<<<< HEAD
-=======
-        # nightwatch-agent 이미지를 사용하여 ci-fixer 에이전트 실행
-        # 이 부분은 nightwatch_executor.py의 로직을 참고하여 구성합니다.
->>>>>>> a739ad3 (plan: trigger NightWatch for bulk tasks (Series))
         cmd = [
             "docker", "compose", "run", "--rm", "-T",
             "-e", f"GEMINI_API_KEY={os.getenv('GEMINI_API_KEY')}",
@@ -76,8 +70,6 @@ def call_openclaw_agent(log_content):
         print("ℹ️ Local environment detected. Skipping actual agent call.")
         print(f"Prompt that would be sent to {AGENT_ID}:\n{prompt[:200]}...")
         return True
-=======
->>>>>>> 62890df (fix: resolve gateway token mismatch and configure ci-fixer)
 
 def main():
     if len(sys.argv) < 2:
@@ -89,23 +81,52 @@ def main():
         print(f"Error: Log file {log_file} not found.")
         sys.exit(1)
 
+    # 1. 시도 횟수 체크 (무한 루프 방지)
+    if check_retry_limit() >= MAX_RETRIES:
+        print(f"🚨 [Limit Reached] 이 브랜치에서 최대 자율 수정 횟수({MAX_RETRIES}회)를 초과했습니다.")
+        print("💡 인간의 개입이 필요합니다. 수동으로 문제를 해결해주세요.")
+        sys.exit(0)
+
+    # 2. 로그 파일 읽기 (마지막 100줄)
     with open(log_file, 'r') as f:
         log_content = f.read()
-
+    
+    lines = log_content.splitlines()[-100:]
+    relevant_log = "\n".join(lines)
+    
     print(f"--- Analyzing CI Failure Log: {log_file} ---")
-    print(log_content)
+    print(relevant_log)
     print("------------------------------------------")
 
-    # Simulate agent analysis and fix proposal
-    if "SyntaxError" in log_content:
-        proposal = "Fix: Correct the syntax error by adding a missing colon on line 10."
-    elif "ImportError" in log_content:
-        proposal = "Fix: Install the missing dependency 'requests' using pip."
-    else:
-        proposal = "Fix: General investigation required. Check logic on line 42."
+    # 3. 에이전트 호출 및 수정 요청
+    success = call_openclaw_agent(relevant_log)
+    if not success:
+        sys.exit(1)
 
-    print(f"\n[CI-Fixer Agent] Proposing fix:")
-    print(f">>> {proposal}")
+    # 4. 변경 사항 커밋 및 푸시
+    print(f"\n🚀 [Self-Healing] Checking for changes...")
+    
+    # 변경 사항이 있는지 확인
+    status = run_git(["status", "--porcelain"])
+    if not status:
+        print("ℹ️ No changes detected by the agent. Skipping commit/push.")
+        sys.exit(0)
+
+    print("📝 Changes detected! Committing fix...")
+    run_git(["config", "user.name", "NightWatch Bot"])
+    run_git(["config", "user.email", "nightwatch@kimpossible-ty"])
+    
+    run_git(["add", "."])
+    run_git(["commit", "-m", FIX_COMMIT_TAG])
+    
+    branch = run_git(["branch", "--show-current"])
+    
+    if os.getenv("GITHUB_ACTIONS"):
+        print(f"📤 Pushing fix to branch: {branch}...")
+        run_git(["push", "origin", branch])
+        print("✅ 수정 사항이 푸시되었습니다. CI가 재시작됩니다.")
+    else:
+        print(f"ℹ️ 로컬 환경이므로 푸시를 스킵합니다. (git push origin {branch})")
 
 if __name__ == "__main__":
     main()
