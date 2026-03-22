@@ -8,7 +8,9 @@ class BudgetWatchdog:
     def __init__(self, limit_tpm=80000, limit_rpm=1000):
         self.limit_tpm = limit_tpm
         self.limit_rpm = limit_rpm
-        self.usage_file = Path("/workspace/.usage_metrics.json")
+        # 프로젝트 루트에 메트릭 파일을 저장하도록 변경 (로컬/CI 호환성)
+        base_dir = Path(__file__).parent.parent
+        self.usage_file = base_dir / ".usage_metrics.json"
         
         # 파일이 없으면 초기화
         if not self.usage_file.exists():
