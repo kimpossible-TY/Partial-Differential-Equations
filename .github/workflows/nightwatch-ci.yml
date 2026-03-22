@@ -53,14 +53,10 @@ jobs:
           }
           echo "✔ Typst 컴파일 성공"
 
-      # 6. pytest (test/ 디렉터리가 있을 때만)
+      # 6. pytest
       - name: Run pytest
         run: |
-          if [ -d "tests" ] && [ "$(find tests -name '*.py' | wc -l)" -gt 0 ]; then
-            pytest tests/ -v --tb=short
-          else
-            echo "ℹ️ tests/ 디렉터리에 Python 테스트 없음 — 스킵"
-          fi
+          pytest . -v --tb=short
 
       # 7. Python 린팅 (Tools/ 디렉터리)
       - name: flake8 lint (Tools/)
