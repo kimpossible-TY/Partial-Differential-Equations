@@ -100,7 +100,9 @@ def call_openclaw_agent(log_content):
     prompt = (
         "The CI pipeline has failed. Below is the relevant log content. "
         "Please analyze the error, find the root cause in the workspace, and apply a fix. "
-        "Do not just explain; actually modify the code if possible. "
+        "Do not just explain; actually modify the code if possible.\n\n"
+        "**Linting/Style issues**: If you detect PEP 8 or flake8 errors, you are encouraged "
+        "to use the `autopep8 --in-place <file>` command to fix them automatically.\n"
         "If you cannot fix it, explain why.\n\n"
         "--- CI FAILURE LOG ---\n"
         f"{log_content}\n"
