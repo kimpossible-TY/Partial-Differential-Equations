@@ -3,6 +3,21 @@ import os
 import subprocess
 from pathlib import Path
 import json
+import shlex
+import secrets
+
+# Tools 디렉토리를 경로에 추가하여 nightwatch_config 등을 가져올 수 있게 합니다.
+sys.path.append(os.path.join(os.getcwd(), 'Tools'))
+
+try:
+    from nightwatch_config import patch_openclaw_config, setup_docker_symlinks, run_command
+except ImportError:
+    print("⚠️ Tools/nightwatch_config.py를 찾을 수 없습니다. 기본 설정을 시도합니다.")
+    def patch_openclaw_config(*args, **kwargs): return False
+    def setup_docker_symlinks(): pass
+    def run_command(cmd): 
+        res = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+        return res.returncode, res.stdout
 
 # ==============================================================================
 # 설정 (Configuration)
@@ -39,7 +54,18 @@ def call_openclaw_agent(log_content):
     """OpenClaw 에이전트를 호출하여 로그 분석 및 수정을 요청합니다."""
     print(f"🤖 Calling {AGENT_ID} agent to analyze and fix the CI failure...")
     
-    # 에이전트에게 보낼 프롬프트 구성
+    gemini_api_key = os.getenv('GEMINI_API_KEY')
+    if not gemini_api_key:
+        print("❌ GEMINI_API_KEY 환경 변수가 설정되지 않았습니다.")
+        return False
+
+    # 1. OpenClaw 설정 패치 (에이전트 정보 및 토큰 주입)
+    # CI 환경에서는 매번 새로운 토큰을 생성합니다.
+    openclaw_gateway_token = secrets.token_hex(24)
+    patch_openclaw_config(gemini_api_key, "FLASH", openclaw_gateway_token)
+    setup_docker_symlinks()
+
+    # 2. 에이전트에게 보낼 프롬프트 구성
     prompt = (
         "The CI pipeline has failed. Below is the relevant log content. "
         "Please analyze the error, find the root cause in the workspace, and apply a fix. "
@@ -50,20 +76,32 @@ def call_openclaw_agent(log_content):
         "--- END OF LOG ---\n"
     )
 
-    # GitHub Actions 환경에서 Docker를 통해 에이전트 실행
+    # 3. 에이전트 실행 (Gateway 서버와 에이전트 컨테이너 실행)
     if os.getenv("GITHUB_ACTIONS"):
-        cmd = [
+        # Gateway 실행
+        gw_cmd = f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} OPENCLAW_CONFIG_PATH=/workspace/.openclaw_config/openclaw.json OPENCLAW_STATE_DIR=/workspace/.openclaw_config docker compose up --build -d openclaw-gateway"
+        run_command(gw_cmd)
+        run_command("sleep 5")
+
+        # Agent 실행
+        agent_cmd = [
             "docker", "compose", "run", "--rm", "-T",
-            "-e", f"GEMINI_API_KEY={os.getenv('GEMINI_API_KEY')}",
+            "-e", f"GEMINI_API_KEY={shlex.quote(gemini_api_key)}",
             "-e", "OPENCLAW_ACCEPT_RISK=true",
+            "-e", f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token}",
+            "-e", "OPENCLAW_CONFIG_PATH=/workspace/.openclaw_config/openclaw.json",
+            "-e", "OPENCLAW_STATE_DIR=/workspace/.openclaw_config",
             "nightwatch-agent",
-            "openclaw", "agent", "--agent", AGENT_ID, "--message", prompt
+            "openclaw", "agent", "--agent", AGENT_ID, "--message", shlex.quote(prompt)
         ]
+        
         try:
-            subprocess.run(cmd, check=True)
+            subprocess.run(agent_cmd, check=True)
+            run_command("docker compose stop openclaw-gateway")
             return True
         except subprocess.CalledProcessError as e:
             print(f"❌ 에이전트 실행 실패: {e}")
+            run_command("docker compose stop openclaw-gateway")
             return False
     else:
         # 로컬 테스트 환경
@@ -87,14 +125,21 @@ def main():
         print("💡 인간의 개입이 필요합니다. 수동으로 문제를 해결해주세요.")
         sys.exit(0)
 
-    # 2. 로그 파일 읽기 (마지막 100줄)
+    # 2. 로그 파일 읽기
     with open(log_file, 'r') as f:
         log_content = f.read()
     
-    lines = log_content.splitlines()[-100:]
+    # 로그가 비어있는지 확인
+    if not log_content.strip() or "로그 캡처 실패" in log_content:
+        print("⚠️ 실패 로그가 비어있거나 캡처에 실패했습니다. 분석을 중단합니다.")
+        # gh run view가 실패했더라도 에이전트에게 상황을 알리고 싶다면 여기서 빈 로그라도 넘길 수 있지만
+        # 현재는 안전을 위해 중단합니다.
+        # sys.exit(0)
+    
+    lines = log_content.splitlines()[-150:]
     relevant_log = "\n".join(lines)
     
-    print(f"--- Analyzing CI Failure Log: {log_file} ---")
+    print(f"--- Analyzing CI Failure Log: {log_file} (Last 150 lines) ---")
     print(relevant_log)
     print("------------------------------------------")
 
@@ -106,7 +151,6 @@ def main():
     # 4. 변경 사항 커밋 및 푸시
     print(f"\n🚀 [Self-Healing] Checking for changes...")
     
-    # 변경 사항이 있는지 확인
     status = run_git(["status", "--porcelain"])
     if not status:
         print("ℹ️ No changes detected by the agent. Skipping commit/push.")
