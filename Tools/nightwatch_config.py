@@ -53,12 +53,12 @@ def setup_docker_symlinks():
     agent workspace correctly within the containerized environment.
     """
     try:
-        os.makedirs('.openclaw/agents/tool-architect', exist_ok=True)
-        run_command("ln -sfn /workspace/agents/tool-architect .openclaw/agents/tool-architect/agent")
-        os.makedirs('.openclaw/agents/math-typst-specialist', exist_ok=True)
-        run_command("ln -sfn /workspace/agents/math-typst-specialist .openclaw/agents/math-typst-specialist/agent")
-        os.makedirs('.openclaw/agents/ci-fixer', exist_ok=True)
-        run_command("ln -sfn /workspace/agents/ci-fixer .openclaw/agents/ci-fixer/agent")
+        os.makedirs('.openclaw_config/agents/tool-architect', exist_ok=True)
+        run_command("ln -sfn /workspace/agents/tool-architect .openclaw_config/agents/tool-architect/agent")
+        os.makedirs('.openclaw_config/agents/math-typst-specialist', exist_ok=True)
+        run_command("ln -sfn /workspace/agents/math-typst-specialist .openclaw_config/agents/math-typst-specialist/agent")
+        os.makedirs('.openclaw_config/agents/ci-fixer', exist_ok=True)
+        run_command("ln -sfn /workspace/agents/ci-fixer .openclaw_config/agents/ci-fixer/agent")
         print("✅ 에이전트 디스커버리용 심볼릭 링크 생성 완료")
     except Exception as e:
         print(f"⚠️ 심볼릭 링크 생성 중 오류: {e}")
@@ -79,11 +79,11 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
         To update available model mappings, modify the `model_map` dictionary inside 
         this function.
     """
-    path = '.openclaw/openclaw.json'
+    path = '.openclaw_config/openclaw.json'
     
     # Ensure config dir exists
-    os.makedirs('.openclaw', exist_ok=True)
-    run_command("chmod 777 .openclaw")
+    os.makedirs('.openclaw_config', exist_ok=True)
+    run_command("chmod 777 .openclaw_config")
 
     # If it doesn't exist, create default structure
     if not os.path.exists(path):
