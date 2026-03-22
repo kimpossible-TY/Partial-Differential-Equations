@@ -1,7 +1,7 @@
 # ==============================================================================
 # Project NightWatch — CI/CD Pipeline
 # PR이 열릴 때마다 자동으로 검증 게이트 실행.
-# 실패 시 Discord 알림 전송 (최대 2회 재시도는 Phase 4에서 처리).
+# 실패 시 자율 수정(Self-Healing) 및 Discord 알림 전송.
 # ==============================================================================
 
 name: NightWatch CI
@@ -21,6 +21,8 @@ jobs:
       # 1. 코드 체크아웃
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 히스토리를 확인하여 시도 횟수를 체크해야 하므로 전체 체크아웃
 
       # 2. Python 환경 설정
       - name: Set up Python
@@ -76,7 +78,20 @@ jobs:
             echo "ℹ️ Tools/ 없음 — 스킵"
           fi
 
-      # 9. 실패 시 Discord 알림
+      # 9. 실패 시 자율 수정 (Self-Healing)
+      - name: Self-healing CI fix
+        if: failure()
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # 실패 로그 캡처 (gh run view를 사용하여 로그 캡처 시도)
+          gh run view ${{ github.run_id }} --log | tail -n 200 > failure.log || echo "로그 캡처 실패" > failure.log
+          
+          # 오케스트레이터 실행 (ci-fixer 에이전트 호출)
+          python3 scripts/ci_fix_orchestrator.py failure.log
+
+      # 10. 실패 시 Discord 알림
       - name: Discord failure notification
         if: failure()
         env:
@@ -87,5 +102,5 @@ jobs:
           curl -X POST "$DISCORD_WEBHOOK" \
             -H "Content-Type: application/json" \
             -d "{
-              \"content\": \"🚨 **NightWatch CI 실패** — 인간 개입 필요!\n→ 브랜치: \`${BRANCH}\`\n→ PR: ${PR_URL}\"
+              \"content\": \"🚨 **NightWatch CI 실패 및 자율 수정 시도**\n→ 브랜치: \`${BRANCH}\`\n→ PR: ${PR_URL}\n→ 수정 결과는 다음 CI 실행을 확인해주세요.\"
             }"

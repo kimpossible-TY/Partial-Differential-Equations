@@ -2,6 +2,7 @@ import sys
 import os
 import subprocess
 from pathlib import Path
+import json
 
 # ==============================================================================
 # 설정 (Configuration)
@@ -26,7 +27,6 @@ def run_git(args):
 
 def check_retry_limit():
     """커밋 로그를 확인하여 셀프 힐링 시도 횟수가 초과되었는지 확인합니다."""
-    # "fix(ci): self-healing..." 메시지가 포함된 최근 커밋 개수를 셉니다.
     logs = run_git(["log", "-n", "10", "--pretty=format:%s"])
     if not logs:
         return 0
@@ -52,6 +52,11 @@ def call_openclaw_agent(log_content):
 
     # GitHub Actions 환경에서 Docker를 통해 에이전트 실행
     if os.getenv("GITHUB_ACTIONS"):
+<<<<<<< HEAD
+=======
+        # nightwatch-agent 이미지를 사용하여 ci-fixer 에이전트 실행
+        # 이 부분은 nightwatch_executor.py의 로직을 참고하여 구성합니다.
+>>>>>>> a739ad3 (plan: trigger NightWatch for bulk tasks (Series))
         cmd = [
             "docker", "compose", "run", "--rm", "-T",
             "-e", f"GEMINI_API_KEY={os.getenv('GEMINI_API_KEY')}",
@@ -123,6 +128,7 @@ def main():
     
     if os.getenv("GITHUB_ACTIONS"):
         print(f"📤 Pushing fix to branch: {branch}...")
+        # GITHUB_TOKEN을 사용하여 origin으로 푸시
         run_git(["push", "origin", branch])
         print("✅ 수정 사항이 푸시되었습니다. CI가 재시작됩니다.")
     else:
