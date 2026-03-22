@@ -53,10 +53,12 @@ def setup_docker_symlinks():
     agent workspace correctly within the containerized environment.
     """
     try:
-        os.makedirs('.openclaw_config/agents/tool-architect', exist_ok=True)
-        run_command("ln -sfn /workspace/agents/tool-architect .openclaw_config/agents/tool-architect/agent")
-        os.makedirs('.openclaw_config/agents/math-typst-specialist', exist_ok=True)
-        run_command("ln -sfn /workspace/agents/math-typst-specialist .openclaw_config/agents/math-typst-specialist/agent")
+        os.makedirs('.openclaw/agents/tool-architect', exist_ok=True)
+        run_command("ln -sfn /workspace/agents/tool-architect .openclaw/agents/tool-architect/agent")
+        os.makedirs('.openclaw/agents/math-typst-specialist', exist_ok=True)
+        run_command("ln -sfn /workspace/agents/math-typst-specialist .openclaw/agents/math-typst-specialist/agent")
+        os.makedirs('.openclaw/agents/ci-fixer', exist_ok=True)
+        run_command("ln -sfn /workspace/agents/ci-fixer .openclaw/agents/ci-fixer/agent")
         print("✅ 에이전트 디스커버리용 심볼릭 링크 생성 완료")
     except Exception as e:
         print(f"⚠️ 심볼릭 링크 생성 중 오류: {e}")
@@ -77,11 +79,11 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
         To update available model mappings, modify the `model_map` dictionary inside 
         this function.
     """
-    path = '.openclaw_config/openclaw.json'
+    path = '.openclaw/openclaw.json'
     
     # Ensure config dir exists
-    os.makedirs('.openclaw_config', exist_ok=True)
-    run_command("chmod 777 .openclaw_config")
+    os.makedirs('.openclaw', exist_ok=True)
+    run_command("chmod 777 .openclaw")
 
     # If it doesn't exist, create default structure
     if not os.path.exists(path):
@@ -101,6 +103,12 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
                         "name": "Math & Typst Specialist",
                         "workspace": "/workspace/agents/math-typst-specialist",
                         "agentDir": "/workspace/agents/math-typst-specialist"
+                    },
+                    {
+                        "id": "ci-fixer",
+                        "name": "CI Fixer",
+                        "workspace": "/workspace/agents/ci-fixer",
+                        "agentDir": "/workspace/agents/ci-fixer"
                     }
                 ]
             }

@@ -87,7 +87,7 @@ def main():
             patch_openclaw_config(gemini_api_key, routed_tag, openclaw_gateway_token)
             setup_docker_symlinks()
 
-            run_command(f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} OPENCLAW_CONFIG_DIR=/workspace/.openclaw_config docker compose up --build -d openclaw-gateway")
+            run_command(f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} OPENCLAW_CONFIG_DIR=/workspace/.openclaw docker compose up --build -d openclaw-gateway")
             run_command("sleep 5")
 
             print(f"⚡ OpenClaw 실행 중... (Tag: {routed_tag}, Title: {title})")
@@ -99,8 +99,8 @@ def main():
                 f"-e TASK_BODY={shlex.quote(task_body)}",
                 "-e OPENCLAW_ACCEPT_RISK=true",
                 f"-e OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token}",
-                "-e OPENCLAW_CONFIG_PATH=/workspace/.openclaw_config/openclaw.json",
-                "-e OPENCLAW_STATE_DIR=/workspace/.openclaw_config",
+                "-e OPENCLAW_CONFIG_PATH=/workspace/.openclaw/openclaw.json",
+                "-e OPENCLAW_STATE_DIR=/workspace/.openclaw",
                 "nightwatch-agent",
                 f"openclaw agent --agent tool-architect --message {shlex.quote(task_body)}"
             ]
