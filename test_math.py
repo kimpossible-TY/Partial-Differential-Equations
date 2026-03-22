@@ -1,4 +1,1 @@
-from buggy_math import add
-
-def test_add():
-    assert add(1, 2) == 3
+from buggy_math import add; def test_add(): assert add(1, 2) == 3
