@@ -38,7 +38,7 @@ def run_git(args):
         return result.stdout.strip()
     except subprocess.CalledProcessError as e:
         print(f"❌ Git error ({args}): {e.stderr}")
-        return None
+        return ""
 
 def check_retry_limit():
     """커밋 로그를 확인하여 셀프 힐링 시도 횟수가 초과되었는지 확인합니다."""
@@ -60,7 +60,6 @@ def call_openclaw_agent(log_content):
         return False
 
     # 1. OpenClaw 설정 패치 (에이전트 정보 및 토큰 주입)
-    # CI 환경에서는 매번 새로운 토큰을 생성합니다.
     openclaw_gateway_token = secrets.token_hex(24)
     patch_openclaw_config(gemini_api_key, "FLASH", openclaw_gateway_token)
     setup_docker_symlinks()
@@ -76,14 +75,12 @@ def call_openclaw_agent(log_content):
         "--- END OF LOG ---\n"
     )
 
-    # 3. 에이전트 실행 (Gateway 서버와 에이전트 컨테이너 실행)
+    # 3. 에이전트 실행
     if os.getenv("GITHUB_ACTIONS"):
-        # Gateway 실행
         gw_cmd = f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} OPENCLAW_CONFIG_PATH=/workspace/.openclaw_config/openclaw.json OPENCLAW_STATE_DIR=/workspace/.openclaw_config docker compose up --build -d openclaw-gateway"
         run_command(gw_cmd)
         run_command("sleep 5")
 
-        # Agent 실행
         agent_cmd = [
             "docker", "compose", "run", "--rm", "-T",
             "-e", f"GEMINI_API_KEY={shlex.quote(gemini_api_key)}",
@@ -98,15 +95,16 @@ def call_openclaw_agent(log_content):
         try:
             subprocess.run(agent_cmd, check=True)
             run_command("docker compose stop openclaw-gateway")
+            # 도커가 생성한 파일의 권한을 현재 유저로 변경 (add 에러 방지)
+            run_command("sudo chown -R $USER:$USER .")
             return True
         except subprocess.CalledProcessError as e:
             print(f"❌ 에이전트 실행 실패: {e}")
             run_command("docker compose stop openclaw-gateway")
+            run_command("sudo chown -R $USER:$USER .")
             return False
     else:
-        # 로컬 테스트 환경
         print("ℹ️ Local environment detected. Skipping actual agent call.")
-        print(f"Prompt that would be sent to {AGENT_ID}:\n{prompt[:200]}...")
         return True
 
 def main():
@@ -119,21 +117,16 @@ def main():
         print(f"Error: Log file {log_file} not found.")
         sys.exit(1)
 
-    # 1. 시도 횟수 체크 (무한 루프 방지)
     if check_retry_limit() >= MAX_RETRIES:
         print(f"🚨 [Limit Reached] 이 브랜치에서 최대 자율 수정 횟수({MAX_RETRIES}회)를 초과했습니다.")
         print("💡 인간의 개입이 필요합니다. 수동으로 문제를 해결해주세요.")
         sys.exit(0)
 
-    # 2. 로그 파일 읽기
     with open(log_file, 'r') as f:
         log_content = f.read()
     
-    # 로그가 비어있는지 확인
     if not log_content.strip() or "로그 캡처 실패" in log_content:
         print("⚠️ 실패 로그가 비어있거나 캡처에 실패했습니다. 분석을 중단합니다.")
-        # gh run view가 실패했더라도 에이전트에게 상황을 알리고 싶다면 여기서 빈 로그라도 넘길 수 있지만
-        # 현재는 안전을 위해 중단합니다.
         # sys.exit(0)
     
     lines = log_content.splitlines()[-150:]
@@ -143,12 +136,10 @@ def main():
     print(relevant_log)
     print("------------------------------------------")
 
-    # 3. 에이전트 호출 및 수정 요청
     success = call_openclaw_agent(relevant_log)
     if not success:
         sys.exit(1)
 
-    # 4. 변경 사항 커밋 및 푸시
     print(f"\n🚀 [Self-Healing] Checking for changes...")
     
     status = run_git(["status", "--porcelain"])
@@ -163,12 +154,17 @@ def main():
     run_git(["add", "."])
     run_git(["commit", "-m", FIX_COMMIT_TAG])
     
-    branch = run_git(["branch", "--show-current"])
+    # 브랜치 감지 (Actions 환경 변수 우선 사용)
+    branch = os.getenv("GITHUB_HEAD_REF") or os.getenv("GITHUB_REF_NAME") or run_git(["branch", "--show-current"])
+    print(f"📤 Pushing fix to branch: {branch}...")
     
     if os.getenv("GITHUB_ACTIONS"):
-        print(f"📤 Pushing fix to branch: {branch}...")
-        run_git(["push", "origin", branch])
-        print("✅ 수정 사항이 푸시되었습니다. CI가 재시작됩니다.")
+        if branch:
+            # GITHUB_TOKEN으로 푸시
+            run_git(["push", "origin", f"HEAD:{branch}"])
+            print("✅ 수정 사항이 푸시되었습니다. CI가 재시작됩니다.")
+        else:
+            print("❌ 브랜치 이름을 결정할 수 없어 푸시를 실패했습니다.")
     else:
         print(f"ℹ️ 로컬 환경이므로 푸시를 스킵합니다. (git push origin {branch})")
 
