@@ -51,27 +51,33 @@ jobs:
 
       # 5. Typst 컴파일 확인
       - name: Typst compilation check
+        shell: bash
         run: |
-          typst compile Typst_project/main.typ /tmp/output.pdf 2>&1 | tee -a failure.log || {
-            echo "::error::Typst 컴파일 실패"
-            exit 1
-          }
+          set -o pipefail
+          typst compile Typst_project/main.typ /tmp/output.pdf 2>&1 | tee -a failure.log
 
       # 6. pytest 실행
       - name: Run pytest
+        shell: bash
         run: |
+          set -o pipefail
+          # 루트 디렉토리의 테스트 파일만 실행
           pytest test_math.py -v --tb=short 2>&1 | tee -a failure.log
 
       # 7. Python 린팅 (Tools/)
       - name: flake8 lint (Tools/)
+        shell: bash
         run: |
+          set -o pipefail
           if [ -d "Tools" ]; then
             flake8 Tools/ --max-line-length=120 --ignore=E501 2>&1 | tee -a failure.log
           fi
 
       # 8. mypy 타입 체크 (Tools/)
       - name: mypy type check (Tools/)
+        shell: bash
         run: |
+          set -o pipefail
           if [ -d "Tools" ]; then
             mypy Tools/ --ignore-missing-imports 2>&1 | tee -a failure.log || true
           fi
@@ -84,7 +90,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # 오케스트레이터 실행 (ci-fixer 에이전트 호출)
-          # failure.log에는 이전 단계들의 에러 메시지가 누적되어 있습니다.
           python3 scripts/ci_fix_orchestrator.py failure.log
 
       # 10. 실패 시 Discord 알림
