@@ -26,7 +26,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }} # PAT가 있으면 사용 (연쇄 트리거용)
+          # 토큰을 일반 GITHUB_TOKEN으로 복구하여 무한 루프 방지
+          # (오케스트레이터 내부에 최대 시도 횟수 제한이 있으나, 이중 안전장치)
+          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
       # 2. Python 환경 설정
@@ -88,21 +90,8 @@ jobs:
         if: failure()
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
-          # 오케스트레이터 실행 (ci-fixer 에이전트 호출)
+          # 오케스트레이터 실행 (ci-fixer 에이전트 호출 및 Discord 알림 발송)
           python3 scripts/ci_fix_orchestrator.py failure.log
-
-      # 10. 실패 시 Discord 알림
-      - name: Discord failure notification
-        if: failure()
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: |
-          PR_URL="${{ github.event.pull_request.html_url }}"
-          BRANCH="${{ github.head_ref }}"
-          curl -X POST "$DISCORD_WEBHOOK" \
-            -H "Content-Type: application/json" \
-            -d "{
-              \"content\": \"🚨 **NightWatch CI 실패 및 자율 수정 시도**\n→ 브랜치: \`${BRANCH}\`\n→ PR: ${PR_URL}\n→ 수정 결과는 다음 CI 실행을 확인해주세요.\"
-            }"

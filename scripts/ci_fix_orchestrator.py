@@ -5,6 +5,7 @@ from pathlib import Path
 import json
 import shlex
 import secrets
+import urllib.request
 
 # Tools 디렉토리를 경로에 추가하여 nightwatch_config 등을 가져올 수 있게 합니다.
 sys.path.append(os.path.join(os.getcwd(), 'Tools'))
@@ -12,7 +13,6 @@ sys.path.append(os.path.join(os.getcwd(), 'Tools'))
 try:
     from nightwatch_config import patch_openclaw_config, setup_docker_symlinks, run_command
 except ImportError:
-    print("⚠️ Tools/nightwatch_config.py를 찾을 수 없습니다. 기본 설정을 시도합니다.")
     def patch_openclaw_config(*args, **kwargs): return False
     def setup_docker_symlinks(): pass
     def run_command(cmd): 
@@ -25,6 +25,26 @@ except ImportError:
 MAX_RETRIES = 2
 FIX_COMMIT_TAG = "fix(ci): self-healing fix for CI failure"
 AGENT_ID = "ci-fixer"
+DISCORD_WEBHOOK = os.getenv("DISCORD_WEBHOOK_URL")
+
+def send_discord_message(content):
+    """Discord 웹훅을 통해 메시지를 전송합니다."""
+    if not DISCORD_WEBHOOK:
+        print("⚠️ DISCORD_WEBHOOK_URL이 설정되지 않아 알림을 보낼 수 없습니다.")
+        return
+
+    data = {"content": content}
+    req = urllib.request.Request(
+        DISCORD_WEBHOOK,
+        data=json.dumps(data).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST"
+    )
+    try:
+        with urllib.request.urlopen(req) as response:
+            pass
+    except Exception as e:
+        print(f"⚠️ Discord 알림 전송 실패: {e}")
 
 def run_git(args):
     """Git 명령어를 실행하고 결과를 반환합니다."""
@@ -47,7 +67,6 @@ def check_retry_limit():
         return 0
     
     count = logs.count(FIX_COMMIT_TAG)
-    print(f"🔍 Current self-healing attempts in this branch: {count}/{MAX_RETRIES}")
     return count
 
 def call_openclaw_agent(log_content):
@@ -59,12 +78,10 @@ def call_openclaw_agent(log_content):
         print("❌ GEMINI_API_KEY 환경 변수가 설정되지 않았습니다.")
         return False
 
-    # 1. OpenClaw 설정 패치 (에이전트 정보 및 토큰 주입)
     openclaw_gateway_token = secrets.token_hex(24)
     patch_openclaw_config(gemini_api_key, "FLASH", openclaw_gateway_token)
     setup_docker_symlinks()
 
-    # 2. 에이전트에게 보낼 프롬프트 구성
     prompt = (
         "The CI pipeline has failed. Below is the relevant log content. "
         "Please analyze the error, find the root cause in the workspace, and apply a fix. "
@@ -75,7 +92,6 @@ def call_openclaw_agent(log_content):
         "--- END OF LOG ---\n"
     )
 
-    # 3. 에이전트 실행
     if os.getenv("GITHUB_ACTIONS"):
         gw_cmd = f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} OPENCLAW_CONFIG_PATH=/workspace/.openclaw_config/openclaw.json OPENCLAW_STATE_DIR=/workspace/.openclaw_config docker compose up --build -d openclaw-gateway"
         run_command(gw_cmd)
@@ -95,7 +111,6 @@ def call_openclaw_agent(log_content):
         try:
             subprocess.run(agent_cmd, check=True)
             run_command("docker compose stop openclaw-gateway")
-            # 도커가 생성한 파일의 권한을 현재 유저로 변경 (add 에러 방지)
             run_command("sudo chown -R $USER:$USER .")
             return True
         except subprocess.CalledProcessError as e:
@@ -117,17 +132,20 @@ def main():
         print(f"Error: Log file {log_file} not found.")
         sys.exit(1)
 
-    if check_retry_limit() >= MAX_RETRIES:
-        print(f"🚨 [Limit Reached] 이 브랜치에서 최대 자율 수정 횟수({MAX_RETRIES}회)를 초과했습니다.")
-        print("💡 인간의 개입이 필요합니다. 수동으로 문제를 해결해주세요.")
+    # 1. 시도 횟수 체크
+    retry_count = check_retry_limit()
+    if retry_count >= MAX_RETRIES:
+        msg = f"🚨 **[Limit Reached]** 자율 수정 시도 횟수({MAX_RETRIES}회)를 초과했습니다. 인간의 개입이 필요합니다."
+        print(msg)
+        send_discord_message(msg)
         sys.exit(0)
 
+    # 2. 로그 파일 읽기
     with open(log_file, 'r') as f:
         log_content = f.read()
     
     if not log_content.strip() or "로그 캡처 실패" in log_content:
-        print("⚠️ 실패 로그가 비어있거나 캡처에 실패했습니다. 분석을 중단합니다.")
-        # sys.exit(0)
+        print("⚠️ 실패 로그가 비어있거나 캡처에 실패했습니다.")
     
     lines = log_content.splitlines()[-150:]
     relevant_log = "\n".join(lines)
@@ -136,15 +154,19 @@ def main():
     print(relevant_log)
     print("------------------------------------------")
 
+    # 3. 에이전트 호출
     success = call_openclaw_agent(relevant_log)
     if not success:
+        send_discord_message("🚨 **NightWatch 자율 수정 중 에러 발생:** 에이전트 실행에 실패했습니다.")
         sys.exit(1)
 
+    # 4. 변경 사항 커밋 및 푸시
     print(f"\n🚀 [Self-Healing] Checking for changes...")
     
     status = run_git(["status", "--porcelain"])
     if not status:
-        print("ℹ️ No changes detected by the agent. Skipping commit/push.")
+        print("ℹ️ No changes detected by the agent.")
+        send_discord_message("🔍 **NightWatch 분석 완료:** 에러를 분석했으나 자동 수정할 사항을 찾지 못했습니다.")
         sys.exit(0)
 
     print("📝 Changes detected! Committing fix...")
@@ -154,19 +176,18 @@ def main():
     run_git(["add", "."])
     run_git(["commit", "-m", FIX_COMMIT_TAG])
     
-    # 브랜치 감지 (Actions 환경 변수 우선 사용)
     branch = os.getenv("GITHUB_HEAD_REF") or os.getenv("GITHUB_REF_NAME") or run_git(["branch", "--show-current"])
     print(f"📤 Pushing fix to branch: {branch}...")
     
     if os.getenv("GITHUB_ACTIONS"):
         if branch:
-            # GITHUB_TOKEN으로 푸시
             run_git(["push", "origin", f"HEAD:{branch}"])
-            print("✅ 수정 사항이 푸시되었습니다. CI가 재시작됩니다.")
+            send_discord_message(f"✅ **NightWatch 자율 수정 성공!**\n→ 내용: 에러를 진단하고 코드를 수정하여 `{branch}` 브랜치에 푸시했습니다.\n→ 시도 횟수: {retry_count + 1}/{MAX_RETRIES}")
+            print("✅ 수정 사항이 푸시되었습니다.")
         else:
-            print("❌ 브랜치 이름을 결정할 수 없어 푸시를 실패했습니다.")
+            send_discord_message("❌ **NightWatch 푸시 실패:** 브랜치 이름을 결정할 수 없습니다.")
     else:
-        print(f"ℹ️ 로컬 환경이므로 푸시를 스킵합니다. (git push origin {branch})")
+        print(f"ℹ️ 로컬 환경이므로 푸시를 스킵합니다.")
 
 if __name__ == "__main__":
     main()
