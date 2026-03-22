@@ -25,26 +25,41 @@ except ImportError:
 MAX_RETRIES = 2
 FIX_COMMIT_TAG = "fix(ci): self-healing fix for CI failure"
 AGENT_ID = "ci-fixer"
-DISCORD_WEBHOOK = os.getenv("DISCORD_WEBHOOK_URL")
 
 def send_discord_message(content):
     """Discord 웹훅을 통해 메시지를 전송합니다."""
-    if not DISCORD_WEBHOOK:
-        print("⚠️ DISCORD_WEBHOOK_URL이 설정되지 않아 알림을 보낼 수 없습니다.")
+    webhook_url = os.getenv("DISCORD_WEBHOOK_URL")
+    if not webhook_url:
+        print("⚠️ DISCORD_WEBHOOK_URL 환경 변수가 설정되지 않아 알림을 보낼 수 없습니다.")
         return
 
+    print(f"📡 Sending Discord notification...")
     data = {"content": content}
+    payload = json.dumps(data).encode("utf-8")
+    
     req = urllib.request.Request(
-        DISCORD_WEBHOOK,
-        data=json.dumps(data).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
+        webhook_url,
+        data=payload,
+        headers={
+            "Content-Type": "application/json",
+            "User-Agent": "NightWatch-CI-Fixer/1.0"
+        },
         method="POST"
     )
     try:
         with urllib.request.urlopen(req) as response:
-            pass
+            print(f"✅ Discord notification sent successfully (Status: {response.status})")
     except Exception as e:
-        print(f"⚠️ Discord 알림 전송 실패: {e}")
+        print(f"❌ Discord 알림 전송 실패: {e}")
+        # Fallback to curl if urllib fails in CI environment
+        try:
+            subprocess.run([
+                "curl", "-X", "POST", "-H", "Content-Type: application/json",
+                "-d", json.dumps(data), webhook_url
+            ], check=True, capture_output=True)
+            print("✅ Discord notification sent successfully via curl fallback.")
+        except Exception as curl_e:
+            print(f"❌ Curl fallback failed: {curl_e}")
 
 def run_git(args):
     """Git 명령어를 실행하고 결과를 반환합니다."""
@@ -67,6 +82,7 @@ def check_retry_limit():
         return 0
     
     count = logs.count(FIX_COMMIT_TAG)
+    print(f"🔍 Current self-healing attempts in this branch: {count}/{MAX_RETRIES}")
     return count
 
 def call_openclaw_agent(log_content):
@@ -181,13 +197,15 @@ def main():
     
     if os.getenv("GITHUB_ACTIONS"):
         if branch:
+            # GITHUB_TOKEN을 사용하여 푸시
             run_git(["push", "origin", f"HEAD:{branch}"])
-            send_discord_message(f"✅ **NightWatch 자율 수정 성공!**\n→ 내용: 에러를 진단하고 코드를 수정하여 `{branch}` 브랜치에 푸시했습니다.\n→ 시도 횟수: {retry_count + 1}/{MAX_RETRIES}")
             print("✅ 수정 사항이 푸시되었습니다.")
+            send_discord_message(f"✅ **NightWatch 자율 수정 성공!**\n→ 내용: 에러를 진단하고 코드를 수정하여 `{branch}` 브랜치에 푸시했습니다.\n→ 시도 횟수: {retry_count + 1}/{MAX_RETRIES}")
         else:
             send_discord_message("❌ **NightWatch 푸시 실패:** 브랜치 이름을 결정할 수 없습니다.")
     else:
         print(f"ℹ️ 로컬 환경이므로 푸시를 스킵합니다.")
+        send_discord_message(f"🧪 **NightWatch 로컬 테스트:** 수정 사항 감지됨 (푸시 생략)")
 
 if __name__ == "__main__":
     main()
