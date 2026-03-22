@@ -26,9 +26,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          # 토큰을 일반 GITHUB_TOKEN으로 복구하여 무한 루프 방지
-          # (오케스트레이터 내부에 최대 시도 횟수 제한이 있으나, 이중 안전장치)
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # 다시 GH_PAT를 사용하여 체크가 사라지지 않게 합니다.
+          token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
       # 2. Python 환경 설정
@@ -51,6 +50,8 @@ jobs:
           tar -xf typst.tar.xz
           sudo mv typst-x86_64-unknown-linux-musl/typst /usr/local/bin/typst
           typst --version
+          # 💥 설치 후 남은 찌꺼기 파일들 삭제 (푸시 방지)
+          rm -rf typst.tar.xz typst-x86_64-unknown-linux-musl
 
       # 5. Typst 컴파일 확인
       - name: Typst compilation check
@@ -64,7 +65,6 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          # 루트 디렉토리의 테스트 파일만 실행
           pytest test_math.py -v --tb=short 2>&1 | tee -a failure.log
 
       # 7. Python 린팅 (Tools/)
@@ -90,8 +90,8 @@ jobs:
         if: failure()
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
-          # 오케스트레이터 실행 (ci-fixer 에이전트 호출 및 Discord 알림 발송)
+          # 오케스트레이터 실행
           python3 scripts/ci_fix_orchestrator.py failure.log

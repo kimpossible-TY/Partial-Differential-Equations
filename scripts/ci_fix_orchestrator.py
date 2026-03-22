@@ -51,7 +51,6 @@ def send_discord_message(content):
             print(f"✅ Discord notification sent successfully (Status: {response.status})")
     except Exception as e:
         print(f"❌ Discord 알림 전송 실패: {e}")
-        # Fallback to curl if urllib fails in CI environment
         try:
             subprocess.run([
                 "curl", "-X", "POST", "-H", "Content-Type: application/json",
@@ -127,6 +126,7 @@ def call_openclaw_agent(log_content):
         try:
             subprocess.run(agent_cmd, check=True)
             run_command("docker compose stop openclaw-gateway")
+            # 도커가 생성한 파일의 권한을 현재 유저로 변경
             run_command("sudo chown -R $USER:$USER .")
             return True
         except subprocess.CalledProcessError as e:
@@ -179,6 +179,12 @@ def main():
     # 4. 변경 사항 커밋 및 푸시
     print(f"\n🚀 [Self-Healing] Checking for changes...")
     
+    # 💥 중요: 불필요한 바이너리나 라이선스 파일이 같이 올라가지 않도록
+    # 수정된 파이썬 파일들만 선별적으로 스테이징하도록 개선할 수 있으나,
+    # 일단은 전체 add 후 원치 않는 디렉토리를 명시적으로 제외합니다.
+    run_git(["add", "."])
+    run_git(["reset", "typst*"]) # typst 관련 임시 디렉토리 제외
+    
     status = run_git(["status", "--porcelain"])
     if not status:
         print("ℹ️ No changes detected by the agent.")
@@ -189,7 +195,6 @@ def main():
     run_git(["config", "user.name", "NightWatch Bot"])
     run_git(["config", "user.email", "nightwatch@kimpossible-ty"])
     
-    run_git(["add", "."])
     run_git(["commit", "-m", FIX_COMMIT_TAG])
     
     branch = os.getenv("GITHUB_HEAD_REF") or os.getenv("GITHUB_REF_NAME") or run_git(["branch", "--show-current"])
@@ -197,7 +202,6 @@ def main():
     
     if os.getenv("GITHUB_ACTIONS"):
         if branch:
-            # GITHUB_TOKEN을 사용하여 푸시
             run_git(["push", "origin", f"HEAD:{branch}"])
             print("✅ 수정 사항이 푸시되었습니다.")
             send_discord_message(f"✅ **NightWatch 자율 수정 성공!**\n→ 내용: 에러를 진단하고 코드를 수정하여 `{branch}` 브랜치에 푸시했습니다.\n→ 시도 횟수: {retry_count + 1}/{MAX_RETRIES}")
@@ -205,7 +209,6 @@ def main():
             send_discord_message("❌ **NightWatch 푸시 실패:** 브랜치 이름을 결정할 수 없습니다.")
     else:
         print(f"ℹ️ 로컬 환경이므로 푸시를 스킵합니다.")
-        send_discord_message(f"🧪 **NightWatch 로컬 테스트:** 수정 사항 감지됨 (푸시 생략)")
 
 if __name__ == "__main__":
     main()
