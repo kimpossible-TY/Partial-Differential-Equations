@@ -1,10 +1,9 @@
 # 🛠️ NightWatch Tasks
 
-## [PRO] Build CI-fixer Agent (In Progress)
+## [FLASH] Test CI-fixer Agent
+Verify the CI-fixer agent works by simulating a failure.
 
-**Status:**
-- [x] **Agent Setup**: Created `ci-fixer` in `openclaw.json` and initialized `agents/ci-fixer/`.
-- [x] **SOUL & IDENTITY**: Defined "Fixer" persona.
-- [x] **CI Orchestration Script**: Created `scripts/ci_fix_orchestrator.py`.
-- [ ] **GitHub Action Integration**: Finalize `.github/workflows/ci-fixer.yml`.
-- [ ] **Verification**: Run a manual test with a dummy failure log.
+**Instructions:**
+1. Create a dummy failure log `dummy_failure.log`.
+2. Run the orchestrator: `python3 scripts/ci_fix_orchestrator.py dummy_failure.log`.
+3. Check if the agent proposes a valid fix.
