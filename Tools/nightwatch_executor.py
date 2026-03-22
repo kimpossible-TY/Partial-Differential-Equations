@@ -125,7 +125,7 @@ def main():
                 print(f"🚨 [Error] 최대 재시도 횟수({max_retries}) 초과. 태스크 실패.")
 
             run_command("docker compose stop openclaw-gateway")
-            run_command("sudo chown -R $USER:$USER .")
+            run_command("sudo chown -R $(id -u):$(id -g) .")
 
             print(f"📂 변경 사항 커밋 중... ([{routed_tag}] {title})")
             run_command("git add .")
