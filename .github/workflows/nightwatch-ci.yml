@@ -82,4 +82,5 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
           # 오케스트레이터 실행
+          export PYTHONPATH=$PYTHONPATH:$(pwd)/Tools
           python3 scripts/ci_fix_orchestrator.py failure.log
