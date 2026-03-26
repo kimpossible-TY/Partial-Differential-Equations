@@ -69,9 +69,7 @@ jobs:
           flake8 . --max-line-length=120 --ignore=E501 --exclude=.git,__pycache__ 2>&1 | tee -a failure.log || EXIT_CODE=1
           
           echo -e "\n### 4. Mypy Type Check ###" | tee -a failure.log
-          if [ -d "Tools" ]; then
-            mypy Tools/ --ignore-missing-imports 2>&1 | tee -a failure.log || EXIT_CODE=1
-          fi
+          mypy . --ignore-missing-imports --exclude ".git|__pycache__|tests|Typst_project" 2>&1 | tee -a failure.log || EXIT_CODE=1
           
           exit $EXIT_CODE
 
