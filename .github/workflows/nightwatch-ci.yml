@@ -53,35 +53,27 @@ jobs:
           # 💥 설치 후 남은 찌꺼기 파일들 삭제 (푸시 방지)
           rm -rf typst.tar.xz typst-x86_64-unknown-linux-musl
 
-      # 5. Typst 컴파일 확인
-      - name: Typst compilation check
+      # 5. 종합 검증 (pytest, flake8, mypy 결과를 모두 failure.log에 수집)
+      - name: Run Comprehensive Diagnostics
         shell: bash
         run: |
-          set -o pipefail
-          typst compile Typst_project/main.typ /tmp/output.pdf 2>&1 | tee -a failure.log
-
-      # 6. pytest 실행
-      - name: Run pytest
-        shell: bash
-        run: |
-          set -o pipefail
-          pytest test_math.py -v --tb=short 2>&1 | tee -a failure.log
-
-      # 7. Python 린팅 (전체 코드베이스)
-      - name: flake8 lint (Entire codebase)
-        shell: bash
-        run: |
-          set -o pipefail
-          flake8 . --max-line-length=120 --ignore=E501 --exclude=.git,__pycache__ 2>&1 | tee -a failure.log
-
-      # 8. mypy 타입 체크 (Tools/)
-      - name: mypy type check (Tools/)
-        shell: bash
-        run: |
-          set -o pipefail
+          EXIT_CODE=0
+          
+          echo "### 1. Typst Compilation Check ###" | tee -a failure.log
+          typst compile Typst_project/main.typ /tmp/output.pdf 2>&1 | tee -a failure.log || EXIT_CODE=1
+          
+          echo -e "\n### 2. Pytest Execution ###" | tee -a failure.log
+          pytest test_math.py -v --tb=short 2>&1 | tee -a failure.log || EXIT_CODE=1
+          
+          echo -e "\n### 3. Flake8 Linting ###" | tee -a failure.log
+          flake8 . --max-line-length=120 --ignore=E501 --exclude=.git,__pycache__ 2>&1 | tee -a failure.log || EXIT_CODE=1
+          
+          echo -e "\n### 4. Mypy Type Check ###" | tee -a failure.log
           if [ -d "Tools" ]; then
-            mypy Tools/ --ignore-missing-imports 2>&1 | tee -a failure.log || true
+            mypy Tools/ --ignore-missing-imports 2>&1 | tee -a failure.log || EXIT_CODE=1
           fi
+          
+          exit $EXIT_CODE
 
       # 9. 실패 시 자율 수정 (Self-Healing)
       - name: Self-healing CI fix
