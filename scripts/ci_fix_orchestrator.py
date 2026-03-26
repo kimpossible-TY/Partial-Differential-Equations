@@ -172,6 +172,19 @@ def main():
     print(relevant_log)
     print("------------------------------------------")
 
+    # 2.5 자동 스타일 수정 (Linting Fix)
+    if "flake8" in log_content.lower() or "pep8" in log_content.lower() or "test_lint.py" in log_content:
+        print("💡 Linting/Style error detected. Running autopep8 for pre-fixing...")
+        try:
+            # 전체 코드베이스에 대해 autopep8 실행
+            subprocess.run([
+                "autopep8", "--in-place", "--recursive", ".",
+                "--exclude", ".git,__pycache__", "--max-line-length", "120"
+            ], check=True)
+            print("✅ autopep8 execution completed.")
+        except Exception as e:
+            print(f"⚠️ autopep8 execution failed: {e}")
+
     # 3. 에이전트 호출
     success = call_openclaw_agent(relevant_log)
     if not success:
