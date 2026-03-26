@@ -1,18 +1,23 @@
 import sys
 import os
 import subprocess
-from pathlib import Path
 import json
 import shlex
 import secrets
 import urllib.request
 
 # Tools 디렉토리를 경로에 추가하여 nightwatch_config 등을 가져올 수 있게 합니다.
+sys.path.append(os.getcwd())
 sys.path.append(os.path.join(os.getcwd(), 'Tools'))
 
 try:
     from nightwatch_config import patch_openclaw_config, setup_docker_symlinks, run_command
 except ImportError:
+    # 💥 모듈 로드 실패 시 디버깅 정보 출력 및 폴백 로직 강화
+    print("⚠️ Warning: nightwatch_config not found. Using fallback functions.")
+    print(f"DEBUG: Current CWD is {os.getcwd()}")
+    print(f"DEBUG: sys.path is {sys.path}")
+    
     def patch_openclaw_config(*args, **kwargs): return False
     def setup_docker_symlinks(): pass
     def run_command(cmd): 
