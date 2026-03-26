@@ -67,14 +67,12 @@ jobs:
           set -o pipefail
           pytest test_math.py -v --tb=short 2>&1 | tee -a failure.log
 
-      # 7. Python 린팅 (Tools/)
-      - name: flake8 lint (Tools/)
+      # 7. Python 린팅 (전체 코드베이스)
+      - name: flake8 lint (Entire codebase)
         shell: bash
         run: |
           set -o pipefail
-          if [ -d "Tools" ]; then
-            flake8 Tools/ --max-line-length=120 --ignore=E501 2>&1 | tee -a failure.log
-          fi
+          flake8 . --max-line-length=120 --ignore=E501 --exclude=.git,__pycache__ 2>&1 | tee -a failure.log
 
       # 8. mypy 타입 체크 (Tools/)
       - name: mypy type check (Tools/)
