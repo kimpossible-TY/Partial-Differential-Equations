@@ -6,7 +6,7 @@ import shlex
 import time
 
 # --- Module Extraction ---
-from nightwatch_utils import RateLimitWatchdog, prune_context_via_lite, route_model_by_context
+from nightwatch_utils import prune_context_via_lite
 from nightwatch_config import (
     run_command, 
     patch_openclaw_config, 
@@ -59,8 +59,6 @@ def main():
 
     elevate_agent_permissions()
     
-    watchdog = RateLimitWatchdog()
-
     try:
         for i, task in enumerate(tasks, 1):
             original_tag = task.get("tag", "FLASH")
@@ -70,64 +68,73 @@ def main():
             # Pruning
             task_body = prune_context_via_lite(raw_task_body, gemini_api_key)
 
-            # Token estimation & Watchdog
-            estimated_tokens = watchdog.estimate_tokens(task_body) + 5000
-            
-            # Dynamic Routing
-            routed_tag = route_model_by_context(original_tag, task_body, estimated_tokens)
-            
-            # Throttle
-            watchdog.check_and_throttle(estimated_tokens)
-
-            print("\n==============================================")
-            print(f"▶️ [태스크 {i}/{len(tasks)}] 시작: [{routed_tag}] {title} (Est. Tokens: {estimated_tokens})")
-            print("==============================================")
-
+            # --- Phase 1: Planning (Gemini Pro) ---
+            print(f"\n--- Phase 1: Planning (PLANNER: Gemini Pro) for: {title} ---")
+            planning_tag = "PLANNER"
             openclaw_gateway_token = secrets.token_hex(24)
-            patch_openclaw_config(gemini_api_key, routed_tag, openclaw_gateway_token)
+            patch_openclaw_config(gemini_api_key, planning_tag, openclaw_gateway_token)
             setup_docker_symlinks()
 
             run_command(f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} OPENCLAW_CONFIG_PATH=/workspace/.openclaw_config/openclaw.json OPENCLAW_STATE_DIR=/workspace/.openclaw_config docker compose up --build -d openclaw-gateway")
             run_command("sleep 5")
 
-            print(f"⚡ OpenClaw 실행 중... (Tag: {routed_tag}, Title: {title})")
-            
-            # Agent command execution with retries
-            agent_cmd = [
+            planning_prompt = (
+                f"Analyze the following task and create a detailed, rich, and practical implementation plan in `/workspace/plan.md`. "
+                f"Explain exactly how to execute the task, which files to modify, and what logic to implement. "
+                f"Do not modify any other files yet. Just write the comprehensive plan to `plan.md`.\n\n"
+                f"Task Title: {title}\n"
+                f"Task Description: {task_body}"
+            )
+
+            agent_plan_cmd = [
                 "docker compose run --rm -T",
                 f"-e GEMINI_API_KEY={shlex.quote(gemini_api_key)}",
-                f"-e TASK_BODY={shlex.quote(task_body)}",
                 "-e OPENCLAW_ACCEPT_RISK=true",
                 f"-e OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token}",
                 "-e OPENCLAW_CONFIG_PATH=/workspace/.openclaw_config/openclaw.json",
                 "-e OPENCLAW_STATE_DIR=/workspace/.openclaw_config",
                 "nightwatch-agent",
-                f"openclaw agent --agent tool-architect --message {shlex.quote(task_body)}"
+                f"openclaw agent --agent tool-architect --message {shlex.quote(planning_prompt)}"
             ]
 
-            max_retries = 5
-            base_delay = 5
+            rc_plan, _ = run_command(" ".join(agent_plan_cmd))
+            if rc_plan != 0:
+                print(f"❌ Planning phase failed for task: {title}")
+                run_command("docker compose stop openclaw-gateway")
+                continue
+
+            # --- Phase 2: Working (Local Qwen2.5-Coder) ---
+            print(f"\n--- Phase 2: Working (WORKER: Local Qwen2.5) for: {title} ---")
+            working_tag = "WORKER"
+            patch_openclaw_config(gemini_api_key, working_tag, openclaw_gateway_token)
             
-            for attempt in range(max_retries):
-                rc, output = run_command(" ".join(agent_cmd))
-                if rc == 0:
-                    break
-                    
-                # 429 Too Many Requests detection
-                if "429" in output or "Too Many Requests" in output or "quota" in output.lower():
-                    delay = base_delay * (2 ** attempt)
-                    print(f"⚠️ [Rate Limit] 429 오류 발생. {delay}초 후 재시도합니다... (시도: {attempt + 1}/{max_retries})")
-                    time.sleep(delay)
-                else:
-                    print(f"❌ Task failed or interrupted. Return code: {rc}")
-                    break
-            else:
-                print(f"🚨 [Error] 최대 재시도 횟수({max_retries}) 초과. 태스크 실패.")
+            working_prompt = (
+                f"Now implement the task based on the detailed implementation plan in `/workspace/plan.md`. "
+                f"You are running on a local model optimized for coding. "
+                f"Modify the necessary files to complete the task according to the plan.\n\n"
+                f"Task Title: {title}\n"
+                f"Task Description: {task_body}"
+            )
+
+            agent_work_cmd = [
+                "docker compose run --rm -T",
+                f"-e GEMINI_API_KEY={shlex.quote(gemini_api_key)}",
+                "-e OPENCLAW_ACCEPT_RISK=true",
+                f"-e OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token}",
+                "-e OPENCLAW_CONFIG_PATH=/workspace/.openclaw_config/openclaw.json",
+                "-e OPENCLAW_STATE_DIR=/workspace/.openclaw_config",
+                "nightwatch-agent",
+                f"openclaw agent --agent tool-architect --message {shlex.quote(working_prompt)}"
+            ]
+
+            rc_work, _ = run_command(" ".join(agent_work_cmd))
+            if rc_work != 0:
+                print(f"❌ Working phase failed for task: {title}")
 
             run_command("docker compose stop openclaw-gateway")
             run_command("sudo chown -R $(id -u):$(id -g) .")
 
-            print(f"📂 변경 사항 커밋 중... ([{routed_tag}] {title})")
+            print(f"📂 변경 사항 커밋 중... ({title})")
             run_command("git add .")
 
             _, status_output = run_command("git status --porcelain")
@@ -137,11 +144,11 @@ def main():
 
             rc_diff, _ = run_command("git diff --cached --quiet")
             if rc_diff != 0:
-                print(f"✅ 변경 사항 발견: 커밋 생성 중... ([{routed_tag}] {title})")
-                run_command(f'git commit -m "feat: [{routed_tag}] {title}"')
+                print(f"✅ 변경 사항 발견: 커밋 생성 중... ({title})")
+                run_command(f'git commit -m "feat: {title}"')
             else:
                 print("ℹ️ 변경 사항 없음 — 자동 PR 생성을 위해 빈 커밋을 생성합니다.")
-                run_command(f'git commit --allow-empty -m "feat: [{routed_tag}] {title} (no code changes)"')
+                run_command(f'git commit --allow-empty -m "feat: {title} (no code changes)"')
 
     finally:
         restore_agent_permissions()

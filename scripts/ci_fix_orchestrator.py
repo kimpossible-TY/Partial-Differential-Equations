@@ -90,8 +90,8 @@ def check_retry_limit():
     return count
 
 def call_openclaw_agent(log_content):
-    """OpenClaw 에이전트를 호출하여 로그 분석 및 수정을 요청합니다."""
-    print(f"🤖 Calling {AGENT_ID} agent to analyze and fix the CI failure...")
+    """OpenClaw 에이전트를 호출하여 2단계(Plan -> Work)로 수정 작업을 수행합니다."""
+    print(f"🤖 Starting 2-phase self-healing with {AGENT_ID} agent...")
     
     gemini_api_key = os.getenv('GEMINI_API_KEY')
     if not gemini_api_key:
@@ -99,16 +99,17 @@ def call_openclaw_agent(log_content):
         return False
 
     openclaw_gateway_token = secrets.token_hex(24)
-    patch_openclaw_config(gemini_api_key, "FLASH", openclaw_gateway_token)
     setup_docker_symlinks()
 
-    prompt = (
+    # --- Phase 1: Planning (using Frontier Model/Gemini) ---
+    print("\n--- Phase 1: Planning (PLANNER: Gemini) ---")
+    patch_openclaw_config(gemini_api_key, "PLANNER", openclaw_gateway_token)
+    
+    plan_prompt = (
         "The CI pipeline has failed. Below is the relevant log content. "
-        "Please analyze the error, find the root cause in the workspace, and apply a fix. "
-        "Do not just explain; actually modify the code if possible.\n\n"
-        "**Linting/Style issues**: If you detect PEP 8 or flake8 errors, you are encouraged "
-        "to use the `autopep8 --in-place <file>` command to fix them automatically.\n"
-        "If you cannot fix it, explain why.\n\n"
+        "Please analyze the error and create a detailed, rich, and practical implementation plan in `/workspace/plan.md`. "
+        "Explain exactly how to fix the issue, which files to modify, and what logic to change. "
+        "Do not modify any other files yet. Just write the comprehensive plan to `plan.md`.\n\n"
         "--- CI FAILURE LOG ---\n"
         f"{log_content}\n"
         "--- END OF LOG ---\n"
@@ -119,7 +120,7 @@ def call_openclaw_agent(log_content):
         run_command(gw_cmd)
         run_command("sleep 5")
 
-        agent_cmd = [
+        agent_plan_cmd = [
             "docker", "compose", "run", "--rm", "-T",
             "-e", f"GEMINI_API_KEY={shlex.quote(gemini_api_key)}",
             "-e", "OPENCLAW_ACCEPT_RISK=true",
@@ -127,17 +128,48 @@ def call_openclaw_agent(log_content):
             "-e", "OPENCLAW_CONFIG_PATH=/workspace/.openclaw_config/openclaw.json",
             "-e", "OPENCLAW_STATE_DIR=/workspace/.openclaw_config",
             "nightwatch-agent",
-            "openclaw", "agent", "--agent", AGENT_ID, "--message", shlex.quote(prompt)
+            "openclaw", "agent", "--agent", AGENT_ID, "--message", shlex.quote(plan_prompt)
         ]
         
         try:
-            subprocess.run(agent_cmd, check=True)
+            subprocess.run(agent_plan_cmd, check=True)
+            print("✅ Planning phase completed. Plan written to plan.md.")
+        except subprocess.CalledProcessError as e:
+            print(f"❌ Planning phase failed: {e}")
             run_command("docker compose stop openclaw-gateway")
-            # 도커가 생성한 파일의 권한을 현재 유저로 변경
+            run_command("sudo chown -R $USER:$USER .")
+            return False
+
+        # --- Phase 2: Working (using Local LLM) ---
+        print("\n--- Phase 2: Working (WORKER: Local Qwen2.5-Coder) ---")
+        patch_openclaw_config(gemini_api_key, "WORKER", openclaw_gateway_token)
+        
+        work_prompt = (
+            "You are now running on a local model optimized for coding. "
+            "Please read the detailed implementation plan in `/workspace/plan.md` and execute it precisely. "
+            "Modify the necessary files to fix the CI failure according to the plan. "
+            "If you detect linting issues, you can use `autopep8 --in-place <file>`."
+        )
+
+        agent_work_cmd = [
+            "docker", "compose", "run", "--rm", "-T",
+            "-e", f"GEMINI_API_KEY={shlex.quote(gemini_api_key)}",
+            "-e", "OPENCLAW_ACCEPT_RISK=true",
+            "-e", f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token}",
+            "-e", "OPENCLAW_CONFIG_PATH=/workspace/.openclaw_config/openclaw.json",
+            "-e", "OPENCLAW_STATE_DIR=/workspace/.openclaw_config",
+            "nightwatch-agent",
+            "openclaw", "agent", "--agent", AGENT_ID, "--message", shlex.quote(work_prompt)
+        ]
+        
+        try:
+            subprocess.run(agent_work_cmd, check=True)
+            print("✅ Working phase completed.")
+            run_command("docker compose stop openclaw-gateway")
             run_command("sudo chown -R $USER:$USER .")
             return True
         except subprocess.CalledProcessError as e:
-            print(f"❌ 에이전트 실행 실패: {e}")
+            print(f"❌ Working phase failed: {e}")
             run_command("docker compose stop openclaw-gateway")
             run_command("sudo chown -R $USER:$USER .")
             return False

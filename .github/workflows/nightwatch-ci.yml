@@ -15,7 +15,7 @@ on:
 jobs:
   verify:
     name: Verification Gate
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     permissions:
       contents: write       # 자율 수정 커밋 및 푸시용
       pull-requests: write  # PR 관련 작업용 (필요 시)
