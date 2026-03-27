@@ -53,16 +53,17 @@ def parse_tasks(tasks_path: Path, get_all: bool = False) -> list | dict | None:
 
     content = tasks_path.read_text(encoding="utf-8")
 
-    # 미완료 태스크 블록 파싱 (## [TAG] 로 시작하는 섹션)
+    # 미완료 태스크 블록 파싱 (## 로 시작하는 섹션)
+    # 기존 [TAG] 형식이 있어도 무시하고 제목으로 취급
     pattern = re.compile(
-        r"^##\s+\[(LITE|FLASH|PRO)\]\s+(.+?)$",
+        r"^##\s+(?:\[(?:LITE|FLASH|PRO)\]\s+)?(.+?)$",
         re.MULTILINE
     )
 
     tasks = []
 
     for match in pattern.finditer(content):
-        # 이 매치 앞에 [x] 완료 마커가 있는지 확인
+        # 이 매치 앞에 # [x] 또는 [x] 완료 마커가 있는지 확인
         preceding = content[:match.start()].rstrip()
         prev_lines = preceding.split("\n")
         last_meaningful = next(
@@ -71,8 +72,7 @@ def parse_tasks(tasks_path: Path, get_all: bool = False) -> list | dict | None:
         if last_meaningful.startswith("# [x]") or last_meaningful.startswith("[x]"):
             continue
 
-        tag = match.group(1)          # "FLASH" or "PRO"
-        title = match.group(2).strip()
+        title = match.group(1).strip()
 
         # 이 섹션의 본문 추출 (다음 ## 섹션 전까지)
         body_start = match.end()
@@ -80,15 +80,15 @@ def parse_tasks(tasks_path: Path, get_all: bool = False) -> list | dict | None:
         body_end = body_start + next_section.start() if next_section else len(content)
         body = content[body_start:body_end].strip()
 
-        model = MODEL_ROUTES.get(tag, MODEL_ROUTES["PRO"])
-        cost = MODEL_COSTS.get(tag, MODEL_COSTS["PRO"])
+        # 하이브리드 워크플로우를 기본으로 사용하므로 태그는 더 이상 필수가 아님
+        tag = "HYBRID" 
+        model = "google/gemini-3.1-pro-preview" # 기본 계획 모델
 
         task = {
             "tag": tag,
             "title": title,
             "body": body,
-            "model": model,
-            "cost": cost,
+            "model": model
         }
 
         if not get_all:
@@ -104,8 +104,9 @@ def parse_tasks(tasks_path: Path, get_all: bool = False) -> list | dict | None:
 def mark_task_done(tasks_path: Path, title: str) -> None:
     """완료된 태스크를 TASKS.md에서 [x]로 마킹합니다."""
     content = tasks_path.read_text(encoding="utf-8")
+    # 태그가 있든 없든 제목이 일치하는 ## 섹션을 찾음
     pattern = re.compile(
-        r"(##\s+\[(?:FLASH|PRO)\]\s+" + re.escape(title) + r")",
+        r"(##\s+(?:\[(?:LITE|FLASH|PRO)\]\s+)?" + re.escape(title) + r")",
         re.MULTILINE
     )
     updated = pattern.sub(r"# [x] \1", content, count=1)

@@ -132,14 +132,18 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
         else:
             config.pop('auth', None)
 
-        # Update model mapping: Add/Change model IDs here
+        # Update model mapping: Role-based tags for Hybrid Workflow
         model_map = {
+            'PLANNER': 'google/gemini-3.1-pro-preview', # Frontier model for strategy
+            'WORKER': 'openai/qwen2.5-coder-3b',       # Local model for code execution
+            
+            # Aliases for backward compatibility
             'PRO': 'google/gemini-3.1-pro-preview',
             'FLASH': 'google/gemini-3-flash-preview',
-            'LITE': 'google/gemini-3.1-flash-lite-preview'
+            'LOCAL': 'openai/qwen2.5-coder-3b'
         }
         target_model = model_map.get(tag, 'google/gemini-3-flash-preview')
-        print(f"🎯 타겟 모델 설정: {target_model} (Tag: {tag})")
+        print(f"🎯 타겟 모델 설정: {target_model} (Role/Tag: {tag})")
 
         agents_config = config.setdefault('agents', {})
         defaults = agents_config.setdefault('defaults', {})
@@ -148,14 +152,27 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
 
         models_config = config.setdefault('models', {})
         providers = models_config.setdefault('providers', {})
+        
+        # Google Provider (Strategic Planner)
         google_prov = providers.setdefault('google', {})
         google_prov['baseUrl'] = 'https://generativelanguage.googleapis.com/v1beta'
         google_prov['apiKey'] = gemini_api_key
-
         google_models = google_prov.setdefault('models', [])
-        google_models = [m for m in google_models if m.get('id') != target_model]
-        google_models.insert(0, {'id': target_model, 'name': target_model.split('/')[-1]})
+        if 'google/' in target_model:
+            google_models = [m for m in google_models if m.get('id') != target_model]
+            google_models.insert(0, {'id': target_model, 'name': target_model.split('/')[-1]})
         google_prov['models'] = google_models
+
+        # Local MLX-LM Provider (Practical Worker via OpenAI compatible API)
+        openai_prov = providers.setdefault('openai', {})
+        # Note: host.docker.internal is used to reach Mac host from inside Docker container
+        openai_prov['baseUrl'] = 'http://host.docker.internal:8080/v1'
+        openai_prov['apiKey'] = 'not-needed'
+        openai_models = openai_prov.setdefault('models', [])
+        if 'openai/' in target_model:
+            openai_models = [m for m in openai_models if m.get('id') != target_model]
+            openai_models.insert(0, {'id': target_model, 'name': 'Local Qwen2.5 Coder'})
+        openai_prov['models'] = openai_models
 
         # Ensure absolute workspace paths are correctly mapped
         old_ws = config.get('agents', {}).get('defaults', {}).get('workspace')
