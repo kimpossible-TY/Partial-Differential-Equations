@@ -96,6 +96,16 @@ tmux new-window -t pde_workspace -n 'http-server' -c "$WORKDIR" "zsh -c \"python
 # ------------------------------------------------------------------------------
 tmux new-window -t pde_workspace -n 'nightwatch' -c "$WORKDIR" "zsh -c \"export OC_VERSION=$OC_VERSION; docker compose up --build -d && docker compose logs -f\""
 
+# ------------------------------------------------------------------------------
+# Window 3: GitHub Self-hosted Runner
+# ------------------------------------------------------------------------------
+tmux new-window -t pde_workspace -n 'github-runner' -c "$WORKDIR/actions-runner" "zsh -c \"./run.sh\""
+
+# ------------------------------------------------------------------------------
+# Window 4: Local MLX-LM Server (Qwen2.5-Coder)
+# ------------------------------------------------------------------------------
+tmux new-window -t pde_workspace -n 'mlx-server' -c "$WORKDIR" "zsh -c \"python3 -m mlx_lm.server --model mlx-community/Qwen2.5-Coder-3B-Instruct-4bit --port 8080\""
+
 # ==============================================================================
 # [STEP 5] 서비스 구동 완료 대기 ⏳
 # ==============================================================================
@@ -135,12 +145,12 @@ OPENCLAW_URL="https://${TAILNET_DOMAIN}:18789"
 export OC_VERSION SERVER_URL OPENCLAW_URL WORKDIR
 
 # ------------------------------------------------------------------------------
-# Window 3: 전용 정보 패널 스크립트 구동 (show_info.sh)
+# Window 5: 전용 정보 패널 스크립트 구동 (show_info.sh)
 # ------------------------------------------------------------------------------
 tmux new-window -t pde_workspace -n 'info' -c "$WORKDIR" "zsh '$WORKDIR/Tools/show_info.sh'"
 
 # info 창으로 포커스 후 attach
-tmux select-window -t pde_workspace:3
+tmux select-window -t pde_workspace:5
 tmux attach-session -t pde_workspace
 
 echo -e "\n🛑 pde_workspace 세션이 종료되었습니다. 수고하셨습니다! 👋"
