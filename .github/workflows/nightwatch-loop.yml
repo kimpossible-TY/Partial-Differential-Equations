@@ -85,13 +85,15 @@ jobs:
       # 5. 작업 브랜치 설정/생성
       - name: Setup task branch
         if: steps.parse.outputs.no_task != 'true'
+        env:
+          TASK_TITLE: ${{ steps.parse.outputs.title }}
+          INPUT_BRANCH: ${{ github.event.inputs.branch_name }}
         run: |
           # 1. 입력값이 있으면 사용, 없으면 제목 기반 생성
-          INPUT_BRANCH="${{ github.event.inputs.branch_name }}"
           if [ -n "$INPUT_BRANCH" ]; then
             BRANCH_NAME="$INPUT_BRANCH"
           else
-            SAFE_TITLE=$(echo '${{ steps.parse.outputs.title }}' | tr ' ' '-' | tr -cd '[:alnum:]-' | cut -c1-50 | tr '[:upper:]' '[:lower:]')
+            SAFE_TITLE=$(echo "$TASK_TITLE" | tr ' ' '-' | tr -cd '[:alnum:]-' | cut -c1-50 | tr '[:upper:]' '[:lower:]')
             BRANCH_NAME="nightwatch/${SAFE_TITLE}-${{ github.run_id }}"
           fi
           

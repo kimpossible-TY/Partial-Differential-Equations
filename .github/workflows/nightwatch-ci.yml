@@ -42,16 +42,34 @@ jobs:
           python -m pip install --upgrade pip
           pip install pytest pytest-cov mypy flake8 requests autopep8
 
-      # 4. Typst 설치
+      # 4. Typst 설치 (필요 시)
       - name: Install Typst
         run: |
-          curl -L -o typst.tar.xz \
-            https://github.com/typst/typst/releases/latest/download/typst-x86_64-unknown-linux-musl.tar.xz
-          tar -xf typst.tar.xz
-          sudo mv typst-x86_64-unknown-linux-musl/typst /usr/local/bin/typst
-          typst --version
-          # 💥 설치 후 남은 찌꺼기 파일들 삭제 (푸시 방지)
-          rm -rf typst.tar.xz typst-x86_64-unknown-linux-musl
+          if command -v typst >/dev/null 2>&1; then
+            echo "✔ Typst already installed: $(typst --version)"
+          else
+            echo "Installing Typst..."
+            OS_TYPE=$(uname -s | tr '[:upper:]' '[:lower:]')
+            ARCH_TYPE=$(uname -m)
+            if [ "$ARCH_TYPE" = "arm64" ] || [ "$ARCH_TYPE" = "aarch64" ]; then
+              ARCH_SUFFIX="aarch64"
+            else
+              ARCH_SUFFIX="x86_64"
+            fi
+            
+            if [ "$OS_TYPE" = "darwin" ]; then
+              URL="https://github.com/typst/typst/releases/latest/download/typst-$ARCH_SUFFIX-apple-darwin.tar.gz"
+              DIR_NAME="typst-$ARCH_SUFFIX-apple-darwin"
+            else
+              URL="https://github.com/typst/typst/releases/latest/download/typst-$ARCH_SUFFIX-unknown-linux-musl.tar.xz"
+              DIR_NAME="typst-$ARCH_SUFFIX-unknown-linux-musl"
+            fi
+            
+            curl -L -o typst_archive "$URL"
+            tar -xf typst_archive
+            sudo mv "$DIR_NAME/typst" /usr/local/bin/typst
+            rm -rf typst_archive "$DIR_NAME"
+          fi
 
       # 5. 종합 검증 (pytest, flake8, mypy 결과를 모두 failure.log에 수집)
       - name: Run Comprehensive Diagnostics
@@ -82,5 +100,5 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
           # 오케스트레이터 실행
-          export PYTHONPATH=$PYTHONPATH:$(pwd)/Tools
+          export PYTHONPATH="$PYTHONPATH:$(pwd)/Tools"
           python3 scripts/ci_fix_orchestrator.py failure.log
