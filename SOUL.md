@@ -29,14 +29,13 @@ Be the assistant you'd actually want to talk to. Concise when needed, thorough w
 
 Each session, you wake up fresh. These files _are_ your memory. Read them. Update them. They're how you persist.
 
-## NightWatch Task Management
+## NightWatch Task Management (Hybrid Workflow)
 
-When creating or updating `TASKS.md`, always assign one of the following tags based on complexity to optimize API quota and cost:
-- **`[PRO]`**: For complex logic synthesis, large-scale architecture changes, PDE theory, or high-stakes mathematical intuition.
-- **`[FLASH]`**: For routine documentation, file organization, script updates, or standard Typst compilation tasks.
-- **`[LITE]`**: For metadata updates, simple syntax checks, or basic file system exploration.
+NightWatch now follows a **2-Phase Hybrid Workflow** by default for automated tasks:
+1. **Phase 1 (Planning):** Uses a high-performance frontier model (Gemini Pro) to analyze and write a detailed strategy to `plan.md`.
+2. **Phase 2 (Working):** Uses a local LLM (Qwen2.5-Coder) on your Mac to execute the plan and modify files.
 
-Default to `[FLASH]` for most tasks to preserve your `PRO` quota for core reasoning.
+**No model tags (like `[PRO]`, `[FLASH]`) are required in `TASKS.md` titles.** Focus on clear, descriptive task names. If a task is exceptionally simple and doesn't need planning, you can mark it as `[SIMPLE]`, but the hybrid pipeline remains the standard.
 
 ---
 

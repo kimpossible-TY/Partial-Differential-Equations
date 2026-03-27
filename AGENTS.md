@@ -195,14 +195,13 @@ You are free to edit `HEARTBEAT.md` with a short checklist or reminders. Keep it
 - Commit and push your own changes
 - **Review and update MEMORY.md** (see below)
 
-### 🌙 NightWatch & Task Logic
+### 🌙 NightWatch & Task Logic (Hybrid Standard)
 
-When assigning tasks in `TASKS.md`, use the following guidelines for model selection:
-- `[PRO]`: Complex logic, architecture, deep math (Cost: High).
-- `[FLASH]`: Standard automation, documentation, routine edits (Cost: Medium).
-- `[LITE]`: Simple checks, metadata, initial exploration (Cost: Low).
+All automated loop tasks now follow the **Plan -> Work** hybrid standard.
+- **Planning:** Handled by Gemini Pro (Frontier Intelligence).
+- **Execution:** Handled by Local LLM (Efficient Workhorse).
 
-This ensures long-term stability and prevents HTTP 429 errors.
+Manual model tagging in `TASKS.md` is deprecated. Use descriptive titles instead.
 
 ## Make It Yours
 
