@@ -30,11 +30,11 @@ jobs:
           token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
-      # 2. Python 환경 설정
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
+      # 2. Python 환경 설정 (Self-hosted 환경의 Python 사용)
+      # - name: Set up Python
+      #   uses: actions/setup-python@v5
+      #   with:
+      #     python-version: "3.12"
 
       # 3. 의존성 설치
       - name: Install dependencies

@@ -34,11 +34,11 @@ jobs:
           token: ${{ secrets.GH_PAT }}   # GITHUB_TOKEN 대신 PAT 사용 (PR 트리거를 위해)
           fetch-depth: 0
 
-      # 2. Python 환경 & 도구 설치
-      - name: Set up Python + tools
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
+      # 2. Python 환경 & 도구 설치 (Self-hosted 환경의 Python 사용)
+      # - name: Set up Python + tools
+      #   uses: actions/setup-python@v5
+      #   with:
+      #     python-version: "3.12"
       - run: pip install requests
 
       # 3. TASKS.md 파싱 — 다음 태스크 추출
