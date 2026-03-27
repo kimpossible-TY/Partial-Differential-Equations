@@ -1,12 +1,6 @@
 #!/bin/bash
 # ==============================================================================
 # 📱 PDE Workspace: Mac 로컬 문서 작성 & 실시간 모바일 서빙
-#
-# [주요 파이프라인]
-# - Typst: 실시간 문서 컴파일 (watch)
-# - Python HTTP: 렌더링된 PDF 로컬 서빙
-# - Docker: NightWatch 통합 센터 컨테이너 구동
-# - Tailscale: 외부 기기용 안전한 HTTPS 터널 프록시 연결
 # ==============================================================================
 
 GREEN='\033[0;32m'
@@ -17,16 +11,18 @@ NC='\033[0m'
 MAIN_FILE="Typst_project/main.typ"
 HTTP_PORT=8000
 WORKDIR="$(cd "$(dirname "$0")" && pwd)"
+LOG_DIR="$WORKDIR/logs/start_workspace"
+
+mkdir -p "$LOG_DIR"
 
 # ==============================================================================
 # [STEP 1] 초기화 및 Mac 키체인 잠금 해제 🔑
 # ==============================================================================
 echo -e "${BLUE}▶ Docker 인증 정보를 가져오기 위해 Mac 키체인 잠금을 해제합니다.${NC}"
 echo -n "Mac 로그인 비밀번호 입력: "
-read -s KEYCHAIN_PASS  # -s 옵션으로 입력 중인 비번이 화면에 보이지 않게 처리
+read -s KEYCHAIN_PASS
 echo ""
 
-# 입력받은 비밀번호로 키체인 해제 시도
 if security unlock-keychain -p "$KEYCHAIN_PASS" ~/Library/Keychains/login.keychain-db 2>/dev/null; then
     echo -e "${GREEN}✔ 키체인 잠금이 해제되었습니다.${NC}"
 else
@@ -37,42 +33,44 @@ fi
 # ==============================================================================
 # [STEP 2] 환경 변수 로드 및 프로젝트 검증 ⚙️
 # ==============================================================================
-# .env 파일이 있다면 환경변수로 미리 로드 (API Key를 OpenClaw 등에 전달하기 위함)
 if [ -f "$WORKDIR/.env" ]; then
     export $(cat "$WORKDIR/.env" | grep -v '^#' | xargs)
 fi
-
-# 호스트 CLI가 프로젝트 디렉토리의 설정을 사용하도록 강제
 export OPENCLAW_CONFIG_DIR="$WORKDIR/.openclaw"
 
-# 예외 처리: main.typ 파일이 없으면 즉시 종료
 if [ ! -f "$WORKDIR/$MAIN_FILE" ]; then
     echo -e "❌ 오류: '$WORKDIR'에 'main.typ' 파일이 없습니다."
     exit 1
 fi
 
 # ==============================================================================
-# [STEP 3] 버전 체크 및 기존 프로세스 정리 🧹
+# [STEP 3] 프로세스 정리 및 준비 🧹
 # ==============================================================================
-echo -e "${BLUE}▶ OpenClaw 최신 버전을 확인 중입니다...${NC}"
-# npm이 설치되어 있어야 함. 실패 시 기본값 'latest'
+echo -e "${BLUE}▶ 기존 프로세스 정리 중...${NC}"
 LATEST_OC_VER=$(npm view openclaw version 2>/dev/null || echo "latest")
 export OC_VERSION=$LATEST_OC_VER
-echo -e "${GREEN}✔ 확인된 버전: $OC_VERSION${NC}"
 
-# 기존 tmux 세션 종료
 if tmux has-session -t pde_workspace 2>/dev/null; then
-    echo -e "${BLUE}▶ 기존 pde_workspace 세션을 종료합니다...${NC}"
     tmux kill-session -t pde_workspace
     sleep 1
 fi
 
-# 로컬 백그라운드 Gateway 프로세스 종료
 openclaw gateway stop > /dev/null 2>&1
 killall openclaw > /dev/null 2>&1
+pkill -9 -f "Runner.Listener" > /dev/null 2>&1
+pkill -9 -f "Runner.Worker" > /dev/null 2>&1
+pkill -f "typst watch" > /dev/null 2>&1
+pkill -f "mlx_lm server" > /dev/null 2>&1
+pkill -f "mlx_lm.server" > /dev/null 2>&1
 
-# OpenClaw 컨테이너 환경 준비 (원본 보안 패치)
-echo -e "${BLUE}▶ OpenClaw 컨테이너 보안 패치 중...${NC}"
+MLX_PID=$(lsof -ti:8080)
+if [ -n "$MLX_PID" ]; then
+    kill -9 $MLX_PID 2>/dev/null
+fi
+
+echo -e "${BLUE}▶ GitHub Runner 세션 정리를 위해 잠시 대기합니다...${NC}"
+sleep 5
+
 chmod +x "$WORKDIR/Tools/patch_openclaw_config.py"
 python3 "$WORKDIR/Tools/patch_openclaw_config.py" "$WORKDIR"
 
@@ -81,76 +79,105 @@ python3 "$WORKDIR/Tools/patch_openclaw_config.py" "$WORKDIR"
 # ==============================================================================
 echo -e "${BLUE}▶ tmux 세션을 생성하고 서버를 가동합니다...${NC}"
 
-# tmux 세션 생성 (detached) 및 Window 0: Typst 실시간 문서 컴파일러
-tmux new-session -d -s pde_workspace -n 'typst' -c "$WORKDIR" -x 220 -y 50 "zsh -c \"typst watch '$MAIN_FILE' --open /dev/null\""
+# 0. Typst
+tmux new-session -d -s pde_workspace -n 'typst' -c "$WORKDIR" "zsh -c \"typst watch '$MAIN_FILE' --open /dev/null 2>&1 | tee '$LOG_DIR/typst.log'\""
 tmux set-option -t pde_workspace default-shell /bin/zsh
-tmux set-window-option -t pde_workspace:0 remain-on-exit off
 
-# ------------------------------------------------------------------------------
-# Window 1: 로컬 정적 파일 서버 (PDF 서빙)
-# ------------------------------------------------------------------------------
-tmux new-window -t pde_workspace -n 'http-server' -c "$WORKDIR" "zsh -c \"python3 -m http.server $HTTP_PORT --bind 127.0.0.1\""
+# 1. HTTP Server
+tmux new-window -t pde_workspace:1 -n 'http-server' -c "$WORKDIR" "zsh -c \"python3 -m http.server $HTTP_PORT --bind 127.0.0.1 2>&1 | tee '$LOG_DIR/http-server.log'\""
 
-# ------------------------------------------------------------------------------
-# Window 2: NightWatch 통합 센터 컨테이너 (Docker Compose)
-# ------------------------------------------------------------------------------
-tmux new-window -t pde_workspace -n 'nightwatch' -c "$WORKDIR" "zsh -c \"export OC_VERSION=$OC_VERSION; docker compose up --build -d && docker compose logs -f\""
+# 2. OpenClaw
+tmux new-window -t pde_workspace:2 -n 'nightwatch' -c "$WORKDIR" "zsh -c \"export OC_VERSION=$OC_VERSION; docker compose up --build -d && docker compose logs -f 2>&1 | tee '$LOG_DIR/nightwatch.log'\""
 
-# ------------------------------------------------------------------------------
-# Window 3: GitHub Self-hosted Runner
-# ------------------------------------------------------------------------------
-tmux new-window -t pde_workspace -n 'github-runner' -c "$WORKDIR/actions-runner" "zsh -c \"./run.sh\""
+# 3. GitHub Runner
+tmux new-window -t pde_workspace:3 -n 'github-runner' -c "$WORKDIR/actions-runner" "zsh -c \"./run.sh 2>&1 | tee '$LOG_DIR/github-runner.log'\""
 
-# ------------------------------------------------------------------------------
-# Window 4: Local MLX-LM Server (Qwen2.5-Coder)
-# ------------------------------------------------------------------------------
-tmux new-window -t pde_workspace -n 'mlx-server' -c "$WORKDIR" "zsh -c \"python3 -m mlx_lm.server --model mlx-community/Qwen2.5-Coder-3B-Instruct-4bit --port 8080\""
+# 4. Local MLX-LM
+tmux new-window -t pde_workspace:4 -n 'mlx-server' -c "$WORKDIR" "zsh -c \"mlx_lm server --model mlx-community/Qwen2.5-Coder-3B-Instruct-4bit --port 8080 2>&1 | tee '$LOG_DIR/mlx-server.log'\""
+tmux set-window-option -t pde_workspace:4 remain-on-exit on
+
+# 5. Info Panel
+tmux new-window -t pde_workspace:5 -n 'info' -c "$WORKDIR" "zsh '$WORKDIR/Tools/show_info.sh'"
 
 # ==============================================================================
-# [STEP 5] 서비스 구동 완료 대기 ⏳
+# [STEP 5] 서비스 구동 완료 대기 및 검증 ⏳
 # ==============================================================================
-echo -e "${BLUE}▶ 서버 포트 준비 대기 중...${NC}"
-for i in $(seq 1 10); do
-    if curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:$HTTP_PORT/ | grep -qv "^0"; then
-        echo -e "${GREEN}✔ HTTP 서버(포트 ${HTTP_PORT}) 준비 완료${NC}"
+echo -e "${BLUE}▶ 모든 서비스 기동 확인 중...${NC}"
+
+ERROR_FOUND=0
+
+# 0. Typst Check
+sleep 2
+if pgrep -f "typst watch" > /dev/null; then
+    echo -e "${GREEN}✔ [Index 0] Typst Watcher 가동 중${NC}"
+else
+    echo -e "${RED}❌ [Index 0] Typst Watcher 기동 실패${NC}"
+    ERROR_FOUND=1
+fi
+
+# 1. HTTP Server Check
+if curl --retry 5 --retry-delay 1 -s -o /dev/null http://127.0.0.1:$HTTP_PORT/; then
+    echo -e "${GREEN}✔ [Index 1] HTTP 서버 준비 완료${NC}"
+else
+    echo -e "${RED}❌ [Index 1] HTTP 서버 응답 없음${NC}"
+    ERROR_FOUND=1
+fi
+
+# 2. NightWatch (OpenClaw) Check
+if curl --retry 10 --retry-delay 2 -s -o /dev/null http://127.0.0.1:18789/; then
+    echo -e "${GREEN}✔ [Index 2] NightWatch 통합 센터 준비 완료${NC}"
+else
+    echo -e "${RED}❌ [Index 2] NightWatch 통합 센터 기동 지연 또는 실패${NC}"
+    ERROR_FOUND=1
+fi
+
+# 3. GitHub Runner Check
+if pgrep -f "Runner.Listener" > /dev/null; then
+    echo -e "${GREEN}✔ [Index 3] GitHub Runner 연결됨${NC}"
+else
+    echo -e "${RED}❌ [Index 3] GitHub Runner 프로세스 미감지${NC}"
+    ERROR_FOUND=1
+fi
+
+# 4. MLX-LM Server Check
+echo -e "${BLUE}▶ [Index 4] MLX 서버 모델 로드 대기 중 (최대 60초)...${NC}"
+MLX_READY=0
+for i in $(seq 1 30); do
+    if curl -s -o /dev/null http://127.0.0.1:8080/v1/models; then
+        echo -e "${GREEN}✔ [Index 4] Local MLX-LM 서버(Qwen2.5) 준비 완료${NC}"
+        MLX_READY=1
         break
     fi
-    sleep 1
+    echo -ne "\r   대기 중... ($((i*2))s)"
+    sleep 2
 done
+echo ""
 
-for i in $(seq 1 10); do
-    if curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:18789/ | grep -qv "^000"; then
-        echo -e "${GREEN}✔ NightWatch 통합 센터(포트 18789) 준비 완료${NC}"
-        break
-    fi
-    sleep 1
-done
+if [ "$MLX_READY" -eq 0 ]; then
+    echo -e "${RED}❌ [Index 4] MLX 서버가 응답하지 않습니다.${NC}"
+    ERROR_FOUND=1
+fi
 
 # ==============================================================================
-# [STEP 6] Tailscale 보안 터널 프록시 연결 🌐
+# [STEP 6] 외부 노출 및 진입/종료
 # ==============================================================================
+if [ "$ERROR_FOUND" -eq 1 ]; then
+    echo -e "\n${RED}🚨 오류가 발견되었습니다. 서비스를 중단하고 로그를 확인합니다.${NC}"
+    echo -e "상세 로그 디렉토리: ${BLUE}$LOG_DIR${NC}"
+    tmux kill-session -t pde_workspace
+    exit 1
+fi
+
 tailscale serve --yes --bg --https=443 http://127.0.0.1:$HTTP_PORT > /dev/null 2>&1
 tailscale serve --yes --bg --https=18789 http://127.0.0.1:18789 > /dev/null 2>&1
 
-# ==============================================================================
-# [STEP 7] 모바일 접속 URL 생성 📱
-# ==============================================================================
 TAILNET_DOMAIN=$(tailscale status --json | python3 -c 'import sys, json; print(json.load(sys.stdin).get("CertDomains", [""])[0])')
 SERVER_URL="https://${TAILNET_DOMAIN}/Typst_project/main.pdf"
 OPENCLAW_URL="https://${TAILNET_DOMAIN}:18789"
-
-# ==============================================================================
-# [STEP 8] 정보 패널 생성 및 작업 공간 진입 💻
-# ==============================================================================
 export OC_VERSION SERVER_URL OPENCLAW_URL WORKDIR
 
-# ------------------------------------------------------------------------------
-# Window 5: 전용 정보 패널 스크립트 구동 (show_info.sh)
-# ------------------------------------------------------------------------------
-tmux new-window -t pde_workspace -n 'info' -c "$WORKDIR" "zsh '$WORKDIR/Tools/show_info.sh'"
+echo -e "\n${GREEN}✨ 모든 기동 프로세스가 성공적으로 완료되었습니다!${NC}"
+echo -e "자동으로 작업 공간(tmux: info)으로 진입합니다."
+sleep 1
 
-# info 창으로 포커스 후 attach
-tmux select-window -t pde_workspace:5
 tmux attach-session -t pde_workspace
-
-echo -e "\n🛑 pde_workspace 세션이 종료되었습니다. 수고하셨습니다! 👋"
