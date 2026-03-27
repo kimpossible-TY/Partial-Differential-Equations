@@ -49,6 +49,10 @@ Desktop.ini
 *.swp
 *.swo
 
+### 🛠️ GITHUB SELF-HOSTED RUNNER
+# Local runner binaries, work directory, and logs
+actions-runner/
+
 ### 📁 PROJECT SPECIFICS & TEMP
 *.pdf
 test/
