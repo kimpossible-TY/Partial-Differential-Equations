@@ -39,7 +39,7 @@ jobs:
       #   uses: actions/setup-python@v5
       #   with:
       #     python-version: "3.12"
-      - run: pip install requests
+      - run: python3 -m pip install requests
 
       # 3. TASKS.md 파싱 — 다음 태스크 추출
       - name: Parse next task
