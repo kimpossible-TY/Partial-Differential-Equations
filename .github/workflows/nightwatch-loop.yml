@@ -19,7 +19,7 @@ on:
 jobs:
   nightwatch-loop:
     name: Autonomous Task Execution
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     permissions:
       contents: write       # 브랜치 생성 및 파일 수정
       pull-requests: write  # PR 생성
