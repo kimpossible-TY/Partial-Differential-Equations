@@ -1,3 +1,3 @@
-import non_existent_library; def add(a, b): return non_existent_library.add(a, b)
-# fix 1
-# fix 2
+def add(a, b):
+    # 고의적인 로직 에러: 더하기 대신 빼기 수행
+    return a - b

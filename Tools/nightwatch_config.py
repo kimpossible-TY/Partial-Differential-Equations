@@ -57,6 +57,8 @@ def setup_docker_symlinks():
         run_command("ln -sfn /workspace/agents/tool-architect .openclaw_config/agents/tool-architect/agent")
         os.makedirs('.openclaw_config/agents/math-typst-specialist', exist_ok=True)
         run_command("ln -sfn /workspace/agents/math-typst-specialist .openclaw_config/agents/math-typst-specialist/agent")
+        os.makedirs('.openclaw_config/agents/ci-fixer', exist_ok=True)
+        run_command("ln -sfn /workspace/agents/ci-fixer .openclaw_config/agents/ci-fixer/agent")
         print("✅ 에이전트 디스커버리용 심볼릭 링크 생성 완료")
     except Exception as e:
         print(f"⚠️ 심볼릭 링크 생성 중 오류: {e}")
@@ -101,6 +103,12 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
                         "name": "Math & Typst Specialist",
                         "workspace": "/workspace/agents/math-typst-specialist",
                         "agentDir": "/workspace/agents/math-typst-specialist"
+                    },
+                    {
+                        "id": "ci-fixer",
+                        "name": "CI Fixer",
+                        "workspace": "/workspace/agents/ci-fixer",
+                        "agentDir": "/workspace/agents/ci-fixer"
                     }
                 ]
             }

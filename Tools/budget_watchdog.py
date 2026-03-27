@@ -72,7 +72,7 @@ def retry_with_backoff(fn, max_retries=5):
         except Exception as e:
             msg = str(e).lower()
             if "429" in msg or "rate limit" in msg or "quota" in msg:
-                wait = (2 ** i) + 5 # Exponential backoff with base 5s
+                wait = (2 ** i) + 5  # Exponential backoff with base 5s
                 print(f"🔄 429 Error/Quota Reached: Retrying in {wait}s (Attempt {i+1}/{max_retries})...")
                 time.sleep(wait)
             else:

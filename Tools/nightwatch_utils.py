@@ -118,7 +118,10 @@ def prune_context_via_lite(task_body: str, api_key: str, threshold: int = 30000)
         
     print("✂️ [Pruning] 컨텍스트가 너무 방대합니다. Gemini Flash Lite를 사용하여 핵심 구조만 압축합니다...")
     # OpenClaw configuration: Uses Lite model to summarize context efficiently
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key={api_key}"
+    url = (
+        f"https://generativelanguage.googleapis.com/v1beta/models/"
+        f"gemini-3.1-flash-lite-preview:generateContent?key={api_key}"
+    )
     
     # Cap text at 100k to prevent the summarizer itself from hitting model constraints
     safe_body = task_body[:100000]
