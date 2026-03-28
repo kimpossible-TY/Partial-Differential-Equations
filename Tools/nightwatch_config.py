@@ -192,6 +192,11 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
             config_str = json.dumps(config)
             config = json.loads(config_str.replace(old_ws, '/workspace'))
 
+        # Fix: ensure providers structure is fully integrated
+        if 'models' not in config:
+            config['models'] = {}
+        config['models']['providers'] = providers
+
         with open(path, 'w') as f:
             json.dump(config, f, indent=2)
         print("✅ OpenClaw 설정 패치 완료")
