@@ -32,12 +32,14 @@ def run_command(command, shell=True, env=None):
         env=current_env,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
-        text=True
+        text=True,
+        bufsize=1, # Line-buffered
+        universal_newlines=True
     )
 
     output = []
     if process.stdout:
-        for line in iter(process.stdout.readline, ''):
+        for line in process.stdout:
             print(line, end="", flush=True)
             output.append(line)
 
