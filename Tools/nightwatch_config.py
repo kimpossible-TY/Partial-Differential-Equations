@@ -37,8 +37,8 @@ def run_command(command, shell=True, env=None):
 
     output = []
     if process.stdout:
-        for line in process.stdout:
-            print(line, end="")
+        for line in iter(process.stdout.readline, ''):
+            print(line, end="", flush=True)
             output.append(line)
 
     process.wait()

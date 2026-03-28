@@ -140,6 +140,7 @@ jobs:
           TAG: ${{ steps.parse.outputs.tag }}
           TITLE: ${{ steps.parse.outputs.title }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          PYTHONUNBUFFERED: "1"
         run: |
           chmod +x Tools/nightwatch_executor.py
           uv run Tools/nightwatch_executor.py
