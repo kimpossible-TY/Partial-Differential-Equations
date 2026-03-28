@@ -87,6 +87,9 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
     # Ensure config dir exists
     os.makedirs('.openclaw_config', exist_ok=True)
     run_command("chmod 777 .openclaw_config")
+    
+    if os.path.exists(path):
+        run_command(f"chmod 666 {path}")
 
     # If it doesn't exist, create default structure
     if not os.path.exists(path):
