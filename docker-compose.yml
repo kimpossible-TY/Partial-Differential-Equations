@@ -1,9 +1,8 @@
 # ==============================================================================
-# Project NightWatch — docker-compose.yml (Standalone for Local/CI)
+# Project NightWatch — docker-compose.yml
 # ==============================================================================
 
 services:
-  # 🏢 OpenClaw Main Office (Gateway + Local Agents)
   openclaw-gateway:
     image: ghcr.io/kimpossible-ty/partial-differential-equations/nightwatch-agent:latest
     build:
@@ -11,11 +10,12 @@ services:
       dockerfile: Dockerfile.nightwatch
       args:
         - OPENCLAW_VER=${OC_VERSION:-latest}
-    command: openclaw gateway run --port 18789 --allow-unconfigured
+    # 포트를 환경 변수로 동적 바인딩. 기본값은 메인 18789지만, CI에서는 18790 주입.
+    command: openclaw gateway run --port ${OPENCLAW_GATEWAY_PORT:-18789} --allow-unconfigured
     volumes:
       - .:/workspace:rw
       - ./tests:/workspace/tests:ro
-      - ./.openclaw_config:/workspace/.openclaw_config:rw
+      - ./.openclaw:/workspace/.openclaw:rw
       - ./docker-compose.yml:/workspace/docker-compose.yml:ro
       - ./.env:/workspace/.env:ro               
     environment:
@@ -23,13 +23,13 @@ services:
       - OPENCLAW_WORKSPACE=/workspace
       - OPENCLAW_ACCEPT_RISK=true
       - HOST=0.0.0.0
+      - OPENCLAW_GATEWAY_PORT=${OPENCLAW_GATEWAY_PORT:-18789}
       - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN:-}
-      - OPENCLAW_CONFIG_PATH=${OPENCLAW_CONFIG_PATH:-/workspace/.openclaw_config/openclaw.json}
-      - OPENCLAW_STATE_DIR=${OPENCLAW_STATE_DIR:-/workspace/.openclaw_config}
+      - OPENCLAW_CONFIG_PATH=${OPENCLAW_CONFIG_PATH:-/workspace/.openclaw/openclaw.json}
+      - OPENCLAW_STATE_DIR=${OPENCLAW_STATE_DIR:-/workspace/.openclaw}
     network_mode: host
     restart: unless-stopped
 
-  # 💻 CI & One-off Task Worker (CI 스크립트 호환용)
   nightwatch-agent:
     image: ghcr.io/kimpossible-ty/partial-differential-equations/nightwatch-agent:latest
     depends_on:
@@ -37,15 +37,17 @@ services:
     volumes:
       - .:/workspace:rw
       - ./tests:/workspace/tests:ro
-      - ./.openclaw_config:/root/.openclaw_config:rw
+      - ./.openclaw:/root/.openclaw:rw
     environment:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - OPENCLAW_GATEWAY_URL=ws://127.0.0.1:18789
+      # 게이트웨이와 동일한 포트를 바라보도록 동적 매핑
+      - OPENCLAW_GATEWAY_URL=ws://127.0.0.1:${OPENCLAW_GATEWAY_PORT:-18789}
       - OPENCLAW_WORKSPACE=/workspace
       - OPENCLAW_ACCEPT_RISK=true
       - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN:-}
-      - OPENCLAW_CONFIG_PATH=${OPENCLAW_CONFIG_PATH:-/workspace/.openclaw_config/openclaw.json}
-      - OPENCLAW_STATE_DIR=${OPENCLAW_STATE_DIR:-/workspace/.openclaw_config}
+      - OPENCLAW_CONFIG_PATH=${OPENCLAW_CONFIG_PATH:-/workspace/.openclaw/openclaw.json}
+      - OPENCLAW_STATE_DIR=${OPENCLAW_STATE_DIR:-/workspace/.openclaw}
     working_dir: /workspace
     network_mode: host
     command: [ "sh", "-c", "echo '🚀 Nightwatch CI/CD Agent is standing by...'; tail -f /dev/null" ]
+
