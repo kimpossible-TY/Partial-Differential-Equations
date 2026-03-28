@@ -15,6 +15,10 @@ on:
         description: 'Target branch name'
         required: false
         default: ''
+      task_json:
+        description: 'JSON string of the task(s) to execute'
+        required: false
+        default: ''
 
 jobs:
   nightwatch-loop:
@@ -44,7 +48,15 @@ jobs:
       # 3. TASKS.md 파싱 — 다음 태스크 추출
       - name: Parse next task
         id: parse
+        env:
+          INPUT_TASK_JSON: ${{ github.event.inputs.task_json }}
         run: |
+          # 1. workflow_dispatch로 직접 전달받은 JSON이 있으면 파일로 저장
+          if [ -n "$INPUT_TASK_JSON" ]; then
+            echo "📥 workflow_dispatch input으로부터 태스크 정보를 받았습니다."
+            printf '%s' "$INPUT_TASK_JSON" > nightwatch_bulk_tasks.json
+          fi
+
           if [ -f "nightwatch_bulk_tasks.json" ]; then
             TASK_JSON=$(cat nightwatch_bulk_tasks.json | uv run python -c 'import sys,json; tasks=json.load(sys.stdin); print(json.dumps(tasks[0]) if tasks else "{}")')
             if [ "$TASK_JSON" = "{}" ]; then

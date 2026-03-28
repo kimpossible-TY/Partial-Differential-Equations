@@ -159,21 +159,26 @@ if [ "$TASK_COUNT" -eq 1 ]; then
     switch_branch "$SUGGESTED_BRANCH"
     
     echo "💾 변경 사항 저장 중..."
-    # [FIX] .gitignore에 있어도 강제로 스테이징하도록 -f 옵션 추가
-    git add -f nightwatch_bulk_tasks.json 2>/dev/null || true
+    # [CLEAN] JSON 파일을 커밋하지 않고 --allow-empty로 트리거 커밋만 생성
     git add .
     if git diff --cached --quiet; then
-        echo "ℹ️ 변경 사항 없음 — 푸시를 시도합니다."
+        echo "ℹ️ 변경 사항 없음 — 빈 커밋으로 트리거를 생성합니다."
+        git commit --allow-empty -m "plan: trigger NightWatch for '$TITLE' (via input)"
     else
-        git commit -m "plan: trigger NightWatch for '$TITLE'"
+        git commit -m "plan: trigger NightWatch for '$TITLE' (with pending changes)"
     fi
     
     echo "🚀 GitHub에 푸시 중..."
     git push origin "$CURRENT_BRANCH"
 
-    echo "🌙 NightWatch 루프를 깨우는 중..."
-    if ! gh workflow run "$WORKFLOW_NAME" --ref "$CURRENT_BRANCH" -f branch_name="$CURRENT_BRANCH"; then
-        echo "❌ 에러: GitHub Actions(gh) 트리거에 실패했습니다. gh auth 상태를 확인하세요."
+    echo "🌙 NightWatch 루프를 깨우는 중 (Data Handoff via Input)..."
+    # 단일 태스크의 JSON만 추출
+    SINGLE_TASK_JSON=$(echo "$TASKS_JSON" | $PY -c 'import sys,json; tasks=json.load(sys.stdin); print(json.dumps([tasks[0]], ensure_ascii=False))')
+    
+    if ! gh workflow run "$WORKFLOW_NAME" --ref "$CURRENT_BRANCH" \
+        -f branch_name="$CURRENT_BRANCH" \
+        -f task_json="$SINGLE_TASK_JSON"; then
+        echo "❌ 에러: GitHub Actions(gh) 트리거에 실패했습니다."
         exit 1
     fi
 
@@ -201,17 +206,18 @@ else
             echo "🌱 [태스크 $((i+1))/$TASK_COUNT] 브랜치 생성: $TARGET_BRANCH (기반: origin/main)"
             git checkout -b "$TARGET_BRANCH" origin/main
             
-            echo "$TASKS_JSON" | $PY -c "import sys,json; print(json.dumps([json.load(sys.stdin)[$i]], ensure_ascii=False))" > nightwatch_bulk_tasks.json
+            TARGET_TASK_JSON=$(echo "$TASKS_JSON" | $PY -c "import sys,json; tasks=json.load(sys.stdin); print(json.dumps([tasks[$i]], ensure_ascii=False))")
             
-            # [FIX] gitignore 무시하고 강제로 add
-            git add -f nightwatch_bulk_tasks.json
-            git commit -m "plan: trigger NightWatch for '$TITLE' (Parallel)" || true
+            # [CLEAN] 파일을 커밋하지 않고 빈 커밋으로 트리거 생성
+            git commit --allow-empty -m "plan: trigger NightWatch for '$TITLE' (Parallel via input)"
             
             echo "🚀 GitHub에 푸시 중... ($TARGET_BRANCH)"
             git push origin "$TARGET_BRANCH"
             
-            echo "🌙 NightWatch 루프를 깨우는 중... ($TARGET_BRANCH)"
-            if ! gh workflow run "$WORKFLOW_NAME" --ref "$TARGET_BRANCH" -f branch_name="$TARGET_BRANCH"; then
+            echo "🌙 NightWatch 루프를 깨우는 중 (Data Handoff via Input)..."
+            if ! gh workflow run "$WORKFLOW_NAME" --ref "$TARGET_BRANCH" \
+                -f branch_name="$TARGET_BRANCH" \
+                -f task_json="$TARGET_TASK_JSON"; then
                 echo "⚠️ 경고: $TARGET_BRANCH 워크플로우 트리거 실패"
             fi
             
@@ -232,19 +238,18 @@ else
         
         switch_branch "$SUGGESTED_BRANCH"
         
-        echo "$TASKS_JSON" > nightwatch_bulk_tasks.json
-        
-        echo "💾 변경 사항 저장 중..."
-        # [FIX] gitignore 무시하고 강제로 add
-        git add -f nightwatch_bulk_tasks.json
-        git commit -m "plan: trigger NightWatch for bulk tasks (Series)" || true
+        # [CLEAN] 파일을 커밋하지 않고 빈 커밋으로 트리거 생성
+        echo "💾 트리거 커밋 생성 중..."
+        git commit --allow-empty -m "plan: trigger NightWatch for bulk tasks (Series via input)"
         
         echo "🚀 GitHub에 푸시 중..."
         git push origin "$CURRENT_BRANCH"
 
-        echo "🌙 NightWatch 루프를 깨우는 중..."
-        if ! gh workflow run "$WORKFLOW_NAME" --ref "$CURRENT_BRANCH" -f branch_name="$CURRENT_BRANCH"; then
-            echo "❌ 에러: GitHub Actions(gh) 트리거에 실패했습니다. gh auth 상태를 확인하세요."
+        echo "🌙 NightWatch 루프를 깨우는 중 (Data Handoff via Input)..."
+        if ! gh workflow run "$WORKFLOW_NAME" --ref "$CURRENT_BRANCH" \
+            -f branch_name="$CURRENT_BRANCH" \
+            -f task_json="$TASKS_JSON"; then
+            echo "❌ 에러: GitHub Actions(gh) 트리거에 실패했습니다."
             exit 1
         fi
     fi
