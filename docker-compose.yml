@@ -1,5 +1,5 @@
 # ==============================================================================
-# Project NightWatch — docker-compose.yml (Unified Version)
+# Project NightWatch — docker-compose.yml
 # ==============================================================================
 
 services:
@@ -11,8 +11,7 @@ services:
       dockerfile: Dockerfile.nightwatch
       args:
         - OPENCLAW_VER=${OC_VERSION:-latest}
-    container_name: openclaw-gateway
-    # 게이트웨이를 로컬 신뢰 모드로 실행 (토큰 없이 로컬 접속 허용)
+    # 삭제: container_name: openclaw-gateway
     command: openclaw gateway run --port 18789 --allow-unconfigured
     volumes:
       - .:/workspace:rw
@@ -34,7 +33,7 @@ services:
   # 💻 CI & One-off Task Worker (CI 스크립트 호환용)
   nightwatch-agent:
     image: ghcr.io/kimpossible-ty/partial-differential-equations/nightwatch-agent:latest
-    container_name: nightwatch-agent
+    # 삭제: container_name: nightwatch-agent
     depends_on:
       - openclaw-gateway
     volumes:
@@ -51,5 +50,5 @@ services:
       - OPENCLAW_STATE_DIR=${OPENCLAW_STATE_DIR:-/workspace/.openclaw}
     working_dir: /workspace
     network_mode: host
-    # CI 환경에서는 외부에서 명령어를 주입받지만, 로컬에서는 전문가들을 상시 출근시킴
     command: [ "sh", "-c", "echo '🚀 Nightwatch CI/CD Agent is standing by...'; tail -f /dev/null" ]
+
