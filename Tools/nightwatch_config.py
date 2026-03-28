@@ -145,12 +145,12 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
         # Update model mapping: Role-based tags for Hybrid Workflow
         model_map = {
             'PLANNER': 'google/gemini-3.1-pro-preview', # Frontier model for strategy
-            'WORKER': 'openai/qwen2.5-coder-3b',       # Local model for code execution
+            'WORKER': 'openai/mlx-community/Qwen2.5-Coder-3B-Instruct-4bit',       # Local model for code execution
 
             # Aliases for backward compatibility
             'PRO': 'google/gemini-3.1-pro-preview',
             'FLASH': 'google/gemini-3-flash-preview',
-            'LOCAL': 'openai/qwen2.5-coder-3b'
+            'LOCAL': 'openai/mlx-community/Qwen2.5-Coder-3B-Instruct-4bit'
         }
         target_model = model_map.get(tag, 'google/gemini-3-flash-preview')
         print(f"🎯 타겟 모델 설정: {target_model} (Role/Tag: {tag})")
