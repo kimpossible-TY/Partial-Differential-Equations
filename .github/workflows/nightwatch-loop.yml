@@ -34,49 +34,48 @@ jobs:
           token: ${{ secrets.GH_PAT }}   # GITHUB_TOKEN 대신 PAT 사용 (PR 트리거를 위해)
           fetch-depth: 0
 
-      # 2. Python 환경 & 도구 설치 (가상 환경 사용)
-      - name: Ensure venv and dependencies
-        run: |
-          if [ ! -d "venv" ]; then
-            python3 -m venv venv
-          fi
-          ./venv/bin/python3 -m pip install -r requirements.txt
+      # 2. uv 설치 및 의존성 동기화
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync
 
       # 3. TASKS.md 파싱 — 다음 태스크 추출
       - name: Parse next task
         id: parse
         run: |
           if [ -f "nightwatch_bulk_tasks.json" ]; then
-            TASK_JSON=$(cat nightwatch_bulk_tasks.json | ./venv/bin/python3 -c 'import sys,json; tasks=json.load(sys.stdin); print(json.dumps(tasks[0]) if tasks else "{}")')
+            TASK_JSON=$(cat nightwatch_bulk_tasks.json | uv run python -c 'import sys,json; tasks=json.load(sys.stdin); print(json.dumps(tasks[0]) if tasks else "{}")')
             if [ "$TASK_JSON" = "{}" ]; then
                echo "no_task=true" >> $GITHUB_OUTPUT
                exit 0
             fi
-            TASK_COUNT=$(cat nightwatch_bulk_tasks.json | ./venv/bin/python3 -c 'import sys,json; print(len(json.load(sys.stdin)))')
+            TASK_COUNT=$(cat nightwatch_bulk_tasks.json | uv run python -c 'import sys,json; print(len(json.load(sys.stdin)))')
             if [ "$TASK_COUNT" -gt 1 ]; then
-               TITLE="Bulk Run: $(echo "$TASK_JSON" | ./venv/bin/python3 -c 'import sys,json; print(json.load(sys.stdin).get("title", ""))') 외 $((TASK_COUNT - 1))건"
+               TITLE="Bulk Run: $(echo "$TASK_JSON" | uv run python -c 'import sys,json; print(json.load(sys.stdin).get("title", ""))') 외 $((TASK_COUNT - 1))건"
             else
-               TITLE=$(echo "$TASK_JSON" | ./venv/bin/python3 -c 'import sys,json; print(json.load(sys.stdin).get("title", ""))')
+               TITLE=$(echo "$TASK_JSON" | uv run python -c 'import sys,json; print(json.load(sys.stdin).get("title", ""))')
             fi
-            TAG=$(echo "$TASK_JSON" | ./venv/bin/python3 -c 'import sys,json; print(json.load(sys.stdin).get("tag", "FLASH"))')
-            MODEL=$(echo "$TASK_JSON" | ./venv/bin/python3 -c 'import sys,json; print(json.load(sys.stdin).get("model", ""))')
-            BODY=$(echo "$TASK_JSON" | ./venv/bin/python3 -c 'import sys,json; print(json.load(sys.stdin).get("body", ""))')
+            TAG=$(echo "$TASK_JSON" | uv run python -c 'import sys,json; print(json.load(sys.stdin).get("tag", "FLASH"))')
+            MODEL=$(echo "$TASK_JSON" | uv run python -c 'import sys,json; print(json.load(sys.stdin).get("model", ""))')
+            BODY=$(echo "$TASK_JSON" | uv run python -c 'import sys,json; print(json.load(sys.stdin).get("body", ""))')
             echo "$BODY" > task_body.txt
             echo "tag=$TAG" >> $GITHUB_OUTPUT
             echo "title=$TITLE" >> $GITHUB_OUTPUT
             echo "model=$MODEL" >> $GITHUB_OUTPUT
           else
-            TASK_JSON=$(./venv/bin/python3 Tools/task_runner.py --json 2>/dev/null)
+            TASK_JSON=$(uv run Tools/task_runner.py --json 2>/dev/null)
             if [ -z "$TASK_JSON" ] || echo "$TASK_JSON" | grep -q "모든 태스크가 완료"; then
               echo "no_task=true" >> $GITHUB_OUTPUT
               echo "🎉 TASKS.md에 미완료 태스크 없음. 루프 종료."
               exit 0
             fi
             echo "task_json=$TASK_JSON" >> $GITHUB_OUTPUT
-            echo "$TASK_JSON" | ./venv/bin/python3 -c 'import sys,json; print(json.load(sys.stdin).get("body", ""))' > task_body.txt
-            echo "tag=$(echo "$TASK_JSON" | ./venv/bin/python3 -c 'import sys,json; print(json.load(sys.stdin).get("tag", ""))')" >> $GITHUB_OUTPUT
-            echo "title=$(echo "$TASK_JSON" | ./venv/bin/python3 -c 'import sys,json; print(json.load(sys.stdin).get("title", ""))')" >> $GITHUB_OUTPUT
-            echo "model=$(echo "$TASK_JSON" | ./venv/bin/python3 -c 'import sys,json; print(json.load(sys.stdin).get("model", ""))')" >> $GITHUB_OUTPUT
+            echo "$TASK_JSON" | uv run python -c 'import sys,json; print(json.load(sys.stdin).get("body", ""))' > task_body.txt
+            echo "tag=$(echo "$TASK_JSON" | uv run python -c 'import sys,json; print(json.load(sys.stdin).get("tag", ""))')" >> $GITHUB_OUTPUT
+            echo "title=$(echo "$TASK_JSON" | uv run python -c 'import sys,json; print(json.load(sys.stdin).get("title", ""))')" >> $GITHUB_OUTPUT
+            echo "model=$(echo "$TASK_JSON" | uv run python -c 'import sys,json; print(json.load(sys.stdin).get("model", ""))')" >> $GITHUB_OUTPUT
           fi
       # 4. 태스크 없으면 종료
       - name: Skip if no task
@@ -131,7 +130,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           chmod +x Tools/nightwatch_executor.py
-          ./venv/bin/python3 Tools/nightwatch_executor.py
+          uv run Tools/nightwatch_executor.py
 
       # 8. 브랜치 푸시
       - name: Push branch

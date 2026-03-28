@@ -38,10 +38,9 @@ if [ -f "$WORKDIR/.env" ]; then
 fi
 export OPENCLAW_CONFIG_DIR="$WORKDIR/.openclaw"
 
-if [ ! -f "$WORKDIR/$MAIN_FILE" ]; then
-    echo -e "❌ 오류: '$WORKDIR'에 'main.typ' 파일이 없습니다."
-    exit 1
-fi
+# uv 환경 설정 (강제 사용)
+PY="uv run python"
+echo -e "${GREEN}✔ uv 환경을 사용하여 실행합니다.${NC}"
 
 # ==============================================================================
 # [STEP 3] 프로세스 정리 및 준비 🧹
@@ -72,15 +71,7 @@ echo -e "${BLUE}▶ GitHub Runner 세션 정리를 위해 잠시 대기합니다
 sleep 5
 
 chmod +x "$WORKDIR/Tools/patch_openclaw_config.py"
-"$WORKDIR/venv/bin/python3" "$WORKDIR/Tools/patch_openclaw_config.py" "$WORKDIR"
-
-# ==============================================================================
-# [4.5] 가상 환경 활성화 점검 🐍
-# ==============================================================================
-if [ ! -d "$WORKDIR/venv" ]; then
-    echo -e "${RED}❌ 가상 환경(venv)이 없습니다. 가상 환경을 먼저 생성해 주세요.${NC}"
-    exit 1
-fi
+$PY "$WORKDIR/Tools/patch_openclaw_config.py" "$WORKDIR"
 
 # ==============================================================================
 # [STEP 4] Tmux 세션 생성 및 서비스 구동 🚀
@@ -92,7 +83,7 @@ tmux new-session -d -s pde_workspace -n 'typst' -c "$WORKDIR" "zsh -c \"typst wa
 tmux set-option -t pde_workspace default-shell /bin/zsh
 
 # 1. HTTP Server
-tmux new-window -t pde_workspace:1 -n 'http-server' -c "$WORKDIR" "zsh -c \"source venv/bin/activate && python3 -m http.server $HTTP_PORT --bind 127.0.0.1 2>&1 | tee '$LOG_DIR/http-server.log'\""
+tmux new-window -t pde_workspace:1 -n 'http-server' -c "$WORKDIR" "zsh -c \"$PY -m http.server $HTTP_PORT --bind 127.0.0.1 2>&1 | tee '$LOG_DIR/http-server.log'\""
 
 # 2. OpenClaw
 tmux new-window -t pde_workspace:2 -n 'nightwatch' -c "$WORKDIR" "zsh -c \"export OC_VERSION='$OC_VERSION'; { docker compose up --build -d; docker compose logs -f; } 2>&1 | tee '$LOG_DIR/nightwatch.log'\""
@@ -102,7 +93,7 @@ tmux set-window-option -t pde_workspace:2 remain-on-exit on
 tmux new-window -t pde_workspace:3 -n 'github-runner' -c "$WORKDIR/actions-runner" "zsh -c \"./run.sh 2>&1 | tee '$LOG_DIR/github-runner.log'\""
 
 # 4. Local MLX-LM
-tmux new-window -t pde_workspace:4 -n 'mlx-server' -c "$WORKDIR" "zsh -c \"source venv/bin/activate && mlx_lm server --model mlx-community/Qwen2.5-Coder-3B-Instruct-4bit --port 8080 2>&1 | tee '$LOG_DIR/mlx-server.log'\""
+tmux new-window -t pde_workspace:4 -n 'mlx-server' -c "$WORKDIR" "zsh -c \"$PY -m mlx_lm server --model mlx-community/Qwen2.5-Coder-3B-Instruct-4bit --port 8080 2>&1 | tee '$LOG_DIR/mlx-server.log'\""
 tmux set-window-option -t pde_workspace:4 remain-on-exit on
 
 # 5. Info Panel
@@ -191,7 +182,7 @@ fi
 tailscale serve --yes --bg --https=443 http://127.0.0.1:$HTTP_PORT > /dev/null 2>&1
 tailscale serve --yes --bg --https=18789 http://127.0.0.1:18789 > /dev/null 2>&1
 
-TAILNET_DOMAIN=$(tailscale status --json | "$WORKDIR/venv/bin/python3" -c 'import sys, json; print(json.load(sys.stdin).get("CertDomains", [""])[0])')
+TAILNET_DOMAIN=$(tailscale status --json | $PY -c 'import sys, json; print(json.load(sys.stdin).get("CertDomains", [""])[0])')
 SERVER_URL="https://${TAILNET_DOMAIN}/Typst_project/main.pdf"
 OPENCLAW_URL="https://${TAILNET_DOMAIN}:18789"
 export OC_VERSION SERVER_URL OPENCLAW_URL WORKDIR
