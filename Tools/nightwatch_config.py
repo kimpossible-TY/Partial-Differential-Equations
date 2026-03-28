@@ -175,8 +175,8 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
 
         # Local MLX-LM Provider (Practical Worker via OpenAI compatible API)
         openai_prov = providers.setdefault('openai', {})
-        # Note: host.docker.internal is used to reach Mac host from inside Docker container
-        openai_prov['baseUrl'] = 'http://host.docker.internal:8080/v1'
+        # Note: In network_mode: host, use 127.0.0.1 directly to reach host processes
+        openai_prov['baseUrl'] = 'http://127.0.0.1:8080/v1'
         openai_prov['apiKey'] = 'not-needed'
         openai_models = openai_prov.setdefault('models', [])
         if 'openai/' in target_model:
