@@ -159,6 +159,8 @@ if [ "$TASK_COUNT" -eq 1 ]; then
     switch_branch "$SUGGESTED_BRANCH"
     
     echo "💾 변경 사항 저장 중..."
+    # [FIX] .gitignore에 있어도 강제로 스테이징하도록 -f 옵션 추가
+    git add -f nightwatch_bulk_tasks.json 2>/dev/null || true
     git add .
     if git diff --cached --quiet; then
         echo "ℹ️ 변경 사항 없음 — 푸시를 시도합니다."
@@ -170,7 +172,10 @@ if [ "$TASK_COUNT" -eq 1 ]; then
     git push origin "$CURRENT_BRANCH"
 
     echo "🌙 NightWatch 루프를 깨우는 중..."
-    gh workflow run "$WORKFLOW_NAME" --ref "$CURRENT_BRANCH" -f branch_name="$CURRENT_BRANCH"
+    if ! gh workflow run "$WORKFLOW_NAME" --ref "$CURRENT_BRANCH" -f branch_name="$CURRENT_BRANCH"; then
+        echo "❌ 에러: GitHub Actions(gh) 트리거에 실패했습니다. gh auth 상태를 확인하세요."
+        exit 1
+    fi
 
 # ---------------------------------------------------------
 # 다중 태스크 처리
@@ -198,14 +203,17 @@ else
             
             echo "$TASKS_JSON" | $PY -c "import sys,json; print(json.dumps([json.load(sys.stdin)[$i]], ensure_ascii=False))" > nightwatch_bulk_tasks.json
             
-            git add nightwatch_bulk_tasks.json
+            # [FIX] gitignore 무시하고 강제로 add
+            git add -f nightwatch_bulk_tasks.json
             git commit -m "plan: trigger NightWatch for '$TITLE' (Parallel)" || true
             
             echo "🚀 GitHub에 푸시 중... ($TARGET_BRANCH)"
             git push origin "$TARGET_BRANCH"
             
             echo "🌙 NightWatch 루프를 깨우는 중... ($TARGET_BRANCH)"
-            gh workflow run "$WORKFLOW_NAME" --ref "$TARGET_BRANCH" -f branch_name="$TARGET_BRANCH"
+            if ! gh workflow run "$WORKFLOW_NAME" --ref "$TARGET_BRANCH" -f branch_name="$TARGET_BRANCH"; then
+                echo "⚠️ 경고: $TARGET_BRANCH 워크플로우 트리거 실패"
+            fi
             
             git checkout "$ORIGINAL_BRANCH"
         done
@@ -227,14 +235,18 @@ else
         echo "$TASKS_JSON" > nightwatch_bulk_tasks.json
         
         echo "💾 변경 사항 저장 중..."
-        git add nightwatch_bulk_tasks.json
+        # [FIX] gitignore 무시하고 강제로 add
+        git add -f nightwatch_bulk_tasks.json
         git commit -m "plan: trigger NightWatch for bulk tasks (Series)" || true
         
         echo "🚀 GitHub에 푸시 중..."
         git push origin "$CURRENT_BRANCH"
 
         echo "🌙 NightWatch 루프를 깨우는 중..."
-        gh workflow run "$WORKFLOW_NAME" --ref "$CURRENT_BRANCH" -f branch_name="$CURRENT_BRANCH"
+        if ! gh workflow run "$WORKFLOW_NAME" --ref "$CURRENT_BRANCH" -f branch_name="$CURRENT_BRANCH"; then
+            echo "❌ 에러: GitHub Actions(gh) 트리거에 실패했습니다. gh auth 상태를 확인하세요."
+            exit 1
+        fi
     fi
 fi
 
