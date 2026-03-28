@@ -124,8 +124,8 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
             config = json.load(f)
 
         config['gateway'] = config.get('gateway', {})
-        # Note: In Docker network, refer to the gateway by its service name
-        config['gateway']['remote'] = {'url': 'ws://openclaw-gateway:18789'}
+        # Note: In network_mode: host, use 127.0.0.1
+        config['gateway']['remote'] = {'url': 'ws://127.0.0.1:18789'}
         config['gateway']['mode'] = 'remote'
 
         if openclaw_gateway_token:
