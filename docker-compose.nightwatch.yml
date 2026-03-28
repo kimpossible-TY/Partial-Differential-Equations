@@ -17,8 +17,7 @@ services:
       - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN:-}
       - OPENCLAW_CONFIG_PATH=${OPENCLAW_CONFIG_PATH:-/workspace/.openclaw_config/openclaw.json}
       - OPENCLAW_STATE_DIR=${OPENCLAW_STATE_DIR:-/workspace/.openclaw_config}
-    ports:
-      - "18789:18789"
+    # ports: 제거 (호스트 포트 18789 충돌 방지)
     restart: unless-stopped
 
   nightwatch-agent:

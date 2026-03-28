@@ -120,8 +120,15 @@ def call_openclaw_agent(log_content):
     )
 
     if os.getenv("GITHUB_ACTIONS"):
+        # 기존에 남아있을 수 있는 컨테이너 및 네트워크 정리 (충돌 방지)
+        print("🧹 Cleaning up old CI gateway containers...")
+        run_command("docker compose -f docker-compose.nightwatch.yml down -v --remove-orphans > /dev/null 2>&1")
+
         gw_cmd = f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} OPENCLAW_CONFIG_PATH=/workspace/.openclaw_config/openclaw.json OPENCLAW_STATE_DIR=/workspace/.openclaw_config docker compose -f docker-compose.nightwatch.yml up --build -d openclaw-gateway"
-        run_command(gw_cmd)
+        rc, _ = run_command(gw_cmd)
+        if rc != 0:
+            print("❌ Failed to start CI OpenClaw gateway.")
+            return False
         run_command("sleep 5")
 
         agent_plan_cmd = [

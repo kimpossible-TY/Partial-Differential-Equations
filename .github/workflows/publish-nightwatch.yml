@@ -16,7 +16,7 @@ env:
 
 jobs:
   build-and-push:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted  # Mac M2에서 네이티브 빌드 수행
     permissions:
       contents: read
       packages: write
