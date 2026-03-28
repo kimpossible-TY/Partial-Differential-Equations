@@ -15,7 +15,7 @@ def patch_config(workdir):
             config = json.load(f)
 
         # 1. Tailscale 도메인 및 IP 확보
-        tailnet_domain = os.popen("tailscale status --json | python3 -c 'import sys, json; print(json.load(sys.stdin).get(\"CertDomains\", [\"\"])[0])'").read().strip()
+        tailnet_domain = os.popen("tailscale status --json | ./venv/bin/python3 -c 'import sys, json; print(json.load(sys.stdin).get(\"CertDomains\", [\"\"])[0])'").read().strip()
         ts_ip4 = os.popen("tailscale ip -4").read().strip()
         ts_ip6 = os.popen("tailscale ip -6").read().strip()
 

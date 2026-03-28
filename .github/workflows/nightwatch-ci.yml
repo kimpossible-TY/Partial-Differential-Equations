@@ -30,17 +30,18 @@ jobs:
           token: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
-      # 2. Python 환경 설정 (Self-hosted 환경의 Python 사용)
-      # - name: Set up Python
-      #   uses: actions/setup-python@v5
-      #   with:
-      #     python-version: "3.12"
+      # 2. Python 환경 설정 (가상 환경 사용)
+      - name: Set up venv
+        run: |
+          if [ ! -d "venv" ]; then
+            python3 -m venv venv
+          fi
 
       # 3. 의존성 설치
       - name: Install dependencies
         run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install pytest pytest-cov mypy flake8 requests autopep8
+          ./venv/bin/python3 -m pip install --upgrade pip
+          ./venv/bin/python3 -m pip install -r requirements.txt
 
       # 4. Typst 설치 (필요 시)
       - name: Install Typst
@@ -81,13 +82,13 @@ jobs:
           typst compile "Typst_project/main.typ" "/tmp/output.pdf" 2>&1 | tee -a failure.log || EXIT_CODE=1
           
           echo -e "\n### 2. Pytest Execution ###" | tee -a failure.log
-          python3 -m pytest test_math.py -v --tb=short 2>&1 | tee -a failure.log || EXIT_CODE=1
+          ./venv/bin/python3 -m pytest test_math.py -v --tb=short 2>&1 | tee -a failure.log || EXIT_CODE=1
           
           echo -e "\n### 3. Flake8 Linting ###" | tee -a failure.log
-          python3 -m flake8 . --max-line-length=120 --ignore=E501 --exclude=.git,__pycache__ 2>&1 | tee -a failure.log || EXIT_CODE=1
+          ./venv/bin/python3 -m flake8 . --max-line-length=120 --ignore=E501 --exclude=.git,__pycache__,venv 2>&1 | tee -a failure.log || EXIT_CODE=1
           
           echo -e "\n### 4. Mypy Type Check ###" | tee -a failure.log
-          python3 -m mypy . --ignore-missing-imports --exclude ".git|__pycache__|tests|Typst_project" 2>&1 | tee -a failure.log || EXIT_CODE=1
+          ./venv/bin/python3 -m mypy . --ignore-missing-imports --exclude ".git|__pycache__|tests|Typst_project|venv" 2>&1 | tee -a failure.log || EXIT_CODE=1
           
           exit $EXIT_CODE
 
@@ -101,4 +102,4 @@ jobs:
         run: |
           # 오케스트레이터 실행
           export PYTHONPATH="$PYTHONPATH:$(pwd)/Tools"
-          python3 scripts/ci_fix_orchestrator.py failure.log
+          ./venv/bin/python3 scripts/ci_fix_orchestrator.py failure.log

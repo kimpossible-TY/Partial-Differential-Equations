@@ -47,16 +47,16 @@ fi
 # [STEP 3] 프로세스 정리 및 준비 🧹
 # ==============================================================================
 echo -e "${BLUE}▶ 기존 프로세스 정리 중...${NC}"
-LATEST_OC_VER=$(npm view openclaw version 2>/dev/null || echo "latest")
-export OC_VERSION=$LATEST_OC_VER
 
-if tmux has-session -t pde_workspace 2>/dev/null; then
-    tmux kill-session -t pde_workspace
-    sleep 1
+# 1. Docker Compose 기반의 기존 컨테이너 및 네트워크 완벽 정리
+if [ -f "$WORKDIR/docker-compose.yml" ]; then
+    echo -e "${BLUE}▶ 기존 Docker 컨테이너를 내립니다...${NC}"
+    docker compose -f "$WORKDIR/docker-compose.yml" down -v --remove-orphans > /dev/null 2>&1
 fi
 
-openclaw gateway stop > /dev/null 2>&1
-killall openclaw > /dev/null 2>&1
+# 3. 환경 변수 설정
+export OC_VERSION=$(npm view openclaw version 2>/dev/null || echo "latest")
+
 pkill -9 -f "Runner.Listener" > /dev/null 2>&1
 pkill -9 -f "Runner.Worker" > /dev/null 2>&1
 pkill -f "typst watch" > /dev/null 2>&1
@@ -72,7 +72,15 @@ echo -e "${BLUE}▶ GitHub Runner 세션 정리를 위해 잠시 대기합니다
 sleep 5
 
 chmod +x "$WORKDIR/Tools/patch_openclaw_config.py"
-python3 "$WORKDIR/Tools/patch_openclaw_config.py" "$WORKDIR"
+"$WORKDIR/venv/bin/python3" "$WORKDIR/Tools/patch_openclaw_config.py" "$WORKDIR"
+
+# ==============================================================================
+# [4.5] 가상 환경 활성화 점검 🐍
+# ==============================================================================
+if [ ! -d "$WORKDIR/venv" ]; then
+    echo -e "${RED}❌ 가상 환경(venv)이 없습니다. 가상 환경을 먼저 생성해 주세요.${NC}"
+    exit 1
+fi
 
 # ==============================================================================
 # [STEP 4] Tmux 세션 생성 및 서비스 구동 🚀
@@ -84,16 +92,17 @@ tmux new-session -d -s pde_workspace -n 'typst' -c "$WORKDIR" "zsh -c \"typst wa
 tmux set-option -t pde_workspace default-shell /bin/zsh
 
 # 1. HTTP Server
-tmux new-window -t pde_workspace:1 -n 'http-server' -c "$WORKDIR" "zsh -c \"python3 -m http.server $HTTP_PORT --bind 127.0.0.1 2>&1 | tee '$LOG_DIR/http-server.log'\""
+tmux new-window -t pde_workspace:1 -n 'http-server' -c "$WORKDIR" "zsh -c \"source venv/bin/activate && python3 -m http.server $HTTP_PORT --bind 127.0.0.1 2>&1 | tee '$LOG_DIR/http-server.log'\""
 
 # 2. OpenClaw
-tmux new-window -t pde_workspace:2 -n 'nightwatch' -c "$WORKDIR" "zsh -c \"export OC_VERSION=$OC_VERSION; docker compose up --build -d && docker compose logs -f 2>&1 | tee '$LOG_DIR/nightwatch.log'\""
+tmux new-window -t pde_workspace:2 -n 'nightwatch' -c "$WORKDIR" "zsh -c \"export OC_VERSION='$OC_VERSION'; { docker compose up --build -d; docker compose logs -f; } 2>&1 | tee '$LOG_DIR/nightwatch.log'\""
+tmux set-window-option -t pde_workspace:2 remain-on-exit on
 
 # 3. GitHub Runner
 tmux new-window -t pde_workspace:3 -n 'github-runner' -c "$WORKDIR/actions-runner" "zsh -c \"./run.sh 2>&1 | tee '$LOG_DIR/github-runner.log'\""
 
 # 4. Local MLX-LM
-tmux new-window -t pde_workspace:4 -n 'mlx-server' -c "$WORKDIR" "zsh -c \"mlx_lm server --model mlx-community/Qwen2.5-Coder-3B-Instruct-4bit --port 8080 2>&1 | tee '$LOG_DIR/mlx-server.log'\""
+tmux new-window -t pde_workspace:4 -n 'mlx-server' -c "$WORKDIR" "zsh -c \"source venv/bin/activate && mlx_lm server --model mlx-community/Qwen2.5-Coder-3B-Instruct-4bit --port 8080 2>&1 | tee '$LOG_DIR/mlx-server.log'\""
 tmux set-window-option -t pde_workspace:4 remain-on-exit on
 
 # 5. Info Panel
@@ -124,9 +133,20 @@ else
 fi
 
 # 2. NightWatch (OpenClaw) Check
-if curl --retry 10 --retry-delay 2 -s -o /dev/null http://127.0.0.1:18789/; then
-    echo -e "${GREEN}✔ [Index 2] NightWatch 통합 센터 준비 완료${NC}"
-else
+echo -e "${BLUE}▶ [Index 2] NightWatch 게이트웨이 기동 대기 중 (최대 30초)...${NC}"
+OC_READY=0
+for i in $(seq 1 15); do
+    if curl -s -o /dev/null http://127.0.0.1:18789/; then
+        echo -e "${GREEN}✔ [Index 2] NightWatch 통합 센터 준비 완료${NC}"
+        OC_READY=1
+        break
+    fi
+    echo -ne "\r   대기 중... ($((i*2))s)"
+    sleep 2
+done
+echo ""
+
+if [ "$OC_READY" -eq 0 ]; then
     echo -e "${RED}❌ [Index 2] NightWatch 통합 센터 기동 지연 또는 실패${NC}"
     ERROR_FOUND=1
 fi
@@ -164,14 +184,14 @@ fi
 if [ "$ERROR_FOUND" -eq 1 ]; then
     echo -e "\n${RED}🚨 오류가 발견되었습니다. 서비스를 중단하고 로그를 확인합니다.${NC}"
     echo -e "상세 로그 디렉토리: ${BLUE}$LOG_DIR${NC}"
-    tmux kill-session -t pde_workspace
-    exit 1
+   # tmux kill-session -t pde_workspace
+   # exit 1
 fi
 
 tailscale serve --yes --bg --https=443 http://127.0.0.1:$HTTP_PORT > /dev/null 2>&1
 tailscale serve --yes --bg --https=18789 http://127.0.0.1:18789 > /dev/null 2>&1
 
-TAILNET_DOMAIN=$(tailscale status --json | python3 -c 'import sys, json; print(json.load(sys.stdin).get("CertDomains", [""])[0])')
+TAILNET_DOMAIN=$(tailscale status --json | "$WORKDIR/venv/bin/python3" -c 'import sys, json; print(json.load(sys.stdin).get("CertDomains", [""])[0])')
 SERVER_URL="https://${TAILNET_DOMAIN}/Typst_project/main.pdf"
 OPENCLAW_URL="https://${TAILNET_DOMAIN}:18789"
 export OC_VERSION SERVER_URL OPENCLAW_URL WORKDIR

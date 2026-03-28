@@ -9,6 +9,11 @@ set -e
 # 설정
 TASKS_FILE="TASKS.md"
 WORKFLOW_NAME="nightwatch-loop.yml"
+
+# [NEW] 가상 환경 경로를 PATH 앞에 추가하여 python3 명령어가 venv 것을 사용하도록 설정
+if [ -d "venv" ]; then
+    export PATH="$PWD/venv/bin:$PATH"
+fi
 # 로컬 LLM 서버 주소 (MLX-LM)
 LLM_API_URL="http://localhost:8080/v1/chat/completions"
 LLM_MODEL="mlx-community/Qwen2.5-Coder-3B-Instruct-4bit"
