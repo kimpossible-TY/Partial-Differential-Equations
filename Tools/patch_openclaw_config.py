@@ -5,7 +5,7 @@ import sys
 
 
 def patch_config(workdir):
-    path = os.path.join(workdir, '.openclaw', 'openclaw.json')
+    path = os.path.join(workdir, '.openclaw_config', 'openclaw.json')
     if not os.path.exists(path):
         print(f"⚠️  설정 파일이 없습니다: {path}")
         return
