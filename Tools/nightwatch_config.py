@@ -1,8 +1,8 @@
 """
 NightWatch Configuration Module
 
-This module provides tools for managing the OpenClaw environment, patching gateway 
-configurations, managing agent file system permissions, and setting up necessary 
+This module provides tools for managing the OpenClaw environment, patching gateway
+configurations, managing agent file system permissions, and setting up necessary
 infrastructure (symlinks) for agent discovery.
 """
 
@@ -36,9 +36,10 @@ def run_command(command, shell=True, env=None):
     )
 
     output = []
-    for line in process.stdout:
-        print(line, end="")
-        output.append(line)
+    if process.stdout:
+        for line in process.stdout:
+            print(line, end="")
+            output.append(line)
 
     process.wait()
     if process.returncode != 0:
@@ -49,7 +50,7 @@ def setup_docker_symlinks():
     """
     Sets up mandatory agent discovery symlinks for the Docker containers.
 
-    These symlinks allow the OpenClaw gateway to discover and mount the local 
+    These symlinks allow the OpenClaw gateway to discover and mount the local
     agent workspace correctly within the containerized environment.
     """
     try:
@@ -74,13 +75,13 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
 
     Returns:
         bool: True if patching succeeded, False otherwise.
-        
-    Note: 
-        To update available model mappings, modify the `model_map` dictionary inside 
+
+    Note:
+        To update available model mappings, modify the `model_map` dictionary inside
         this function.
     """
     path = '.openclaw_config/openclaw.json'
-    
+
     # Ensure config dir exists
     os.makedirs('.openclaw_config', exist_ok=True)
     run_command("chmod 777 .openclaw_config")
@@ -121,7 +122,8 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
             config = json.load(f)
 
         config['gateway'] = config.get('gateway', {})
-        config['gateway']['remote'] = {'url': 'ws://127.0.0.1:18789'}
+        # Note: In Docker network, refer to the gateway by its service name
+        config['gateway']['remote'] = {'url': 'ws://openclaw-gateway:18789'}
         config['gateway']['mode'] = 'remote'
 
         if openclaw_gateway_token:
@@ -129,14 +131,20 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
                 "mode": "token",
                 "token": openclaw_gateway_token
             }
+            # 클라이언트(에이전트)가 게이트웨이에 접속할 때 사용할 토큰도 설정
+            remote_cfg = config['gateway'].setdefault('remote', {})
+            remote_cfg['token'] = openclaw_gateway_token
         else:
-            config.pop('auth', None)
+            if 'auth' in config['gateway']:
+                config['gateway'].pop('auth')
+            if 'remote' in config['gateway']:
+                config['gateway']['remote'].pop('token', None)
 
         # Update model mapping: Role-based tags for Hybrid Workflow
         model_map = {
             'PLANNER': 'google/gemini-3.1-pro-preview', # Frontier model for strategy
             'WORKER': 'openai/qwen2.5-coder-3b',       # Local model for code execution
-            
+
             # Aliases for backward compatibility
             'PRO': 'google/gemini-3.1-pro-preview',
             'FLASH': 'google/gemini-3-flash-preview',
@@ -152,7 +160,7 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
 
         models_config = config.setdefault('models', {})
         providers = models_config.setdefault('providers', {})
-        
+
         # Google Provider (Strategic Planner)
         google_prov = providers.setdefault('google', {})
         google_prov['baseUrl'] = 'https://generativelanguage.googleapis.com/v1beta'
@@ -170,6 +178,7 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
         openai_prov['apiKey'] = 'not-needed'
         openai_models = openai_prov.setdefault('models', [])
         if 'openai/' in target_model:
+            # mlx_lm.server can be picky about model names, but usually accepts the local name
             openai_models = [m for m in openai_models if m.get('id') != target_model]
             openai_models.insert(0, {'id': target_model, 'name': 'Local Qwen2.5 Coder'})
         openai_prov['models'] = openai_models
@@ -190,7 +199,7 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
 
 def elevate_agent_permissions():
     """
-    Expands agent manifest permissions to allow write access to the entire 
+    Expands agent manifest permissions to allow write access to the entire
     workspace instead of just TASKS.md.
     """
     agents_dir = 'agents'
@@ -218,7 +227,7 @@ def elevate_agent_permissions():
 
 def restore_agent_permissions():
     """
-    Restores agent manifest permissions, restricting write access back to 
+    Restores agent manifest permissions, restricting write access back to
     only TASKS.md.
     """
     agents_dir = 'agents'
@@ -242,3 +251,4 @@ def restore_agent_permissions():
                 print(f"🔒 에이전트 권한 복구 완료: {agent_id}")
             except Exception as e:
                 print(f"⚠️ 에이전트 {agent_id} 권한 복구 중 오류: {e}")
+

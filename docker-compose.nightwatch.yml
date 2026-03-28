@@ -1,0 +1,40 @@
+# ==============================================================================
+# Project NightWatch — docker-compose.nightwatch.yml (Optimized for CI)
+# ==============================================================================
+
+services:
+  openclaw-gateway:
+    image: ghcr.io/kimpossible-ty/partial-differential-equations/nightwatch-agent:latest
+    command: openclaw gateway run --port 18789 --allow-unconfigured
+    volumes:
+      - .:/workspace:rw
+      - ./.openclaw_config:/workspace/.openclaw_config:rw
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - OPENCLAW_WORKSPACE=/workspace
+      - OPENCLAW_ACCEPT_RISK=true
+      - HOST=0.0.0.0
+      - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN:-}
+      - OPENCLAW_CONFIG_PATH=${OPENCLAW_CONFIG_PATH:-/workspace/.openclaw_config/openclaw.json}
+      - OPENCLAW_STATE_DIR=${OPENCLAW_STATE_DIR:-/workspace/.openclaw_config}
+    ports:
+      - "18789:18789"
+    restart: unless-stopped
+
+  nightwatch-agent:
+    image: ghcr.io/kimpossible-ty/partial-differential-equations/nightwatch-agent:latest
+    depends_on:
+      - openclaw-gateway
+    volumes:
+      - .:/workspace:rw
+      - ./.openclaw_config:/root/.openclaw:rw
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - OPENCLAW_GATEWAY_URL=ws://openclaw-gateway:18789
+      - OPENCLAW_WORKSPACE=/workspace
+      - OPENCLAW_ACCEPT_RISK=true
+      - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN:-}
+      - OPENCLAW_CONFIG_PATH=${OPENCLAW_CONFIG_PATH:-/workspace/.openclaw_config/openclaw.json}
+      - OPENCLAW_STATE_DIR=${OPENCLAW_STATE_DIR:-/workspace/.openclaw_config}
+    working_dir: /workspace
+    command: [ "sh", "-c", "echo '🚀 Nightwatch CI/CD Agent is standing by...'; tail -f /dev/null" ]

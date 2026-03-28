@@ -1,8 +1,8 @@
 import time
 import json
-import os
 import fcntl
 from pathlib import Path
+
 
 class BudgetWatchdog:
     def __init__(self, limit_tpm=80000, limit_rpm=1000):
@@ -11,7 +11,7 @@ class BudgetWatchdog:
         # 프로젝트 루트에 메트릭 파일을 저장하도록 변경 (로컬/CI 호환성)
         base_dir = Path(__file__).parent.parent
         self.usage_file = base_dir / ".usage_metrics.json"
-        
+
         # 파일이 없으면 초기화
         if not self.usage_file.exists():
             self._write_metrics({"window_start": time.time(), "tokens": 0, "requests": 0})
@@ -52,18 +52,19 @@ class BudgetWatchdog:
             rpm_usage = (metrics["requests"] + 1) / self.limit_rpm
 
             if tpm_usage > 0.8 or rpm_usage > 0.8:
-                delay = 15 # Voluntary 15s delay
+                delay = 15  # Voluntary 15s delay
                 print(f"⚠️ BudgetWatchdog: High usage detected for {model} (TPM {tpm_usage:.1%}, RPM {rpm_usage:.1%}). Throttling for {delay}s...")
                 time.sleep(delay)
                 # 15초 대기 후 조건이 변경되었을 수 있으므로 루프의 처음으로 돌아가 재평가
                 continue
-            
+
             # Update metrics (안전한 상태가 확인되었을 때만 더함)
             metrics["tokens"] += estimated_tokens
             metrics["requests"] += 1
             self._write_metrics(metrics)
             print(f"📊 Current Budget: TPM {tpm_usage:.1%}, RPM {rpm_usage:.1%}")
-            break # 정상 처리 후 루프 탈출
+            break  # 정상 처리 후 루프 탈출
+
 
 def retry_with_backoff(fn, max_retries=5):
     for i in range(max_retries):
@@ -79,18 +80,23 @@ def retry_with_backoff(fn, max_retries=5):
                 raise e
     raise Exception("Max retries exceeded for API call")
 
+
 # Integration Example for NightWatch
 if __name__ == "__main__":
-    import sys
     # Load next task to get estimated cost
     try:
         from task_runner import parse_tasks, TASKS_FILE
         task = parse_tasks(TASKS_FILE, get_all=False)
-        tokens = task.get("cost", 2000) if task else 1000
-        model_tag = task.get("tag", "DEFAULT") if task else "NONE"
+        if isinstance(task, dict):
+            tokens = task.get("cost", 2000)
+            model_tag = task.get("tag", "DEFAULT")
+        else:
+            tokens = 2000
+            model_tag = "UNKNOWN"
     except ImportError:
         tokens = 2000
         model_tag = "UNKNOWN"
 
     watchdog = BudgetWatchdog()
     watchdog.check_and_throttle(estimated_tokens=tokens, model=model_tag)
+

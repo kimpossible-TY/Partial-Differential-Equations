@@ -17,11 +17,15 @@ except ImportError:
     print("⚠️ Warning: nightwatch_config not found. Using fallback functions.")
     print(f"DEBUG: Current CWD is {os.getcwd()}")
     print(f"DEBUG: sys.path is {sys.path}")
-    
-    def patch_openclaw_config(*args, **kwargs): return False
-    def setup_docker_symlinks(): pass
-    def run_command(cmd): 
-        res = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+
+    def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
+        return False
+
+    def setup_docker_symlinks():
+        pass
+
+    def run_command(command, shell=True, env=None):
+        res = subprocess.run(command, shell=shell, capture_output=True, text=True, env=env)
         return res.returncode, res.stdout
 
 # ==============================================================================
@@ -38,10 +42,10 @@ def send_discord_message(content):
         print("⚠️ DISCORD_WEBHOOK_URL 환경 변수가 설정되지 않아 알림을 보낼 수 없습니다.")
         return
 
-    print(f"📡 Sending Discord notification...")
+    print("📡 Sending Discord notification...")
     data = {"content": content}
     payload = json.dumps(data).encode("utf-8")
-    
+
     req = urllib.request.Request(
         webhook_url,
         data=payload,
@@ -84,7 +88,7 @@ def check_retry_limit():
     logs = run_git(["log", "-n", "10", "--pretty=format:%s"])
     if not logs:
         return 0
-    
+
     count = logs.count(FIX_COMMIT_TAG)
     print(f"🔍 Current self-healing attempts in this branch: {count}/{MAX_RETRIES}")
     return count
@@ -92,7 +96,7 @@ def check_retry_limit():
 def call_openclaw_agent(log_content):
     """OpenClaw 에이전트를 호출하여 2단계(Plan -> Work)로 수정 작업을 수행합니다."""
     print(f"🤖 Starting 2-phase self-healing with {AGENT_ID} agent...")
-    
+
     gemini_api_key = os.getenv('GEMINI_API_KEY')
     if not gemini_api_key:
         print("❌ GEMINI_API_KEY 환경 변수가 설정되지 않았습니다.")
@@ -104,7 +108,7 @@ def call_openclaw_agent(log_content):
     # --- Phase 1: Planning (using Frontier Model/Gemini) ---
     print("\n--- Phase 1: Planning (PLANNER: Gemini) ---")
     patch_openclaw_config(gemini_api_key, "PLANNER", openclaw_gateway_token)
-    
+
     plan_prompt = (
         "The CI pipeline has failed. Below is the relevant log content. "
         "Please analyze the error and create a detailed, rich, and practical implementation plan in `/workspace/plan.md`. "
@@ -116,12 +120,12 @@ def call_openclaw_agent(log_content):
     )
 
     if os.getenv("GITHUB_ACTIONS"):
-        gw_cmd = f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} OPENCLAW_CONFIG_PATH=/workspace/.openclaw_config/openclaw.json OPENCLAW_STATE_DIR=/workspace/.openclaw_config docker compose up --build -d openclaw-gateway"
+        gw_cmd = f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} OPENCLAW_CONFIG_PATH=/workspace/.openclaw_config/openclaw.json OPENCLAW_STATE_DIR=/workspace/.openclaw_config docker compose -f docker-compose.nightwatch.yml up --build -d openclaw-gateway"
         run_command(gw_cmd)
         run_command("sleep 5")
 
         agent_plan_cmd = [
-            "docker", "compose", "run", "--rm", "-T",
+            "docker", "compose", "-f", "docker-compose.nightwatch.yml", "run", "--rm", "-T",
             "-e", f"GEMINI_API_KEY={shlex.quote(gemini_api_key)}",
             "-e", "OPENCLAW_ACCEPT_RISK=true",
             "-e", f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token}",
@@ -130,20 +134,20 @@ def call_openclaw_agent(log_content):
             "nightwatch-agent",
             "openclaw", "agent", "--agent", AGENT_ID, "--message", shlex.quote(plan_prompt)
         ]
-        
+
         try:
             subprocess.run(agent_plan_cmd, check=True)
             print("✅ Planning phase completed. Plan written to plan.md.")
         except subprocess.CalledProcessError as e:
             print(f"❌ Planning phase failed: {e}")
-            run_command("docker compose stop openclaw-gateway")
-            run_command("sudo chown -R $USER:$USER .")
+            run_command("docker compose -f docker-compose.nightwatch.yml stop openclaw-gateway")
+            run_command("sudo chown -R $(id -u):$(id -g) .")
             return False
 
         # --- Phase 2: Working (using Local LLM) ---
         print("\n--- Phase 2: Working (WORKER: Local Qwen2.5-Coder) ---")
         patch_openclaw_config(gemini_api_key, "WORKER", openclaw_gateway_token)
-        
+
         work_prompt = (
             "You are now running on a local model optimized for coding. "
             "Please read the detailed implementation plan in `/workspace/plan.md` and execute it precisely. "
@@ -152,7 +156,7 @@ def call_openclaw_agent(log_content):
         )
 
         agent_work_cmd = [
-            "docker", "compose", "run", "--rm", "-T",
+            "docker", "compose", "-f", "docker-compose.nightwatch.yml", "run", "--rm", "-T",
             "-e", f"GEMINI_API_KEY={shlex.quote(gemini_api_key)}",
             "-e", "OPENCLAW_ACCEPT_RISK=true",
             "-e", f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token}",
@@ -161,21 +165,22 @@ def call_openclaw_agent(log_content):
             "nightwatch-agent",
             "openclaw", "agent", "--agent", AGENT_ID, "--message", shlex.quote(work_prompt)
         ]
-        
+
         try:
             subprocess.run(agent_work_cmd, check=True)
             print("✅ Working phase completed.")
-            run_command("docker compose stop openclaw-gateway")
-            run_command("sudo chown -R $USER:$USER .")
+            run_command("docker compose -f docker-compose.nightwatch.yml stop openclaw-gateway")
+            run_command("sudo chown -R $(id -u):$(id -g) .")
             return True
         except subprocess.CalledProcessError as e:
             print(f"❌ Working phase failed: {e}")
-            run_command("docker compose stop openclaw-gateway")
-            run_command("sudo chown -R $USER:$USER .")
+            run_command("docker compose -f docker-compose.nightwatch.yml stop openclaw-gateway")
+            run_command("sudo chown -R $(id -u):$(id -g) .")
             return False
     else:
         print("ℹ️ Local environment detected. Skipping actual agent call.")
         return True
+
 
 def main():
     if len(sys.argv) < 2:
@@ -216,7 +221,7 @@ def main():
             # 전체 코드베이스에 대해 autopep8 실행
             subprocess.run([
                 "autopep8", "--in-place", "--recursive", ".",
-                "--exclude", ".git,__pycache__", "--max-line-length", "120"
+                "--exclude", ".git,__pycache__,.venv", "--max-line-length", "120"
             ], check=True)
             print("✅ autopep8 execution completed.")
         except Exception as e:

@@ -79,10 +79,10 @@ jobs:
           uv run pytest test_math.py -v --tb=short 2>&1 | tee -a failure.log || EXIT_CODE=1
           
           echo -e "\n### 3. Flake8 Linting ###" | tee -a failure.log
-          uv run flake8 . --max-line-length=120 --ignore=E501 --exclude=.git,__pycache__,venv 2>&1 | tee -a failure.log || EXIT_CODE=1
+          uv run flake8 . --max-line-length=120 --ignore=E501 --exclude=.git,__pycache__,venv,.venv 2>&1 | tee -a failure.log || EXIT_CODE=1
           
           echo -e "\n### 4. Mypy Type Check ###" | tee -a failure.log
-          uv run mypy . --ignore-missing-imports --exclude ".git|__pycache__|tests|Typst_project|venv" 2>&1 | tee -a failure.log || EXIT_CODE=1
+          uv run mypy . --ignore-missing-imports --exclude ".git|__pycache__|tests|Typst_project|venv|.venv" 2>&1 | tee -a failure.log || EXIT_CODE=1
           
           exit $EXIT_CODE
 

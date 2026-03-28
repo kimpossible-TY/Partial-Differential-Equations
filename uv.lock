@@ -705,7 +705,7 @@ wheels = [
 [[package]]
 name = "nightwatch-pde"
 version = "0.1.0"
-source = { editable = "." }
+source = { virtual = "." }
 dependencies = [
     { name = "autopep8" },
     { name = "flake8" },

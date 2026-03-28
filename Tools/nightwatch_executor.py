@@ -3,17 +3,18 @@ import os
 import sys
 import secrets
 import shlex
-import time
+
 
 # --- Module Extraction ---
 from nightwatch_utils import prune_context_via_lite
 from nightwatch_config import (
-    run_command, 
-    patch_openclaw_config, 
-    elevate_agent_permissions, 
+    run_command,
+    patch_openclaw_config,
+    elevate_agent_permissions,
     restore_agent_permissions,
     setup_docker_symlinks
 )
+
 
 def main():
     gemini_api_key = os.getenv('GEMINI_API_KEY')
@@ -51,17 +52,17 @@ def main():
 
     print(f"🚀 NightWatch Executor 시작: 총 {len(tasks)} 개의 태스크")
 
-    # Git Config 
+    # Git Config
     run_command("git config --global user.name 'kimpossible-TY'")
     run_command("git config --global user.email '95904582+kimpossible-TY@users.noreply.github.com'")
     run_command("git config user.name 'kimpossible-TY'")
     run_command("git config user.email '95904582+kimpossible-TY@users.noreply.github.com'")
 
     elevate_agent_permissions()
-    
+
     try:
         for i, task in enumerate(tasks, 1):
-            original_tag = task.get("tag", "FLASH")
+            _original_tag = task.get("tag", "FLASH")
             title = task.get("title", "Untitled Task")
             raw_task_body = task.get("body", "No task body found.")
 
@@ -75,7 +76,7 @@ def main():
             patch_openclaw_config(gemini_api_key, planning_tag, openclaw_gateway_token)
             setup_docker_symlinks()
 
-            run_command(f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} OPENCLAW_CONFIG_PATH=/workspace/.openclaw_config/openclaw.json OPENCLAW_STATE_DIR=/workspace/.openclaw_config docker compose up --build -d openclaw-gateway")
+            run_command(f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} OPENCLAW_CONFIG_PATH=/workspace/.openclaw_config/openclaw.json OPENCLAW_STATE_DIR=/workspace/.openclaw_config docker compose -f docker-compose.nightwatch.yml up --build -d openclaw-gateway")
             run_command("sleep 5")
 
             planning_prompt = (
@@ -87,7 +88,7 @@ def main():
             )
 
             agent_plan_cmd = [
-                "docker compose run --rm -T",
+                "docker compose -f docker-compose.nightwatch.yml run --rm -T",
                 f"-e GEMINI_API_KEY={shlex.quote(gemini_api_key)}",
                 "-e OPENCLAW_ACCEPT_RISK=true",
                 f"-e OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token}",
@@ -100,14 +101,14 @@ def main():
             rc_plan, _ = run_command(" ".join(agent_plan_cmd))
             if rc_plan != 0:
                 print(f"❌ Planning phase failed for task: {title}")
-                run_command("docker compose stop openclaw-gateway")
+                run_command("docker compose -f docker-compose.nightwatch.yml stop openclaw-gateway")
                 continue
 
             # --- Phase 2: Working (Local Qwen2.5-Coder) ---
             print(f"\n--- Phase 2: Working (WORKER: Local Qwen2.5) for: {title} ---")
             working_tag = "WORKER"
             patch_openclaw_config(gemini_api_key, working_tag, openclaw_gateway_token)
-            
+
             working_prompt = (
                 f"Now implement the task based on the detailed implementation plan in `/workspace/plan.md`. "
                 f"You are running on a local model optimized for coding. "
@@ -117,7 +118,7 @@ def main():
             )
 
             agent_work_cmd = [
-                "docker compose run --rm -T",
+                "docker compose -f docker-compose.nightwatch.yml run --rm -T",
                 f"-e GEMINI_API_KEY={shlex.quote(gemini_api_key)}",
                 "-e OPENCLAW_ACCEPT_RISK=true",
                 f"-e OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token}",
@@ -131,7 +132,7 @@ def main():
             if rc_work != 0:
                 print(f"❌ Working phase failed for task: {title}")
 
-            run_command("docker compose stop openclaw-gateway")
+            run_command("docker compose -f docker-compose.nightwatch.yml stop openclaw-gateway")
             run_command("sudo chown -R $(id -u):$(id -g) .")
 
             print(f"📂 변경 사항 커밋 중... ({title})")
@@ -147,13 +148,14 @@ def main():
                 print(f"✅ 변경 사항 발견: 커밋 생성 중... ({title})")
                 run_command(f'git commit -m "feat: {title}"')
             else:
-                print("ℹ️ 변경 사항 없음 — 자동 PR 생성을 위해 빈 커밋을 생성합니다.")
+                print("i️ 변경 사항 없음 - 자동 PR 생성을 위해 빈 커밋을 생성합니다.")
                 run_command(f'git commit --allow-empty -m "feat: {title} (no code changes)"')
 
     finally:
         restore_agent_permissions()
 
     print("\n✅ NightWatch Executor 전체 완료")
+
 
 
 if __name__ == "__main__":
