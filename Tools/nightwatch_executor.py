@@ -76,7 +76,7 @@ def main():
             patch_openclaw_config(gemini_api_key, planning_tag, openclaw_gateway_token)
             setup_docker_symlinks()
 
-            run_command(f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} OPENCLAW_CONFIG_PATH=/workspace/.openclaw_config/openclaw.json OPENCLAW_STATE_DIR=/workspace/.openclaw_config docker compose -f docker-compose.nightwatch.yml up --build -d openclaw-gateway")
+            run_command(f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} OPENCLAW_CONFIG_PATH=/workspace/.openclaw_config/openclaw.json OPENCLAW_STATE_DIR=/workspace/.openclaw_config docker compose up --build -d openclaw-gateway")
             run_command("sleep 5")
 
             planning_prompt = (
@@ -88,7 +88,7 @@ def main():
             )
 
             agent_plan_cmd = [
-                "docker compose -f docker-compose.nightwatch.yml run --rm -T",
+                "docker compose run --rm -T",
                 f"-e GEMINI_API_KEY={shlex.quote(gemini_api_key)}",
                 "-e OPENCLAW_ACCEPT_RISK=true",
                 "-e FORCE_COLOR=1",
@@ -105,7 +105,7 @@ def main():
             rc_plan, _ = run_command(" ".join(agent_plan_cmd))
             if rc_plan != 0:
                 print(f"❌ Planning phase failed for task: {title}")
-                run_command("docker compose -f docker-compose.nightwatch.yml stop openclaw-gateway")
+                run_command("docker compose stop openclaw-gateway")
                 continue
 
             # --- Phase 2: Working (Local Qwen2.5-Coder) ---
@@ -122,7 +122,7 @@ def main():
             )
 
             agent_work_cmd = [
-                "docker compose -f docker-compose.nightwatch.yml run --rm -T",
+                "docker compose run --rm -T",
                 f"-e GEMINI_API_KEY={shlex.quote(gemini_api_key)}",
                 "-e OPENCLAW_ACCEPT_RISK=true",
                 "-e FORCE_COLOR=1",
@@ -140,7 +140,7 @@ def main():
             if rc_work != 0:
                 print(f"❌ Working phase failed for task: {title}")
 
-            run_command("docker compose -f docker-compose.nightwatch.yml stop openclaw-gateway")
+            run_command("docker compose stop openclaw-gateway")
             run_command("sudo chown -R $(id -u):$(id -g) .")
 
             print(f"📂 변경 사항 커밋 중... ({title})")

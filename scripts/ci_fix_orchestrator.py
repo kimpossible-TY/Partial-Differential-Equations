@@ -122,9 +122,9 @@ def call_openclaw_agent(log_content):
     if os.getenv("GITHUB_ACTIONS"):
         # 기존에 남아있을 수 있는 컨테이너 및 네트워크 정리 (충돌 방지)
         print("🧹 Cleaning up old CI gateway containers...")
-        run_command("docker compose -f docker-compose.nightwatch.yml down -v --remove-orphans > /dev/null 2>&1")
+        run_command("docker compose down -v --remove-orphans > /dev/null 2>&1")
 
-        gw_cmd = f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} OPENCLAW_CONFIG_PATH=/workspace/.openclaw_config/openclaw.json OPENCLAW_STATE_DIR=/workspace/.openclaw_config docker compose -f docker-compose.nightwatch.yml up --build -d openclaw-gateway"
+        gw_cmd = f"OPENCLAW_GATEWAY_TOKEN={openclaw_gateway_token} OPENCLAW_CONFIG_PATH=/workspace/.openclaw_config/openclaw.json OPENCLAW_STATE_DIR=/workspace/.openclaw_config docker compose up --build -d openclaw-gateway"
         rc, _ = run_command(gw_cmd)
         if rc != 0:
             print("❌ Failed to start CI OpenClaw gateway.")
@@ -132,7 +132,7 @@ def call_openclaw_agent(log_content):
         run_command("sleep 5")
 
         agent_plan_cmd = [
-            "docker", "compose", "-f", "docker-compose.nightwatch.yml", "run", "--rm", "-T",
+            "docker", "compose", "run", "--rm", "-T",
             "-e", f"GEMINI_API_KEY={shlex.quote(gemini_api_key)}",
             "-e", "OPENCLAW_ACCEPT_RISK=true",
             "-e", "OPENCLAW_ALLOW_INSECURE_PRIVATE_WS=1",
@@ -149,7 +149,7 @@ def call_openclaw_agent(log_content):
             print("✅ Planning phase completed. Plan written to plan.md.")
         except subprocess.CalledProcessError as e:
             print(f"❌ Planning phase failed: {e}")
-            run_command("docker compose -f docker-compose.nightwatch.yml stop openclaw-gateway")
+            run_command("docker compose stop openclaw-gateway")
             run_command("sudo chown -R $(id -u):$(id -g) .")
             return False
 
@@ -165,7 +165,7 @@ def call_openclaw_agent(log_content):
         )
 
         agent_work_cmd = [
-            "docker", "compose", "-f", "docker-compose.nightwatch.yml", "run", "--rm", "-T",
+            "docker", "compose", "run", "--rm", "-T",
             "-e", f"GEMINI_API_KEY={shlex.quote(gemini_api_key)}",
             "-e", "OPENCLAW_ACCEPT_RISK=true",
             "-e", "OPENCLAW_ALLOW_INSECURE_PRIVATE_WS=1",
@@ -180,12 +180,12 @@ def call_openclaw_agent(log_content):
         try:
             subprocess.run(agent_work_cmd, check=True)
             print("✅ Working phase completed.")
-            run_command("docker compose -f docker-compose.nightwatch.yml stop openclaw-gateway")
+            run_command("docker compose stop openclaw-gateway")
             run_command("sudo chown -R $(id -u):$(id -g) .")
             return True
         except subprocess.CalledProcessError as e:
             print(f"❌ Working phase failed: {e}")
-            run_command("docker compose -f docker-compose.nightwatch.yml stop openclaw-gateway")
+            run_command("docker compose stop openclaw-gateway")
             run_command("sudo chown -R $(id -u):$(id -g) .")
             return False
     else:
