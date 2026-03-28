@@ -1,5 +1,5 @@
 # ==============================================================================
-# Project NightWatch — docker-compose.yml
+# Project NightWatch — docker-compose.yml (Standalone for Local/CI)
 # ==============================================================================
 
 services:
@@ -15,7 +15,6 @@ services:
     volumes:
       - .:/workspace:rw
       - ./tests:/workspace/tests:ro
-      # 변경됨: .openclaw -> .openclaw_config
       - ./.openclaw_config:/workspace/.openclaw_config:rw
       - ./docker-compose.yml:/workspace/docker-compose.yml:ro
       - ./.env:/workspace/.env:ro               
@@ -25,37 +24,6 @@ services:
       - OPENCLAW_ACCEPT_RISK=true
       - HOST=0.0.0.0
       - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN:-}
-      # 변경됨: .openclaw -> .openclaw_config
-      - OPENCLAW_CONFIG_PATH=${OPENCLAW_CONFIG_PATH:-/workspace/.openclaw_config/openclaw.json}
-      - OPENCLAW_STATE_DIR=${OPENCLAW_STATE_DIR:-/workspace/.openclaw_config}
-# ==============================================================================
-# Project NightWatch — docker-compose.yml
-# ==============================================================================
-
-services:
-  # 🏢 OpenClaw Main Office (Gateway + Local Agents)
-  openclaw-gateway:
-    image: ghcr.io/kimpossible-ty/partial-differential-equations/nightwatch-agent:latest
-    build:
-      context: .
-      dockerfile: Dockerfile.nightwatch
-      args:
-        - OPENCLAW_VER=${OC_VERSION:-latest}
-    command: openclaw gateway run --port 18789 --allow-unconfigured
-    volumes:
-      - .:/workspace:rw
-      - ./tests:/workspace/tests:ro
-      # 변경됨: .openclaw -> .openclaw_config
-      - ./.openclaw_config:/workspace/.openclaw_config:rw
-      - ./docker-compose.yml:/workspace/docker-compose.yml:ro
-      - ./.env:/workspace/.env:ro               
-    environment:
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - OPENCLAW_WORKSPACE=/workspace
-      - OPENCLAW_ACCEPT_RISK=true
-      - HOST=0.0.0.0
-      - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN:-}
-      # 변경됨: .openclaw -> .openclaw_config
       - OPENCLAW_CONFIG_PATH=${OPENCLAW_CONFIG_PATH:-/workspace/.openclaw_config/openclaw.json}
       - OPENCLAW_STATE_DIR=${OPENCLAW_STATE_DIR:-/workspace/.openclaw_config}
     network_mode: host
@@ -69,7 +37,6 @@ services:
     volumes:
       - .:/workspace:rw
       - ./tests:/workspace/tests:ro
-      # 변경됨: .openclaw -> .openclaw_config
       - ./.openclaw_config:/root/.openclaw_config:rw
     environment:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
@@ -77,35 +44,8 @@ services:
       - OPENCLAW_WORKSPACE=/workspace
       - OPENCLAW_ACCEPT_RISK=true
       - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN:-}
-      # 변경됨: .openclaw -> .openclaw_config
       - OPENCLAW_CONFIG_PATH=${OPENCLAW_CONFIG_PATH:-/workspace/.openclaw_config/openclaw.json}
       - OPENCLAW_STATE_DIR=${OPENCLAW_STATE_DIR:-/workspace/.openclaw_config}
     working_dir: /workspace
     network_mode: host
     command: [ "sh", "-c", "echo '🚀 Nightwatch CI/CD Agent is standing by...'; tail -f /dev/null" ]
-    network_mode: host
-    restart: unless-stopped
-
-  # 💻 CI & One-off Task Worker (CI 스크립트 호환용)
-  nightwatch-agent:
-    image: ghcr.io/kimpossible-ty/partial-differential-equations/nightwatch-agent:latest
-    depends_on:
-      - openclaw-gateway
-    volumes:
-      - .:/workspace:rw
-      - ./tests:/workspace/tests:ro
-      # 변경됨: .openclaw -> .openclaw_config
-      - ./.openclaw_config:/root/.openclaw_config:rw
-    environment:
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - OPENCLAW_GATEWAY_URL=ws://127.0.0.1:18789
-      - OPENCLAW_WORKSPACE=/workspace
-      - OPENCLAW_ACCEPT_RISK=true
-      - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN:-}
-      # 변경됨: .openclaw -> .openclaw_config
-      - OPENCLAW_CONFIG_PATH=${OPENCLAW_CONFIG_PATH:-/workspace/.openclaw_config/openclaw.json}
-      - OPENCLAW_STATE_DIR=${OPENCLAW_STATE_DIR:-/workspace/.openclaw_config}
-    working_dir: /workspace
-    network_mode: host
-    command: [ "sh", "-c", "echo '🚀 Nightwatch CI/CD Agent is standing by...'; tail -f /dev/null" ]
-
