@@ -180,9 +180,10 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
         openai_prov['apiKey'] = 'not-needed'
         openai_models = openai_prov.setdefault('models', [])
         if 'openai/' in target_model:
-            # mlx_lm.server can be picky about model names, but usually accepts the local name
-            openai_models = [m for m in openai_models if m.get('id') != target_model]
-            openai_models.insert(0, {'id': target_model, 'name': 'Local Qwen2.5 Coder'})
+            # mlx_lm.server expects the exact model name without the 'openai/' prefix
+            actual_model_id = target_model.replace('openai/', '')
+            openai_models = [m for m in openai_models if m.get('id') != actual_model_id]
+            openai_models.insert(0, {'id': actual_model_id, 'name': 'Local Qwen2.5 Coder'})
         openai_prov['models'] = openai_models
 
         # Ensure absolute workspace paths are correctly mapped
