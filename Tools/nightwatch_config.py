@@ -1,9 +1,5 @@
 """
 NightWatch Configuration Module
-
-This module provides tools for managing the OpenClaw environment, patching gateway 
-configurations, managing agent file system permissions, and setting up necessary 
-infrastructure (symlinks) for agent discovery.
 """
 
 import os
@@ -11,17 +7,6 @@ import json
 import subprocess
 
 def run_command(command, shell=True, env=None):
-    """
-    Executes a shell command and logs output.
-
-    Args:
-        command (str): The shell command string.
-        shell (bool): Whether to run via shell (default: True).
-        env (dict): Environment variable overrides.
-
-    Returns:
-        (int, str): Tuple containing return code and output text.
-    """
     current_env = os.environ.copy()
     if env:
         current_env.update(env)
@@ -32,13 +17,16 @@ def run_command(command, shell=True, env=None):
         env=current_env,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
-        text=True
+        text=True,
+        bufsize=1,
+        universal_newlines=True
     )
 
     output = []
-    for line in process.stdout:
-        print(line, end="")
-        output.append(line)
+    if process.stdout:
+        for line in process.stdout:
+            print(line, end="", flush=True)
+            output.append(line)
 
     process.wait()
     if process.returncode != 0:
@@ -46,12 +34,6 @@ def run_command(command, shell=True, env=None):
     return process.returncode, "".join(output)
 
 def setup_docker_symlinks():
-    """
-    Sets up mandatory agent discovery symlinks for the Docker containers.
-
-    These symlinks allow the OpenClaw gateway to discover and mount the local 
-    agent workspace correctly within the containerized environment.
-    """
     try:
         os.makedirs('.openclaw_config/agents/tool-architect', exist_ok=True)
         run_command("ln -sfn /workspace/agents/tool-architect .openclaw_config/agents/tool-architect/agent")
@@ -63,29 +45,16 @@ def setup_docker_symlinks():
     except Exception as e:
         print(f"⚠️ 심볼릭 링크 생성 중 오류: {e}")
 
-def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
-    """
-    Updates the OpenClaw configuration file with the correct model and API keys.
-
-    Args:
-        gemini_api_key (str): The Google Gemini API key.
-        tag (str): The model tag (e.g., 'PRO', 'FLASH', 'LITE').
-        openclaw_gateway_token (str): Optional token for gateway authentication.
-
-    Returns:
-        bool: True if patching succeeded, False otherwise.
-        
-    Note: 
-        To update available model mappings, modify the `model_map` dictionary inside 
-        this function.
-    """
+# 동적 포트(gateway_port) 파라미터 추가
+def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None, gateway_port=18790):
     path = '.openclaw_config/openclaw.json'
-    
-    # Ensure config dir exists
+
     os.makedirs('.openclaw_config', exist_ok=True)
     run_command("chmod 777 .openclaw_config")
+    
+    if os.path.exists(path):
+        run_command(f"chmod 666 {path}")
 
-    # If it doesn't exist, create default structure
     if not os.path.exists(path):
         print(f"ℹ️ {path} 가 존재하지 않습니다. 기본 설정을 생성합니다.")
         default_config = {
@@ -121,7 +90,8 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
             config = json.load(f)
 
         config['gateway'] = config.get('gateway', {})
-        config['gateway']['remote'] = {'url': 'ws://127.0.0.1:18789'}
+        # 동적 포트 적용
+        config['gateway']['remote'] = {'url': f'ws://127.0.0.1:{gateway_port}'}
         config['gateway']['mode'] = 'remote'
 
         if openclaw_gateway_token:
@@ -129,18 +99,20 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
                 "mode": "token",
                 "token": openclaw_gateway_token
             }
+            remote_cfg = config['gateway'].setdefault('remote', {})
+            remote_cfg['token'] = openclaw_gateway_token
         else:
-            config.pop('auth', None)
+            if 'auth' in config['gateway']:
+                config['gateway'].pop('auth')
+            if 'remote' in config['gateway']:
+                config['gateway']['remote'].pop('token', None)
 
-        # Update model mapping: Role-based tags for Hybrid Workflow
         model_map = {
-            'PLANNER': 'google/gemini-3.1-pro-preview', # Frontier model for strategy
-            'WORKER': 'openai/qwen2.5-coder-3b',       # Local model for code execution
-            
-            # Aliases for backward compatibility
+            'PLANNER': 'google/gemini-3.1-pro-preview',
+            'WORKER': 'openai/mlx-community/Qwen2.5-Coder-3B-Instruct-4bit',
             'PRO': 'google/gemini-3.1-pro-preview',
             'FLASH': 'google/gemini-3-flash-preview',
-            'LOCAL': 'openai/qwen2.5-coder-3b'
+            'LOCAL': 'openai/mlx-community/Qwen2.5-Coder-3B-Instruct-4bit'
         }
         target_model = model_map.get(tag, 'google/gemini-3-flash-preview')
         print(f"🎯 타겟 모델 설정: {target_model} (Role/Tag: {tag})")
@@ -150,10 +122,15 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
         model_defaults = defaults.setdefault('model', {})
         model_defaults['primary'] = target_model
 
+        for agent in agents_config.get('list', []):
+            if 'model' in agent:
+                agent['model']['primary'] = target_model
+            else:
+                agent['model'] = {'primary': target_model}
+
         models_config = config.setdefault('models', {})
         providers = models_config.setdefault('providers', {})
-        
-        # Google Provider (Strategic Planner)
+
         google_prov = providers.setdefault('google', {})
         google_prov['baseUrl'] = 'https://generativelanguage.googleapis.com/v1beta'
         google_prov['apiKey'] = gemini_api_key
@@ -163,36 +140,37 @@ def patch_openclaw_config(gemini_api_key, tag, openclaw_gateway_token=None):
             google_models.insert(0, {'id': target_model, 'name': target_model.split('/')[-1]})
         google_prov['models'] = google_models
 
-        # Local MLX-LM Provider (Practical Worker via OpenAI compatible API)
+        # 현실을 반영한 워커 노드 주소 할당 (환경 변수 우선, 없으면 로컬 폴백)
+        worker_base_url = os.getenv('WORKER_BASE_URL', 'http://127.0.0.1:8080/v1')
         openai_prov = providers.setdefault('openai', {})
-        # Note: host.docker.internal is used to reach Mac host from inside Docker container
-        openai_prov['baseUrl'] = 'http://host.docker.internal:8080/v1'
-        openai_prov['apiKey'] = 'not-needed'
+        openai_prov['baseUrl'] = worker_base_url
+        openai_prov['apiKey'] = os.getenv('WORKER_API_KEY', 'not-needed')
         openai_models = openai_prov.setdefault('models', [])
+        
         if 'openai/' in target_model:
-            openai_models = [m for m in openai_models if m.get('id') != target_model]
-            openai_models.insert(0, {'id': target_model, 'name': 'Local Qwen2.5 Coder'})
+            actual_model_id = target_model.replace('openai/', '')
+            openai_models = [m for m in openai_models if m.get('id') != actual_model_id]
+            openai_models.insert(0, {'id': actual_model_id, 'name': 'Local Qwen2.5 Coder'})
         openai_prov['models'] = openai_models
 
-        # Ensure absolute workspace paths are correctly mapped
         old_ws = config.get('agents', {}).get('defaults', {}).get('workspace')
         if old_ws:
             config_str = json.dumps(config)
             config = json.loads(config_str.replace(old_ws, '/workspace'))
 
+        if 'models' not in config:
+            config['models'] = {}
+        config['models']['providers'] = providers
+
         with open(path, 'w') as f:
             json.dump(config, f, indent=2)
-        print("✅ OpenClaw 설정 패치 완료")
+        print(f"✅ OpenClaw 설정 패치 완료 (포트: {gateway_port}, 워커 URL: {worker_base_url})")
         return True
     except Exception as e:
         print(f"❌ 설정 패치 중 오류 발생: {e}")
         return False
 
 def elevate_agent_permissions():
-    """
-    Expands agent manifest permissions to allow write access to the entire 
-    workspace instead of just TASKS.md.
-    """
     agents_dir = 'agents'
     if not os.path.exists(agents_dir):
         return
@@ -204,7 +182,6 @@ def elevate_agent_permissions():
                 with open(manifest_path, 'r') as f:
                     content = f.read()
 
-                # Regex replacement to allow wide-scope write access
                 new_content = content.replace(
                     '    write:\n      - "../../TASKS.md"',
                     '    write:\n      - "../../**/*"'
@@ -217,10 +194,6 @@ def elevate_agent_permissions():
                 print(f"⚠️ 에이전트 {agent_id} 권한 승격 중 오류: {e}")
 
 def restore_agent_permissions():
-    """
-    Restores agent manifest permissions, restricting write access back to 
-    only TASKS.md.
-    """
     agents_dir = 'agents'
     if not os.path.exists(agents_dir):
         return
@@ -242,3 +215,4 @@ def restore_agent_permissions():
                 print(f"🔒 에이전트 권한 복구 완료: {agent_id}")
             except Exception as e:
                 print(f"⚠️ 에이전트 {agent_id} 권한 복구 중 오류: {e}")
+

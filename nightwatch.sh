@@ -9,6 +9,9 @@ set -e
 # 설정
 TASKS_FILE="TASKS.md"
 WORKFLOW_NAME="nightwatch-loop.yml"
+
+# [NEW] uv를 사용하여 실행하도록 강제 설정
+PY="uv run python"
 # 로컬 LLM 서버 주소 (MLX-LM)
 LLM_API_URL="http://localhost:8080/v1/chat/completions"
 LLM_MODEL="mlx-community/Qwen2.5-Coder-3B-Instruct-4bit"
@@ -25,15 +28,29 @@ if [ ! -f "$TASKS_FILE" ]; then
 fi
 
 # 2. 모든 대기 중인 태스크 추출 (task_runner.py 사용)
-TASKS_JSON=$(python3 Tools/task_runner.py --all --json 2>/dev/null)
+# ⚠️ 주의: set -e가 켜져 있으므로 여기서 에러나면 즉시 종료됩니다.
+# 에러가 나더라도 정보를 출력하기 위해 잠시 끕니다.
+set +e
+# 에러 메시지를 캡처하기 위해 임시 파일을 사용하거나 stderr를 그대로 둡니다.
+TASKS_JSON=$($PY Tools/task_runner.py --all --json)
+TASK_RUNNER_EXIT_CODE=$?
+set -e
+
+if [ $TASK_RUNNER_EXIT_CODE -ne 0 ]; then
+    echo "❌ 에러: 파이썬 스크립트 실행에 실패했습니다. (에러 코드: $TASK_RUNNER_EXIT_CODE)"
+    echo "   상기 에러 메시지를 확인하여 문제를 해결해 주세요."
+    exit 1
+fi
+
 if [ -z "$TASKS_JSON" ] || echo "$TASKS_JSON" | grep -q '"error"'; then
     echo "ℹ️ 알림: 대기 중인 태스크가 없습니다. TASKS.md를 확인해주세요."
     exit 0
 fi
 
-TASK_COUNT=$(echo "$TASKS_JSON" | python3 -c 'import sys,json; print(len(json.load(sys.stdin)))')
+TASK_COUNT=$(echo "$TASKS_JSON" | $PY -c 'import sys,json; print(len(json.load(sys.stdin)))')
 TIMESTAMP=$(date +%Y%m%d%H%M%S)
-CURRENT_BRANCH=$(git branch --show-current)
+# Mac/구버전 Git 호환성 (show-current 미지원 대응)
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || git branch --show-current)
 
 # ==============================================================================
 # LLM 기반 브랜치 이름 생성 함수
@@ -67,7 +84,7 @@ EOF
          -H "Content-Type: application/json" \
          -d "$payload" || echo "")
 
-    local llm_name=$(echo "$response" | python3 -c "
+    local llm_name=$(echo "$response" | $PY -c "
 import sys, json
 try:
     data = json.load(sys.stdin)
@@ -122,37 +139,48 @@ switch_branch() {
 }
 
 echo "🔄 origin/main 최신화 중..."
-git fetch origin main
+# git fetch가 에러나더라도 스크립트를 중단하지 않도록 처리 (네트워크 문제 등)
+git fetch origin main || echo "⚠️ 경고: origin/main 최신화에 실패했습니다. (계속 진행)"
 
 # ---------------------------------------------------------
 # 단일 태스크 처리
 # ---------------------------------------------------------
 if [ "$TASK_COUNT" -eq 1 ]; then
-    TITLE=$(echo "$TASKS_JSON" | python3 -c 'import sys,json; print(json.load(sys.stdin)[0]["title"])')
-    TAG=$(echo "$TASKS_JSON" | python3 -c 'import sys,json; print(json.load(sys.stdin)[0]["tag"])')
+    TITLE=$(echo "$TASKS_JSON" | $PY -c 'import sys,json; print(json.load(sys.stdin)[0]["title"])')
+    TAG=$(echo "$TASKS_JSON" | $PY -c 'import sys,json; print(json.load(sys.stdin)[0]["tag"])')
     echo "🔍 발견된 단일 태스크: [$TAG] $TITLE"
     
     SUGGESTED_SUFFIX=$(generate_branch_name "$TITLE")
     SUGGESTED_BRANCH="nightwatch/$SUGGESTED_SUFFIX"
 
     echo "🛡️  Budget Watchdog: Checking quotas before execution..."
-    python3 Tools/budget_watchdog.py
+    $PY Tools/budget_watchdog.py
     
     switch_branch "$SUGGESTED_BRANCH"
     
     echo "💾 변경 사항 저장 중..."
+    # [CLEAN] JSON 파일을 커밋하지 않고 --allow-empty로 트리거 커밋만 생성
     git add .
     if git diff --cached --quiet; then
-        echo "ℹ️ 변경 사항 없음 — 푸시를 시도합니다."
+        echo "ℹ️ 변경 사항 없음 — 빈 커밋으로 트리거를 생성합니다."
+        git commit --allow-empty -m "plan: trigger NightWatch for '$TITLE' (via input)"
     else
-        git commit -m "plan: trigger NightWatch for '$TITLE'"
+        git commit -m "plan: trigger NightWatch for '$TITLE' (with pending changes)"
     fi
     
     echo "🚀 GitHub에 푸시 중..."
     git push origin "$CURRENT_BRANCH"
 
-    echo "🌙 NightWatch 루프를 깨우는 중..."
-    gh workflow run "$WORKFLOW_NAME" --ref "$CURRENT_BRANCH" -f branch_name="$CURRENT_BRANCH"
+    echo "🌙 NightWatch 루프를 깨우는 중 (Data Handoff via Input)..."
+    # 단일 태스크의 JSON만 추출
+    SINGLE_TASK_JSON=$(echo "$TASKS_JSON" | $PY -c 'import sys,json; tasks=json.load(sys.stdin); print(json.dumps([tasks[0]], ensure_ascii=False))')
+    
+    if ! gh workflow run "$WORKFLOW_NAME" --ref "$CURRENT_BRANCH" \
+        -f branch_name="$CURRENT_BRANCH" \
+        -f task_json="$SINGLE_TASK_JSON"; then
+        echo "❌ 에러: GitHub Actions(gh) 트리거에 실패했습니다."
+        exit 1
+    fi
 
 # ---------------------------------------------------------
 # 다중 태스크 처리
@@ -169,8 +197,8 @@ else
         ORIGINAL_BRANCH=$CURRENT_BRANCH
         
         for i in $(seq 0 $((TASK_COUNT - 1))); do
-            TITLE=$(echo "$TASKS_JSON" | python3 -c "import sys,json; print(json.load(sys.stdin)[$i]['title'])")
-            TAG=$(echo "$TASKS_JSON" | python3 -c "import sys,json; print(json.load(sys.stdin)[$i]['tag'])")
+            TITLE=$(echo "$TASKS_JSON" | $PY -c "import sys,json; print(json.load(sys.stdin)[$i]['title'])")
+            TAG=$(echo "$TASKS_JSON" | $PY -c "import sys,json; print(json.load(sys.stdin)[$i]['tag'])")
             
             SUGGESTED_SUFFIX=$(generate_branch_name "$TITLE")
             TARGET_BRANCH="nightwatch/${SUGGESTED_SUFFIX}-${TIMESTAMP}-${i}"
@@ -178,16 +206,20 @@ else
             echo "🌱 [태스크 $((i+1))/$TASK_COUNT] 브랜치 생성: $TARGET_BRANCH (기반: origin/main)"
             git checkout -b "$TARGET_BRANCH" origin/main
             
-            echo "$TASKS_JSON" | python3 -c "import sys,json; print(json.dumps([json.load(sys.stdin)[$i]], ensure_ascii=False))" > nightwatch_bulk_tasks.json
+            TARGET_TASK_JSON=$(echo "$TASKS_JSON" | $PY -c "import sys,json; tasks=json.load(sys.stdin); print(json.dumps([tasks[$i]], ensure_ascii=False))")
             
-            git add nightwatch_bulk_tasks.json
-            git commit -m "plan: trigger NightWatch for '$TITLE' (Parallel)" || true
+            # [CLEAN] 파일을 커밋하지 않고 빈 커밋으로 트리거 생성
+            git commit --allow-empty -m "plan: trigger NightWatch for '$TITLE' (Parallel via input)"
             
             echo "🚀 GitHub에 푸시 중... ($TARGET_BRANCH)"
             git push origin "$TARGET_BRANCH"
             
-            echo "🌙 NightWatch 루프를 깨우는 중... ($TARGET_BRANCH)"
-            gh workflow run "$WORKFLOW_NAME" --ref "$TARGET_BRANCH" -f branch_name="$TARGET_BRANCH"
+            echo "🌙 NightWatch 루프를 깨우는 중 (Data Handoff via Input)..."
+            if ! gh workflow run "$WORKFLOW_NAME" --ref "$TARGET_BRANCH" \
+                -f branch_name="$TARGET_BRANCH" \
+                -f task_json="$TARGET_TASK_JSON"; then
+                echo "⚠️ 경고: $TARGET_BRANCH 워크플로우 트리거 실패"
+            fi
             
             git checkout "$ORIGINAL_BRANCH"
         done
@@ -198,7 +230,7 @@ else
         echo "🔄 순차 실행 모드를 시작합니다..."
         
         # [NEW] 모든 태스크 제목을 하나로 추출하여 쉼표로 연결
-        COMBINED_TITLES=$(echo "$TASKS_JSON" | python3 -c 'import sys,json; print(", ".join([t["title"] for t in json.load(sys.stdin)]))')
+        COMBINED_TITLES=$(echo "$TASKS_JSON" | $PY -c 'import sys,json; print(", ".join([t["title"] for t in json.load(sys.stdin)]))')
         
         # LLM에게 복합된 태스크들을 하나로 요약하라고 지시
         SUGGESTED_SUFFIX=$(generate_branch_name "Summarize these multiple tasks into one short branch name: $COMBINED_TITLES")
@@ -206,17 +238,20 @@ else
         
         switch_branch "$SUGGESTED_BRANCH"
         
-        echo "$TASKS_JSON" > nightwatch_bulk_tasks.json
-        
-        echo "💾 변경 사항 저장 중..."
-        git add nightwatch_bulk_tasks.json
-        git commit -m "plan: trigger NightWatch for bulk tasks (Series)" || true
+        # [CLEAN] 파일을 커밋하지 않고 빈 커밋으로 트리거 생성
+        echo "💾 트리거 커밋 생성 중..."
+        git commit --allow-empty -m "plan: trigger NightWatch for bulk tasks (Series via input)"
         
         echo "🚀 GitHub에 푸시 중..."
         git push origin "$CURRENT_BRANCH"
 
-        echo "🌙 NightWatch 루프를 깨우는 중..."
-        gh workflow run "$WORKFLOW_NAME" --ref "$CURRENT_BRANCH" -f branch_name="$CURRENT_BRANCH"
+        echo "🌙 NightWatch 루프를 깨우는 중 (Data Handoff via Input)..."
+        if ! gh workflow run "$WORKFLOW_NAME" --ref "$CURRENT_BRANCH" \
+            -f branch_name="$CURRENT_BRANCH" \
+            -f task_json="$TASKS_JSON"; then
+            echo "❌ 에러: GitHub Actions(gh) 트리거에 실패했습니다."
+            exit 1
+        fi
     fi
 fi
 

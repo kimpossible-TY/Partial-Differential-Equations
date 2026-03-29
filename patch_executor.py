@@ -1,5 +1,3 @@
-import re
-
 with open('/workspace/Tools/nightwatch_executor.py', 'r') as f:
     content = f.read()
 
