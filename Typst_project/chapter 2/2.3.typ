@@ -22,13 +22,17 @@ $
             & = [ partial_j (X^k) + sum_m X^m Gamma_(j m)^k ] E_k                  &                    j" is free index"
 $
 
-This is $ X_( ; j )^k $
+This is $ X_( ; j )^k $. As considering  $X:=X^k D_k$ and the summation convention is used, we can argue that :
+
+$
+  X_( ; j )^k = shell.l nabla_(D_j) X shell.r^k
+$ <semi_colon_concention_and_covariant_derivative>
 
 #paragraph_tab
 The divergence of a vector field has an important expression in terms of the covariant derivative.
 
 #proposition(title: "3.1")[Given a vector field $X$ with components $X^k$, then
-  $ op("div") X = sum_j X_( ; j )^j $ <divergence_and_semi_comma>
+  $ op("div") X = sum_j X_( ; j )^j $ <divergence_and_semi_colon>
 ]
 
 #proof[Since $X_( ; j )^j$ is related to the geodesic, it is good way to use the following formula defining with $frak(g) := det g$ :
@@ -103,7 +107,7 @@ The divergence of a vector field has an important expression in terms of the cov
 === The Killing vector field#footnote[Nobody is actually killed. The concept is named after the 19th-century german mathematician wihelm killing.]
 
 #paragraph_tab
-In the view of @divergence_and_semi_comma, we know that a vector field $X$ generates a volume-preserving flow if and only if $X_( ; j )^j=0$. Complementing this, we investigate that the flow leaves the metric g imvariant, or equivalently :
+In the view of @divergence_and_semi_colon, we know that a vector field $X$ generates a volume-preserving flow if and only if $X_( ; j )^j=0$. Complementing this, we investigate that the flow leaves the metric g imvariant, or equivalently :
 $
   cal(L)_X g =0
 $ <second_condition_of_killing_vector_field>
@@ -288,3 +292,4 @@ $ #annot(<symmetric_part_of_total_covariant_derivative>)[symmetric part] #annot(
 
 #paragraph_tab
 Therefore, when computing the actual geometric distortion, the antisymmetric part, $X_(k ; j) - X_( j ; k )$, naturally vanishes from the perspective of the metric. We are left exclusively with the symmetric part of the total covariant derivative, $X_(k ; j) + X_( j ; k )$, known as the deformation tensor. This tensor isolates the exact physical stretching of the metric's rulers. For the flow to be conformal, as dictated by @formal_conformal_killing_equation, this pure stretching must be isotropic. It must stretch the space equally in all directions, mathematically manifesting as a uniform scalar multiple of the metric itself.
+

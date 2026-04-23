@@ -1,5 +1,11 @@
 // Main styles file that imports all style modules
 #import "math_styles.typ": *
+#import "@preview/mannot:0.3.2": *
+
+// ---------- Marks ----------
+#let rmark = mark.with(color: red)
+#let bmark = mark.with(color: blue)
+#let pmark = mark.with(color: purple)
 
 // Define differential operator
 #let dx = $upright(d) x$

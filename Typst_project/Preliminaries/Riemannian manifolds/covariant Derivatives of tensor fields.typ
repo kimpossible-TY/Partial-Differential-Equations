@@ -261,4 +261,4 @@ $
   nabla omega&:=omega_(i;j)epsilon^i times.o epsilon^j, quad & "with" omega_(i;j):=E_j omega_i - omega_k Gamma^(k)_("ji")
 $ <covector_semi-colon_convention>
 
-#note(title: [semi-cololon convensention and $nabla$])[Now, we know that the semi-colon convention is the components of total covariant derivative of covector, or covariant derivative of vector field. whatever it does, the semi-colon convention is directly related to $nabla$.] <semicolon_convention_is_related_to_nabla>
+#note(title: [semi-cololon convensention and $nabla$])[Now, we know that the semi-colon convention is the components of total covariant derivative of covector, or covariant derivative of vector field. whatever it is, the semi-colon convention is directly related to $nabla$.] <semicolon_convention_is_related_to_nabla>

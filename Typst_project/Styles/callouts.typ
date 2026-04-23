@@ -1,4 +1,3 @@
-
 // Styles/callouts.typ
 
 #let math_font = "New Computer Modern Math"
