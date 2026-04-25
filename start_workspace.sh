@@ -12,8 +12,86 @@ MAIN_FILE="Typst_project/main.typ"
 HTTP_PORT=8000
 WORKDIR="$(cd "$(dirname "$0")" && pwd)"
 LOG_DIR="$WORKDIR/logs/start_workspace"
+NIGHTWATCH_PORT="${OPENCLAW_GATEWAY_PORT:-18789}"
+NIGHTWATCH_STARTUP_TIMEOUT="${NIGHTWATCH_STARTUP_TIMEOUT:-180}"
+MLX_STARTUP_TIMEOUT="${MLX_STARTUP_TIMEOUT:-60}"
 
 mkdir -p "$LOG_DIR"
+
+wait_for_http_service() {
+    local name="$1"
+    local url="$2"
+    local timeout="$3"
+    local interval="${4:-2}"
+    local elapsed=0
+
+    echo -e "${BLUE}▶ ${name} 대기 중 (최대 ${timeout}초)...${NC}"
+    while [ "$elapsed" -lt "$timeout" ]; do
+        if curl -s -o /dev/null "$url"; then
+            echo -e "${GREEN}✔ ${name} 준비 완료${NC}"
+            return 0
+        fi
+        elapsed=$((elapsed + interval))
+        echo -ne "\r   대기 중... (${elapsed}s/${timeout}s)"
+        sleep "$interval"
+    done
+    echo ""
+    return 1
+}
+
+compose_services_up() {
+    local ps_output
+    ps_output=$(docker compose -f "$WORKDIR/docker-compose.yml" ps --format json 2>/dev/null)
+    [ -n "$ps_output" ] || return 1
+
+    printf '%s\n' "$ps_output" | $PY -c '
+import json, sys
+lines = [line.strip() for line in sys.stdin if line.strip()]
+if not lines:
+    raise SystemExit(1)
+records = [json.loads(line) for line in lines]
+services = {record.get("Service"): record.get("State") for record in records}
+required = {"openclaw-gateway", "nightwatch-agent"}
+if not required.issubset(services):
+    raise SystemExit(1)
+if any(services[name] != "running" for name in required):
+    raise SystemExit(1)
+' >/dev/null 2>&1
+}
+
+nightwatch_gateway_ready() {
+    docker compose -f "$WORKDIR/docker-compose.yml" logs --no-color --tail=200 openclaw-gateway 2>/dev/null | grep -q "\\[gateway\\] ready"
+}
+
+wait_for_nightwatch_service() {
+    local timeout="$1"
+    local interval="${2:-2}"
+    local elapsed=0
+
+    echo -e "${BLUE}▶ [Index 2] NightWatch 통합 센터 대기 중 (최대 ${timeout}초)...${NC}"
+    while [ "$elapsed" -lt "$timeout" ]; do
+        if compose_services_up && nightwatch_gateway_ready; then
+            echo -e "${GREEN}✔ [Index 2] NightWatch 통합 센터 준비 완료${NC}"
+            return 0
+        fi
+        elapsed=$((elapsed + interval))
+        echo -ne "\r   대기 중... (${elapsed}s/${timeout}s)"
+        sleep "$interval"
+    done
+    echo ""
+    return 1
+}
+
+capture_nightwatch_diagnostics() {
+    local diagnostics_file="$LOG_DIR/nightwatch-diagnostics.log"
+    {
+        echo "===== $(date '+%Y-%m-%d %H:%M:%S') docker compose ps ====="
+        docker compose -f "$WORKDIR/docker-compose.yml" ps
+        echo ""
+        echo "===== $(date '+%Y-%m-%d %H:%M:%S') docker compose logs --tail=200 ====="
+        docker compose -f "$WORKDIR/docker-compose.yml" logs --tail=200
+    } > "$diagnostics_file" 2>&1
+}
 
 # ==============================================================================
 # [STEP 1] 초기화 및 Mac 키체인 잠금 해제 🔑
@@ -37,6 +115,7 @@ if [ -f "$WORKDIR/.env" ]; then
     export $(cat "$WORKDIR/.env" | grep -v '^#' | xargs)
 fi
 export OPENCLAW_CONFIG_DIR="$WORKDIR/.openclaw"
+NIGHTWATCH_PORT="${OPENCLAW_GATEWAY_PORT:-$NIGHTWATCH_PORT}"
 
 # uv 환경 설정 (강제 사용)
 PY="uv run python"
@@ -86,7 +165,7 @@ tmux set-option -t pde_workspace default-shell /bin/zsh
 tmux new-window -t pde_workspace:1 -n 'http-server' -c "$WORKDIR" "zsh -c \"$PY -m http.server $HTTP_PORT --bind 127.0.0.1 2>&1 | tee '$LOG_DIR/http-server.log'\""
 
 # 2. OpenClaw
-tmux new-window -t pde_workspace:2 -n 'nightwatch' -c "$WORKDIR" "zsh -c \"export OC_VERSION='$OC_VERSION'; { docker compose up --build -d; docker compose logs -f; } 2>&1 | tee '$LOG_DIR/nightwatch.log'\""
+tmux new-window -t pde_workspace:2 -n 'nightwatch' -c "$WORKDIR" "zsh -c \"export OC_VERSION='$OC_VERSION'; export OPENCLAW_GATEWAY_PORT='$NIGHTWATCH_PORT'; { docker compose up --build -d; docker compose ps; docker compose logs -f; } 2>&1 | tee '$LOG_DIR/nightwatch.log'\""
 tmux set-window-option -t pde_workspace:2 remain-on-exit on
 
 # 3. GitHub Runner
@@ -124,21 +203,12 @@ else
 fi
 
 # 2. NightWatch (OpenClaw) Check
-echo -e "${BLUE}▶ [Index 2] NightWatch 게이트웨이 기동 대기 중 (최대 30초)...${NC}"
-OC_READY=0
-for i in $(seq 1 15); do
-    if curl -s -o /dev/null http://127.0.0.1:18789/; then
-        echo -e "${GREEN}✔ [Index 2] NightWatch 통합 센터 준비 완료${NC}"
-        OC_READY=1
-        break
-    fi
-    echo -ne "\r   대기 중... ($((i*2))s)"
-    sleep 2
-done
-echo ""
-
-if [ "$OC_READY" -eq 0 ]; then
-    echo -e "${RED}❌ [Index 2] NightWatch 통합 센터 기동 지연 또는 실패${NC}"
+if wait_for_nightwatch_service "$NIGHTWATCH_STARTUP_TIMEOUT"; then
+    OC_READY=1
+else
+    echo -e "${RED}❌ [Index 2] NightWatch 통합 센터가 ${NIGHTWATCH_STARTUP_TIMEOUT}초 내에 준비되지 않았습니다.${NC}"
+    capture_nightwatch_diagnostics
+    echo -e "진단 로그: ${BLUE}$LOG_DIR/nightwatch-diagnostics.log${NC}"
     ERROR_FOUND=1
 fi
 
@@ -151,21 +221,10 @@ else
 fi
 
 # 4. MLX-LM Server Check
-echo -e "${BLUE}▶ [Index 4] MLX 서버 모델 로드 대기 중 (최대 60초)...${NC}"
-MLX_READY=0
-for i in $(seq 1 30); do
-    if curl -s -o /dev/null http://127.0.0.1:8080/v1/models; then
-        echo -e "${GREEN}✔ [Index 4] Local MLX-LM 서버(Qwen2.5) 준비 완료${NC}"
-        MLX_READY=1
-        break
-    fi
-    echo -ne "\r   대기 중... ($((i*2))s)"
-    sleep 2
-done
-echo ""
-
-if [ "$MLX_READY" -eq 0 ]; then
-    echo -e "${RED}❌ [Index 4] MLX 서버가 응답하지 않습니다.${NC}"
+if wait_for_http_service "[Index 4] Local MLX-LM 서버(Qwen2.5)" "http://127.0.0.1:8080/v1/models" "$MLX_STARTUP_TIMEOUT"; then
+    MLX_READY=1
+else
+    echo -e "${RED}❌ [Index 4] MLX 서버가 ${MLX_STARTUP_TIMEOUT}초 내에 응답하지 않습니다.${NC}"
     ERROR_FOUND=1
 fi
 
@@ -180,11 +239,11 @@ if [ "$ERROR_FOUND" -eq 1 ]; then
 fi
 
 tailscale serve --yes --bg --https=443 http://127.0.0.1:$HTTP_PORT > /dev/null 2>&1
-tailscale serve --yes --bg --https=18789 http://127.0.0.1:18789 > /dev/null 2>&1
+tailscale serve --yes --bg --https="$NIGHTWATCH_PORT" "http://127.0.0.1:$NIGHTWATCH_PORT" > /dev/null 2>&1
 
 TAILNET_DOMAIN=$(tailscale status --json | $PY -c 'import sys, json; print(json.load(sys.stdin).get("CertDomains", [""])[0])')
 SERVER_URL="https://${TAILNET_DOMAIN}/Typst_project/main.pdf"
-OPENCLAW_URL="https://${TAILNET_DOMAIN}:18789"
+OPENCLAW_URL="https://${TAILNET_DOMAIN}:$NIGHTWATCH_PORT"
 export OC_VERSION SERVER_URL OPENCLAW_URL WORKDIR
 
 echo -e "\n${GREEN}✨ 모든 기동 프로세스가 성공적으로 완료되었습니다!${NC}"

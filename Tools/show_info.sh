@@ -24,7 +24,16 @@ echo -e "   → 💬 AI 챗봇(OpenClaw): ${BLUE}${OPENCLAW_URL}${NC}"
 echo -e "${GREEN}=====================================================${NC}"
 echo -e " 💡 창을 이동하려면 tmux 단축키(Ctrl+B, 번호)를 사용하세요.\n"
 
-# trap cleanup EXIT 로직과 curl 루프를 완전히 삭제했습니다.
+cleanup() {
+    if [[ -n "$TMUX" ]]; then
+        local session_name
+        session_name=$(tmux display-message -p '#S' 2>/dev/null)
+        if [[ -n "$session_name" ]]; then
+            tmux kill-session -t "$session_name" 2>/dev/null
+        fi
+    fi
+}
+
+trap cleanup EXIT HUP INT TERM
 
 /bin/zsh -l
-
