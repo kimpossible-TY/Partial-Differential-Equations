@@ -41,7 +41,7 @@ $
 $
 and :
 $
-  u comma v in bb(C)_0 ^ infinity (M)
+  u comma v in bb(C)_0 ^ infinity (M)
 $
 because the first derivative is a coefficient of differential. Then how about the second derivative? We already know that the Hessian matrix describes the second derivaitve of multi-variable function. Let's use it, so  make it be abstract to use in manifold theory.
 
@@ -274,6 +274,47 @@ where it lives in the cotangent bundle. Since there is the isomorphism which is 
 
 #paragraph_tab
 Recall that @Greens_First_Identity is just vaild when $u comma v in bb(C)_0 ^infinity (M)$. Let's assume more general case, assume that $u comma v in bb(C)^infinity (M)$. Since there are no more zero on $partial M$, we have to carefully investigate the boundaries. To do this let's introduce outward normal vector $n$, and normal derivative.
+
+#definition(title: "Outward Normal Vector")[
+  Let $(M, g)$ be a smooth Riemannian manifold with boundary. For each boundary point $p in partial M$, the outward unit normal vector is the unique vector $nu_p in T_p M$ satisfying the following conditions:
+  + $g_p (nu_p, Y) = 0 quad "for every" quad Y in T_p (partial M)$
+  + $g_p (nu_p, nu_p) = 1$
+  + $nu_p$ points away from the interior of $M$.
+]
+Equivalently, the outward unit normal vector field $nu$ along $partial M$ is a smooth vector field
+
+  $
+  nu : partial M -> T M
+  $
+
+  such that
+
+  $
+  nu_p in T_p M,
+  quad
+  nu_p perp T_p (partial M),
+  quad
+  norm(nu_p)_g = 1,
+  $
+  and $nu_p$ is chosen with the outward orientation. Moreover, we can understand the outward normal vector as the Local coordinate approach. Near a boundary point, we can choose coordinates :
+  $
+    (x^1, x^2, ..., x^(n-1), x^n)
+  $
+  such that $M={x^n =0}$ and $partial M = {x^n = 0}$. Then :
+  $
+    T_p M = op("span") {frac(partial, partial x^1), dots.h.c frac(partial, partial x^n)}
+  $
+  while 
+  $
+    T_p (partial M)= op("span") {frac(partial, partial x^1), dots.h.c frac(partial, partial x^(n-1))}
+  $
+  Thus, the outward normal vector is : 
+  $
+      frac(partial, partial x^n) quad "or" quad
+      -frac(partial, partial x^n)
+
+  $
+
 #definition[
   Let $M$ be a smooth manifold,  $n$ is outward normal vector and $u in bb(C)^infinity (M)$. Then we define the normal derivative :
   $
