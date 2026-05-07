@@ -4,8 +4,8 @@
 # ------------------------------------------------------------------------------
 
 : "${OC_VERSION:=latest}"
-: "${SERVER_URL:=https://your-domain.ts.net/main.pdf}"
-: "${OPENCLAW_URL:=https://your-domain.ts.net:18789}"
+: "${SERVER_URL:=https://kimtaeyoungs-macbook-air.tail8adc61.ts.net/Typst_project/main.pdf}"
+: "${OPENCLAW_URL:=https://kimtaeyoungs-macbook-air.tail8adc61.ts.net:18789}"
 
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
@@ -25,6 +25,10 @@ echo -e "${GREEN}=====================================================${NC}"
 echo -e " 💡 창을 이동하려면 tmux 단축키(Ctrl+B, 번호)를 사용하세요.\n"
 
 cleanup() {
+    if [[ -n "$WORKDIR" && -f "$WORKDIR/docker-compose.yml" ]]; then
+        docker compose -f "$WORKDIR/docker-compose.yml" down --remove-orphans >/dev/null 2>&1
+    fi
+
     if [[ -n "$TMUX" ]]; then
         local session_name
         session_name=$(tmux display-message -p '#S' 2>/dev/null)
