@@ -5,6 +5,42 @@
 #set text(font: "Times New Roman", size: 12pt)
 #set page(
   margin: auto,
+  header: context {
+    let page_num = here().page()
+    if calc.even(page_num) {
+      let h_all = query(selector(heading.where(level: 2)))
+      let h_valid = h_all.filter(h => h.location().page() <= page_num)
+      
+      if h_valid.len() > 0 {
+        let h_on_page = h_valid.filter(h => h.location().page() == page_num)
+        let current = if h_on_page.len() > 0 { h_on_page.first() } else { h_valid.last() }
+        
+        let ch_all = query(selector(heading.where(level: 1)))
+        let ch_here = ch_all.filter(c => c.location().page() <= page_num)
+        let ch_heading = ch_all.filter(c => c.location().page() <= current.location().page())
+        
+        let same_chapter = false
+        if ch_here.len() > 0 and ch_heading.len() > 0 {
+          if ch_here.last().location() == ch_heading.last().location() {
+            same_chapter = true
+          }
+        } else if ch_here.len() == 0 and ch_heading.len() == 0 {
+          same_chapter = true
+        }
+
+        if same_chapter {
+          let num = if current.numbering != none {
+            numbering(current.numbering, ..counter(heading).at(current.location()))
+          }
+          align(left)[
+            #text(size: 10pt, style: "italic")[
+              #num #current.body
+            ]
+          ]
+        }
+      }
+    }
+  },
   footer: context [
     #align(right)[
       #counter(page).display("1") / #counter(page).final().last()
