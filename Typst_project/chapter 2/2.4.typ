@@ -270,7 +270,7 @@ where it lives in the cotangent bundle. Since there is the isomorphism which is 
   $
 ]<Greens_First_Identity>
 
-=== Green's Second Identity
+=== Green's Identities with boundaries
 
 #paragraph_tab
 Recall that @Greens_First_Identity is just vaild when $u comma v in bb(C)_0 ^infinity (M)$. Let's assume more general case, assume that $u comma v in bb(C)^infinity (M)$. Since there are no more zero on $partial M$, we have to carefully investigate the boundaries. To do this let's introduce outward normal vector $n$, and normal derivative.
@@ -280,7 +280,7 @@ Recall that @Greens_First_Identity is just vaild when $u comma v in bb(C)_0 ^inf
   + $g_p (nu_p, Y) = 0 quad "for every" quad Y in T_p (partial M)$
   + $g_p (nu_p, nu_p) = 1$
   + $nu_p$ points away from the interior of $M$.
-]
+] <definition_of_outward_normal_vector>
 Equivalently, the outward unit normal vector field $nu$ along $partial M$ is a smooth vector field
 
   $
@@ -312,13 +312,41 @@ Equivalently, the outward unit normal vector field $nu$ along $partial M$ is a s
   $
       frac(partial, partial x^n) quad "or" quad
       -frac(partial, partial x^n)
-
   $
 
-#definition[
+#definition(title: "Normal derivative")[
   Let $M$ be a smooth manifold,  $n$ is outward normal vector and $u in bb(C)^infinity (M)$. Then we define the normal derivative :
   $
     frac(partial u , partial n) := nabla_n u
   $
-  If we apply the 
-]
+  If we apply @definition_of_covariant_derivative_of_scalar_function, then we have :
+  $
+    nabla_n u &= n (u)
+    \
+    &= d u (n) #dots_space #footnote[By definition of differential]
+  $
+] <definition_of_normal_derivative>
+
+ #special_lemma(title: "normal derivaitve on Riemannian manifold")[
+   Let $M$ be a smooth manifold and $u in bb(C)^infinity (M)$, $n$ is outward normal vector. Then :
+   $
+     frac( partial u , partial n) = <op("grad") u, n>
+   $
+ ]
+
+ #proof[
+  By computing $d u(n)$ from @definition_of_normal_derivative, the following equation is induced :
+  $
+    d u(n) = (partial_k u) n_k
+  $ <induced_equation_of_outward_normal_vector>
+  Similarly, computing $chevron.l op("grad") u comma n chevron.r_g$ directly, we get the result.
+  $
+    chevron.l op("grad") u comma n chevron.r_g &= g_(j k) (op("grad") u)_i n_k
+    \
+    &= underbrace(cancel(g_(j k) shell.l g^(i j)), delta_k^j)  partial_j u shell.r n_k #dots_space #footnote[by the cotangent-tangent isomorphsim]
+    \
+    &= (partial_k u ) n_k
+    \
+    &= d u(n) #dots_space #footnote[by @induced_equation_of_outward_normal_vector]
+  $ 
+ ]
