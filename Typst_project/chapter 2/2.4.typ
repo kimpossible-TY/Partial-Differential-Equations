@@ -298,7 +298,7 @@ Equivalently, the outward unit normal vector field $nu$ along $partial M$ is a s
   $
   and $nu_p$ is chosen with the outward orientation. Moreover, we can understand the outward normal vector as the Local coordinate approach. Near a boundary point, we can choose coordinates :
   $
-    (x^1, x^2, ..., x^(n-1), x^n)
+    (x^1, x^2, dots, x^(n-1), x^n)
   $
   such that $M={x^n =0}$ and $partial M = {x^n = 0}$. Then :
   $
@@ -390,10 +390,66 @@ In @Greens_Identities_with_boundaries, we treat somethings on the bundaries of m
 
     #annot(<LHS_using_proposition_14.23_Riemannian_divergence>, pos: bottom)[$=d [f and Y corner.r.b d V_g)]=op("div") (f Y) d V_g$]
     #annot(<RHS_using_proposition_14.23_Riemannian_divergence>, pos: top+right)[The sign of this term is positive because $f$ is 0-form]
-    #annot(<RHS_using_proposition_14.23_Riemannian_divergence>, pos: bottom+right)[As using the definition of divergence, \ $f(op("div") Y) d V_g$]
+    #annot(<RHS_using_proposition_14.23_Riemannian_divergence>, pos: bottom+right, dx: 2em)[As using the definition of divergence, \ $f(op("div") Y) d V_g$]
   $
   Therefore, it is sufficient to show that $d f and (Y corner.r.b d V_g)=g(op("grad") f, Y)$
 
   #paragraph_tab
-  For any 1-form 
+  For any 1-form $alpha$ any the vector field $Y$, and any top-degree form $omega$, the following strict algebraic identity holds :
+  $
+  (alpha and (Y corner.r.b omega)) = rmark(alpha(Y) omega) #dots_space #footnote[When feeding $Y$ into $d f$, the result $d f(Y)$ is simply the directional derivative of the function $f$ along the vector field $Y$.]
+  $ <identity_of_1-form_and_volume_form>
+  The volumne form is an $n$-form, In our local basis, it is written as :
+  $
+  Omega = dx^1 and dx^2 and dots and dx^n
+  $
+  also, 
+  $
+    Y= sum_(i=1)^n Y^i frac(partial, partial x^i)
+  $
+  and,
+  $
+    alpha = sum_(j=1)^n alpha_j dx^j #dots_space #footnote[where $alpha$ is a 1-form.]
+  $
+  Now, let's directly compute the interior multiplication($Y corner.r.b Omega$) which is RHS of @identity_of_1-form_and_volume_form.
+  $
+  Y corner.r.b Omega = sum^n_(i=1) (-1)^(i-1) Y^i dx^1 and dots and overbrace(bmark(hat(d x)^i), frac(partial x^i, partial x^j)=0) and dots and dx^n
+  $ <direct_computation_of_interior_multiplication_of_identity_of_1-form_and_volume_form>
+  where $hat(d x)^i$ means that $d x^i$ is omitted. Similar to @direct_computation_of_interior_multiplication_of_identity_of_1-form_and_volume_form, let's directly compute RHS of @identity_of_1-form_and_volume_form.
+  $
+    alpha and (Y corner.r.b Omega) &= sum_(j=1)^n alpha_j dx^j and (sum^n_(i=1) (-1)^(i-1) Y^i dx^1 and dots and hat(d x)^i and dots and dx^n)
+    \
+    &= sum_(i=1)^n alpha_i Y^i (-1)^(i-1) dx^1 and dots and hat(d x)^i and dots and dx^n #dots_space #footnote[by $dx^i and dx^i=0$]
+  $
+
+  To cancel $hat(d x)^i$ by $dx^i$, we have to move $hat(d x)^i$ to the front. In this moment, we have to apply the property which is about the changing the position of wedge product.
+  $
+    dx^1 and dots and rmark(hat(d x)^i, tag: #<position_change>) and dots and dx^n = (-1)^(i-1) hat(d x)^i and dx^1 and dots and dx^n
+  $
+
+  #annot-cetz(
+    (<position_change>),
+    cetz,
+    {
+      import cetz.draw: *
+      set-style(mark: (end: "straight"))
+      
+      // Change the position of hat(dx)^i
+      bezier-through("position_change.south", (rel: (x: -1.6, y: -0.5)), (rel: (x: -1, y: 0.4)), stroke: red)
+    }
+  )
+  Therefore, we have :
+  $
+    alpha and (Y corner.r.b Omega) &= sum_(i=1)^n alpha_i Y^i dx^1 and dots and dx^n
+    \
+    &= overbracket((sum_(i=1)^n alpha_i Y^i), alpha(Y)) underbracket((d x^1 and dots and dx^n), Omega)
+    \
+    &= alpha(Y) Omega
+  $
+  As applying the above, finally we have : 
+  $
+    d f and (Y corner.r.b d V_g) &= (d f)(Y) d V_g 
+    \
+    &= g(op("grad") f, Y) d V_g #dots_space #footnote[by the tangent-cotangent isomorphism]
+  $
 ]
