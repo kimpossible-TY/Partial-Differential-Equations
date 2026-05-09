@@ -204,7 +204,7 @@ Now it is time to define the global $L$-2 norm. What we want for global norm is 
   $ where $f,u,v in bb(C)^infinity$ and $p in M$.
 ]
 
-=== Green First Identity
+=== Green First Identity <subsection_Greens_First_Identity>
 
 #paragraph_tab
 Now, let's prove whether @Laplacian_identity_1-D is true for high dimention or not. Firstly, let's start form  @L-2_norm_of_1-form. Since @L-2_norm_of_1-form is too abstract to investigate, we have to make it to be more specific.
@@ -270,7 +270,7 @@ where it lives in the cotangent bundle. Since there is the isomorphism which is 
   $
 ]<Greens_First_Identity>
 
-=== Green's Identities with boundaries
+=== Green's Identities with boundaries <Greens_Identities_with_boundaries>
 
 #paragraph_tab
 Recall that @Greens_First_Identity is just vaild when $u comma v in bb(C)_0 ^infinity (M)$. Let's assume more general case, assume that $u comma v in bb(C)^infinity (M)$. Since there are no more zero on $partial M$, we have to carefully investigate the boundaries. To do this let's introduce outward normal vector $n$, and normal derivative.
@@ -328,7 +328,7 @@ Equivalently, the outward unit normal vector field $nu$ along $partial M$ is a s
 ] <definition_of_normal_derivative>
 
  #special_lemma(title: "normal derivaitve on Riemannian manifold")[
-   Let $M$ be a smooth manifold and $u in bb(C)^infinity (M)$, $n$ is outward normal vector. Then :
+   Let $M$ be a smooth manifold and $u in bb(C)^infinity (M)$, $n$ is the outward normal vector. Then :
    $
      frac( partial u , partial n) = <op("grad") u, n>
    $
@@ -350,3 +350,50 @@ Equivalently, the outward unit normal vector field $nu$ along $partial M$ is a s
     &= d u(n) #dots_space #footnote[by @induced_equation_of_outward_normal_vector]
   $ 
  ]
+
+#paragraph_tab
+In @Greens_Identities_with_boundaries, we treat somethings on the bundaries of manifolds. As we can guess from the previous discussion(@subsection_Greens_First_Identity), the integral on the boundary will appear and the divergence theorem will be useful. Hence introducing the following lemma is helpful.
+#special_lemma(title: "The Product Rule of Riemmanian divergence")[
+  Let $M$ be a smooth Riemannian manifold and $ Y in frak(X)(M)$, $f in bb(C)^infinity (M)$. Then :
+  $
+    op("div") (f Y) = f op("div") Y + g( op("grad") f comma Y)
+  $
+]
+
+#proof()[We start from the definition of divergence. Define $X:= f Y$. Then we have :
+  $
+   cal(L)_X d V_g =(op("div") X) d V_g
+  $
+  By Cartan's magic formula, we have :
+  $
+  cal(L)_X d V_g &= X corner.r.b overbrace(cancel(d(d V_g), stroke: #(paint: red)), d^2=0) + d(X corner.r.b d V_g)
+  \
+  &= d(X corner.r.b d V_g)
+  $
+  Now, replace $X$ to $f Y$.
+  $
+    cal(L)_X d V_g &= (op("div") (f Y)) d V_g #dots_space #footnote[by definition of divergence]
+    \
+    &= d((f Y) corner.r.b d V_g)
+    \
+    &= d[f(Y corner.r.b d V_g)] #dots_space #footnote[by the linearity of interior multiplication]
+  $
+
+  #paragraph_tab
+  Since $f$ is the scalar function, we can use a wedge product from another point of view.
+  $
+    d[f (Y corner.r.b d V_g)] = d[f and (Y corner.r.b d V_g)]
+  $
+  Then we get the following equation by using proposition 14.23(b) of @Manifolds.
+  $
+    markrect(d[f and (Y corner.r.b d V_g)], color: #red, tag: #<LHS_using_proposition_14.23_Riemannian_divergence>) &= d f and (Y corner.r.b d V_g) + markrect(f and d(Y corner.r.b d V_g),color: #blue, tag: #<RHS_using_proposition_14.23_Riemannian_divergence>)
+
+    #annot(<LHS_using_proposition_14.23_Riemannian_divergence>, pos: bottom)[$=d [f and Y corner.r.b d V_g)]=op("div") (f Y) d V_g$]
+    #annot(<RHS_using_proposition_14.23_Riemannian_divergence>, pos: top+right)[The sign of this term is positive because $f$ is 0-form]
+    #annot(<RHS_using_proposition_14.23_Riemannian_divergence>, pos: bottom+right)[As using the definition of divergence, \ $f(op("div") Y) d V_g$]
+  $
+  Therefore, it is sufficient to show that $d f and (Y corner.r.b d V_g)=g(op("grad") f, Y)$
+
+  #paragraph_tab
+  For any 1-form 
+]
