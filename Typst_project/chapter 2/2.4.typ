@@ -453,3 +453,19 @@ In @Greens_Identities_with_boundaries, we treat somethings on the bundaries of m
     &= g(op("grad") f, Y) d V_g #dots_space #footnote[by the tangent-cotangent isomorphism]
   $
 ]
+
+#proposition(title: "4.1 : Green's identities with boundaries")[
+  If $M$ is a compact#footnote[If the compactness isn't assumed, the identities is ] Riemannian manifold with boundary, then for $u comma v in bb(C)^infinity (M)$, the following identities hold :
+  $
+    "Green first identity" :
+    -(u comma Delta v)=(d u comma d v)- integral_(partial M) u(frac(partial dash(v), partial n)) d S
+  $
+  $
+    #text(0.8em)[green second identity] :
+    (Delta u, v)-(u, Delta v)= integral_(partial M) [(frac(partial u, partial n))dash(v) - u(frac(partial dash(v), partial n)) ] d S
+  $
+]
+
+#proof[
+
+]
