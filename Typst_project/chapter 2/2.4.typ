@@ -116,7 +116,7 @@ The laplacian is very closely related to Hessian.
 
  //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   $
-    Delta u &= [ mark(nabla_i, tag: #<nabla>) ( rmark(g^(j k), tag: #<g>) bmark(nabla_k u, tag: #<u>) ) ]^i
+    Delta u &= [ mark(nabla_i, tag: #<nabla_special_lemma_2_9>) ( rmark(g^(j k), tag: #<g_special_lemma_2_9>) bmark(nabla_k u, tag: #<u>) ) ]^i
     \
     &= [ cancel(nabla_i g^(j k) nabla_k u) + g^(j k) (nabla_i nabla_k u) ]^i
     #dots_space #footnote[By applying product rule(@basic_properties_of_connection)]
@@ -127,17 +127,17 @@ The laplacian is very closely related to Hessian.
   $
 
   #annot-cetz(
-    (<nabla>, <g>, <u>),
+    (<nabla_special_lemma_2_9>, <g_special_lemma_2_9>, <u>),
     cetz,
     {
       import cetz.draw: *
       set-style(mark: (end: "straight"))
       
-      // nabla_i가 g^{jk}에 작용하는 항 (결과적으로 0이 됨)
-      bezier-through("nabla.north", (rel: (x: 0.3, y: 0.5)), "g.north", stroke: red)
+      // nabla_i가 g^(j k)에 작용하는 항 (결과적으로 0이 됨)
+      bezier-through("nabla_special_lemma_2_9.north", (rel: (x: 0.3, y: 0.5)), "g_special_lemma_2_9.north", stroke: red)
       
       // nabla_i가 nabla_k u에 작용하는 항
-      bezier-through("nabla.south", (rel: (x: 0.8, y: -0.2)), "u.south", stroke: blue)
+      bezier-through("nabla_special_lemma_2_9.south", (rel: (x: 0.8, y: -0.2)), "u.south", stroke: blue)
     },
   )
  //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -358,7 +358,7 @@ In @Greens_Identities_with_boundaries, we treat somethings on the bundaries of m
   $
     op("div") (f Y) = f op("div") Y + g( op("grad") f comma Y)
   $
-]
+] <the_product_rule_of_Riemmanian_divergence>
 
 #proof()[We start from the definition of divergence. Define $X:= f Y$. Then we have :
   $
@@ -455,17 +455,25 @@ In @Greens_Identities_with_boundaries, we treat somethings on the bundaries of m
 ]
 
 #proposition(title: "4.1 : Green's identities with boundaries")[
-  If $M$ is a compact#footnote[If the compactness isn't assumed, the identities is ] Riemannian manifold with boundary, then for $u comma v in bb(C)^infinity (M)$, the following identities hold :
+  If $M$ is a compact#footnote[If the compactness isn't assumed, the identities isn't true for all of smooth functions, only satisfied when $bb(C)^infinity_0 (M)$. Furthermore, the compactness guarantees the convergence of the integrals on the boundary.] Riemannian manifold with boundary, then for $u comma v in bb(C)^infinity (M)$, the following identities hold :
   $
     "Green first identity" :
     -(u comma Delta v)=(d u comma d v)- integral_(partial M) u(frac(partial dash(v), partial n)) d S
+  $ <Greens_first_identity_with_boundaries>
   $
-  $
-    #text(0.8em)[green second identity] :
+    #text(0.8em)[Green second identity] :
     (Delta u, v)-(u, Delta v)= integral_(partial M) [(frac(partial u, partial n))dash(v) - u(frac(partial dash(v), partial n)) ] d S
-  $
+  $ <Greens_second_identity_with_boundaries>
 ]
 
 #proof[
+  The Green's first identity with boundaries can be proved by applying the product rule of divergence(@the_product_rule_of_Riemmanian_divergence). Let $X:=u op("grad") v$. Then the product rule of divergence(@the_product_rule_of_Riemmanian_divergence) gives :
+  $
+    op("div") (X) &= op("div") (u op("grad") v)
+    \
+    &= u rmark(op("div") (op("grad") v)) + g( op("grad") u comma op("grad") v) #dots_space #footnote[by @the_product_rule_of_Riemmanian_divergence]
+    \
+    &= u rmark(Delta v) + g( op("grad") u comma op("grad") v)
+  $
 
 ]
