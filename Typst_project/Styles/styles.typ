@@ -1,4 +1,5 @@
 // Main styles file that imports all style modules
+#import "../Styles/cetz_utils.typ" : *
 #import "math_styles.typ": *
 #import "@preview/mannot:0.3.2": *
 
