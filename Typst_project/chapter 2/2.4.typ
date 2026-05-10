@@ -3,6 +3,7 @@
 #import "@preview/cetz:0.4.2"
 #import "@preview/mannot:0.3.1": *
 
+
 == The Laplace Operator on a Riemannian Manifold
 
 === Motivation
@@ -116,7 +117,7 @@ The laplacian is very closely related to Hessian.
 
  //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   $
-    Delta u &= [ mark(nabla_i, tag: #<nabla_special_lemma_2_9>) ( rmark(g^(j k), tag: #<g_special_lemma_2_9>) bmark(nabla_k u, tag: #<u>) ) ]^i
+    Delta u &= [ mark(nabla_i, tag: #<nabla_special_lemma_2_9>) ( rmark(g^(j k), tag: #<g_special_lemma_2_9>) bmark(nabla_k u, tag: #<u_special_lemma_2_9>) ]^i
     \
     &= [ cancel(nabla_i g^(j k) nabla_k u) + g^(j k) (nabla_i nabla_k u) ]^i
     #dots_space #footnote[By applying product rule(@basic_properties_of_connection)]
@@ -124,23 +125,22 @@ The laplacian is very closely related to Hessian.
     &= [g^(j k) (nabla_i nabla_k u)]^i  #dots_space #footnote[By the fundamental theorem of Reimannian geometry, $nabla$ is compatible with $g$.]
     \
     &= g^(j k) (nabla_i nabla_k u) #dots_space #footnote[Since $i$ is dummy index which means the summation is omitted. In additon, as considering that the dummy index is essentially picked arbitrarily, we can naturally delete the dummy index $i$!]
-  $
 
-  #annot-cetz-local(
-    (<nabla_special_lemma_2_9>, <g_special_lemma_2_9>, <u_special_lemma_2_9>),
-    cetz,
-    {
-      import cetz.draw: *
-      set-style(mark: (end: "straight"))
-      
-      // nabla_i가 g^(j k)에 작용하는 항 (결과적으로 0이 됨)
-      bezier-through("nabla_special_lemma_2_9.north", (rel: (x: 0.3, y: 0.5)), "g_special_lemma_2_9.north", stroke: red)
-      
-      // nabla_i가 nabla_k u에 작용하는 항
-      bezier-through("nabla_special_lemma_2_9.south", (rel: (x: 0.8, y: -0.2)), "u_special_lemma_2_9.south", stroke: blue)
-    },
-  )
-$
+    #annot-cetz-local(
+      (<nabla_special_lemma_2_9>, <g_special_lemma_2_9>, <u_special_lemma_2_9>),
+      cetz,
+      {
+        import cetz.draw: *
+        set-style(mark: (end: "straight"))
+        
+        // nabla_i가 g^(j k)에 작용하는 항 (결과적으로 0이 됨)
+        bezier-through("nabla_special_lemma_2_9.north", (rel: (x: 0.3, y: 0.5)), "g_special_lemma_2_9.north", stroke: red)
+        
+        // nabla_i가 nabla_k u에 작용하는 항
+        bezier-through("nabla_special_lemma_2_9.south", (rel: (x: 0.8, y: -0.2)), "u_special_lemma_2_9.south", stroke: blue)
+      },
+    )
+  $
 
  //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   that is exactly the same as the RHS of  @unpacked_relationship_of_laplacian_and_hessian, which proves the special lemma.
@@ -167,9 +167,9 @@ Now, let's define the local $L$-2-norm. Since this norm is defined on local, we 
 $
   chevron.l u comma v chevron.r_p &= u dash(v) comma  forall p in M
 $
-However, as seeing @Laplacian_identity_1-D, what we really want to know is $(d u comma d v)$! So, how can we define $chevron.l u comma d v chevron.r_p$? it is understandable to start :
+However, as seeing @Laplacian_identity_1-D, what we really want to know is $(d u comma d v)$! So, how can we define $chevron.l d u comma d v chevron.r_p$? it is understandable to start :
 $
-  chevron.l d u,d v chevron.r_p & = g_p shell.l (d u)^sharp comma (d v)^sharp shell.r 
+  chevron.l d u,d v chevron.r_p & := g_p shell.l (d u)^sharp comma (d v)^sharp shell.r 
 $
 Remember that $(d x^j)^sharp=g^(j m) frac(partial , partial x^m)$ by definition of $sharp$ operator. Thus apply it to $(d u)^sharp$ and $(d v )^sharp$.
 
@@ -198,13 +198,6 @@ Now it is time to define the global $L$-2 norm. What we want for global norm is 
   $
   where $V_g$ is the volume form of $M$.
 ] <L-2_norm_of_1-form>
-
-#note(title: "the local doesn't mean rigorously local")[
-  At the previous definition, we have to be careful that the local norm is not rigorously local. It is true that the local norm is local, but it is not rigorously local. It is only vaild to exactly one single point, not on the entire local area. Due to this reason, the following equation is true.
-  $
-   chevron.l f op("grad") u comma op("grad") v chevron.r_p = f chevron.l  u comma d v chevron.r_p
-  $ where $f,u,v in bb(C)^infinity$ and $p in M$.
-]
 
 === Green First Identity <subsection_Greens_First_Identity>
 
@@ -332,9 +325,9 @@ Equivalently, the outward unit normal vector field $nu$ along $partial M$ is a s
  #special_lemma(title: "normal derivaitve on Riemannian manifold")[
    Let $M$ be a smooth manifold and $u in bb(C)^infinity (M)$, $n$ is the outward normal vector. Then :
    $
-     frac( partial u , partial n) = <op("grad") u, n>
+      frac( partial u , partial n) = < op("grad") u, n>_g
    $
- ]
+ ] <normal_derivative_on_Riemannian_manifold>
 
  #proof[
   By computing $d u(n)$ from @definition_of_normal_derivative, the following equation is induced :
@@ -427,20 +420,19 @@ In @Greens_Identities_with_boundaries, we treat somethings on the bundaries of m
   To cancel $hat(d x)^i$ by $dx^i$, we have to move $hat(d x)^i$ to the front. In this moment, we have to apply the property which is about the changing the position of wedge product.
   $
     dx^1 and dots and rmark(hat(d x)^i, tag: #<position_change>) and dots and dx^n = (-1)^(i-1) hat(d x)^i and dx^1 and dots and dx^n
-  $
 
-  #annot-cetz-local(
-    (<position_change>),
-    cetz,
-    {
-      import cetz.draw: *
-      set-style(mark: (end: "straight"))
-      
-      // Change the position of hat(dx)^i
-      bezier-through("position_change.south", (rel: (x: -1.6, y: -0.5)), (rel: (x: -1, y: 0.4)), stroke: red)
-    }
-  )
-$
+    #annot-cetz-local(
+      (<position_change>),
+      cetz,
+      {
+        import cetz.draw: *
+        set-style(mark: (end: "straight"))
+        
+        // Change the position of hat(dx)^i
+        bezier-through("position_change.south", (rel: (x: -1.6, y: -0.5)), (rel: (x: -1, y: 0.4)), stroke: red)
+      }
+    )
+  $
 
 
   
@@ -473,13 +465,85 @@ $
 ]
 
 #proof[
-  The Green's first identity with boundaries can be proved by applying the product rule of divergence(@the_product_rule_of_Riemmanian_divergence). Let $X:=u op("grad") v$. Then the product rule of divergence(@the_product_rule_of_Riemmanian_divergence) gives :
-  $
-    op("div") (X) &= op("div") (u op("grad") v)
-    \
-    &= u rmark(op("div") (op("grad") v)) + g( op("grad") u comma op("grad") v) #dots_space #footnote[by @the_product_rule_of_Riemmanian_divergence]
-    \
-    &= u rmark(Delta v) + g( op("grad") u comma op("grad") v)
-  $
+  The Green's first identity with boundaries can be proved by applying the product rule of divergence(@the_product_rule_of_Riemmanian_divergence). Let $X:=u op("grad") dash(v)$. Then the product rule of divergence(@the_product_rule_of_Riemmanian_divergence) gives :
+  #flowbox()[  
+    $
+      op("div") (X) &= op("div") (u op("grad") dash(v))
+      \
+      &= u rmark(op("div") (op("grad") dash(v))) + g( op("grad") u comma op("grad") dash(v)) #dots_space #footnote[by @the_product_rule_of_Riemmanian_divergence]
+      \
+      &= u rmark(Delta dash(v)) + g( op("grad") u comma op("grad") dash(v))
+    $
 
+    $arrow.b$
+
+    integrating over $M$ :
+    $
+      bmark(integral_M op("div") (u op("grad") dash(v)) d V_g) &= integral_M u Delta dash(v) d V_g + integral_M g( op("grad") u comma op("grad") dash(v)) d V_g
+    $ <integral_of_divergence_of_product>
+  ]
+  The LHS of @integral_of_divergence_of_product can be :
+  #mannot-scope(s => 
+    [
+      $
+        bmark(integral_M op("div") (u op("grad") dash(v)) d V_g) & = integral_(partial M) chevron.l pmark(u) op("grad") dash(v) comma n chevron.r_g d S #dots_space #footnote[by the divergence theorem]
+        \
+        &= integral_(partial M) pmark(u) markrect(chevron.l op("grad") dash(v) comma n chevron.r_g, tag: #(s.tag)("normal_derivative"), color: #green) d S #dots_space #footnote[becuase $u$ is scalar function, it can escape to the metric.]
+        \
+        &= integral_(partial M) u(markrect(frac(partial dash(v), partial n), tag: #(s.tag)("normal_derivative_2"), color: #green)) d S #dots_space #footnote[by @normal_derivative_on_Riemannian_manifold]
+      $ <apply_divergence_theorem_to_integral_of_divergence_of_product>
+
+      #(s.annot)(
+          ("normal_derivative", "normal_derivative_2"),
+          cetz,
+          {
+            import cetz.draw: *
+            set-style(mark: (end: "straight"))
+
+            line((s.node)("normal_derivative", "south"), (s.node)("normal_derivative_2", "north"), stroke: green)
+          }
+        )
+    ]
+  )
+  Now, substituting @apply_divergence_theorem_to_integral_of_divergence_of_product into @integral_of_divergence_of_product, we get :
+  #flowbox[
+    $
+      integral_(partial M) u frac(partial dash(v), partial n) d S &= integral_M u Delta dash(v) d V_g + integral_M g( op("grad") u comma op("grad") v) d V_g
+      \
+      &= (u comma Delta dash(v)) + (d u comma d v) #dots_space #footnote[by the Green's first identity @Greens_First_Identity]
+    $
+  ]
+  which, prove the @Greens_first_identity_with_boundaries.
+
+  #paragraph_tab
+  Proving the Green's second identity starts from the Green's first identity with boundaries(@Greens_first_identity_with_boundaries). The core idea of proving the Green's second identity starts from that :
+  $
+    (d u comma d v)= (d v, d u)
+    \
+    (Delta u, v) = (v, Delta u)
+  $ <identity_of_L2_inner_product_of_differentials>
+
+  @identity_of_L2_inner_product_of_differentials is true because the inner product of $d u$ and $d v$ is defined by the metric, and the metric is symmetric. Thus, if we apply the Green's first identity with boundaries(@Greens_first_identity_with_boundaries) with interchanging $u$ and $v$, we have :
+  #flowbox()[
+    $
+      cases(
+        (d u comma d v) = -(u comma Delta v) + integral_(partial M) u(frac(partial dash(v), partial n)) d S
+        ,
+        (d v comma d u)= -(v comma Delta u) + integral_(partial M) v(frac(partial u, partial n)) d S 
+      )
+    $
+
+    $arrow.b$
+
+    Apply @identity_of_L2_inner_product_of_differentials :
+    $
+      -(u comma Delta v) + integral_(partial M) u(frac(partial dash(v), partial n)) d S= - underbrace((v comma Delta u), =(Delta v comma u)) + integral_(partial M) v(frac(partial u, partial n)) d S 
+    $
+
+    $arrow.b$
+
+    $
+      (v comma Delta u) - (Delta u comma  v) = integral_(partial M) [v(frac(partial u, partial n)) - u(frac(partial dash(v), partial n))] d S
+    $
+  ]
 ]
