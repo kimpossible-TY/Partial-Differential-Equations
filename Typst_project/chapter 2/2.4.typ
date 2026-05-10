@@ -126,8 +126,8 @@ The laplacian is very closely related to Hessian.
     &= g^(j k) (nabla_i nabla_k u) #dots_space #footnote[Since $i$ is dummy index which means the summation is omitted. In additon, as considering that the dummy index is essentially picked arbitrarily, we can naturally delete the dummy index $i$!]
   $
 
-  #annot-cetz(
-    (<nabla_special_lemma_2_9>, <g_special_lemma_2_9>, <u>),
+  #annot-cetz-local(
+    (<nabla_special_lemma_2_9>, <g_special_lemma_2_9>, <u_special_lemma_2_9>),
     cetz,
     {
       import cetz.draw: *
@@ -137,9 +137,11 @@ The laplacian is very closely related to Hessian.
       bezier-through("nabla_special_lemma_2_9.north", (rel: (x: 0.3, y: 0.5)), "g_special_lemma_2_9.north", stroke: red)
       
       // nabla_i가 nabla_k u에 작용하는 항
-      bezier-through("nabla_special_lemma_2_9.south", (rel: (x: 0.8, y: -0.2)), "u.south", stroke: blue)
+      bezier-through("nabla_special_lemma_2_9.south", (rel: (x: 0.8, y: -0.2)), "u_special_lemma_2_9.south", stroke: blue)
     },
   )
+$
+
  //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   that is exactly the same as the RHS of  @unpacked_relationship_of_laplacian_and_hessian, which proves the special lemma.
 ]
@@ -427,7 +429,7 @@ In @Greens_Identities_with_boundaries, we treat somethings on the bundaries of m
     dx^1 and dots and rmark(hat(d x)^i, tag: #<position_change>) and dots and dx^n = (-1)^(i-1) hat(d x)^i and dx^1 and dots and dx^n
   $
 
-  #annot-cetz(
+  #annot-cetz-local(
     (<position_change>),
     cetz,
     {
@@ -438,6 +440,10 @@ In @Greens_Identities_with_boundaries, we treat somethings on the bundaries of m
       bezier-through("position_change.south", (rel: (x: -1.6, y: -0.5)), (rel: (x: -1, y: 0.4)), stroke: red)
     }
   )
+$
+
+
+  
   Therefore, we have :
   $
     alpha and (Y corner.r.b Omega) &= sum_(i=1)^n alpha_i Y^i dx^1 and dots and dx^n
