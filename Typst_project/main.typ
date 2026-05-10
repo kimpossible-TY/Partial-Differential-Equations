@@ -62,6 +62,9 @@
     // Reset the equation counter at the start of each section
     counter(math.equation).update(0)
     counter(footnote).update(0)
+    counter(figure.where(kind: "definition")).update(0)
+    counter(figure.where(kind: "note")).update(0)
+    counter(figure.where(kind: "special_lemma")).update(0)
     set page(footer: none)
     set text(font: "New Computer Modern", size: 25pt)
     pagebreak(weak: true)
