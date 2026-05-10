@@ -141,4 +141,238 @@ $
 
 # plugin usage rule
 ## mannot
-Don't use `#annot-cetz` instead of `annot-cetz-local`.
+### local mannot scope
+
+Use `mannot-scope` when writing several `mannot` annotations in the same file.  
+The purpose of `mannot-scope` is to avoid manually writing globally unique tags such as `<special_lemma_2_9_nabla>`, `<special_lemma_2_9_g>`, and so on.
+
+Conceptually, it works as follows:
+
+```text
+local tag name -> automatically prefixed global label
+```
+
+Therefore, inside each `mannot-scope`, short local names such as `"nabla"`, `"g"`, `"u"`, `"position"`, and `"outside"` can be reused safely.
+
+#### Basic rule
+
+Do not write raw mannot labels manually unless there is a special reason.
+
+```typst
+// bad
+mark(nabla_i, tag: #<nabla>)
+mark(g^(j k), tag: #<g>)
+```
+
+Instead, use `(s.tag)(...)` inside `mannot-scope`.
+
+```typst
+// good
+#mannot-scope(s => [
+  $
+    mark(nabla_i, tag: #(s.tag)("nabla"))
+    mark(g^(j k), tag: #(s.tag)("g"))
+  $
+])
+```
+
+The expression
+
+```typst
+#(s.tag)("nabla")
+```
+
+creates a globally unique label from the local name `"nabla"`.
+
+#### Full example
+
+```typst
+#mannot-scope(s => [
+  $
+    mark(nabla_i, tag: #(s.tag)("nabla"))
+    mark(g^(j k), tag: #(s.tag)("g"))
+    mark(nabla_k u, tag: #(s.tag)("u"))
+
+    #(s.annot)(
+      ("nabla", "g", "u"),
+      cetz,
+      {
+        import cetz.draw: *
+        set-style(mark: (end: "straight"))
+
+        // nabla_i acts on g^(j k).
+        // This term vanishes by metric compatibility.
+        bezier-through(
+          (s.node)("nabla", "north"),
+          (rel: (x: 0.3, y: 0.5)),
+          (s.node)("g", "north"),
+          stroke: red,
+        )
+
+        // nabla_i acts on nabla_k u.
+        bezier-through(
+          (s.node)("nabla", "south"),
+          (rel: (x: 0.8, y: -0.2)),
+          (s.node)("u", "south"),
+          stroke: blue,
+        )
+      },
+    )
+  $
+])
+```
+
+#### How to refer to CeTZ anchors
+
+Inside the CeTZ drawing block, do not write the raw anchor name directly.
+
+```typst
+// bad
+bezier-through("nabla.north", ..., "g.north")
+```
+
+Instead, use `(s.node)(name, side)`.
+
+```typst
+// good
+bezier-through(
+  (s.node)("nabla", "north"),
+  (rel: (x: 0.3, y: 0.5)),
+  (s.node)("g", "north"),
+  stroke: red,
+)
+```
+
+The second argument of `(s.node)` is the anchor direction, such as:
+
+```typst
+"north"
+"south"
+"east"
+"west"
+"center"
+```
+
+#### Dictionary function call rule
+
+Since `s` is a dictionary, its stored functions must be called with parentheses around the field access.
+
+```typst
+// wrong
+s.tag("nabla")
+s.node("nabla", "north")
+s.annot(...)
+```
+
+Use this form instead:
+
+```typst
+// correct
+(s.tag)("nabla")
+(s.node)("nabla", "north")
+(s.annot)(...)
+```
+
+#### Multiple independent annotations
+
+Different `mannot-scope` blocks may reuse the same local names.
+
+```typst
+#mannot-scope(s => [
+  $
+    mark(hat(dx)^i, tag: #(s.tag)("position"))
+    mark(dx^i, tag: #(s.tag)("outside"))
+
+    #(s.annot)(
+      ("position", "outside"),
+      cetz,
+      {
+        import cetz.draw: *
+        set-style(mark: (end: "straight"))
+
+        bezier-through(
+          (s.node)("position", "south"),
+          (rel: (x: -1.6, y: -0.5)),
+          (s.node)("outside", "west"),
+          stroke: red,
+        )
+      },
+    )
+  $
+])
+```
+
+This is safe even if another `mannot-scope` also uses `"position"` or `"outside"`, because each scope automatically generates a distinct prefix.
+
+#### Manual prefix
+
+If the annotation needs a stable and readable internal namespace, provide `prefix`.
+
+```typst
+#mannot-scope(
+  s => [
+    $
+      mark(nabla_i, tag: #(s.tag)("nabla"))
+      mark(g^(j k), tag: #(s.tag)("g"))
+
+      #(s.annot)(
+        ("nabla", "g"),
+        cetz,
+        {
+          import cetz.draw: *
+
+          bezier-through(
+            (s.node)("nabla", "north"),
+            (rel: (x: 0.3, y: 0.5)),
+            (s.node)("g", "north"),
+            stroke: red,
+          )
+        },
+      )
+    $
+  ],
+  prefix: "special-lemma-2-9",
+)
+```
+
+In this case, the local name `"nabla"` is internally converted into a label similar to:
+
+```text
+special-lemma-2-9-nabla
+```
+
+Usually, however, omit `prefix` and let `mannot-scope` generate it automatically.
+
+#### Practical rules
+
+* Use `mannot-scope` for new mannot annotations.
+* Use `annot-cetz-local`, not `#annot-cetz`.
+* Use `(s.tag)("local-name")` for `mark(..., tag: ...)`.
+* Use `(s.node)("local-name", "direction")` inside CeTZ drawing code.
+* Use `(s.annot)((...), cetz, { ... })` to draw the annotation.
+* Keep the `mark(...)` calls and the corresponding `(s.annot)(...)` call close to each other, preferably in the same displayed equation block.
+* Do not manually reuse raw labels like `<x>`, `<nabla>`, `<position>`, or `<target>` across the document.
+
+summary :
+```typst
+#mannot-scope(s => [
+  $
+    mark(..., tag: #(s.tag)("a"))
+    mark(..., tag: #(s.tag)("b"))
+
+    #(s.annot)(
+      ("a", "b"),
+      cetz,
+      {
+        import cetz.draw: *
+
+        bezier-through(
+          (s.node)("a", "north"),
+          (rel: (x: 0.3, y: 0.5)),
+          (s.node)("b", "north"),
+          stroke: red,
+        )
+      },
+    )
+  $
+])
