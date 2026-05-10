@@ -139,4 +139,6 @@ therefore op("div") X &= 1 / sqrt(det g) partial_j (sqrt(det g) X^j) &
 $
 ```
 
-
+# plugin usage rule
+## mannot
+Don't use `#annot-cetz` instead of `annot-cetz-local`.
