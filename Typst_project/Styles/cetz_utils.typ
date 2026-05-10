@@ -149,3 +149,44 @@
     build(id)
   }
 }
+
+#let _mannot-scope-counter = counter("_mannot-scope-counter")
+
+#let mannot-scope(body, prefix: auto) = {
+  let make-scope(prefix) = {
+    let tag = name => label(prefix + "-" + name)
+
+    let tags = names => names.map(name => label(prefix + "-" + name))
+
+    let node = (name, side) => {
+      prefix + "-" + name + "." + side
+    }
+
+    let annot = (names, cetz, drawable) => {
+      annot-cetz-local(
+        names.map(name => label(prefix + "-" + name)),
+        cetz,
+        drawable,
+      )
+    }
+
+    body((
+      prefix: prefix,
+      tag: tag,
+      tags: tags,
+      node: node,
+      annot: annot,
+    ))
+  }
+
+  if prefix == auto {
+    _mannot-scope-counter.step()
+
+    context {
+      let n = _mannot-scope-counter.get().first()
+      make-scope("mannot-scope-" + str(n))
+    }
+  } else {
+    make-scope(prefix)
+  }
+}
