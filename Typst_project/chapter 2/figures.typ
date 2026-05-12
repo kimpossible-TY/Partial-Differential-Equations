@@ -73,3 +73,71 @@
     content((0, -3.0), text(size: 8pt)[(Distorts the shape of the neighborhood)])
   })
 })
+
+
+#let domain-codomain-u() = canvas({
+  import draw: *
+
+  // --- Domain: R x M ---
+  rect(
+    (0, 0),
+    (4.8, 2.6),
+    radius: .15,
+    stroke: (paint: gray, thickness: .8pt),
+    fill: rgb("#f7f7f7"),
+  )
+
+  content((2.4, 2.25), [$"domain": RR times M$])
+  content((.65, 1.35), [$t in RR$])
+  content((2.6, .45), [$x in M$])
+
+  line((1.0, .8), (4.1, .8), stroke: gray)
+  line((1.0, .8), (1.0, 2.0), stroke: gray)
+
+  content((4.25, .8), [$M$])
+  content((1.0, 2.15), [$RR$])
+
+  circle((2.7, 1.35), radius: .06, fill: black)
+  content((2.95, 1.35), [$(t,x)$])
+
+  // --- Arrow u ---
+  line(
+    (5.2, 1.3),
+    (6.9, 1.3),
+    stroke: (paint: black, thickness: 1pt),
+    mark: (end: ">"),
+  )
+  content((6.05, 1.65), [$u$])
+  content((6.05, .95), [$(t,x) mapsto u(t,x)$])
+
+  // --- Codomain: N ---
+  rect(
+    (7.3, 0),
+    (11.5, 2.6),
+    radius: .15,
+    stroke: (paint: gray, thickness: .8pt),
+    fill: rgb("#f4f8ff"),
+  )
+
+  content((9.4, 2.25), [$"codomain": N$])
+  content((9.4, .35), [$u(t,x) in N$])
+
+  // A point in N
+  circle((9.25, 1.3), radius: .07, fill: black)
+  content((9.75, 1.3), [$u(t,x)$])
+
+  // --- Fixed x trajectory ---
+  content((2.4, -.55), [$x "fixed": gamma_x(t) := u(t,x)$])
+
+  line(
+    (7.85, 1.0),
+    (8.35, 1.45),
+    (8.95, 1.55),
+    (9.55, 1.25),
+    (10.25, 1.65),
+    stroke: (paint: rgb("#3366cc"), thickness: 1.1pt),
+    mark: (end: ">"),
+  )
+
+  content((10.25, 1.95), [$gamma_x(t)$])
+})
