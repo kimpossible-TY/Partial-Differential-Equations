@@ -59,8 +59,28 @@ $
 Let $A in cal(L)(T_x M, T_y N)$ is a linear map. Then the defining $f$ likely to the following is natural :
 $
   f(x,y,A) := op("Tr")(A^* A) 
-$ where $A^* : T_y N arrow.r T_x M, A^* in cal(L)(T_y N, T_x M)$ is the adjoint of $A$ satisfying with :
+$ <potential_energy_density>
+where $A^* : T_y N arrow.r T_x M, A^* in cal(L)(T_y N, T_x M)$ is the adjoint of $A$ satisfying with :
 $
   g_x (A^* W, X)= h_y (W, A X) quad attach(X, tl: forall) in T_x M, attach(W, tl: forall) in T_y N
 $
-Furthermore, as considering that the 
+Now, let's build @potential_energy_density naturally. The potential energy density should measure local deformation. So if an infinitesimal direction#footnote[why does the tangent vector mean the infinitesimal direction(change)? We already did at @Manifolds with studying the Noether's theorem.] $X in T_x M$ is transformed only a little by $A: T_x M arrow.r T_y N$, then the local deformation energy should be small. That means the first natural quantity is :
+$
+  norm(A X)^2_h := h_y (A X, A X)
+$ <norm_AX_2_h>
+@norm_AX_2_h means :
+#emphasis()[
+  The more $A$ enlarges an infinitesimal vector $X$, the larger the local deformation should be
+]
+More easily speaking, If $A X$ is small, then $h_y (A X, A X)$ is small. On the other hands, If $A X$ is large, then $h_y (A X, A X)$ is large. So the first object we want is the quadratic measurement :
+$
+  X mapsto h_y (A X, A X)
+$
+
+#figure(
+  image("figures/potential_difference.png"),
+  caption: [steep slope VS gentle slope]
+)
+  
+#paragraph_tab
+However, the energy density should not depend on one chosed direction. It means $h_y (A X, A X)$ shouldn't depend on a chosed vector $X$. #highlight()[Thus we need an object that records the deformation of all infinitesimal directions at once.]
