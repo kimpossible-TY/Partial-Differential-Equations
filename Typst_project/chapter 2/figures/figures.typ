@@ -81,14 +81,14 @@
   // --- Domain: R x M ---
   rect(
     (0, 0),
-    (4.8, 2.6),
+    (4.6, 2.6),
     radius: .15,
     stroke: (paint: gray, thickness: .8pt),
     fill: rgb("#f7f7f7"),
   )
 
-  content((2.4, 2.25), [$"domain": RR times M$])
-  content((.65, 1.35), [$t in RR$])
+  content((2.7, 2.25), [$"domain": RR times M$])
+  content((.45, 1.35), [$t in RR$])
   content((2.6, .45), [$x in M$])
 
   line((1.0, .8), (4.1, .8), stroke: gray)
@@ -98,7 +98,7 @@
   content((1.0, 2.15), [$RR$])
 
   circle((2.7, 1.35), radius: .06, fill: black)
-  content((2.95, 1.35), [$(t,x)$])
+  content((3.3, 1.35), [$(t,x)$])
 
   // --- Arrow u ---
   line(
@@ -112,7 +112,7 @@
 
   // --- Codomain: N ---
   rect(
-    (7.3, 0),
+    (7.5, 0),
     (11.5, 2.6),
     radius: .15,
     stroke: (paint: gray, thickness: .8pt),
@@ -123,8 +123,8 @@
   content((9.4, .35), [$u(t,x) in N$])
 
   // A point in N
-  circle((9.25, 1.3), radius: .07, fill: black)
-  content((9.75, 1.3), [$u(t,x)$])
+  circle((9.25, 1.4), radius: .07, fill: black)
+  content((9.75, 1), [$u(t,x)$])
 
   // --- Fixed x trajectory ---
   content((2.4, -.55), [$x "fixed": gamma_x(t) := u(t,x)$])

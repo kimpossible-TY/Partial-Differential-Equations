@@ -1,5 +1,5 @@
 #import "../Styles/styles.typ": *
-#import "figures.typ": *
+#import "figures/figures.typ": *
 #import "@preview/mannot:0.3.1": *
 
 == the Covariant Derivative and Divergence of Tensor Fields
