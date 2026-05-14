@@ -83,4 +83,33 @@ $
 )
   
 #paragraph_tab
-However, the energy density should not depend on one chosed direction. It means $h_y (A X, A X)$ shouldn't depend on a chosed vector $X$. #highlight()[Thus we need an object that records the deformation of all infinitesimal directions at once.]
+However, the energy density should not depend on one chosed direction. It means $h_y (A X, A X)$ shouldn't depend on a chosed vector $X$. #highlight()[Thus we need an object that records the deformation of all infinitesimal directions at once.] To consider $attach(X, tl: forall) in T_X M$, define the $(0,2)$-tensor on $T_x M$ :
+$
+  T_A (X , Y)  := h_y (A X, A Y) #dots_space #footnote[In geometric language, $T_A$ is the result of the pullback of the metric $h_y$ by the infinitesimal deformation map $A$. Thus $T_A=A^*h_y$. where $A^*$ is a pullback.]
+  \
+  T_A (X , Y) in T^*_x M times.o T^*_x M
+$ <definition_of_deformation_tensor>
+#paragraph_tab
+Altough $T_A$ is naturally defined, the potential energy density must be a scalar. Then how can we make the scalar naturally from $T_A$? Since $T_A$ is $(0,2)$-tensor on $T_x M$, the Riemannian metric gives the canonical contraction : 
+$
+  op("Tr")_g (T_A) = g^(i j) (T_A)_(i j) #dots_space #footnote[See "trace of (0,2)-tensor" in my note of @Manifolds.]
+$
+Thus, the scalar local deformation energy is naturally :
+$
+  f(x,y,A)=op("Tr")_g (T_A)
+$ <definition_of_potential_energy_density_Riemannian_tensor_version>
+
+#special_lemma()[
+  Let $M $ and $N$ are Riemannian manifolds which are compact and $A in cal(L)(T_x M, T_y N)$ is a linear map. Then the following is true :
+  $
+    op("Tr")_g (T_A)= op("Tr") (A^* A)
+  $
+  As considering @definition_of_potential_energy_density_Riemannian_tensor_version, therefore we can argue :
+  $
+    f(x,y,A)= op("Tr") (A^* A)
+  $
+]
+
+#proof()[
+  
+]
