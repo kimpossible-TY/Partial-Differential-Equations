@@ -16,11 +16,12 @@
   "customizations": {
     "vscode": {
       "extensions": [
-            "myriad-dreamin.tinymist",
-            "analytic-signal.preview-pdf",
-            "PKief.material-icon-theme",
-            "Google.gemini",
-            "ms-python.python"
+        "myriad-dreamin.tinymist",
+        "analytic-signal.preview-pdf",
+        "PKief.material-icon-theme",
+        "Google.gemini",
+        "ms-python.python",
+        "openai.chatgpt"
       ],
       "settings": {
 				"python.defaultInterpreterPath": "${containerWorkspaceFolder}/.venv/bin/python",
