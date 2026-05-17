@@ -54,7 +54,7 @@ where $f$ is a smooth real-valued function.
 #paragraph_tab
 How can we determine $f$ naturally? To define it, let investigate the spartial differential. As representing the space of the maps $T_x M mapsto T_y N$ to $cal(L)(T_x M, T_y N)$,
 $
-  u_x (t,x) in cal(L)(T_x M, T_y N) quad "where" y=u(t,x)
+  d_x u (t,x) in cal(L)(T_x M, T_y N) quad "where" y=u(t,x)
 $
 Let $A in cal(L)(T_x M, T_y N)$ is a linear map. Then the defining $f$ likely to the following is natural :
 $
@@ -63,7 +63,7 @@ $ <potential_energy_density>
 where $A^* : T_y N arrow.r T_x M, A^* in cal(L)(T_y N, T_x M)$ is the adjoint of $A$ satisfying with :
 $
   g_x (A^* W, X)= h_y (W, A X) quad attach(X, tl: forall) in T_x M, attach(W, tl: forall) in T_y N
-$
+$ <definition_of_adjoint_of_A>
 Now, let's build @potential_energy_density naturally. The potential energy density should measure local deformation. So if an infinitesimal direction#footnote[why does the tangent vector mean the infinitesimal direction(change)? We already did at @Manifolds with studying the Noether's theorem.] $X in T_x M$ is transformed only a little by $A: T_x M arrow.r T_y N$, then the local deformation energy should be small. That means the first natural quantity is :
 $
   norm(A X)^2_h := h_y (A X, A X)
@@ -110,6 +110,64 @@ $ <definition_of_potential_energy_density_Riemannian_tensor_version>
   $
 ]
 
+#local-tag-scope(s => [
+    #proof()[
+    By the definition of $A^*$(@definition_of_adjoint_of_A), we know : 
+    $
+      g_x (A^* W, X)= h_y (W, A X)
+    $
+    by defining $Z:= A Y$, 
+    $
+      g(A^* A Y comma X) &= h(A Y, A X)
+      \
+      & = underbracket( h(A X comma A Y), rmark(T_A (X comma Y))) #dots_space #footnote[It is undeerstandable becuase $h$ is defined as the metric. Thus the symmetry property is undeerstandable.]
+    $
+
+    Now, let $B:=A^* A$. Then $B : V arrow.r V$ and :
+    #flowbox[
+      $
+      g(B Y comma X)=T_A (X comma Y), attach(X, tl: forall) , attach(Y, tl: forall) in V
+      $
+      
+      $arrow.b$
+
+      $
+        therefore B= g^(-1)T_A , quad B^k_j =g^(k j)(T_A)_(i j)
+      $ #(s.tag)("result")
+    ]
+    As taking the trace to #(s.ref)("result") and considering the Riemannian trace of $(0,2)$-tensor, we get :
+    $
+      op("Tr")(B)&=B^i_i=g^(i j)(T_A)_(i j)
+      \
+      &= op("Tr")_g (T_A)
+    $
+  ]
+])
+
+#paragraph_tab
+Until now, we treated the general geometric model of energy density. Now take $N = bb(R)$, and suppose $f(x,y,A)$ is independent of $y in bb(R)$. In other words, we consider a potential energy of the form :
+$
+  V(t)= integral_M f(x,d_x u (t,x)) d V
+$
+
+#special_lemma()[
+  let $M$ and $N:= bb(R)$ Riemannian manifold. For $attach(x, tl: forall) in M , attach(y, tl:forall) in N$, the following equation is true :
+  $
+    cal(L)(T_x M , T_y bb(R)) approx.eq T^*_x M
+  $
+] <first_special_lemma_for_one_D_string_vibration>
+
 #proof()[
-  
-]
+  By the basic property of tangent space, we have $T_y bb(R)=bb(R)$. therefore :
+  $
+    cal(L)(T_x M , T_y bb(R)) = cal(L)(T_x M, bb(R))
+  $
+
+  Since $cal(L)(T_x M, bb(R))$ means the space of $T_x M mapsto bb(R)$, it is the same as the definition of covector space which is $T_x^* M$.
+] 
+
+#paragraph_tab
+By @first_special_lemma_for_one_D_string_vibration, $d_x u in T^*_x M$ where $N= bb(R)$. Thus $A$ can be represented as the single covector $xi$ and the potential density $f(x, xi)$ is defined on $T^* M$.
+$
+  f in T^* M quad "where " N = bb(R)
+$
