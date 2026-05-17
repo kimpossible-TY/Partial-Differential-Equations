@@ -140,8 +140,33 @@ $
 ```
 
 # plugin usage rule
+## local tag scopes
+
+Use the reusable local tag system when a feature needs short names that must become globally unique labels or anchor names. The implementation lives in `Typst_project/Styles/local_tags/local_tags.typ` and is re-exported by `Typst_project/Styles/styles.typ`.
+
+```typst
+#local-tag-scope(s => [
+  $ x $ #(s.tag)("x")
+
+  // Use the globally unique plain name when a plugin needs a string key.
+  #(s.name)("x")
+])
+```
+
+The scope dictionary provides:
+
+* `(s.tag)("name")` for a scoped Typst label.
+* `(s.tags)(("a", "b"))` for several scoped labels.
+* `(s.name)("name")` for the scoped string name.
+* `(s.names)(("a", "b"))` for several scoped string names.
+* `(s.anchor)("name", "north")` for anchor-style strings such as `scope-name.north`.
+
+Prefer building plugin-specific wrappers on top of `local-tag-scope` instead of duplicating counter and prefix logic.
+
 ## mannot
 ### local mannot scope
+
+`mannot-scope` is the mannot/CeTZ wrapper around the general `local-tag-scope` system.
 
 Use `mannot-scope` when writing several `mannot` annotations in the same file.  
 The purpose of `mannot-scope` is to avoid manually writing globally unique tags such as `<special_lemma_2_9_nabla>`, `<special_lemma_2_9_g>`, and so on.

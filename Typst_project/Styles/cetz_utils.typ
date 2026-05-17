@@ -1,5 +1,6 @@
 #import "@preview/cetz:0.4.2": *
 #import "@preview/mannot:0.3.3" : *
+#import "local_tags/local_tags.typ": local-tag-scope
 
 // Reusable legend box function for CeTZ
 #let legend_box(
@@ -150,43 +151,25 @@
   }
 }
 
-#let _mannot-scope-counter = counter("_mannot-scope-counter")
-
 #let mannot-scope(body, prefix: auto) = {
-  let make-scope(prefix) = {
-    let tag = name => label(prefix + "-" + name)
-
-    let tags = names => names.map(name => label(prefix + "-" + name))
-
-    let node = (name, side) => {
-      prefix + "-" + name + "." + side
-    }
-
+  local-tag-scope(scope => {
     let annot = (names, cetz, drawable) => {
       annot-cetz-local(
-        names.map(name => label(prefix + "-" + name)),
+        (scope.tags)(names),
         cetz,
         drawable,
       )
     }
 
     body((
-      prefix: prefix,
-      tag: tag,
-      tags: tags,
-      node: node,
+      prefix: scope.prefix,
+      tag: scope.tag,
+      tags: scope.tags,
+      name: scope.name,
+      names: scope.names,
+      node: scope.anchor,
+      anchor: scope.anchor,
       annot: annot,
     ))
-  }
-
-  if prefix == auto {
-    _mannot-scope-counter.step()
-
-    context {
-      let n = _mannot-scope-counter.get().first()
-      make-scope("mannot-scope-" + str(n))
-    }
-  } else {
-    make-scope(prefix)
-  }
+  }, prefix: prefix, namespace: "mannot-scope")
 }
