@@ -166,8 +166,40 @@ $
   Since $cal(L)(T_x M, bb(R))$ means the space of $T_x M mapsto bb(R)$, it is the same as the definition of covector space which is $T_x^* M$.
 ] 
 
+#note[  By @first_special_lemma_for_one_D_string_vibration, $d_x u in T^*_x M$ where $N= bb(R)$. Thus $A$ can be represented as the single covector $xi$ and the potential density $f(x, xi)$ is defined on $T^* M$.
+  $
+    f in T^* M quad "where " N = bb(R)
+  $
+]
+
 #paragraph_tab
-By @first_special_lemma_for_one_D_string_vibration, $d_x u in T^*_x M$ where $N= bb(R)$. Thus $A$ can be represented as the single covector $xi$ and the potential density $f(x, xi)$ is defined on $T^* M$.
+Our goal is to determine the wave function $u$. Since we already constructed the kinetic energy and potential energy, let's use the Euler-Lagrange equation to determine $u$. First of all, the action is :
 $
-  f in T^* M quad "where " N = bb(R)
+  S[u] & =integral_(t_0)^(t_1) L thin d t
+  \
+  L &= frac(1,2) integral_M m(x) norm(d_t u)^2 d V - integral_M f(x,xi) thin d V
+  \
+  &= integral_M underbrace(frac(1,2)m(x) norm(d_t u)^2- f(x,xi), cal(L)) thin d V
 $
+Let $cal(L):= frac(1,2)m(x) norm(d_t u)^2- f(x,xi)$ which is Lagrangian density. Since $T$ and $V$ are smooth, $L$ is smooth too. Therefore we can change the order of derivative and integral :
+#flowbox()[
+  Euler-Lagrange equation
+  $
+    frac(partial L, partial u)- frac(partial, partial t) frac(partial L, partial d_t u)-frac(partial, partial x_j) frac(partial L, partial d_(x_j) u)=0
+  $
+
+  $arrow.b$
+
+  use $L:= integral_M cal(L) thin d V$ and switch the derivative and the integral
+  $
+    underbracket(frac(partial cal(L), partial u), (1)) 
+    - 
+    underbracket(frac(partial, partial t) frac(partial cal(L), partial d_t u), (2))
+    -
+    underbracket(frac(partial, partial x_j) frac(partial cal(L), partial d_(x_j) u), (3))
+    =0
+  $ <Euler-Lagrange_equation_of_Lagrangian_density_wave_eq>
+]
+
+#paragraph_tab
+Now compute (1) $tilde$ (3) of @Euler-Lagrange_equation_of_Lagrangian_density_wave_eq
