@@ -425,15 +425,15 @@ Traditionally, the derivative of a functional on a space of maps is called its f
 
   #flowbox[
     $
-      d / (d s) L_g (Gamma_s |_{[a_{i-1}, a_i]}) &= integral_(a_{i-1})^(a_i) partial / (partial s) chevron.l T, T chevron.r^(1/2) d t #dots_space #footnote[by the definition of length] \
-      &= integral_(a_{i-1})^(a_i) 1/2 chevron.l T, T chevron.r^(-1/2) 2 chevron.l D_s T, T chevron.r d t #dots_space #footnote[by the chain rule] \
-      &= integral_(a_{i-1})^(a_i) 1 / abs(T) chevron.l D_s T, T chevron.r d t #dots_space #footnote[By Lemma 6.2] \
+      d / (d s) L_g (Gamma_s |_{[a_(i-1), a_i]}) &= integral_(a_(i-1))^(a_i) partial / (partial s) chevron.l T, T chevron.r^(1/2) d t #dots_space #footnote[by the definition of length] \
+      &= integral_(a_(i-1))^(a_i) 1/2 chevron.l T, T chevron.r^(-1/2) 2 chevron.l D_s T, T chevron.r d t #dots_space #footnote[by the chain rule] \
+      &= integral_(a_(i-1))^(a_i) 1 / abs(T) chevron.l D_s T, T chevron.r d t #dots_space #footnote[By Lemma 6.2] \
       arrow.b 
       \
-      d / (d s) |_(s=0) L_g (Gamma_s |_{[a_{i-1}, a_i]}) &= integral_(a_{i-1})^(a_i) chevron.l D_s V, gamma' chevron.r d t #dots_space #footnote[by $S(0,t) = V(t)$ and $T(0,t) = gamma'(t)$] \
-      &= integral_(a_{i-1})^(a_i) (d / (d t) chevron.l V, gamma' chevron.r - chevron.l V, D_t gamma' chevron.r) d t #dots_space #footnote[by $d/(d t) chevron.l V, W chevron.r = chevron.l D_t V, W chevron.r + chevron.l V, D_t W chevron.r$] \
-      &= chevron.l V(a_i), gamma'(a_i^+) chevron.r - chevron.l V(a_{i-1}), gamma'(a_{i-1}^-) chevron.r \
-      &quad - integral_(a_{i-1})^(a_i) chevron.l V, D_t gamma' chevron.r d t #dots_space #footnote[by the fundamental theorem of Calculus]
+      d / (d s) |_(s=0) L_g (Gamma_s |_{[a_(i-1), a_i]}) &= integral_(a_(i-1))^(a_i) chevron.l D_s V, gamma' chevron.r d t #dots_space #footnote[by $S(0,t) = V(t)$ and $T(0,t) = gamma'(t)$] \
+      &= integral_(a_(i-1))^(a_i) (d / (d t) chevron.l V, gamma' chevron.r - chevron.l V, D_t gamma' chevron.r) d t #dots_space #footnote[by $d/(d t) chevron.l V, W chevron.r = chevron.l D_t V, W chevron.r + chevron.l V, D_t W chevron.r$] \
+      &= chevron.l V(a_i), gamma'(a_i^+) chevron.r - chevron.l V(a_(i-1)), gamma'(a_(i-1)^-) chevron.r \
+      &quad - integral_(a_(i-1))^(a_i) chevron.l V, D_t gamma' chevron.r d t #dots_space #footnote[by the fundamental theorem of Calculus]
     $
   ]
 ]
@@ -468,27 +468,27 @@ Now, finally we prove that the minimizing curve is related to geodesic.
   First, let's prove the minimizing curve has no bends which is 'locally geodesic'. As mathematically speaking, $partial / (partial s) |_(s=0) L_s (Gamma_s) = 0$ induces $D_t gamma' = 0$. Define the variation field $V := D_t gamma'$.
 
   #paragraph_tab
-  Since we treat the 'local', it is sufficient to restrict $V$ to local by using the bump function $phi$. Then how can we define the subset of the domain that $phi$ isn't zero? #highlighted[Since we consider to use the first variation formula, let's restrict $V$ on $(a_{i-1}, a_i)$, such that $phi = 0$ outside of $(a_{i-1}, a_i)$.]#footnote[Why we define the restriction using open interval? It is because the bump function must be smooth on the whole domain. If we define the 'non-zero area' of using the closed interval, it contradicts to the smoothness!]
+  Since we treat the 'local', it is sufficient to restrict $V$ to local by using the bump function $phi$. Then how can we define the subset of the domain that $phi$ isn't zero? #highlighted[Since we consider to use the first variation formula, let's restrict $V$ on $(a_(i-1), a_i)$, such that $phi = 0$ outside of $(a_(i-1), a_i)$.]#footnote[Why we define the restriction using open interval? It is because the bump function must be smooth on the whole domain. If we define the 'non-zero area' of using the closed interval, it contradicts to the smoothness!]
   Now, apply the first variation formula!
 
   #flowbox[
     $
       markrect(d / (d s) |_(s=0) L_g (Gamma_s),color: #blue, tag:#<minimizing_curve_condition>)
-      &= - integral_(a_{i-1})^(a_i) chevron.l V, D_t gamma' chevron.r d t
+      &= - integral_(a_(i-1))^(a_i) chevron.l V, D_t gamma' chevron.r d t
       \ & cancel(- chevron.l V(a_i) comma Delta _i gamma' chevron.r)
       #dots_space #footnote[Since $Gamma_s$ is proper, $V(a_i)=0$] 
       \
       arrow.b 
       \
-      integral_(a_{i-1})^(a_i) phi abs(D_t gamma')^2 d t &= 0 #dots_space #footnote[by restricted V, $V_"restricted" := phi D_t gamma'$]
+      integral_(a_(i-1))^(a_i) phi abs(D_t gamma')^2 d t &= 0 #dots_space #footnote[by restricted V, $V_"restricted" := phi D_t gamma'$]
 
       #annot(<minimizing_curve_condition>, pos: top+left, dx: -2em)[will be 0]
     $
   ]
-  Since $phi$ is not zero on $(a_{i-1}, a_i)$, $D_t gamma'$ must be zero.
+  Since $phi$ is not zero on $(a_(i-1), a_i)$, $D_t gamma'$ must be zero.
 
   #paragraph_tab
-  Second, let's prove the minimizing curve has no corners. This argument is necessary to combine each intervals $(a_{i-1}, a_i)$. Similar to the above, define the variation field $V(a_i) = Delta_i gamma'$ and its restriction $V_"restricted" = rho_epsilon Delta_i gamma'$ on $(a_i - epsilon, a_i + epsilon)$. Now let's apply the first variation formula(@variation_formula) again!
+  Second, let's prove the minimizing curve has no corners. This argument is necessary to combine each intervals $(a_(i-1), a_i)$. Similar to the above, define the variation field $V(a_i) = Delta_i gamma'$ and its restriction $V_"restricted" = rho_epsilon Delta_i gamma'$ on $(a_i - epsilon, a_i + epsilon)$. Now let's apply the first variation formula(@variation_formula) again!
 
   #flowbox[
     + $
