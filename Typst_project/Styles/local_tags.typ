@@ -16,6 +16,7 @@
     let tag = local-name => label(name(local-name))
     let tags = local-names => local-names.map(tag)
     let anchor = (local-name, side) => name(local-name) + "." + side
+    let reference = local-name => ref(tag(local-name))
 
     body((
       prefix: prefix,
@@ -24,6 +25,7 @@
       tag: tag,
       tags: tags,
       anchor: anchor,
+      ref: reference,
     ))
   }
 

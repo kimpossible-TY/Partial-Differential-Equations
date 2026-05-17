@@ -142,7 +142,7 @@ $
 # plugin usage rule
 ## local tag scopes
 
-Use the reusable local tag system when a feature needs short names that must become globally unique labels or anchor names. The implementation lives in `Typst_project/Styles/local_tags/local_tags.typ` and is re-exported by `Typst_project/Styles/styles.typ`.
+Use the reusable local tag system when a feature needs short names that must become globally unique labels or anchor names. The implementation lives in `Typst_project/Styles/local_tags.typ` and is re-exported by `Typst_project/Styles/styles.typ`.
 
 ```typst
 #local-tag-scope(s => [
@@ -160,13 +160,71 @@ The scope dictionary provides:
 * `(s.name)("name")` for the scoped string name.
 * `(s.names)(("a", "b"))` for several scoped string names.
 * `(s.anchor)("name", "north")` for anchor-style strings such as `scope-name.north`.
+* `(s.ref)("name")` for locally mentioning an equation, figure, heading, or other semantic Typst element labeled with `(s.tag)("name")`.
 
 Prefer building plugin-specific wrappers on top of `local-tag-scope` instead of duplicating counter and prefix logic.
+
+### Local equation and figure references
+
+For equations and figures, use `(s.tag)` only to attach the global label, and use `(s.ref)` when mentioning it locally. Do not mention the generated global name directly.
+
+```typst
+#local-tag-scope(s => [
+  $
+    E = m c^2
+  $ #(s.tag)("energy")
+
+  The equation is #(s.ref)("energy").
+])
+```
+
+This keeps the call local (`"energy"`) while the actual Typst reference goes through the globally scoped label, so the displayed reference follows the normal equation or figure rule.
+
+### Using mannot/CeTZ inside a local tag scope
+
+You can use `annot-cetz-local` directly inside `local-tag-scope` by passing labels from `(s.tags)` and anchors from `(s.anchor)`.
+
+```typst
+#local-tag-scope(s => [
+  $
+    mark(a, tag: #(s.tag)("a"))
+    mark(b, tag: #(s.tag)("b"))
+
+    #annot-cetz-local(
+      (s.tags)(("a", "b")),
+      cetz,
+      {
+        import cetz.draw: *
+        line((s.anchor)("a", "south"), (s.anchor)("b", "north"))
+      },
+    )
+  $
+])
+```
+
+You can also nest `mannot-scope` inside `local-tag-scope`. Give it the parent scope and a local `name` when you want a stable nested namespace.
+
+```typst
+#local-tag-scope(s => [
+  #mannot-scope(
+    m => [
+      $
+        mark(a, tag: #(m.tag)("a"))
+        mark(b, tag: #(m.tag)("b"))
+      $
+    ],
+    parent: s,
+    name: "first-annotation",
+  )
+])
+```
+
+This converts `"a"` into a label with a prefix like `local-scope-1-first-annotation-a`. A different outer `local-tag-scope` block gets a different prefix automatically.
 
 ## mannot
 ### local mannot scope
 
-`mannot-scope` is the mannot/CeTZ wrapper around the general `local-tag-scope` system.
+`mannot-scope` is the mannot/CeTZ wrapper around the general `local-tag-scope` system. Its implementation lives in `Typst_project/Styles/mannot_utils.typ`; keep it separate from CeTZ-only helpers in `cetz_utils.typ`.
 
 Use `mannot-scope` when writing several `mannot` annotations in the same file.  
 The purpose of `mannot-scope` is to avoid manually writing globally unique tags such as `<special_lemma_2_9_nabla>`, `<special_lemma_2_9_g>`, and so on.
