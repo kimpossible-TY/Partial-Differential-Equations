@@ -175,31 +175,75 @@ $
 #paragraph_tab
 Our goal is to determine the wave function $u$. Since we already constructed the kinetic energy and potential energy, let's use the Euler-Lagrange equation to determine $u$. First of all, the action is :
 $
-  S[u] & =integral_(t_0)^(t_1) L thin d t
+  S[u] & =integral_(t_0)^(t_1) L thick d t
   \
-  L &= frac(1,2) integral_M m(x) norm(d_t u)^2 d V - integral_M f(x,xi) thin d V
+  L &= frac(1,2) integral_M m(x) norm(d_t u)^2 d V - integral_M f(x,xi) thick d V
   \
-  &= integral_M underbrace(frac(1,2)m(x) norm(d_t u)^2- f(x,xi), cal(L)) thin d V
+  &= integral_M  underbrace([frac(1,2)m(x) norm(d_t u)^2- f(x,xi)]sqrt(op("det") g), cal(L)) thick d x #dots_space #footnote[Using the local coordinate $d V= sqrt(op("det") g)$]
 $
-Let $cal(L):= frac(1,2)m(x) norm(d_t u)^2- f(x,xi)$ which is Lagrangian density. Since $T$ and $V$ are smooth, $L$ is smooth too. Therefore we can change the order of derivative and integral :
+Let $cal(L):= sqrt(op("det") g)[frac(1,2)m(x) norm(d_t u)^2- f(x,xi)]$ which is Lagrangian density. Since $T$ and $V$ are smooth, $L$ is smooth too. Therefore we can change the order of derivative and integral :
 #flowbox()[
   Euler-Lagrange equation
-  $
-    frac(partial L, partial u)- frac(partial, partial t) frac(partial L, partial d_t u)-frac(partial, partial x_j) frac(partial L, partial d_(x_j) u)=0
-  $
+  #mannot-scope(s=>[
+    $
+      frac(partial L, partial u)- frac(partial, partial t) frac(partial L, partial markhl(d_t u, tag: #(s.tag)("first")))-frac(partial, partial x_j) frac(partial L, partial markhl(d_(x_j) u, color: #green, tag: #(s.tag)("second")))&=0 #dots_space #footnote[Since $u$ is real-valued funcion, $d_t u=partial_t u$ and $d_(x_j) u=partial_j u$ are satisfied.]
+    $ <Euler-Lagrange_equation_for_wave_equation>
+
+    #annot((s.tag)("first"))[
+      $partial_t u$
+    ]
+    #annot((s.tag)("second"))[
+      $partial_j u$
+    ]
+  ])
 
   $arrow.b$
 
-  use $L:= integral_M cal(L) thin d V$ and switch the derivative and the integral
+  use $L:= integral_M cal(L) thick d x$ and switch the derivative and the integral
   $
     underbracket(frac(partial cal(L), partial u), (1)) 
     - 
-    underbracket(frac(partial, partial t) frac(partial cal(L), partial d_t u), (2))
+    underbracket(frac(partial, partial t) frac(partial cal(L), partial (partial_t u)), (2))
     -
-    underbracket(frac(partial, partial x_j) frac(partial cal(L), partial d_(x_j) u), (3))
+    underbracket(frac(partial, partial x_j) frac(partial cal(L), partial (partial_j u)), (3))
     =0
   $ <Euler-Lagrange_equation_of_Lagrangian_density_wave_eq>
 ]
 
 #paragraph_tab
-Now compute (1) $tilde$ (3) of @Euler-Lagrange_equation_of_Lagrangian_density_wave_eq
+#local-tag-scope(l => [
+  Now compute (1) $tilde$ (3) of @Euler-Lagrange_equation_of_Lagrangian_density_wave_eq. First, Since $f$ does not depend on $u$ itself, only on $x$ and $u_j$, therefore $frac(partial cal(L), partial u)=0$. second, 
+  $
+    frac(partial cal(L) , partial partial_t u)= sqrt(det g) thick m(x) thick partial_t u
+  $ #(l.tag)("first_result")
+  is easily proved. Since $g$ and $m$ depend only on $x$, not on $t$,
+
+  #mannot-scope(s =>[
+    $
+      frac(partial , partial t) frac(partial cal(L), partial (partial_t u))= sqrt(det g) thick m(x) thick markrect(partial_t (partial_t u), color: #red, tag: #(s.tag)("partial^2_t_u"))
+    $ #(l.tag)("second_result")
+    #annot((s.tag)("partial^2_t_u"), pos: right)[second time derivative]
+  ])
+  Now let's compute (3). Since $cal(L)=sqrt(op("det") g)[frac(1,2) m (partial_t u)^2-f(x, xi)]$ where $xi=d_x u$ and $d_x u =partial_x u$, we get :
+  #flowbox()[$
+    frac(partial cal(L), partial u_j)=-sqrt(op("det") g) thick frac(partial f, partial xi_j)(x, xi)
+  $
+
+  $arrow.b$
+
+  $
+    partial_j frac(partial cal(L), partial u_j) =
+    partial_j (-sqrt(op("det") g) thick frac(partial f, partial xi_j)(x, xi))
+  $ #(l.tag)("third_result")
+  ]
+
+  As putting #(l.ref)("first_result"), #(l.ref)("second_result") and #(l.ref)("third_result") to @Euler-Lagrange_equation_for_wave_equation, 
+])
+we finally get :
+#mannot-scope(s =>[
+  $
+    m frac(partial^2 u , partial t^2 ) - markul(frac(1, sqrt(op("det") g))( frac(partial, partial x_j) sqrt(op("det") g) thick frac(partial f, partial xi_j) (x, xi)), color: #blue, tag: #(s.tag)("hl"))
+    = 0
+  $ <wave-like_equation>
+  #annot((s.tag)("hl"), pos: bottom)[will be $Delta u$ if adding some assumptions]
+])
