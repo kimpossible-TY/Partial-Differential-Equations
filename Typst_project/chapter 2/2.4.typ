@@ -15,13 +15,12 @@ The Laplace operator is one of the most fundamental second-order differential op
 #paragraph_tab
 In one dimension, the relationship between the second derivative and the product of first derivatives is a direct consequence of the Fundamental Theorem of Calculus (specifically, integration by parts). Consider smooth functions $u, v: [a, b] arrow.r RR$ where $v$ is a test function that vanishes at the boundaries ($v(a) = v(b) = 0$).
 
-#flowbox[
 $
 integral_a^b -u''(x) v(x) d x &= markul([-u'(x)v(x)]_a^b, tag: #<ftc_boundary_term>, color: #red) + integral_a^b u'(x) v'(x) d x \
 &= 0 + integral_a^b u'(x) v'(x) d x
 $ <1D_example_of_laplacian>
 #annot(<ftc_boundary_term>, pos: top, dy: -0.5em)[vanishes as $v(a)=v(b)=0$]
-]
+
 
 #paragraph_tab
 Now, let's think about $L^2$ inner products. To use it, let's expand $u$ and $v$ as complex plane. Then @1D_example_of_laplacian can be : 
@@ -233,16 +232,14 @@ See @investigate_L2_norm_of_1-form. At high-school level, we often used integrat
   $
 ]
 As focusing $dash(v) nabla_k (g^(j k) partial_j u)$ and applying the product rule again, we get : 
-#flowbox[
- $
-   rmark(dash(v) nabla_k (g^(j k) partial_j u)) &= dash(v)[cancel( ( nabla_k g^(j k) partial_j u)) + g^(j k) nabla_k partial_j u]
-   \
-   &= dash(v)]g^(j k) (nabla_k partial_j u)] #dots_space #footnote[by the fundamental theorem of Riemmanian geometry, $nabla$ is compatible with $g$.] 
-   \
-   &= dash(v)[Delta u] #dots_space #footnote[by @specle_lemma_relationship_of_laplacian_and_hessian]
- $
+$
+  rmark(dash(v) nabla_k (g^(j k) partial_j u)) &= dash(v)[cancel( ( nabla_k g^(j k) partial_j u)) + g^(j k) nabla_k partial_j u]
+  \
+  &= dash(v)]g^(j k) (nabla_k partial_j u)] #dots_space #footnote[by the fundamental theorem of Riemmanian geometry, $nabla$ is compatible with $g$.] 
+  \
+  &= dash(v)[Delta u] #dots_space #footnote[by @specle_lemma_relationship_of_laplacian_and_hessian]
+$
 
-]
 Therefore, we have :
 $
   integral_M underbrace((nabla_k dash(v)), =partial_k dash(v)) g^(j k) (partial_j u)   d V_g = - integral dash(v) Delta u d V_g
