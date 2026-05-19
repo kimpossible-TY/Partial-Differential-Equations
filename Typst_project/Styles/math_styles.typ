@@ -2,6 +2,7 @@
 
 #import "utils.typ": *
 #import "callouts.typ": *
+#import "theme.typ": *
 
 
 // ---------- THEOREM BOX ----------
@@ -140,10 +141,14 @@
 }
 
 // ---------- FLOW BOX ----------
-#let flowbox(body) = block(
-  width: 100%,
-  stroke: 1pt,
-  inset: (left: 1em, right: 1em, top: 1em, bottom: 1em),
-  align(center, body),
-)
+#let flowbox(body) = context {
+  let theme = theme-from-text-fill()
+
+  block(
+    width: 100%,
+    stroke: 1pt + theme.rule,
+    inset: (left: 1em, right: 1em, top: 1em, bottom: 1em),
+    align(center, body),
+  )
+}
 

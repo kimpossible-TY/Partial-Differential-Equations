@@ -9,6 +9,50 @@ trigger: always_on
 #import "@preview/mannot:0.3.1": *
 ```
 
+
+## theme and dark mode
+
+The project supports light/dark mode through `Typst_project/Styles/theme.typ`, re-exported by `Styles/styles.typ`.
+
+Choose the active palette in `Typst_project/main.typ`:
+
+```typst
+#let theme = dark-theme // or light-theme
+
+#set text(font: "Times New Roman", size: 12pt, fill: theme.text)
+#set page(fill: theme.page, margin: auto, ...)
+```
+
+Typst does not allow plain custom functions to be used directly as `#set` targets. Do not write `#set theme(...)`. Apply theme values through settable Typst elements such as `#set page(fill: theme.page)` and `#set text(fill: theme.text)`.
+
+Reusable style helpers that need colors must resolve the active theme in `context`:
+
+```typst
+#import "theme.typ": *
+
+#let mybox(body) = context {
+  let theme = theme-from-text-fill()
+
+  block(
+    fill: theme.callouts.note.bg,
+    stroke: 1pt + theme.rule,
+    body,
+  )
+}
+```
+
+Do not hard-code light-only colors for reusable styles. Prefer fields from the active theme:
+
+- page background: `theme.page`
+- normal text: `theme.text`
+- rules and neutral strokes: `theme.rule`
+- subtle text: `theme.subtle-text`
+- muted text: `theme.muted-text`
+- highlights: `theme.highlight`
+- callout fills and borders: `theme.callouts.<type>.bg` and `theme.callouts.<type>.border`
+
+Local figure colors may still be hard-coded when the color is semantic, e.g. red/blue vectors, but neutral fills, neutral strokes, callout bodies, cover decorations, and box borders should use the theme.
+
 ## spaceing role(including `#paragraph_tab` role)
 - the empty line should be exist before `#paragraph_tab`
 - Don't insert `#paragraph_tab` between equation block and equation block.
@@ -43,6 +87,7 @@ $ Z_X V = ( op("div") X) omega = d(i_X omega) $
 ### Equations blocks
 #### flowbox
 if treating complicated argument logically, use `flowbox`. Ensure that all steps and connecting arrows (like `$arrow.b$`) are contained *within* the `flowbox`. For example :
+
 ```typst
 #flowbox[
 $ 
@@ -51,12 +96,13 @@ $
 $arrow.b$
 
 "How about" $d(i_X omega)$?
-
 ]
+```
 
 The arrow should be inline math.
 
-```
+`flowbox` is theme-aware. If you modify it or create a similar box, do not use a bare `stroke: 1pt`; use `stroke: 1pt + theme.rule` inside `context` so the border stays visible in dark mode.
+
 #### Definition, theorem, Lemma , Note, proposition,  Special Lemma, Speical Proposition and Special Definition
 Something will be auto-numbering, but something is not.
 - auto-numbering

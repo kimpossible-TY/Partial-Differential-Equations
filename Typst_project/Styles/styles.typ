@@ -1,4 +1,5 @@
 // Main styles file that imports all style modules
+#import "theme.typ": *
 #import "../Styles/cetz_utils.typ" : *
 #import "local_tags.typ": *
 #import "mannot_utils.typ": *
@@ -30,15 +31,8 @@
   type: "note",
   title: none,
   body,
-) = {
-  let colors = (
-    note: (bg: rgb("#f8f9fa"), border: rgb("#2c3e50")),
-    warning: (bg: rgb("#fef5f5"), border: rgb("#d63031")),
-    important: (bg: rgb("#f0ebf8"), border: rgb("#6c5ce7")),
-    tip: (bg: rgb("#ebf5e6"), border: rgb("#27ae60")),
-    theorem: (bg: rgb("#f5f0ff"), border: rgb("#8e44ad")),
-  )
-
+) = context {
+  let colors = theme-from-text-fill().callouts
   let color-info = colors.at(type, default: colors.note)
 
   block(
@@ -48,11 +42,11 @@
     radius: 2pt,
     [
       #if title != none {
-        text(weight: "600", size: 10.5pt, color: color-info.border, tracking: 0.05em)[#title]
+        text(weight: "600", size: 10.5pt, fill: color-info.border, tracking: 0.05em)[#title]
         linebreak()
         v(0.4em)
       }
-      #text(size: 12pt, color: rgb("#1a1a1a"))[#body]
+      #text(size: 12pt)[#body]
     ],
   )
 }
@@ -63,7 +57,9 @@
 // ---------- HIGHLIGHTED ----------
 //
 // Custom highlight function. The orginal highlight function doens't support to highlight equations properly. The custom function below highlights equations in a box.
-#let highlighted(body) = {
+#let highlighted(body) = context {
+  let theme = theme-from-text-fill()
+
   // Iterate over each child element within the provided body.
   for child in body.children {
     // Check if the child element is an equation.
@@ -72,7 +68,7 @@
     if repr(child.func()) == "equation" {
       // If it's an equation, display it in a highlighted box.
       box(
-        fill: rgb("#FFFE80"), // Set the background color for the highlight.
+        fill: theme.highlight,
         outset: (y: 0.25em), // Add some vertical padding around the equation.
       )[$#child.at("body")$] // Get the content of the equation.
     } else {

@@ -1,4 +1,5 @@
 // Styles/callouts.typ
+#import "theme.typ": *
 
 #let math_font = "New Computer Modern Math"
 #let title_size = 10.8pt
@@ -9,19 +10,8 @@
   title: none,
   inline-title: false,
   body,
-) = {
-  let colors = (
-    note: (bg: rgb("#f8f9fa"), border: rgb("#2c3e50")),
-    warning: (bg: rgb("#fef5f5"), border: rgb("#d63031")),
-    important: (bg: rgb("#f0ebf8"), border: rgb("#6c5ce7")),
-    tip: (bg: rgb("#ebf5e6"), border: rgb("#27ae60")),
-    theorem: (bg: rgb("#fdf2f2"), border: rgb("#d9534f")),
-    proposition: (bg: rgb("#f0f5ff"), border: rgb("#4a90e2")),
-    definition: (bg: rgb("#fffbe6"), border: rgb("#f5a623")),
-    lemma: (bg: rgb("#f0fff0"), border: rgb("#50c878")),
-    emphasis: (bg: none, border: black),
-  )
-
+) = context {
+  let colors = theme-from-text-fill().callouts
   let color-info = colors.at(type, default: colors.note)
 
 
@@ -40,7 +30,7 @@
             #text(weight: 600, size: title_size, fill: color-info.border, font: math_font)[#title]
           ]
         }
-      }#text(size: 12pt, fill: rgb("#1a1a1a"), font: math_font)[#body]
+      }#text(size: 12pt, font: math_font)[#body]
     ],
   )
 }
