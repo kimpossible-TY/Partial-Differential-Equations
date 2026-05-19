@@ -251,6 +251,57 @@ we finally get :
 #paragraph_tab
 To induce the standard wave equation from @wave-like_equation, we choose the quandratic potential energy density :
 $
-  f_Q (x, xi):=gamma g^(j k) (x) xi_j xi_k quad "where" gamma >0
+  f_Q (x, xi):= sum^n_(j=1) sum^n_(k=1) gamma g^(j k) (x) xi_j xi_k quad "where" gamma >0
 $
 
+#theorem(title: "wave equation")[
+  As considering @wave-like_equation, let's substitute $f$ to the quandratic potential energy density $f_Q$. @wave-like_equation gives :
+  $
+    frac(partial^2 u, partial t^2)- frac(2 gamma, m) Delta u =0
+  $ @wave_equation
+]
+
+#proof[
+  It is suffcient to show that :
+  $
+    2 gamma Delta u = frac(1, sqrt(op("det") g))( frac(partial, partial x_j) sqrt(op("det") g) thick frac(partial f_Q, partial xi_j) (x, xi))
+  $
+  First, let's compute $frac(partial f_Q, partial xi_j)$. Differentiate with respect to $xi_j$ is :
+  #mannot-scope(s=> [
+    $
+      frac(partial f, partial xi_j)&=gamma g^(a b) mark(frac(partial, partial xi_j), tag: #(s.tag)("derivative")) (rmark(xi_a, tag: #(s.tag)("xi_a")) bmark(xi_b, tag: #(s.tag)("xi_b"))) #dots_space #footnote[where the summation convention is used.]
+      \
+      \
+      &= gamma g^(a b)(delta^j_a xi_b + xi_a delta^j_b)
+      \
+      &= gamma g^(j b) xi_b + gamma g^(a j) xi_a
+      \
+      &= 2 sum^n_(k=1) gamma g^(j k) xi_k #dots_space #footnote[becuase $a$ and $b$ are dummy indices and $g^(a j)=g^(j a)$ by the symmetric property of metric. Note that $j$ isn't dummy index.]
+    $
+
+    #(s.annot)(
+      ("derivative", "xi_a", "xi_b"),
+      cetz,
+      {
+        import cetz.draw: *
+        set-style(mark: (end: "straight"))
+
+        bezier-through(
+          (s.node)("derivative","south"),
+          (rel : (x:0.3, y: -0.3)),
+          (s.node)("xi_a", "south"),
+          stroke: red
+        )
+
+        bezier-through(
+          (s.node)("derivative","south"),
+          (rel : (x:0.5, y: -0.5)),
+          (s.node)("xi_b", "south"),
+          stroke: blue
+        )
+      }
+    )
+
+  ])
+
+]
