@@ -93,7 +93,7 @@ Now, let's consider the Laplacian operator. The Laplacian is a second-order diff
   $
 ]
 The laplacian is very closely related to Hessian.
-#special_lemma[
+#lemma[
   Let's define $u in bb(C)^infinity(M)$ Then we can define Hessian which is strictly a type $(0,2)$ tensor field.
   $
     Delta u = op("Tr")_g op("Hess") u
@@ -117,7 +117,7 @@ The laplacian is very closely related to Hessian.
 
  //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   $
-    Delta u &= [ mark(nabla_i, tag: #<nabla_special_lemma_2_9>) ( rmark(g^(j k), tag: #<g_special_lemma_2_9>) bmark(nabla_k u, tag: #<u_special_lemma_2_9>) ]^i
+    Delta u &= [ mark(nabla_i, tag: #<nabla_lemma_2_9>) ( rmark(g^(j k), tag: #<g_lemma_2_9>) bmark(nabla_k u, tag: #<u_lemma_2_9>) ]^i
     \
     &= [ cancel(nabla_i g^(j k) nabla_k u) + g^(j k) (nabla_i nabla_k u) ]^i
     #dots_space #footnote[By applying product rule(@basic_properties_of_connection)]
@@ -127,17 +127,17 @@ The laplacian is very closely related to Hessian.
     &= g^(j k) (nabla_i nabla_k u) #dots_space #footnote[Since $i$ is dummy index which means the summation is omitted. In additon, as considering that the dummy index is essentially picked arbitrarily, we can naturally delete the dummy index $i$!]
 
     #annot-cetz-local(
-      (<nabla_special_lemma_2_9>, <g_special_lemma_2_9>, <u_special_lemma_2_9>),
+      (<nabla_lemma_2_9>, <g_lemma_2_9>, <u_lemma_2_9>),
       cetz,
       {
         import cetz.draw: *
         set-style(mark: (end: "straight"))
         
         // nabla_i가 g^(j k)에 작용하는 항 (결과적으로 0이 됨)
-        bezier-through("nabla_special_lemma_2_9.north", (rel: (x: 0.3, y: 0.5)), "g_special_lemma_2_9.north", stroke: red)
+        bezier-through("nabla_lemma_2_9.north", (rel: (x: 0.3, y: 0.5)), "g_lemma_2_9.north", stroke: red)
         
         // nabla_i가 nabla_k u에 작용하는 항
-        bezier-through("nabla_special_lemma_2_9.south", (rel: (x: 0.8, y: -0.2)), "u_special_lemma_2_9.south", stroke: blue)
+        bezier-through("nabla_lemma_2_9.south", (rel: (x: 0.8, y: -0.2)), "u_lemma_2_9.south", stroke: blue)
       },
     )
   $
@@ -322,7 +322,7 @@ Equivalently, the outward unit normal vector field $nu$ along $partial M$ is a s
   $
 ] <definition_of_normal_derivative>
 
- #special_lemma(title: "normal derivaitve on Riemannian manifold")[
+ #lemma(title: "normal derivaitve on Riemannian manifold")[
    Let $M$ be a smooth manifold and $u in bb(C)^infinity (M)$, $n$ is the outward normal vector. Then :
    $
       frac( partial u , partial n) = < op("grad") u, n>_g
@@ -348,7 +348,7 @@ Equivalently, the outward unit normal vector field $nu$ along $partial M$ is a s
 
 #paragraph_tab
 In @Greens_Identities_with_boundaries, we treat somethings on the bundaries of manifolds. As we can guess from the previous discussion(@subsection_Greens_First_Identity), the integral on the boundary will appear and the divergence theorem will be useful. Hence introducing the following lemma is helpful.
-#special_lemma(title: "The Product Rule of Riemmanian divergence")[
+#lemma(title: "The Product Rule of Riemmanian divergence")[
   Let $M$ be a smooth Riemannian manifold and $ Y in frak(X)(M)$, $f in bb(C)^infinity (M)$. Then :
   $
     op("div") (f Y) = f op("div") Y + g( op("grad") f comma Y)

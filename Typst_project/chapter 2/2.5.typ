@@ -99,7 +99,7 @@ $
   f(x,y,A)=op("Tr")_g (T_A)
 $ <definition_of_potential_energy_density_Riemannian_tensor_version>
 
-#special_lemma()[
+#lemma()[
   Let $M $ and $N$ are Riemannian manifolds which are compact and $A in cal(L)(T_x M, T_y N)$ is a linear map. Then the following is true :
   $
     op("Tr")_g (T_A)= op("Tr") (A^* A)
@@ -150,12 +150,12 @@ $
   V(t)= integral_M f(x,d_x u (t,x)) d V
 $
 
-#special_lemma()[
+#lemma()[
   let $M$ and $N:= bb(R)$ Riemannian manifold. For $attach(x, tl: forall) in M , attach(y, tl:forall) in N$, the following equation is true :
   $
     cal(L)(T_x M , T_y bb(R)) approx.eq T^*_x M
   $
-] <first_special_lemma_for_one_D_string_vibration>
+] <first_lemma_for_one_D_string_vibration>
 
 #proof()[
   By the basic property of tangent space, we have $T_y bb(R)=bb(R)$. therefore :
@@ -166,7 +166,7 @@ $
   Since $cal(L)(T_x M, bb(R))$ means the space of $T_x M mapsto bb(R)$, it is the same as the definition of covector space which is $T_x^* M$.
 ] 
 
-#note[  By @first_special_lemma_for_one_D_string_vibration, $d_x u in T^*_x M$ where $N= bb(R)$. Thus $A$ can be represented as the single covector $xi$ and the potential density $f(x, xi)$ is defined on $T^* M$.
+#note[  By @first_lemma_for_one_D_string_vibration, $d_x u in T^*_x M$ where $N= bb(R)$. Thus $A$ can be represented as the single covector $xi$ and the potential density $f(x, xi)$ is defined on $T^* M$.
   $
     f in T^* M quad "where " N = bb(R)
   $
@@ -247,3 +247,10 @@ we finally get :
   $ <wave-like_equation>
   #annot((s.tag)("hl"), pos: bottom)[will be $Delta u$ if adding some assumptions]
 ])
+
+#paragraph_tab
+To induce the standard wave equation from @wave-like_equation, we choose the quandratic potential energy density :
+$
+  f_Q (x, xi):=gamma g^(j k) (x) xi_j xi_k quad "where" gamma >0
+$
+

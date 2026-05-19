@@ -4,40 +4,10 @@
 #import "callouts.typ": *
 #import "theme.typ": *
 
+// The theorem-like blocks are figures so they can be numbered, labeled, and
+// referenced with Typst's normal @label mechanism.
+#let math-block-kinds = ("theorem", "proposition", "lemma", "definition", "note")
 
-// ---------- THEOREM BOX ----------
-#let theorem(body, title: none) = callout(
-  type: "theorem",
-  title: strong("Theorem " + capitalize-title(title) + " : "),
-  inline-title: is-numeric-title(title),
-  body,
-)
-
-// ---------- PROPOSITION BOX ----------
-#let proposition(body, title: none) = callout(
-  type: "proposition",
-  title: strong("Proposition " + capitalize-title(title) + " : "),
-  inline-title: is-numeric-title(title),
-  body,
-)
-
-// ---------- LEMMA BOX ----------
-#let lemma(body, title: none) = callout(
-  type: "lemma",
-  title: strong("Lemma " + capitalize-title(title) + " : "),
-  inline-title: is-numeric-title(title),
-  body,
-)
-
-// ---------- EMPHASIS BOX ----------
-#let emphasis(body, title: none) = pad(left: 2em, callout(
-  type: "emphasis",
-  title: if title != none { strong(capitalize-title(title)) } else { none },
-  inline-title: is-numeric-title(title),
-  body,
-))
-
-// ---------- DEFINITION BOX (with numbering) ----------
 // Helper for figure numbering that includes section number
 #let scoped-figure-numbering(..nums) = {
   let n = nums.pos().first()
@@ -48,78 +18,66 @@
   }
 }
 
-// Implemented as a figure to support labeling and referencing (e.g. <def1>, @def1).
-#let definition(body, title: none) = figure(
-  kind: "definition",
-  supplement: "Definition",
-  numbering: scoped-figure-numbering,
-  caption: none, // Hide default caption
-  callout(
-    type: "definition",
-    title: context {
-      let c = counter(figure.where(kind: "definition"))
-      let num = scoped-numbering(c)
-      if title != none {
-        strong("Definition " + num + " (" + capitalize-title(title) + ") : ")
-      } else {
-        strong("Definition " + num + " : ")
-      }
-    },
-    inline-title: is-numeric-title(title),
-    body,
-  ),
-)
+#let math-block-title(label, kind, title) = context {
+  let c = counter(figure.where(kind: kind))
+  let num = scoped-numbering(c)
 
-// ---------- NOTE BOX (with numbering) ----------
-#let note(body, title: none) = figure(
-  kind: "note",
-  supplement: "Note",
-  numbering: scoped-figure-numbering,
-  caption: none,
-  callout(
-    type: "note",
-    title: context {
-      let c = counter(figure.where(kind: "note"))
-      let num = scoped-numbering(c)
-      if title != none {
-        strong("Note " + num + " (" + capitalize-title(title) + ") : ")
-      } else {
-        strong("Note " + num + " : ")
-      }
-    },
-    inline-title: is-numeric-title(title),
-    body,
-  ),
-)
+  if title != none {
+    strong[#label #num (#capitalize-title(title)) : ]
+  } else {
+    strong[#label #num : ]
+  }
+}
 
-// ---------- special Lemma ----------
-#let special_lemma(body, title: none) = figure(
-  kind: "special_lemma",
-  supplement: "Special Lemma",
-  numbering: scoped-figure-numbering,
-  caption: none,
-  callout(
-    type: "lemma",
-    title: context {
-      let c = counter(figure.where(kind: "special_lemma"))
-      let num = scoped-numbering(c)
-      if title != none {
-        "Special Lemma " + num + " (" + capitalize-title(title) + "):"
-      } else {
-        "Special Lemma " + num + ":"
-      }
-    },
-    inline-title: is-numeric-title(title),
-    body,
-  ),
-)
+#let numbered-math-block(kind, label, body, title: none, callout-type: none) = {
+  let box-type = if callout-type == none { kind } else { callout-type }
 
+  figure(
+    kind: kind,
+    supplement: label,
+    numbering: scoped-figure-numbering,
+    caption: none,
+    callout(
+      type: box-type,
+      title: math-block-title(label, kind, title),
+      inline-title: is-numeric-title(title),
+      body,
+    ),
+  )
+}
+
+#let reset-math-block-counters() = {
+  for kind in math-block-kinds {
+    counter(figure.where(kind: kind)).update(0)
+  }
+}
+
+// ---------- THEOREM BOX ----------
+#let theorem(body, title: none) = numbered-math-block("theorem", "Theorem", body, title: title)
+
+// ---------- PROPOSITION BOX ----------
+#let proposition(body, title: none) = numbered-math-block("proposition", "Proposition", body, title: title)
+
+// ---------- LEMMA BOX ----------
+#let lemma(body, title: none) = numbered-math-block("lemma", "Lemma", body, title: title)
+
+// ---------- EMPHASIS BOX ----------
+#let emphasis(body, title: none) = pad(left: 2em, callout(
+  type: "emphasis",
+  title: if title != none { strong(capitalize-title(title)) } else { none },
+  inline-title: is-numeric-title(title),
+  body,
+))
+
+// ---------- DEFINITION BOX ----------
+#let definition(body, title: none) = numbered-math-block("definition", "Definition", body, title: title)
+
+// ---------- NOTE BOX ----------
+#let note(body, title: none) = numbered-math-block("note", "Note", body, title: title)
 
 // Reset counters at the beginning of each section
 #show heading.where(level: 1): it => {
-  counter(figure.where(kind: "definition")).update(0)
-  counter(figure.where(kind: "note")).update(0)
-  counter(figure.where(kind: "special_lemma")).update(0)
+  reset-math-block-counters()
   it
 }
 
@@ -151,4 +109,3 @@
     align(center, body),
   )
 }
-

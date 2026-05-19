@@ -259,7 +259,7 @@ We know geometrically that $lambda(x)$ represents uniform scaling across all dim
 #paragraph_tab
 By defining $lambda$ entirely through the divergence of the field, we remove the unknown variable. Substituting @lambda_derivation back into @coordinate_conformal_killing, we arrive at the definitive equation for a conformal Killing vector field.
 
-#special_lemma(title: "Conformal Killing Equation")[
+#lemma(title: "Conformal Killing Equation")[
   A vector field $X$ on an $n$-dimensional Riemannian manifold is a conformal Killing field if and only if its covariant derivatives satisfy:
   $
     X_(k ; j) + X_( j ; k ) = frac(2, n) (op("div") X) g_(j k)

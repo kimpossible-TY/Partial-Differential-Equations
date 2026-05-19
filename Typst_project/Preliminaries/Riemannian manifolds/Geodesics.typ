@@ -47,7 +47,7 @@ $G_((x, v)) := v^k partial / (partial x^k) | _((x, v)) - v^i v^j Gamma_(i j)^k (
 is a global vector field on the total space of $T M$, called the geodesic vector field.
 ]
 
-#special_lemma[
+#lemma[
 The geodesic vector field acts on a function $f in C^infinity (T M)$ by:
 $ G f(p, v) = d / (d t) |_(t=0) f(gamma_v (t), gamma_v' (t)) $
 Where $gamma$ is the geodesic.

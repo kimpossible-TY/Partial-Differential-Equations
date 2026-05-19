@@ -17,7 +17,7 @@ First, let's treat the Euclidean connection on $bb(R)^n$. it has one very nice p
   $
 ]
 
-#special_lemma(title: "product rule of Euclidean connection")[
+#lemma(title: "product rule of Euclidean connection")[
   The Euclidean connection on $bb(R)^n$ satisfies the product rule :
   $
     dash(nabla)_X chevron.l Y comma Z chevron.r=
@@ -174,7 +174,7 @@ If the connection is *symmetric* (Torsion is zero), we will end up at the exact 
 #figure(torsion_intuition_visualization(), caption: "Torsion as Dislocation")
 
 
-#special_lemma(title: "symmetry of Christoffel symbols")[
+#lemma(title: "symmetry of Christoffel symbols")[
   when torsion tensor is zero, Christoffel symbol is symmetric :
   $
     Gamma^(l)_(i j)=Gamma^(l)_(j i)

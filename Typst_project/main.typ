@@ -67,9 +67,7 @@
     // Reset the equation counter at the start of each section
     counter(math.equation).update(0)
     counter(footnote).update(0)
-    counter(figure.where(kind: "definition")).update(0)
-    counter(figure.where(kind: "note")).update(0)
-    counter(figure.where(kind: "special_lemma")).update(0)
+    reset-math-block-counters()
     set page(fill: theme.page, footer: none)
     set text(font: "New Computer Modern", size: 25pt, fill: theme.text)
     pagebreak(weak: true)
@@ -88,11 +86,11 @@
 })
 
 // ---------- ALIGNMENT RULES ----------
-// Ensure these specific figures are left-aligned (start-aligned) instead of centered.
-// These elements (definition, note, special_lemma) are implemented as figures to allow
-// for labeling and referencing (e.g. @def1), but figures are centered by default.
+// Ensure theorem-like figures are left-aligned (start-aligned) instead of centered.
+// These elements are implemented as figures to allow labeling and referencing
+// (e.g. @def1), but figures are centered by default.
 #show figure: it => {
-  if it.kind in ("definition", "note", "special_lemma") {
+  if it.kind in math-block-kinds {
     set align(start)
     it
   } else {

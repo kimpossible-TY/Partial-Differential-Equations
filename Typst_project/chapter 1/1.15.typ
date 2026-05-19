@@ -54,7 +54,7 @@ $partial_j v = (partial v) / (partial x_j)$
 $Sigma$ is the graph of which has the component of gradient.
 ]
 
-#special_lemma[$Sigma$ is isotropic.]
+#lemma[$Sigma$ is isotropic.]
 
 #proof[
 To show that $Sigma$ is isotropic, we have to show that $sigma(X, Y) = 0$ for all tangent vectors $X, Y in T_p Sigma$ where $sigma$ is the symplectic form and $p$ is some point of $Sigma$. Then how can we determines the tangent vector?

@@ -25,7 +25,7 @@ By definition, a connection in $T M$ is a rule for computing covariant derivativ
 
 #paragraph_tab
 There is a useful lemma induced by the definition of functional evaluation(@Definition_of_functional_evaluation).
-#special_lemma(title: "Basic formula of functional evaluation")[
+#lemma(title: "Basic formula of functional evaluation")[
   Let $omega in V^*$ and $Y in V$. Then $chevron.l omega comma Y chevron.r= op("tr") (omega times.o Y)$.
 ] <Basic_formula_of_functional_evaluation>
 
@@ -70,7 +70,7 @@ There is a useful lemma induced by the definition of functional evaluation(@Defi
 
 #paragraph_tab
 Applying @Basic_formula_of_functional_evaluation to the mixed tensor field, we can also get the similar formula.
-#special_lemma(title: "basic formula of tensor field")[
+#lemma(title: "basic formula of tensor field")[
   Let $F in Gamma(T^((k,l)) T M)$, $omega^1, dots, omega^k in Gamma(T^* M)$, and $Y_1, dots, Y_l in Gamma(T M)$. Then
   $
     F(omega^1, dots, omega^k, Y_1, dots, Y_l) &= chevron.l F, omega^1, dots, omega^k, Y_1, dots, Y_l chevron.r \

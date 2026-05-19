@@ -11,7 +11,7 @@
 ]
 #paragraph_tab
 By the definition of geodesics(@definition_of_geodesics) and assuming that treat $V=gamma^prime$, the paraellism means that the curve is geodesics. This perspective gives :
-#special_lemma(title: "geodesics definition of parallel transport")[
+#lemma(title: "geodesics definition of parallel transport")[
   A vector fild $V$ is parallel if and only if
   $
     dot(V)^k(t)=-V^j(t)dot(gamma)^i(t)Gamma^(k)_(i j)(gamma(t))
