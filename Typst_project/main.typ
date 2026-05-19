@@ -7,6 +7,7 @@
 // global setup
 #set par(justify: true)
 #set text(font: "Times New Roman", size: 12pt, fill: theme.text)
+#set table(stroke: theme.rule)
 #set page(
   fill: theme.page,
   margin: auto,
