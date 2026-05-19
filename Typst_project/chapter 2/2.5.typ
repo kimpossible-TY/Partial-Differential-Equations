@@ -258,7 +258,7 @@ $
   As considering @wave-like_equation, let's substitute $f$ to the quandratic potential energy density $f_Q$. @wave-like_equation gives :
   $
     frac(partial^2 u, partial t^2)- frac(2 gamma, m) Delta u =0
-  $ @wave_equation
+  $ <wave_equation>
 ]
 
 #proof[
