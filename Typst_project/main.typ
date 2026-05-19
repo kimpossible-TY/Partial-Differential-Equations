@@ -1,9 +1,14 @@
 #import "Styles/styles.typ": *
 
+// Theme toggle.
+// Use `light-theme` or `dark-theme`; the mode is applied through #set below.
+#let theme = dark-theme
+
 // global setup
 #set par(justify: true)
-#set text(font: "Times New Roman", size: 12pt)
+#set text(font: "Times New Roman", size: 12pt, fill: theme.text)
 #set page(
+  fill: theme.page,
   margin: auto,
   header: context {
     let page_num = here().page()
@@ -65,8 +70,8 @@
     counter(figure.where(kind: "definition")).update(0)
     counter(figure.where(kind: "note")).update(0)
     counter(figure.where(kind: "special_lemma")).update(0)
-    set page(footer: none)
-    set text(font: "New Computer Modern", size: 25pt)
+    set page(fill: theme.page, footer: none)
+    set text(font: "New Computer Modern", size: 25pt, fill: theme.text)
     pagebreak(weak: true)
     align(center + horizon, it)
     pagebreak()

@@ -1,7 +1,6 @@
 #import "@preview/cetz:0.4.2": *
-
 #import "../../Styles/cetz_utils.typ": description_box, legend_box
-
+#import "../../Styles/theme.typ": *
 
 // Define the function name you want to use
 #let extendible_vector_field() = {
@@ -81,7 +80,9 @@
   ]
 }
 
-#let parallel_vector_field_along_a_curve() = {
+#let parallel_vector_field_along_a_curve() = context {
+  let theme = theme-from-text-fill()
+
   canvas({
     import draw: *
     // 1. Define the exact points (knots) the curve passes through
@@ -106,7 +107,12 @@
     // 3. Define the "Initial Vector" shape (Prototype)
     // We define it once at the origin (0,0) pointing Up.
     // This variable will be reused for all vectors.
-    let arrow = line((0, 0), (0, 2), stroke: (thickness: 1.2pt), mark: (end: "stealth", fill: black, scale: 0.5))
+    let arrow = line(
+      (0, 0),
+      (0, 2),
+      stroke: (paint: theme.rule, thickness: 1.2pt),
+      mark: (end: "stealth", fill: theme.rule, scale: 0.5),
+    )
 
     // 4. Define configurations
     let configs = (
@@ -812,9 +818,7 @@
     let rect_shift_x = 0
     rect(
       (-3.2 + rect_shift_x, 3.5 + rect_shift_y),
-      (7.2 + rect_shift_x, 6 + rect_shift_y),
-      fill: rgb("f9f9f9"),
-      stroke: luma(150),
+      (7.2 + rect_shift_x, 6 + rect_shift_y)
     )
     content((2 + rect_shift_x, 4.75 + rect_shift_y), [
       #align(center)[*Polar Coordinates on Flat Plane*]
