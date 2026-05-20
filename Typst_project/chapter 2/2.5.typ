@@ -254,6 +254,21 @@ $
   f_Q (x, xi):= sum^n_(j=1) sum^n_(k=1) gamma g^(j k) (x) xi_j xi_k quad "where" gamma >0
 $
 
+#lemma(title: "Laplace-Beltrami Operator")[
+  Let $(M,g)$ is the Riemannian manifold and $u in C^infinity(M)$. Then the Laplacian of $u$ is in local coordinate :
+  $
+    Delta u = frac(1, sqrt(op("det") g)) thick partial_i (sqrt(op("det") g) thick g^(i j) thick partial_j u)
+  $
+] <Laplace-Beltrami_Operator>
+
+#proof[
+  @Laplace-Beltrami_Operator is the result of @formula_of_divergence. By considering @definition_of_Laplacian and $op("grad") u= g^(i j) partial_j u$ because of musical isomorphism, we get the result as substituting $X=op("grad") u$ to @formula_of_divergence.
+]
+
+#note(title: "what is different between just Laplace operator and Laplace-Beltrami operator?")[
+  we use the standard Laplace operator when our coordinates are a straight, flat grid. we use the Laplace-Beltrami operator when our coordinates are warped by the shape of the space itself.
+]
+
 #theorem(title: "wave equation")[
   As considering @wave-like_equation, let's substitute $f$ to the quandratic potential energy density $f_Q$. @wave-like_equation gives :
   $
@@ -269,7 +284,7 @@ $
   First, let's compute $frac(partial f_Q, partial xi_j)$. Differentiate with respect to $xi_j$ is :
   #mannot-scope(s=> [
     $
-      frac(partial f, partial xi_j)&=gamma g^(a b) mark(frac(partial, partial xi_j), tag: #(s.tag)("derivative")) (rmark(xi_a, tag: #(s.tag)("xi_a")) bmark(xi_b, tag: #(s.tag)("xi_b"))) #dots_space #footnote[where the summation convention is used.]
+      frac(partial f_Q, partial xi_j)&=gamma g^(a b) mark(frac(partial, partial xi_j), tag: #(s.tag)("derivative")) (rmark(xi_a, tag: #(s.tag)("xi_a")) bmark(xi_b, tag: #(s.tag)("xi_b"))) #dots_space #footnote[where the summation convention is used.]
       \
       \
       &= gamma g^(a b)(delta^j_a xi_b + xi_a delta^j_b)
@@ -301,7 +316,18 @@ $
         )
       }
     )
-
   ])
 
+  #paragraph_tab
+  Note that $xi$ represents the spatial differential of $u$, we have $xi_k=partial_k u$. it induces :
+  #local-tag-scope(s =>[
+    $
+      frac(partial f_Q, partial xi_j)= sum_(k=1)^n 2 gamma g^(j k) partial_k u
+    $ #(s.tag)("input")
+    Then if we apply $frac(1, sqrt(op("det") g)) thick frac(partial, partial x_j) sqrt(op("det") g)$ to #(s.ref)("input"), which means 
+    $
+      frac(1, sqrt(op("det") g)) thick frac(partial, partial x_j) [sqrt(op("det") g)  thick (2 gamma g^(j k) partial_k u)]
+    $
+  ])
+  it is the same as what we want to show.
 ]

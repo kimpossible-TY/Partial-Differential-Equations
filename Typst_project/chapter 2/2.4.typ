@@ -90,7 +90,7 @@ Now, let's consider the Laplacian operator. The Laplacian is a second-order diff
   $
     Delta u:= op("div") op("grad") u
   $
-]
+] <definition_of_Laplacian>
 The laplacian is very closely related to Hessian.
 #lemma[
   Let's define $u in bb(C)^infinity(M)$ Then we can define Hessian which is strictly a type $(0,2)$ tensor field.
