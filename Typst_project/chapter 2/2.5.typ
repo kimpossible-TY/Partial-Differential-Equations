@@ -331,3 +331,63 @@ $
   ])
   it is the same as what we want to show.
 ]
+
+=== Energy conservation
+
+#paragraph_tab
+To prove the energy conservation, we need to assume:
+#definition(title : "Dirichlet Condition")[
+  Let $M$ be Riemannian manifold and $u in bb(C)^infinity (M)$. If $u$ satisfies the following condition:
+  $
+    u(t,x)=0, quad attach(x, tl: forall) in partial M
+  $
+  , then it is Dirichlet boundary condition for $u$.
+]
+
+#figure(
+  dirichlet_boundary_condition_visualization(),
+  caption: [Visual representation of the Dirichlet boundary condition. The function $u(t,x)$ is pinned at $0$ on the boundary $partial M$, acting like a vibrating string with fixed endpoints.]
+) <vis_dirichlet>
+
+#definition(title : "Neumann Condition")[
+  Let $M$ be a Riemannian manifold with boundary and $u in bb(C)^infinity (M)$. If $u$ satisfies the following condition:
+  $
+    frac(partial u, partial n)(t,x) = 0, quad attach(x, tl: forall) in partial M
+  $
+  where $n$ is the outward unit normal vector field along $partial M$, then it is the Neumann boundary condition for $u$.
+]
+
+#paragraph_tab
+Recall from @definition_of_normal_derivative that the normal derivative of $u$ at the boundary is given by:
+$
+  frac(partial u, partial n)(t,x) = nabla_n u(t,x) = d_x u(t,x)(n)
+$
+Thus, the Neumann condition states that the differential of the spatial configuration $u$ vanishes when evaluated on the outward unit normal vector $n$. Physically, in the 1D string case, this means the slope at the boundary is zero ($frac(partial u, partial x) = 0$), so the ends of the string can slide freely without vertical restriction.
+
+#figure(
+  neumann_boundary_condition_visualization(),
+  caption: [Visual representation of the Neumann boundary condition. The normal derivative of $u(t,x)$ at the boundary is zero, which for a 1D string corresponds to zero spatial slope, allowing the endpoints to slide freely along guide rods.]
+) <vis_neumann>
+
+#paragraph_tab
+Now, let's prove the energy conservation of wave equation. the total energy is :
+
+
+
+#mannot-scope(m => [
+  $
+    E(t) := frac(1,2) integral_M [
+      rmark(norm(d_t u (t,x))^2, tag: #(m.tag)("kinetic")) + bmark(chevron.l xi comma xi chevron.r_g , tag: #(m.tag)("potential"))
+    ] d V #dots_space #footnote[where $m=1$ for the convenience.]
+  $
+  #annot((m.tag)("kinetic"), pos: bottom, dy: 1em)[kinetic energy density]
+  #annot((m.tag)("potential"), pos: bottom, dy: 1em, dx: 2.5em)[potential energy density]
+])
+
+To find how the energy changes, we take the derivative of $E(t)$ with respect to time $t$.
+$
+  frac(d E, d t) &= frac(1,2) integral_M frac(partial, partial t) [(frac(partial u, partial t))^2 + chevron.l xi comma xi chevron.r_g ] d V
+  \
+  &=
+  
+$
