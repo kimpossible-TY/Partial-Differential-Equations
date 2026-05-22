@@ -2,7 +2,7 @@
 
 // Theme toggle.
 // Use `light-theme` or `dark-theme`; the mode is applied through #set below.
-#let theme = dark-theme
+#let theme = light-theme
 
 // global setup
 #set par(justify: true)

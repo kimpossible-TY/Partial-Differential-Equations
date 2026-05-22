@@ -449,7 +449,7 @@ In @Greens_Identities_with_boundaries, we treat somethings on the bundaries of m
   $
 ]
 
-#proposition(title: "4.1 : Green's identities with boundaries")[
+#proposition(title: "Green's identities with boundaries")[
   If $M$ is a compact#footnote[If the compactness isn't assumed, the identities isn't true for all of smooth functions, only satisfied when $bb(C)^infinity_0 (M)$. Furthermore, the compactness guarantees the convergence of the integrals on the boundary.] Riemannian manifold with boundary, then for $u comma v in bb(C)^infinity (M)$, the following identities hold :
   $
     "Green first identity" :
@@ -459,7 +459,7 @@ In @Greens_Identities_with_boundaries, we treat somethings on the bundaries of m
     #text(0.8em)[Green second identity] :
     (Delta u, v)-(u, Delta v)= integral_(partial M) [(frac(partial u, partial n))dash(v) - u(frac(partial dash(v), partial n)) ] d S
   $ <Greens_second_identity_with_boundaries>
-]
+] <Greens_identities>
 
 #proof[
   The Green's first identity with boundaries can be proved by applying the product rule of divergence(@the_product_rule_of_Riemmanian_divergence). Let $X:=u op("grad") dash(v)$. Then the product rule of divergence(@the_product_rule_of_Riemmanian_divergence) gives :

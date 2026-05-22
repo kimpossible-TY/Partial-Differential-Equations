@@ -385,9 +385,21 @@ Now, let's prove the energy conservation of wave equation. the total energy is :
 ])
 
 To find how the energy changes, we take the derivative of $E(t)$ with respect to time $t$.
-$
-  frac(d E, d t) &= frac(1,2) integral_M frac(partial, partial t) [(frac(partial u, partial t))^2 + chevron.l xi comma xi chevron.r_g ] d V
-  \
-  &=
-  
-$
+#local-tag-scope(s=> [
+  $
+    frac(d E, d t) &= frac(1,2) integral_M frac(partial, partial t) [(frac(partial u, partial t))^2 + chevron.l xi comma xi chevron.r_g ] d V
+    \
+    &= frac(1,2) integral_M  [2 frac(partial u, partial t) dot frac(partial^2 u, partial t^2) + frac(partial, partial t) chevron.l xi comma xi chevron.r_g ] d V #dots_space #footnote[By the implicit Differentiating formula]
+    \
+    &= frac(1,2) integral_M  [2 frac(partial u, partial t) dot frac(partial^2 u, partial t^2) + 2 chevron.l d_x partial_t u, d_x u chevron.r_g
+    ] d V #dots_space #footnote[Using $frac(d, d t) (A dot A)=frac(d A, d t) dot A + A dot frac( d A, d t)$ and the symmetry of inner product. After using the properties of inner product, we change the order of the differentiating, $frac(partial , partial t)(d_x u)=d_x frac(partial u, partial t)$]
+    \
+    &= integral_M [frac(partial u, partial t) dot frac(partial^2 u, partial t^2) +
+    rmark(chevron.l d_x partial_t u comma d_x u chevron.r_g, tag: #(s.tag)("good to apply grean's identities"))
+    ] d V
+  $ #(s.tag)("being applied the Green's identities")
+
+  #annot((s.tag)("good to apply grean's identities"), pos: bottom, dy: 1em)[good to apply the green's identities!]
+
+  #(s.ref)("being applied the Green's identities") has good to being applied the @Greens_identities(Green's identities)!
+])
