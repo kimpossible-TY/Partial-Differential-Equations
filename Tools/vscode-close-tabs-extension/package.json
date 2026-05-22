@@ -1,0 +1,33 @@
+{
+  "name": "close-non-typ-tabs",
+  "publisher": "antigravity",
+  "displayName": "Close Non-Typst Tabs",
+  "description": "Closes all tabs except .typ files",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.closeNonTypTabs",
+        "title": "Close Non-Typst Tabs"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "extension.closeNonTypTabs",
+        "key": "ctrl+alt+t",
+        "mac": "cmd+alt+t",
+        "when": "editorTextFocus"
+      }
+    ]
+  }
+}
