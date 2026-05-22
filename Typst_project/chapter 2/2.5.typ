@@ -401,5 +401,12 @@ To find how the energy changes, we take the derivative of $E(t)$ with respect to
 
   #annot((s.tag)("good to apply grean's identities"), pos: bottom, dy: 1em)[good to apply the green's identities!]
 
-  #(s.ref)("being applied the Green's identities") has good to being applied the @Greens_identities(Green's identities)!
+  #(s.ref)("being applied the Green's identities") has good to being applied the @Greens_identities(Green's identities)! Let $w:= partial_t u$. Then we can write the second term of  #(s.ref)("being applied the Green's identities") :
+  $
+    integral_M chevron.l d_x w comma d_x u chevron.r  d V &= (d_x w comma d_x u) #dots_space #footnote[by the definition of L-2 product (@L-2_norm_of_1-form)]
+    \
+    &= integral_(partial M) w frac(partial u, partial mark(nu, tag: #(s.tag)("outward normal vector"))) d S - integral_M w Delta v d V #dots_space #footnote[By Applying Green's first identity(@Greens_First_Identity)]
+
+  $
+  #annot((s.tag)("outward normal vector"))[outward normal vector]
 ])
