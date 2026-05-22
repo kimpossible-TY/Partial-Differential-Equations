@@ -1,0 +1,248 @@
+#import "@preview/cetz:0.4.2": *
+#import "../../Styles/styles.typ": theme-from-text-fill
+
+#let conformal_killing_field_visualization() = canvas({
+  import draw: *
+
+  // Settings
+  let color_conformal = rgb("3050F0") // Blue
+  let color_non_conformal = rgb("E03030") // Red
+
+  // --- Left: Conformal Killing Field ---
+  group(name: "conformal", {
+    translate((-3.5, 0))
+
+    // Central point
+    circle((0, 0), radius: 0.05, fill: black)
+    content((0, -0.3), [$p$])
+
+    // Initial circle (unit neighborhood)
+    circle((0, 0), radius: 1, stroke: (paint: gray, dash: "dashed"))
+
+    // The vector field arrows (isotropic stretching)
+    let r = 1
+    let scale = 0.6 // length of the arrows
+    for angle in (0, 45, 90, 135, 180, 225, 270, 315) {
+      let x = r * calc.cos(angle * 1deg)
+      let y = r * calc.sin(angle * 1deg)
+      let dx = scale * calc.cos(angle * 1deg)
+      let dy = scale * calc.sin(angle * 1deg)
+      line((x, y), (x + dx, y + dy), mark: (end: ">"), stroke: (paint: color_conformal, thickness: 1.5pt))
+    }
+
+    // Shape after a small time step (larger circle)
+    circle((0, 0), radius: 1 + scale, stroke: (paint: color_conformal, dash: "dotted", thickness: 1.2pt))
+
+    content((0, -2.2), text(weight: "bold")[Conformal Killing Field $X$])
+    content((0, -2.6), text(size: 8pt)[Stretches evenly in all directions])
+    content((0, -3.0), text(size: 8pt)[(Preserves the shape of the neighborhood)])
+  })
+
+  // --- Right: Non-Conformal Field ---
+  group(name: "non_conformal", {
+    translate((3.5, 0))
+
+    // Central point
+    circle((0, 0), radius: 0.05, fill: black)
+    content((0, -0.3), [$q$])
+
+    // Initial circle (unit neighborhood)
+    circle((0, 0), radius: 1, stroke: (paint: gray, dash: "dashed"))
+
+    // The vector field arrows (anisotropic stretching, e.g., stretch x more than y)
+    let r = 1
+    let scale_x = 0.8
+    let scale_y = 0.2
+
+    for angle in (0, 45, 90, 135, 180, 225, 270, 315) {
+      let x = r * calc.cos(angle * 1deg)
+      let y = r * calc.sin(angle * 1deg)
+      let dx = scale_x * calc.cos(angle * 1deg)
+      let dy = scale_y * calc.sin(angle * 1deg)
+      line((x, y), (x + dx, y + dy), mark: (end: ">"), stroke: (paint: color_non_conformal, thickness: 1.5pt))
+    }
+
+    // Shape after a small time step (an ellipse)
+    group({
+      // Scale the circle to make an ellipse representing the stretched shape
+      scale(x: 1 + scale_x, y: 1 + scale_y)
+      circle((0, 0), radius: 1, stroke: (paint: color_non_conformal, dash: "dotted", thickness: 1.2pt))
+    })
+
+    content((0, -2.2), text(weight: "bold")[Non-Conformal Field $Y$])
+    content((0, -2.6), text(size: 8pt)[Stretches unevenly])
+    content((0, -3.0), text(size: 8pt)[(Distorts the shape of the neighborhood)])
+  })
+})
+
+
+#let domain-codomain-u() = canvas({
+  import draw: *
+
+  // --- Domain: R x M ---
+  rect(
+    (0, 0),
+    (4.6, 2.6),
+    radius: .15,
+    stroke: (paint: gray, thickness: .8pt),
+    fill: rgb("#f7f7f7"),
+  )
+
+  content((2.7, 2.25), [$"domain": RR times M$])
+  content((.45, 1.35), [$t in RR$])
+  content((2.6, .45), [$x in M$])
+
+  line((1.0, .8), (4.1, .8), stroke: gray)
+  line((1.0, .8), (1.0, 2.0), stroke: gray)
+
+  content((4.25, .8), [$M$])
+  content((1.0, 2.15), [$RR$])
+
+  circle((2.7, 1.35), radius: .06, fill: black)
+  content((3.3, 1.35), [$(t,x)$])
+
+  // --- Arrow u ---
+  line(
+    (5.2, 1.3),
+    (6.9, 1.3),
+    stroke: (paint: black, thickness: 1pt),
+    mark: (end: ">"),
+  )
+  content((6.05, 1.65), [$u$])
+  content((6.05, .95), [$(t,x) mapsto u(t,x)$])
+
+  // --- Codomain: N ---
+  rect(
+    (7.5, 0),
+    (11.5, 2.6),
+    radius: .15,
+    stroke: (paint: gray, thickness: .8pt),
+    fill: rgb("#f4f8ff"),
+  )
+
+  content((9.4, 2.25), [$"codomain": N$])
+  content((9.4, .35), [$u(t,x) in N$])
+
+  // A point in N
+  circle((9.25, 1.4), radius: .07, fill: black)
+  content((9.75, 1), [$u(t,x)$])
+
+  // --- Fixed x trajectory ---
+  content((2.4, -.55), [$x "fixed": gamma_x(t) := u(t,x)$])
+
+  line(
+    (7.85, 1.0),
+    (8.35, 1.45),
+    (8.95, 1.55),
+    (9.55, 1.25),
+    (10.25, 1.65),
+    stroke: (paint: rgb("#3366cc"), thickness: 1.1pt),
+    mark: (end: ">"),
+  )
+
+  content((10.25, 1.95), [$gamma_x(t)$])
+})
+
+#let dirichlet_boundary_condition_visualization() = context {
+  let theme = theme-from-text-fill()
+  let color_stroke = theme.text
+  let color_muted = theme.muted-text
+  let color_blue = rgb("#4a90e2")
+  let color_blue_light = rgb("#4a90e2").lighten(50%)
+
+  canvas({
+    import draw: *
+
+    // Draw the baseline (x-axis)
+    line((-4, 0), (4, 0), stroke: (paint: color_muted, dash: "dashed", thickness: 0.5pt))
+    
+    // Draw boundary supports (walls or pinned brackets) at x = -3 and x = 3
+    // Left support
+    rect((-3.3, -0.4), (-3, 0.4), fill: color_muted.lighten(80%), stroke: color_muted)
+    // Right support
+    rect((3, -0.4), (3.3, 0.4), fill: color_muted.lighten(80%), stroke: color_muted)
+
+    // Draw the vibrating curves (multiple phases for premium look)
+    // Mid-phase curve (light)
+    bezier((-3, 0), (3, 0), (-1.5, 0.9), (1.5, 0.9), stroke: (paint: color_blue_light, thickness: 1pt))
+    bezier((-3, 0), (3, 0), (-1.5, -0.9), (1.5, -0.9), stroke: (paint: color_blue_light, thickness: 1pt))
+
+    // Peak phase (solid blue)
+    bezier((-3, 0), (3, 0), (-1.5, 1.8), (1.5, 1.8), stroke: (paint: color_blue, thickness: 2pt))
+    
+    // Trough phase (dashed blue)
+    bezier((-3, 0), (3, 0), (-1.5, -1.8), (1.5, -1.8), stroke: (paint: color_blue_light, dash: "dashed", thickness: 1pt))
+
+    // Draw boundary nodes (prominent circles)
+    circle((-3, 0), radius: 0.08, fill: color_stroke, stroke: color_stroke)
+    circle((3, 0), radius: 0.08, fill: color_stroke, stroke: color_stroke)
+
+    // Vertical displacement arrows in the middle
+    line((0, -1.6), (0, 1.6), mark: (start: ">", end: ">"), stroke: (paint: color_stroke, thickness: 1.0pt))
+    content((0.3, 0.5), [Displacement $u(t,x)$], anchor: "west")
+
+    // Label boundary conditions (outside the string and supports to prevent overlap)
+    content((-4.2, 0), [$u(t, -L) = 0$], anchor: "east")
+    content((4.2, 0), [$u(t, L) = 0$], anchor: "west")
+    
+    // Title/Description inside the canvas
+    content((0, 2.3), text(weight: "bold", size: 11pt)[Dirichlet Boundary Condition], anchor: "south")
+    content((0, -2.3), text(size: 9pt, style: "italic")[Fixed boundary: wave displacement is pinned to zero at the endpoints $partial M$], anchor: "north")
+  })
+}
+
+#let neumann_boundary_condition_visualization() = context {
+  let theme = theme-from-text-fill()
+  let color_stroke = theme.text
+  let color_muted = theme.muted-text
+  let color_red = rgb("#e35f5f")
+  let color_red_light = rgb("#e35f5f").lighten(50%)
+
+  canvas({
+    import draw: *
+
+    // Draw the baseline (x-axis)
+    line((-4, 0), (4, 0), stroke: (paint: color_muted, dash: "dashed", thickness: 0.5pt))
+
+    // Draw vertical guide rods at x = -3 and x = 3
+    line((-3, -1.8), (-3, 1.8), stroke: (paint: color_muted, thickness: 1pt))
+    line((3, -1.8), (3, 1.8), stroke: (paint: color_muted, thickness: 1pt))
+
+    // Draw the vibrating curves (cosine-like waves with horizontal tangents)
+    // Curve 1 (solid red)
+    bezier((-3, -1.2), (0, 1.2), (-2, -1.2), (-1, 1.2), stroke: (paint: color_red, thickness: 2pt))
+    bezier((0, 1.2), (3, -1.2), (1, 1.2), (2, -1.2), stroke: (paint: color_red, thickness: 2pt))
+
+    // Mid-phase curves (light)
+    bezier((-3, -0.6), (0, 0.6), (-2, -0.6), (-1, 0.6), stroke: (paint: color_red_light, thickness: 1pt))
+    bezier((0, 0.6), (3, -0.6), (1, 0.6), (2, -0.6), stroke: (paint: color_red_light, thickness: 1pt))
+    bezier((-3, 0.6), (0, -0.6), (-2, 0.6), (-1, -0.6), stroke: (paint: color_red_light, thickness: 1pt))
+    bezier((0, -0.6), (3, 0.6), (1, -0.6), (2, 0.6), stroke: (paint: color_red_light, thickness: 1pt))
+
+    // Opposite phase (dashed red)
+    bezier((-3, 1.2), (0, -1.2), (-2, 1.2), (-1, -1.2), stroke: (paint: color_red_light, dash: "dashed", thickness: 1pt))
+    bezier((0, -1.2), (3, 1.2), (1, -1.2), (2, 1.2), stroke: (paint: color_red_light, dash: "dashed", thickness: 1pt))
+
+    // Draw rings at the boundary ends sliding on the rods
+    circle((-3, -1.2), radius: 0.08, fill: theme.page, stroke: color_red)
+    circle((3, -1.2), radius: 0.08, fill: theme.page, stroke: color_red)
+    
+    circle((-3, 1.2), radius: 0.08, fill: theme.page, stroke: color_red_light)
+    circle((3, 1.2), radius: 0.08, fill: theme.page, stroke: color_red_light)
+
+    // Draw tangent indicators (horizontal dashed lines) at the boundaries
+    line((-3.6, -1.2), (-2.4, -1.2), stroke: (paint: color_stroke, dash: "dotted", thickness: 1pt))
+    line((2.4, -1.2), (3.6, -1.2), stroke: (paint: color_stroke, dash: "dotted", thickness: 1pt))
+    
+    line((-3.6, 1.2), (-2.4, 1.2), stroke: (paint: color_stroke, dash: "dotted", thickness: 1pt))
+    line((2.4, 1.2), (3.6, 1.2), stroke: (paint: color_stroke, dash: "dotted", thickness: 1pt))
+
+    // Label boundary conditions (outside the string and guide rods to prevent overlap)
+    content((-4.6, 0), [$frac(partial u, partial x)(t, -L) = 0$], anchor: "east")
+    content((4.6, 0), [$frac(partial u, partial x)(t, L) = 0$], anchor: "west")
+
+    // Title/Description inside the canvas
+    content((0, 2.3), text(weight: "bold", size: 11pt)[Neumann Boundary Condition], anchor: "south")
+    content((0, -2.3), text(size: 9pt, style: "italic")[Free boundary: wave has zero slope (horizontal tangent) at the endpoints $partial M$], anchor: "north")
+  })
+}

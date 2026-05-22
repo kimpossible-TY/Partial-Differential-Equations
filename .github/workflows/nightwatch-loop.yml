@@ -1,0 +1,200 @@
+# ==============================================================================
+# Project NightWatch — 야간 자율 실행 루프
+# GitHub Actions schedule로 매일 KST 01:00 (UTC 16:00)에 실행.
+# TASKS.md를 파싱 → 브랜치 생성 → 코드 구현(컨테이너) → PR 제출 → CI 결과 확인.
+# ==============================================================================
+
+name: NightWatch Autonomous Loop
+
+on:
+#  schedule:
+#    - cron: "0 16 * * *"   # KST 01:00 (UTC 16:00)
+  workflow_dispatch:
+    inputs:
+      branch_name:
+        description: 'Target branch name'
+        required: false
+        default: ''
+      task_json:
+        description: 'JSON string of the task(s) to execute'
+        required: false
+        default: ''
+
+jobs:
+  nightwatch-loop:
+    name: Autonomous Task Execution
+    runs-on: self-hosted
+    permissions:
+      contents: write       # 브랜치 생성 및 파일 수정
+      pull-requests: write  # PR 생성
+      issues: read
+      packages: read        # GHCR에서 이미지 가져오기
+
+    steps:
+      # 1. 체크아웃
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}   # GITHUB_TOKEN 대신 PAT 사용 (PR 트리거를 위해)
+          fetch-depth: 0
+
+      # 2. uv 설치 및 의존성 동기화
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync
+
+      # 3. TASKS.md 파싱 — 다음 태스크 추출
+      - name: Parse next task
+        id: parse
+        env:
+          INPUT_TASK_JSON: ${{ github.event.inputs.task_json }}
+        run: |
+          # 1. workflow_dispatch로 직접 전달받은 JSON이 있으면 파일로 저장
+          if [ -n "$INPUT_TASK_JSON" ]; then
+            echo "📥 workflow_dispatch input으로부터 태스크 정보를 받았습니다."
+            printf '%s' "$INPUT_TASK_JSON" > nightwatch_bulk_tasks.json
+          fi
+
+          if [ -f "nightwatch_bulk_tasks.json" ]; then
+            TASK_JSON=$(cat nightwatch_bulk_tasks.json | uv run python -c 'import sys,json; tasks=json.load(sys.stdin); print(json.dumps(tasks[0]) if tasks else "{}")')
+            if [ "$TASK_JSON" = "{}" ]; then
+               echo "no_task=true" >> $GITHUB_OUTPUT
+               exit 0
+            fi
+            TASK_COUNT=$(cat nightwatch_bulk_tasks.json | uv run python -c 'import sys,json; print(len(json.load(sys.stdin)))')
+            if [ "$TASK_COUNT" -gt 1 ]; then
+               TITLE="Bulk Run: $(echo "$TASK_JSON" | uv run python -c 'import sys,json; print(json.load(sys.stdin).get("title", ""))') 외 $((TASK_COUNT - 1))건"
+            else
+               TITLE=$(echo "$TASK_JSON" | uv run python -c 'import sys,json; print(json.load(sys.stdin).get("title", ""))')
+            fi
+            TAG=$(echo "$TASK_JSON" | uv run python -c 'import sys,json; print(json.load(sys.stdin).get("tag", "FLASH"))')
+            MODEL=$(echo "$TASK_JSON" | uv run python -c 'import sys,json; print(json.load(sys.stdin).get("model", ""))')
+            BODY=$(echo "$TASK_JSON" | uv run python -c 'import sys,json; print(json.load(sys.stdin).get("body", ""))')
+            echo "$BODY" > task_body.txt
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
+            echo "title=$TITLE" >> $GITHUB_OUTPUT
+            echo "model=$MODEL" >> $GITHUB_OUTPUT
+          else
+            TASK_JSON=$(uv run Tools/task_runner.py --json 2>/dev/null)
+            if [ -z "$TASK_JSON" ] || echo "$TASK_JSON" | grep -q "모든 태스크가 완료"; then
+              echo "no_task=true" >> $GITHUB_OUTPUT
+              echo "🎉 TASKS.md에 미완료 태스크 없음. 루프 종료."
+              exit 0
+            fi
+            echo "task_json=$TASK_JSON" >> $GITHUB_OUTPUT
+            echo "$TASK_JSON" | uv run python -c 'import sys,json; print(json.load(sys.stdin).get("body", ""))' > task_body.txt
+            echo "tag=$(echo "$TASK_JSON" | uv run python -c 'import sys,json; print(json.load(sys.stdin).get("tag", ""))')" >> $GITHUB_OUTPUT
+            echo "title=$(echo "$TASK_JSON" | uv run python -c 'import sys,json; print(json.load(sys.stdin).get("title", ""))')" >> $GITHUB_OUTPUT
+            echo "model=$(echo "$TASK_JSON" | uv run python -c 'import sys,json; print(json.load(sys.stdin).get("model", ""))')" >> $GITHUB_OUTPUT
+          fi
+      # 4. 태스크 없으면 종료
+      - name: Skip if no task
+        if: steps.parse.outputs.no_task == 'true'
+        run: echo "태스크 없음. 종료." && exit 0
+
+      # 5. 작업 브랜치 설정/생성
+      - name: Setup task branch
+        if: steps.parse.outputs.no_task != 'true'
+        env:
+          TASK_TITLE: ${{ steps.parse.outputs.title }}
+          INPUT_BRANCH: ${{ github.event.inputs.branch_name }}
+        run: |
+          # 1. 입력값이 있으면 사용, 없으면 제목 기반 생성
+          if [ -n "$INPUT_BRANCH" ]; then
+            BRANCH_NAME="$INPUT_BRANCH"
+          else
+            SAFE_TITLE=$(echo "$TASK_TITLE" | tr ' ' '-' | tr -cd '[:alnum:]-' | cut -c1-50 | tr '[:upper:]' '[:lower:]')
+            BRANCH_NAME="nightwatch/${SAFE_TITLE}-${{ github.run_id }}"
+          fi
+          
+          git config user.name "NightWatch Bot"
+          git config user.email "nightwatch@kimpossible-ty"
+          
+          # 2. 이미 해당 브랜치에 있거나 존재하는 경우 처리 (-B는 강제 생성/리셋)
+          git checkout -B "$BRANCH_NAME"
+          
+          echo "branch=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "🌿 작업 브랜치 설정 완료: $BRANCH_NAME"
+
+      # 6. 컨테이너 이미지 가져오기 (GHCR 최적화)
+      - name: Log in to the Container registry
+        if: steps.parse.outputs.no_task != 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull NightWatch Agent Images
+        if: steps.parse.outputs.no_task != 'true'
+        run: |
+          docker pull ghcr.io/kimpossible-ty/partial-differential-equations/nightwatch-agent:latest
+          docker compose pull
+
+      # 7. 태스크 실행 (전용 스크립트로 외부화)
+      - name: Execute task (NightWatch Executor)
+        if: steps.parse.outputs.no_task != 'true'
+        env:
+          TAG: ${{ steps.parse.outputs.tag }}
+          TITLE: ${{ steps.parse.outputs.title }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: |
+          chmod +x Tools/nightwatch_executor.py
+          uv run Tools/nightwatch_executor.py
+
+      # 8. 브랜치 푸시
+      - name: Push branch
+        if: steps.parse.outputs.no_task != 'true'
+        run: git push origin "$branch"
+
+      # 9. PR 생성 또는 업데이트
+      - name: Create or Update Pull Request
+        if: steps.parse.outputs.no_task != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          # PR 본문 파일 빌드 (가장 안전한 방식)
+          echo "## NightWatch 자율 태스크" > pr_body.txt
+          echo "" >> pr_body.txt
+          echo "**태그:** \`${{ steps.parse.outputs.tag }}\`" >> pr_body.txt
+          echo "**모델:** \`${{ steps.parse.outputs.model }}\`" >> pr_body.txt
+          echo "" >> pr_body.txt
+          echo "### 태스크 내용" >> pr_body.txt
+          cat task_body.txt >> pr_body.txt
+          echo "" >> pr_body.txt
+          echo "---" >> pr_body.txt
+          echo "> 🤖 NightWatch Bot이 자동 생성한 PR입니다." >> pr_body.txt
+
+          TITLE="[${{ steps.parse.outputs.tag }}] ${{ steps.parse.outputs.title }}"
+          
+          # 1. PR 생성 시도
+          if gh pr create --title "$TITLE" --body-file pr_body.txt --base main --head "$branch"; then
+            echo "✅ 새 PR이 생성되었습니다."
+          else
+            echo "ℹ️ PR이 이미 존재하거나 생성이 차단되었습니다. 업데이트를 시도합니다."
+            # 2. 기존 PR 업데이트 (제목과 본문 동기화)
+            gh pr edit "$branch" --title "$TITLE" --body-file pr_body.txt || echo "⚠️ PR 업데이트 실패"
+          fi
+
+      # 10. Discord 성공 알림
+      - name: Discord success notification
+        if: success() && steps.parse.outputs.no_task != 'true'
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          curl -X POST "$DISCORD_WEBHOOK" \
+            -H "Content-Type: application/json" \
+            -d "{\"content\": \"✅ **NightWatch PR 생성 완료** — 아침에 검토해주세요!\n→ 태스크: \`${{ steps.parse.outputs.title }}\`\n→ 모델: \`${{ steps.parse.outputs.model }}\`\"}"
+
+      # 11. 실패 시 Discord 알림
+      - name: Discord failure notification
+        if: failure()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          curl -X POST "$DISCORD_WEBHOOK" \
+            -H "Content-Type: application/json" \
+            -d "{\"content\": \"🚨 **NightWatch 야간 루프 실패** — 인간 개입 필요!\n→ 태스크: \`${{ steps.parse.outputs.title }}\`\"}"

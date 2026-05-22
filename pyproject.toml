@@ -1,0 +1,23 @@
+[project]
+name = "nightwatch-pde"
+version = "0.1.0"
+description = "NightWatch: Autonomous PDE Document Workflow"
+authors = [{ name = "kimpossible-TY" }]
+dependencies = [
+    "requests",
+    "openai",
+    "mlx-lm",
+    "pytest",
+    "pytest-cov",
+    "mypy",
+    "flake8",
+    "autopep8",
+    "python-dotenv",
+]
+
+[tool.uv]
+package = false
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

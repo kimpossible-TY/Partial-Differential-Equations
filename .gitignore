@@ -1,0 +1,64 @@
+# ==========================================
+# .gitignore - Tool Architect Cleaned Version
+# ==========================================
+
+### 🛡️ SECURITY & SECRETS
+# Critical: Never commit these
+credentials.json
+token.pickle
+token_base64.txt
+.env
+.env.local
+
+### ⚙️ OPENCLAW RUNTIME
+# Local configuration and session data
+.openclaw/
+.openclaw_config/
+.openclaw_memory/
+.usage_metrics.json
+
+### 🧠 MEMORY & LOGS
+# Personal and session-specific records
+memory/
+agents/*/memory/
+*.log
+gemini_Tutor/logs/
+.bash_history
+
+### 🐍 PYTHON & BUILD
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+bin/
+lib/
+build/
+dist/
+*.egg-info/
+
+### 💻 OS & EDITORS
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
+
+### 🛠️ GITHUB SELF-HOSTED RUNNER
+# Local runner binaries, work directory, and logs
+actions-runner/
+
+### 📁 PROJECT SPECIFICS & TEMP
+*.pdf
+test/
+*.txt
+nightwatch_bulk_tasks.json
+
+### antigravity configs
+.antigravitycli/
