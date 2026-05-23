@@ -29,7 +29,7 @@ jobs:
       - name: Setup Typst
         uses: typst-community/setup-typst@v3
         with:
-          typst-version: 'v0.13.1'  # upgraded version to support @preview/cetz:0.4.2
+          typst-version: 'v0.14.2'  # upgraded version to support @preview/mannot:0.3.3
 
       - name: Compile Typst Document
         run: |
