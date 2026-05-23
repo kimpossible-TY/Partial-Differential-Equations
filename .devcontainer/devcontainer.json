@@ -12,7 +12,7 @@
   },
   "containerEnv": {
     // 컨테이너 내의 프로젝트 경로를 폰트 탐색 경로로 지정
-    "TYPST_FONT_PATHS": "${containerWorkspaceFolder}/Typst_project/fonts",
+    "TYPST_FONT_PATHS": "${containerWorkspaceFolder}/fonts",
     "WORKSPACE": "${containerWorkspaceFolder}",
     "PATH": "${containerWorkspaceFolder}/.venv/bin:/home/vscode/.local/bin:${env:PATH}"
   },
