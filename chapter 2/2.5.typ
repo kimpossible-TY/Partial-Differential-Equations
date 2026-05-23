@@ -1,7 +1,7 @@
 #import "../Styles/styles.typ": *
 #import "figures/figures.typ": *
 #import "@preview/cetz:0.4.2"
-#import "@preview/mannot:0.3.1": *
+#import "@preview/mannot:0.3.3": *
 
 == The wave equation on a product manifold and energy conservation
 
@@ -281,20 +281,20 @@ $
   $
     2 gamma Delta u = frac(1, sqrt(op("det") g))( frac(partial, partial x_j) sqrt(op("det") g) thick frac(partial f_Q, partial xi_j) (x, xi))
   $
-  First, let's compute $frac(partial f_Q, partial xi_j)$. Differentiate with respect to $xi_j$ is :
-  #mannot-scope(s=> [
+  First, let's compute $frac(partial f_Q, partial xi_j)$#footnote[where the summation convention is used.]. Differentiate with respect to $xi_j$ is :
+  #mannot-scope(l=> [
     $
-      frac(partial f_Q, partial xi_j)&=gamma g^(a b) mark(frac(partial, partial xi_j), tag: #(s.tag)("derivative")) (rmark(xi_a, tag: #(s.tag)("xi_a")) bmark(xi_b, tag: #(s.tag)("xi_b"))) #dots_space #footnote[where the summation convention is used.]
+      frac(partial f_Q, partial xi_j)&=gamma g^(a b) mark(frac(partial, partial xi_j), tag: #(l.tag)("derivative")) (rmark(xi_a, tag: #(l.tag)("xi_a")) bmark(xi_b, tag: #(l.tag)("xi_b")))
       \
       \
       &= gamma g^(a b)(delta^j_a xi_b + xi_a delta^j_b)
       \
       &= gamma g^(j b) xi_b + gamma g^(a j) xi_a
       \
-      &= 2 sum^n_(k=1) gamma g^(j k) xi_k #dots_space #footnote[becuase $a$ and $b$ are dummy indices and $g^(a j)=g^(j a)$ by the symmetric property of metric. Note that $j$ isn't dummy index.]
+      &= 2 sum^n_(k=1) gamma g^(j k) xi_k
     $
 
-    #(s.annot)(
+    #(l.annot)(
       ("derivative", "xi_a", "xi_b"),
       cetz,
       {
@@ -302,16 +302,16 @@ $
         set-style(mark: (end: "straight"))
 
         bezier-through(
-          (s.node)("derivative","south"),
+          (l.node)("derivative","south"),
           (rel : (x:0.3, y: -0.3)),
-          (s.node)("xi_a", "south"),
+          (l.node)("xi_a", "south"),
           stroke: red
         )
 
         bezier-through(
-          (s.node)("derivative","south"),
+          (l.node)("derivative","south"),
           (rel : (x:0.5, y: -0.5)),
-          (s.node)("xi_b", "south"),
+          (l.node)("xi_b", "south"),
           stroke: blue
         )
       }
@@ -319,7 +319,7 @@ $
   ])
 
   #paragraph_tab
-  Note that $xi$ represents the spatial differential of $u$, we have $xi_k=partial_k u$. it induces :
+  Note that $xi$ represents the spatial differential of $u$, we have $xi_k=partial_k u$#footnote[becuase $a$ and $b$ are dummy indices and $g^(a j)=g^(j a)$ by the symmetric property of metric. Note that $j$ isn't dummy index.]. it induces :
   #local-tag-scope(s =>[
     $
       frac(partial f_Q, partial xi_j)= sum_(k=1)^n 2 gamma g^(j k) partial_k u
@@ -402,11 +402,21 @@ To find how the energy changes, we take the derivative of $E(t)$ with respect to
   #annot((s.tag)("good to apply grean's identities"), pos: bottom, dy: 1em)[good to apply the green's identities!]
 
   #(s.ref)("being applied the Green's identities") has good to being applied the @Greens_identities(Green's identities)! Let $w:= partial_t u$. Then we can write the second term of  #(s.ref)("being applied the Green's identities") :
-  $
+  #mannot-scope(m=>[
+    $
     integral_M chevron.l d_x w comma d_x u chevron.r  d V &= (d_x w comma d_x u) #dots_space #footnote[by the definition of L-2 product (@L-2_norm_of_1-form)]
     \
-    &= integral_(partial M) w frac(partial u, partial mark(nu, tag: #(s.tag)("outward normal vector"))) d S - integral_M w Delta v d V #dots_space #footnote[By Applying Green's first identity(@Greens_First_Identity)]
+    &= integral_(partial M) w frac(partial u, partial mark(nu, tag: #(m.tag)("outward normal vector"), color: #blue)) d S - integral_M w Delta u d V #dots_space #footnote[By Applying Green's first identity(@Greens_First_Identity)]
+  $ #(s.tag)("Applying Green's first identity")
+  #annot((m.tag)("outward normal vector"), pos: top+right, dx: 1em, dy: -2em)[outward normal vector]
+  ])
 
+  substituting #(s.ref)("being applied the Green's identities") to #(s.ref)("being applied the Green's identities"), we get :
   $
-  #annot((s.tag)("outward normal vector"), pos: bottom, dy : 1em)[outward normal vector]
+   frac(d E, d t) &= integral_M [frac(partial u, partial t) dot frac(partial^2 u, partial t^2) - w Delta u] d V + integral_(partial M) w frac(partial u , partial nu) d S
+   \
+   &= integral_M [frac(partial u, partial t) ( frac(partial^2 u, partial t^2) - Delta u)] d V + integral_(partial M) partial_t u frac(partial u , partial nu) d S #dots_space #footnote[becuase we defined $w:=partial_t u$.]
+  $
 ])
+
+
