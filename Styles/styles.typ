@@ -4,7 +4,7 @@
 #import "local_tags.typ": *
 #import "mannot_utils.typ": *
 #import "math_styles.typ": *
-#import "@preview/mannot:0.3.2": *
+#import "@preview/mannot:0.3.3": *
 
 // ---------- Marks ----------
 #let rmark = mark.with(color: red)
