@@ -1,0 +1,56 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: ["main"]  # runs on push to main branch
+  workflow_dispatch:     # allows manual trigger from actions tab
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Typst
+        uses: yob/setup-typst@v3
+        with:
+          version: '0.11.0'  # lock the typst version matching the project badge
+
+      - name: Compile Typst Document
+        run: |
+          # Compiles main.typ using the local fonts folder
+          typst compile main.typ main.pdf --font-path ./fonts
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Build Web Artifacts Directory
+        run: |
+          # Create a deployment directory and copy required static assets
+          mkdir -p _site
+          cp main.pdf _site/
+          cp index.html _site/
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '_site'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
