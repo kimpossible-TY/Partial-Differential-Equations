@@ -23,11 +23,15 @@
         "analytic-signal.preview-pdf",
         "PKief.material-icon-theme",
         "ms-python.python",
-        "openai.chatgpt"
+        "openai.chatgpt",
+        "asvetliakov.vscode-neovim"
       ],
       "settings": {
 				"python.defaultInterpreterPath": "${containerWorkspaceFolder}/.venv/bin/python",
-				"python.terminal.activateEnvironment": true
+				"python.terminal.activateEnvironment": true,
+        "files.autoSave": "afterDelay",
+        "vscode-neovim.neovimExecutablePaths.linux": "/usr/local/bin/nvim",
+        "git.enableSmartCommit": true
 			}
     }
   },
