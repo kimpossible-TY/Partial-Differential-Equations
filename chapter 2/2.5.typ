@@ -415,8 +415,7 @@ To find how the energy changes, we take the derivative of $E(t)$ with respect to
   $
    frac(d E, d t) &= integral_M [frac(partial u, partial t) dot frac(partial^2 u, partial t^2) - w Delta u] d V + integral_(partial M) w frac(partial u , partial nu) d S
    \
-   &= integral_M [frac(partial u, partial t) ( frac(partial^2 u, partial t^2) - Delta u)] d V + integral_(partial M) partial_t u frac(partial u , partial nu) d S #dots_space #footnote[becuase we defined $w:=partial_t u$.]
-  $
+   &= integral_M [frac(partial u, partial t) ( cancel(frac(partial^2 u, partial t^2) - Delta u, stroke: #(paint: blue)))] d V + cancel(integral_(partial M) partial_t u frac(partial u , partial nu) d S, stroke: #(paint: red)) #dots_space #footnote[becuase we defined $w:=partial_t u$.]
+  $ #(s.tag)("final_result")
+  If we assume the Dirichlet boundary condition or the Neumann boundary condition, the second term of #(s.ref)("final_result") becomes zero. In addition, since $u$ satisfies the wave equation, the first term of #(s.ref)("final_result") also becomes zero. Therefore the energy is conserved.
 ])
-
-
