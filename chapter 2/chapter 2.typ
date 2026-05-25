@@ -9,3 +9,5 @@
 #include "2.4.typ"
 #pagebreak()
 #include "2.5.typ"
+#pagebreak()
+#include "2.7.typ"
