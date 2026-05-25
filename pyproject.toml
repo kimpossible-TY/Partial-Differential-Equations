@@ -1,18 +1,9 @@
 [project]
-name = "nightwatch-pde"
+name = "Partial-Differential-Equations"
 version = "0.1.0"
-description = "NightWatch: Autonomous PDE Document Workflow"
+description = "Partial-Differential-Equations"
 authors = [{ name = "kimpossible-TY" }]
 dependencies = [
-    "requests",
-    "openai",
-    "mlx-lm",
-    "pytest",
-    "pytest-cov",
-    "mypy",
-    "flake8",
-    "autopep8",
-    "python-dotenv",
 ]
 
 [tool.uv]
