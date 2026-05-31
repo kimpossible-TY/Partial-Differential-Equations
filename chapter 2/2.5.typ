@@ -332,7 +332,7 @@ $
   it is the same as what we want to show.
 ]
 
-=== Energy conservation
+=== Energy conservation <energy_conservation>
 
 #paragraph_tab
 To prove the energy conservation, we need to assume:
@@ -342,7 +342,7 @@ To prove the energy conservation, we need to assume:
     u(t,x)=0, quad attach(x, tl: forall) in partial M
   $
   , then it is Dirichlet boundary condition for $u$.
-]
+] <Dirichlet_condition>
 
 #figure(
   dirichlet_boundary_condition_visualization(),
@@ -355,7 +355,7 @@ To prove the energy conservation, we need to assume:
     frac(partial u, partial n)(t,x) = 0, quad attach(x, tl: forall) in partial M
   $
   where $n$ is the outward unit normal vector field along $partial M$, then it is the Neumann boundary condition for $u$.
-]
+] <neumann_condition>
 
 #paragraph_tab
 Recall from @definition_of_normal_derivative that the normal derivative of $u$ at the boundary is given by:
@@ -416,6 +416,6 @@ To find how the energy changes, we take the derivative of $E(t)$ with respect to
    frac(d E, d t) &= integral_M [frac(partial u, partial t) dot frac(partial^2 u, partial t^2) - w Delta u] d V + integral_(partial M) w frac(partial u , partial nu) d S
    \
    &= integral_M [frac(partial u, partial t) ( cancel(frac(partial^2 u, partial t^2) - Delta u, stroke: #(paint: blue)))] d V + cancel(integral_(partial M) partial_t u frac(partial u , partial nu) d S, stroke: #(paint: red)) #dots_space #footnote[becuase we defined $w:=partial_t u$.]
-  $ #(s.tag)("final_result")
-  If we assume the Dirichlet boundary condition or the Neumann boundary condition, the second term of #(s.ref)("final_result") becomes zero. In addition, since $u$ satisfies the wave equation, the first term of #(s.ref)("final_result") also becomes zero. Therefore the energy is conserved.
+  $  <energy_conservation_derivation>
+  If we assume the Dirichlet boundary condition or the Neumann boundary condition, the second term of @energy_conservation_derivation becomes zero. In addition, since $u$ satisfies the wave equation, the first term of @energy_conservation_derivation also becomes zero. Therefore the energy is conserved.
 ])
