@@ -480,6 +480,8 @@ Usually, however, omit `prefix` and let `mannot-scope` generate it automatically
 * Use `(s.node)("local-name", "direction")` inside CeTZ drawing code.
 * Use `(s.annot)((...), cetz, { ... })` to draw the annotation.
 * Keep the `mark(...)` calls and the corresponding `(s.annot)(...)` call close to each other, preferably in the same displayed equation block.
+* **Always place all annotation calls (`#annot` and `(s.annot)`) INSIDE the block equation (`$ ... $`)**: Never place them outside or after the math block. If an equation is long or located near a page boundary, placing them outside will push the annotations onto the next page, causing them to render on a blank page detached from the equation markers.
+* **Avoid hardcoded large offsets**: Do not use large absolute offsets (e.g. `dx: 11em`) to place annotations on the side of equations. Instead, use relative positioning (such as `pos: right`) with small offsets (e.g. `dx: 1em, dy: 1.5em`) and use line breaks (`\`) in long annotation text so it fits within the page margins without overlapping equation numbers.
 * Do not manually reuse raw labels like `<x>`, `<nabla>`, `<position>`, or `<target>` across the document.
 
 summary :
