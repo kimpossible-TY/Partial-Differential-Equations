@@ -115,31 +115,33 @@ The laplacian is very closely related to Hessian.
   Now, apply the divergence to @grad_u_laplacian_on_Riemannian_manifold. By using @divergence_and_semi_colon, and applying @semi_colon_concention_and_covariant_derivative to the semi-colon notation, we can get :
 
  //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  $
-    Delta u &= [ mark(nabla_i, tag: #<nabla_lemma_2_9>) ( rmark(g^(j k), tag: #<g_lemma_2_9>) bmark(nabla_k u, tag: #<u_lemma_2_9>) ]^i
-    \
-    &= [ cancel(nabla_i g^(j k) nabla_k u) + g^(j k) (nabla_i nabla_k u) ]^i
-    #dots_space #footnote[By applying product rule(@basic_properties_of_connection)]
-    \
-    &= [g^(j k) (nabla_i nabla_k u)]^i  #dots_space #footnote[By the fundamental theorem of Reimannian geometry, $nabla$ is compatible with $g$.]
-    \
-    &= g^(j k) (nabla_i nabla_k u) #dots_space #footnote[Since $i$ is dummy index which means the summation is omitted. In additon, as considering that the dummy index is essentially picked arbitrarily, we can naturally delete the dummy index $i$!]
+  #local-scope-annotations(s => [
+    $
+      Delta u &= [ mark(nabla_i, tag: #(s.tag)("nabla_lemma_2_9")) ( rmark(g^(j k), tag: #(s.tag)("g_lemma_2_9")) bmark(nabla_k u, tag: #(s.tag)("u_lemma_2_9")) ]^i
+      \
+      &= [ cancel(nabla_i g^(j k) nabla_k u) + g^(j k) (nabla_i nabla_k u) ]^i
+      #dots_space #footnote[By applying product rule(@basic_properties_of_connection)]
+      \
+      &= [g^(j k) (nabla_i nabla_k u)]^i  #dots_space #footnote[By the fundamental theorem of Reimannian geometry, $nabla$ is compatible with $g$.]
+      \
+      &= g^(j k) (nabla_i nabla_k u) #dots_space #footnote[Since $i$ is dummy index which means the summation is omitted. In additon, as considering that the dummy index is essentially picked arbitrarily, we can naturally delete the dummy index $i$!]
 
-    #annot-cetz-local(
-      (<nabla_lemma_2_9>, <g_lemma_2_9>, <u_lemma_2_9>),
-      cetz,
-      {
-        import cetz.draw: *
-        set-style(mark: (end: "straight"))
-        
-        // nabla_i가 g^(j k)에 작용하는 항 (결과적으로 0이 됨)
-        bezier-through("nabla_lemma_2_9.north", (rel: (x: 0.3, y: 0.5)), "g_lemma_2_9.north", stroke: red)
-        
-        // nabla_i가 nabla_k u에 작용하는 항
-        bezier-through("nabla_lemma_2_9.south", (rel: (x: 0.8, y: -0.2)), "u_lemma_2_9.south", stroke: blue)
-      },
-    )
-  $
+      #(s.annot)(
+        ("nabla_lemma_2_9", "g_lemma_2_9", "u_lemma_2_9"),
+        cetz,
+        {
+          import cetz.draw: *
+          set-style(mark: (end: "straight"))
+          
+          // nabla_i가 g^(j k)에 작용하는 항 (결과적으로 0이 됨)
+          bezier-through((s.node)("nabla_lemma_2_9", "north"), (rel: (x: 0.3, y: 0.5)), (s.node)("g_lemma_2_9", "north"), stroke: red)
+          
+          // nabla_i가 nabla_k u에 작용하는 항
+          bezier-through((s.node)("nabla_lemma_2_9", "south"), (rel: (x: 0.8, y: -0.2)), (s.node)("u_lemma_2_9", "south"), stroke: blue)
+        },
+      )
+    $
+  ])
 
  //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   that is exactly the same as the RHS of  @unpacked_relationship_of_laplacian_and_hessian, which proves the special lemma.
@@ -415,21 +417,23 @@ In @Greens_Identities_with_boundaries, we treat somethings on the bundaries of m
   $
 
   To cancel $hat(d x)^i$ by $dx^i$, we have to move $hat(d x)^i$ to the front. In this moment, we have to apply the property which is about the changing the position of wedge product.
-  $
-    dx^1 and dots and rmark(hat(d x)^i, tag: #<position_change>) and dots and dx^n = (-1)^(i-1) hat(d x)^i and dx^1 and dots and dx^n
+  #local-scope-annotations(s => [
+    $
+      dx^1 and dots and rmark(hat(d x)^i, tag: #(s.tag)("position_change")) and dots and dx^n = (-1)^(i-1) hat(d x)^i and dx^1 and dots and dx^n
 
-    #annot-cetz-local(
-      (<position_change>),
-      cetz,
-      {
-        import cetz.draw: *
-        set-style(mark: (end: "straight"))
-        
-        // Change the position of hat(dx)^i
-        bezier-through("position_change.south", (rel: (x: -1.6, y: -0.5)), (rel: (x: -1, y: 0.4)), stroke: red)
-      }
-    )
-  $
+      #(s.annot)(
+        "position_change",
+        cetz,
+        {
+          import cetz.draw: *
+          set-style(mark: (end: "straight"))
+          
+          // Change the position of hat(dx)^i
+          bezier-through((s.node)("position_change", "south"), (rel: (x: -1.6, y: -0.5)), (rel: (x: -1, y: 0.4)), stroke: red)
+        }
+      )
+    $
+  ])
 
 
   
@@ -480,7 +484,7 @@ In @Greens_Identities_with_boundaries, we treat somethings on the bundaries of m
     $ <integral_of_divergence_of_product>
   ]
   The LHS of @integral_of_divergence_of_product can be :
-  #mannot-scope(s => 
+  #local-scope-annotations(s => 
     [
       $
         bmark(integral_M op("div") (u op("grad") dash(v)) d V_g) & = integral_(partial M) chevron.l pmark(u) op("grad") dash(v) comma n chevron.r_g d S #dots_space #footnote[by the divergence theorem]
