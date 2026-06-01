@@ -100,10 +100,10 @@
 }
 
 // ---------- PARAGRAPH TAB RULES ----------
-// Rule 1: Handle paragraph_tab followed by a character (captures the char)
-// Replaces marker + whitespace + char with indent + uppercase char
-#show regex("\u{F000}\s*(\S)"): it => {
-  let char = it.text.match(regex("\u{F000}\s*(\S)")).captures.first()
+// Rule 1: Handle paragraph_tab followed by normal lowercase text.
+// Replaces marker + whitespace + lowercase letter with indent + uppercase letter.
+#show regex("\u{F000}\s*(\p{Ll})"): it => {
+  let char = it.text.match(regex("\u{F000}\s*(\p{Ll})")).captures.first()
   h(1.5em) + upper(char)
 }
 
