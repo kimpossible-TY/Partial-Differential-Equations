@@ -1,9 +1,8 @@
-// Main styles file that imports all style modules
-#import "theme.typ": *
-#import "../Styles/cetz_utils.typ" : *
-#import "local_tags.typ": *
-#import "mannot_utils.typ": *
-#import "math_styles.typ": *
+// Compatibility facade for the local Typst packages used by this project.
+#import "@local/text-utils:0.1.0": *
+#import "@local/math-blocks:0.1.0": *
+#import "@local/scoped-annotations:0.1.0": *
+#import "@local/cetz-helpers:0.1.0": *
 #import "@preview/mannot:0.3.3": *
 
 // ---------- Marks ----------
@@ -24,56 +23,4 @@
 #let author-name(body) = {
   v(1.5em)
   text(font: "Copperplate", size: 24pt, weight: "medium")[#body]
-}
-
-// ---------- CALLOUT ----------
-#let callout(
-  type: "note",
-  title: none,
-  body,
-) = context {
-  let colors = theme-from-text-fill().callouts
-  let color-info = colors.at(type, default: colors.note)
-
-  block(
-    fill: color-info.bg,
-    stroke: (left: 3pt + color-info.border),
-    inset: (left: 1.2em, right: 1em, top: 1em, bottom: 1em),
-    radius: 2pt,
-    [
-      #if title != none {
-        text(weight: "600", size: 10.5pt, fill: color-info.border, tracking: 0.05em)[#title]
-        linebreak()
-        v(0.4em)
-      }
-      #text(size: 12pt)[#body]
-    ],
-  )
-}
-
-// ---------- paragraph tab ----------
-#let paragraph_tab = "\u{F000}"
-
-// ---------- HIGHLIGHTED ----------
-//
-// Custom highlight function. The orginal highlight function doens't support to highlight equations properly. The custom function below highlights equations in a box.
-#let highlighted(body) = context {
-  let theme = theme-from-text-fill()
-
-  // Iterate over each child element within the provided body.
-  for child in body.children {
-    // Check if the child element is an equation.
-    // `child.func()` returns the function associated with the element (e.g., `equation`).
-    // `repr()` converts this function reference to a string for comparison.
-    if repr(child.func()) == "equation" {
-      // If it's an equation, display it in a highlighted box.
-      box(
-        fill: theme.highlight,
-        outset: (y: 0.25em), // Add some vertical padding around the equation.
-      )[$#child.at("body")$] // Get the content of the equation.
-    } else {
-      // If it's not an equation, use the default highlight function.
-      highlight(child)
-    }
-  }
 }

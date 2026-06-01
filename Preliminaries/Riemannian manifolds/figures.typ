@@ -1,6 +1,6 @@
 #import "@preview/cetz:0.4.2": *
-#import "../../Styles/cetz_utils.typ": description_box, legend_box
-#import "../../Styles/theme.typ": *
+#import "@local/cetz-helpers:0.1.0": description_box, legend_box
+#import "@local/math-blocks:0.1.0": *
 
 // Define the function name you want to use
 #let extendible_vector_field() = {

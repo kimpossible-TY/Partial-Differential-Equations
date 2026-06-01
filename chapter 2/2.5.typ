@@ -110,7 +110,7 @@ $ <definition_of_potential_energy_density_Riemannian_tensor_version>
   $
 ]
 
-#local-tag-scope(s => [
+#local-scope-annotations(s => [
     #proof()[
     By the definition of $A^*$(@definition_of_adjoint_of_A), we know : 
     $
@@ -184,7 +184,7 @@ $
 Let $cal(L):= sqrt(op("det") g)[frac(1,2)m(x) norm(d_t u)^2- f(x,xi)]$ which is Lagrangian density. Since $T$ and $V$ are smooth, $L$ is smooth too. Therefore we can change the order of derivative and integral :
 #flowbox()[
   Euler-Lagrange equation
-  #mannot-scope(s=>[
+  #local-scope-annotations(s=>[
     $
       frac(partial L, partial u)- frac(partial, partial t) frac(partial L, partial markhl(d_t u, tag: #(s.tag)("first")))-frac(partial, partial x_j) frac(partial L, partial markhl(d_(x_j) u, color: #green, tag: #(s.tag)("second")))&=0 #dots_space #footnote[Since $u$ is real-valued funcion, $d_t u=partial_t u$ and $d_(x_j) u=partial_j u$ are satisfied.]
     $ <Euler-Lagrange_equation_for_wave_equation>
@@ -211,14 +211,14 @@ Let $cal(L):= sqrt(op("det") g)[frac(1,2)m(x) norm(d_t u)^2- f(x,xi)]$ which is 
 ]
 
 #paragraph_tab
-#local-tag-scope(l => [
+#local-scope-annotations(l => [
   Now compute (1) $tilde$ (3) of @Euler-Lagrange_equation_of_Lagrangian_density_wave_eq. First, Since $f$ does not depend on $u$ itself, only on $x$ and $u_j$, therefore $frac(partial cal(L), partial u)=0$. second, 
   $
     frac(partial cal(L) , partial partial_t u)= sqrt(det g) thick m(x) thick partial_t u
   $ #(l.tag)("first_result")
   is easily proved. Since $g$ and $m$ depend only on $x$, not on $t$,
 
-  #mannot-scope(s =>[
+  #local-scope-annotations(s =>[
     $
       frac(partial , partial t) frac(partial cal(L), partial (partial_t u))= sqrt(det g) thick m(x) thick markrect(partial_t (partial_t u), color: #red, tag: #(s.tag)("partial^2_t_u"))
     $ #(l.tag)("second_result")
@@ -240,7 +240,7 @@ Let $cal(L):= sqrt(op("det") g)[frac(1,2)m(x) norm(d_t u)^2- f(x,xi)]$ which is 
   As putting #(l.ref)("first_result"), #(l.ref)("second_result") and #(l.ref)("third_result") to @Euler-Lagrange_equation_for_wave_equation, 
 ])
 we finally get :
-#mannot-scope(s =>[
+#local-scope-annotations(s =>[
   $
     m frac(partial^2 u , partial t^2 ) - markul(frac(1, sqrt(op("det") g))( frac(partial, partial x_j) sqrt(op("det") g) thick frac(partial f, partial xi_j) (x, xi)), color: #blue, tag: #(s.tag)("hl"))
     = 0
@@ -282,7 +282,7 @@ $
     2 gamma Delta u = frac(1, sqrt(op("det") g))( frac(partial, partial x_j) sqrt(op("det") g) thick frac(partial f_Q, partial xi_j) (x, xi))
   $
   First, let's compute $frac(partial f_Q, partial xi_j)$#footnote[where the summation convention is used.]. Differentiate with respect to $xi_j$ is :
-  #mannot-scope(l=> [
+  #local-scope-annotations(l=> [
     $
       frac(partial f_Q, partial xi_j)&=gamma g^(a b) mark(frac(partial, partial xi_j), tag: #(l.tag)("derivative")) (rmark(xi_a, tag: #(l.tag)("xi_a")) bmark(xi_b, tag: #(l.tag)("xi_b")))
       \
@@ -320,7 +320,7 @@ $
 
   #paragraph_tab
   Note that $xi$ represents the spatial differential of $u$, we have $xi_k=partial_k u$#footnote[becuase $a$ and $b$ are dummy indices and $g^(a j)=g^(j a)$ by the symmetric property of metric. Note that $j$ isn't dummy index.]. it induces :
-  #local-tag-scope(s =>[
+  #local-scope-annotations(s =>[
     $
       frac(partial f_Q, partial xi_j)= sum_(k=1)^n 2 gamma g^(j k) partial_k u
     $ #(s.tag)("input")
@@ -374,7 +374,7 @@ Now, let's prove the energy conservation of wave equation. the total energy is :
 
 
 
-#mannot-scope(m => [
+#local-scope-annotations(m => [
   $
     E(t) := frac(1,2) integral_M [
       rmark(norm(d_t u (t,x))^2, tag: #(m.tag)("kinetic")) + bmark(chevron.l xi comma xi chevron.r_g , tag: #(m.tag)("potential"))
@@ -385,7 +385,7 @@ Now, let's prove the energy conservation of wave equation. the total energy is :
 ])
 
 To find how the energy changes, we take the derivative of $E(t)$ with respect to time $t$.
-#local-tag-scope(s=> [
+#local-scope-annotations(s=> [
   $
     frac(d E, d t) &= frac(1,2) integral_M frac(partial, partial t) [(frac(partial u, partial t))^2 + chevron.l xi comma xi chevron.r_g ] d V
     \
@@ -402,7 +402,7 @@ To find how the energy changes, we take the derivative of $E(t)$ with respect to
   #annot((s.tag)("good to apply grean's identities"), pos: bottom, dy: 1em)[good to apply the green's identities!]
 
   #(s.ref)("being applied the Green's identities") has good to being applied the @Greens_identities(Green's identities)! Let $w:= partial_t u$. Then we can write the second term of  #(s.ref)("being applied the Green's identities") :
-  #mannot-scope(m=>[
+  #local-scope-annotations(m=>[
     $
     integral_M chevron.l d_x w comma d_x u chevron.r  d V &= (d_x w comma d_x u) #dots_space #footnote[by the definition of L-2 product (@L-2_norm_of_1-form)]
     \

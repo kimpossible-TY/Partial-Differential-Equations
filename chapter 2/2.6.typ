@@ -19,7 +19,7 @@ and boundary condition either the Dirichlet(@Dirichlet_condition) or the Neumann
 #paragraph_tab
 We start from the energy conservation law for the wave equation(@energy_conservation). It is good to apply the fundamental theorem of calculus to the energy conservation derivation(@energy_conservation_derivation) :
 
- #local-tag-scope(s => [
+ #local-scope-annotations(s => [
   #flowbox()[
   $
     frac(partial E, partial t)=integral_M [frac(partial u, partial t) (frac(partial^2 u, partial t^2) - Delta u)] d V + integral_(partial M) partial_t u frac(partial u , partial nu) d S
@@ -39,7 +39,7 @@ We start from the energy conservation law for the wave equation(@energy_conserva
   Now, let's focus on $integral_M partial_t u(partial_t^2 u- Delta u) d V$ which is came from the first term of RHS of #(s.ref)("above"). Since, our interest thing is 'the inside of $M$', moreover, let's restrict the integral domain $M$ to $Omega$ which doesn't intersect $bb(R) times M$. Computing it term by term, we have :
 ])
 
-#mannot-scope(m => [  
+#local-scope-annotations(m => [  
   $
     integral_Omega mark(partial_t u, tag: #(m.tag)("first")) thin (rmark(partial_t^2 u, tag: #(m.tag)("second"))- bmark(Delta u, tag: #(m.tag)("third"))) d V 
     &= 
