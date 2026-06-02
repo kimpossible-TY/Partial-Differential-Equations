@@ -417,8 +417,8 @@
     const downloadButton = document.getElementById("btn-download");
     const pdfPreview = document.getElementById("pdf-preview");
     const pageParams = new URLSearchParams(window.location.search);
+    const checkedPdfBranch = pageParams.get("pdfBranch");
     const checkedPdfBuiltAt = pageParams.get("pdfBuiltAt");
-    const checkedPdfCommit = pageParams.get("pdfCommit");
 
     function setVersionStatus(message, link) {
       versionStatus.textContent = message;
@@ -442,32 +442,34 @@
         return response.json();
       })
       .then((version) => {
-        const shortCommit = version.commit.slice(0, 7);
-        const pdfUrl = "main.pdf?v=" + encodeURIComponent(shortCommit);
-        const sourceUrl = "https://github.com/kimpossible-TY/Partial-Differential-Equations/tree/" + encodeURIComponent(version.commit);
-        const hasVersionCheck = Boolean(checkedPdfBuiltAt || checkedPdfCommit);
-        const commitMatches = checkedPdfCommit === version.commit || checkedPdfCommit === shortCommit;
-        const builtAtMatches = checkedPdfBuiltAt === version.builtAt;
+        const latestVersionId = version.versionId || `${version.branch}@${version.builtAt}`;
+        const checkedVersionId = `${checkedPdfBranch}@${checkedPdfBuiltAt}`;
+        const pdfUrl = "main.pdf?v=" + encodeURIComponent(latestVersionId);
+        const sourceUrl = "https://github.com/kimpossible-TY/Partial-Differential-Equations";
+        const hasVersionCheck = Boolean(checkedPdfBranch && checkedPdfBuiltAt);
+        const versionMatches =
+          checkedPdfBranch === version.branch &&
+          checkedPdfBuiltAt === version.builtAt;
 
         downloadButton.href = pdfUrl;
         pdfPreview.src = pdfUrl;
 
         if (hasVersionCheck) {
-          if (builtAtMatches || commitMatches) {
+          if (versionMatches) {
             versionStatus.classList.add("is-current");
-            setVersionStatus(`This PDF is current. Published ${version.builtAt}.`, {
+            setVersionStatus(`This PDF is current. ${latestVersionId}.`, {
               href: sourceUrl,
-              text: shortCommit,
+              text: "Source",
             });
           } else {
             versionStatus.classList.add("is-outdated");
-            setVersionStatus(`This PDF is outdated. Your PDF: ${checkedPdfBuiltAt || checkedPdfCommit}. Latest: ${version.builtAt}.`, {
+            setVersionStatus(`This PDF is outdated. Your PDF: ${checkedVersionId}. Latest: ${latestVersionId}.`, {
               href: pdfUrl,
               text: "Download latest PDF",
             });
           }
         } else {
-          setVersionStatus(`Latest published PDF version: ${shortCommit} | ${version.builtAt}`, {
+          setVersionStatus(`Latest published PDF version: ${latestVersionId}`, {
             href: sourceUrl,
             text: "Source",
           });

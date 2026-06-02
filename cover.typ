@@ -1,5 +1,5 @@
 #import "Styles/styles.typ": *
-#import "build-info.typ": document-version-check-url, document-pdf-url, document-source-url
+#import "build-info.typ": document-branch, document-built-at, document-version-check-url, document-pdf-url, document-source-url
 
 #context {
   let theme = theme-from-text-fill()
@@ -64,6 +64,7 @@
     ]
     #v(1em)
     #text(font: "New Computer Modern", size: 8.5pt, fill: theme.muted-text)[
+      Version: #document-branch @ #document-built-at \
       #link(document-version-check-url)[Check latest version] | #link(document-pdf-url)[Download latest PDF] | #link(document-source-url)[Source]
     ]
   ]
