@@ -1,4 +1,5 @@
 #import "Styles/styles.typ": *
+#import "build-info.typ": document-version-check-url, document-pdf-url, document-source-url
 
 #context {
   let theme = theme-from-text-fill()
@@ -39,10 +40,13 @@
     
     // Author
     #text(font: "New Computer Modern", size: 20pt)[*Kim Taeyoung*]
+  ]
+
+  pagebreak()
+
+  align(center)[
+    #v(1fr)
     
-    #v(4em)
-    
-    // Equation decoration
     #text(font: "New Computer Modern", size: 22pt, fill: theme.muted-text)[
       #set math.equation(numbering: none)
       $ (partial u)/(partial t) - alpha nabla^2 u = f(x, t) $
@@ -57,6 +61,10 @@
     #v(0.5em)
     #text(font: "New Computer Modern", size: 12pt, fill: theme.muted-text)[
       #datetime.today().display("[year]")
+    ]
+    #v(1em)
+    #text(font: "New Computer Modern", size: 8.5pt, fill: theme.muted-text)[
+      #link(document-version-check-url)[Check latest version] | #link(document-pdf-url)[Download latest PDF] | #link(document-source-url)[Source]
     ]
   ]
 

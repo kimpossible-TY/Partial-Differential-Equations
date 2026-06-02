@@ -91,6 +91,6 @@ We start from the energy conservation law for the wave equation(@energy_conserva
     )
   $ #(m.tag)("main equation")
 
-  The reason why we expend #(m.ref)("main equation") even go so far as to use $partial_t partial_t^2 u= partial_t (frac(1,2) (partial_t u)^2)$ and $d_x partial_t u comma d_x u chevron.r = frac(1,2) [partial_t (d_x u)^2]$ is to isolate $integral_Omega op("div")_x (partial_t u thick op("grad")_x u) thin d V  d t$ for more concrete computation.#footnote[$integral_Omega op("div")_x (partial_t u thick op("grad")_x u) thin d V  d t$ is quite hard to compute directly itself.]
+  The reason why we expend #(m.ref)("main equation") even go so far as to use $partial_t partial_t^2 u= partial_t (frac(1,2) (partial_t u)^2)$ and $chevron.l d_x partial_t u comma d_x u chevron.r = frac(1,2) [partial_t (d_x u)^2]$ is to isolate $integral_Omega op("div")_x (partial_t u thick op("grad")_x u) thin d V  d t$ for more concrete computation.#footnote[$integral_Omega op("div")_x (partial_t u thick op("grad")_x u) thin d V  d t$ is quite hard to compute directly itself.]
 ])
 
