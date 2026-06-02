@@ -412,72 +412,14 @@
     <p>&copy; 2026 <a href="https://github.com/kimpossible-TY" target="_blank">kimpossible-TY</a>. All rights reserved. Powered by GitHub Pages.</p>
   </footer>
 
+  <script src="pdf-version-check.js"></script>
   <script>
-    const versionStatus = document.getElementById("version-status");
-    const downloadButton = document.getElementById("btn-download");
-    const pdfPreview = document.getElementById("pdf-preview");
-    const pageParams = new URLSearchParams(window.location.search);
-    const checkedPdfBranch = pageParams.get("pdfBranch");
-    const checkedPdfBuiltAt = pageParams.get("pdfBuiltAt");
-
-    function setVersionStatus(message, link) {
-      versionStatus.textContent = message;
-
-      if (link) {
-        versionStatus.append(" ");
-        const anchor = document.createElement("a");
-        anchor.href = link.href;
-        anchor.target = "_blank";
-        anchor.rel = "noopener";
-        anchor.textContent = link.text;
-        versionStatus.append(anchor);
-      }
-    }
-
-    fetch("version.json?cacheBust=" + Date.now())
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("version metadata unavailable");
-        }
-        return response.json();
-      })
-      .then((version) => {
-        const latestVersionId = version.versionId || `${version.branch}@${version.builtAt}`;
-        const checkedVersionId = `${checkedPdfBranch}@${checkedPdfBuiltAt}`;
-        const pdfUrl = "main.pdf?v=" + encodeURIComponent(latestVersionId);
-        const sourceUrl = "https://github.com/kimpossible-TY/Partial-Differential-Equations";
-        const hasVersionCheck = Boolean(checkedPdfBranch && checkedPdfBuiltAt);
-        const versionMatches =
-          checkedPdfBranch === version.branch &&
-          checkedPdfBuiltAt === version.builtAt;
-
-        downloadButton.href = pdfUrl;
-        pdfPreview.src = pdfUrl;
-
-        if (hasVersionCheck) {
-          if (versionMatches) {
-            versionStatus.classList.add("is-current");
-            setVersionStatus(`This PDF is current. ${latestVersionId}.`, {
-              href: sourceUrl,
-              text: "Source",
-            });
-          } else {
-            versionStatus.classList.add("is-outdated");
-            setVersionStatus(`This PDF is outdated. Your PDF: ${checkedVersionId}. Latest: ${latestVersionId}.`, {
-              href: pdfUrl,
-              text: "Download latest PDF",
-            });
-          }
-        } else {
-          setVersionStatus(`Latest published PDF version: ${latestVersionId}`, {
-            href: sourceUrl,
-            text: "Source",
-          });
-        }
-      })
-      .catch(() => {
-        versionStatus.textContent = "Latest published PDF version: unavailable";
-      });
+    PdfVersionCheck.mount({
+      statusId: "version-status",
+      downloadId: "btn-download",
+      previewId: "pdf-preview",
+      sourceUrl: "https://github.com/kimpossible-TY/Partial-Differential-Equations"
+    });
   </script>
 
 </body>
