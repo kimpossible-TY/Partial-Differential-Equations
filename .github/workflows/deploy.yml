@@ -47,7 +47,7 @@ jobs:
         run: |
           PDF_BUILD_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           echo "PDF_BUILD_AT=${PDF_BUILD_AT}" >> "$GITHUB_ENV"
-          python3 pdf_server.py --write-version-once
+          python3 typst-packages/tools/pdf-versioning/pdf_version_server.py --root . --write-version-once
 
       - name: Compile Typst Document
         run: |
@@ -55,7 +55,7 @@ jobs:
           typst compile main.typ main.pdf --font-path ./fonts
 
       - name: Generate Published Version Metadata
-        run: python3 pdf_server.py --write-version-once
+        run: python3 typst-packages/tools/pdf-versioning/pdf_version_server.py --root . --write-version-once
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -67,6 +67,7 @@ jobs:
           cp main.pdf _site/
           cp index.html _site/
           cp version.json _site/
+          cp typst-packages/tools/pdf-versioning/pdf-version-check.js _site/
 
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
