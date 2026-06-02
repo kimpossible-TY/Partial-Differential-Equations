@@ -135,8 +135,42 @@
       font-weight: 400;
       color: var(--text-muted);
       max-width: 600px;
-      margin: 0 auto 2rem auto;
+      margin: 0 auto 1rem auto;
       line-height: 1.6;
+    }
+
+    .version-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.45rem 0.8rem;
+      margin-bottom: 2rem;
+      border: 1px solid var(--card-border);
+      border-radius: 9999px;
+      background: var(--card-bg);
+      color: var(--text-muted);
+      font-family: 'Fira Code', monospace;
+      font-size: 0.78rem;
+      backdrop-filter: var(--glass-blur);
+    }
+
+    .version-status a {
+      color: var(--badge-text);
+      text-decoration: none;
+    }
+
+    .version-status a:hover {
+      text-decoration: underline;
+    }
+
+    .version-status.is-current {
+      color: #15803d;
+      border-color: rgba(21, 128, 61, 0.28);
+    }
+
+    .version-status.is-outdated {
+      color: #b45309;
+      border-color: rgba(180, 83, 9, 0.3);
     }
 
     .cta-group {
@@ -337,6 +371,9 @@
     <span class="badge">TYPST v0.11.0</span>
     <h1 id="page-title">Partial Differential Equations</h1>
     <p class="subtitle" id="page-subtitle">Autonomous PDE Lecture Note Workflow by kimpossible-TY. Updates automatically on push.</p>
+    <div class="version-status" id="version-status">
+      Latest published PDF version: checking...
+    </div>
     
     <div class="cta-group">
       <a href="main.pdf" download="Partial_Differential_Equations.pdf" class="btn btn-primary" id="btn-download">
@@ -365,7 +402,7 @@
         <div style="font-size: 0.8rem; color: var(--text-muted); font-family: 'Fira Code', monospace;">main.pdf</div>
       </div>
       <!-- PDF Embed inside iframe -->
-      <iframe class="viewer-frame" src="main.pdf" type="application/pdf">
+      <iframe class="viewer-frame" src="main.pdf" type="application/pdf" id="pdf-preview">
         <p>이 브라우저는 PDF 미리보기를 지원하지 않습니다. <a href="main.pdf">여기</a>를 클릭하여 PDF를 다운로드하세요.</p>
       </iframe >
     </div>
@@ -374,6 +411,72 @@
   <footer>
     <p>&copy; 2026 <a href="https://github.com/kimpossible-TY" target="_blank">kimpossible-TY</a>. All rights reserved. Powered by GitHub Pages.</p>
   </footer>
+
+  <script>
+    const versionStatus = document.getElementById("version-status");
+    const downloadButton = document.getElementById("btn-download");
+    const pdfPreview = document.getElementById("pdf-preview");
+    const pageParams = new URLSearchParams(window.location.search);
+    const checkedPdfBuiltAt = pageParams.get("pdfBuiltAt");
+    const checkedPdfCommit = pageParams.get("pdfCommit");
+
+    function setVersionStatus(message, link) {
+      versionStatus.textContent = message;
+
+      if (link) {
+        versionStatus.append(" ");
+        const anchor = document.createElement("a");
+        anchor.href = link.href;
+        anchor.target = "_blank";
+        anchor.rel = "noopener";
+        anchor.textContent = link.text;
+        versionStatus.append(anchor);
+      }
+    }
+
+    fetch("version.json?cacheBust=" + Date.now())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("version metadata unavailable");
+        }
+        return response.json();
+      })
+      .then((version) => {
+        const shortCommit = version.commit.slice(0, 7);
+        const pdfUrl = "main.pdf?v=" + encodeURIComponent(shortCommit);
+        const sourceUrl = "https://github.com/kimpossible-TY/Partial-Differential-Equations/tree/" + encodeURIComponent(version.commit);
+        const hasVersionCheck = Boolean(checkedPdfBuiltAt || checkedPdfCommit);
+        const commitMatches = checkedPdfCommit === version.commit || checkedPdfCommit === shortCommit;
+        const builtAtMatches = checkedPdfBuiltAt === version.builtAt;
+
+        downloadButton.href = pdfUrl;
+        pdfPreview.src = pdfUrl;
+
+        if (hasVersionCheck) {
+          if (builtAtMatches || commitMatches) {
+            versionStatus.classList.add("is-current");
+            setVersionStatus(`This PDF is current. Published ${version.builtAt}.`, {
+              href: sourceUrl,
+              text: shortCommit,
+            });
+          } else {
+            versionStatus.classList.add("is-outdated");
+            setVersionStatus(`This PDF is outdated. Your PDF: ${checkedPdfBuiltAt || checkedPdfCommit}. Latest: ${version.builtAt}.`, {
+              href: pdfUrl,
+              text: "Download latest PDF",
+            });
+          }
+        } else {
+          setVersionStatus(`Latest published PDF version: ${shortCommit} | ${version.builtAt}`, {
+            href: sourceUrl,
+            text: "Source",
+          });
+        }
+      })
+      .catch(() => {
+        versionStatus.textContent = "Latest published PDF version: unavailable";
+      });
+  </script>
 
 </body>
 </html>
