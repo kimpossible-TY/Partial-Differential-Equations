@@ -26,6 +26,18 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Checkout Local Typst Packages
+        uses: actions/checkout@v4
+        with:
+          repository: kimpossible-TY/typst-packages
+          path: typst-packages
+
+      - name: Install Local Typst Packages
+        run: |
+          # Typst resolves @local packages from this directory on Linux.
+          mkdir -p "$HOME/.local/share/typst/packages"
+          cp -R typst-packages/local "$HOME/.local/share/typst/packages/"
+
       - name: Setup Typst
         uses: typst-community/setup-typst@v3
         with:
