@@ -110,7 +110,6 @@ def typst_mtime_snapshot(root: Path) -> dict[Path, int]:
 
 def watch_typst_versions(root: Path, interval: float) -> None:
     snapshot = typst_mtime_snapshot(root)
-    write_version_files(root)
     while True:
         time.sleep(interval)
         next_snapshot = typst_mtime_snapshot(root)
