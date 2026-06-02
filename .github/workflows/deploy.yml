@@ -45,16 +45,9 @@ jobs:
 
       - name: Generate Build Metadata
         run: |
-          BUILD_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          echo "PDF_BUILD_AT=${BUILD_AT}" >> "$GITHUB_ENV"
-          cat > build-info.typ <<EOF
-          #let document-version = "${GITHUB_SHA::7}"
-          #let document-built-at = "${BUILD_AT}"
-          #let document-latest-url = "https://kimpossible-ty.github.io/Partial-Differential-Equations/"
-          #let document-version-check-url = "https://kimpossible-ty.github.io/Partial-Differential-Equations/?pdfBuiltAt=${BUILD_AT}&pdfCommit=${GITHUB_SHA}"
-          #let document-pdf-url = "https://kimpossible-ty.github.io/Partial-Differential-Equations/main.pdf"
-          #let document-source-url = "https://github.com/kimpossible-TY/Partial-Differential-Equations/tree/${GITHUB_SHA}"
-          EOF
+          PDF_BUILD_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          echo "PDF_BUILD_AT=${PDF_BUILD_AT}" >> "$GITHUB_ENV"
+          python3 pdf_server.py --write-version-once
 
       - name: Compile Typst Document
         run: |
@@ -62,15 +55,7 @@ jobs:
           typst compile main.typ main.pdf --font-path ./fonts
 
       - name: Generate Published Version Metadata
-        run: |
-          cat > version.json <<EOF
-          {
-            "commit": "${GITHUB_SHA}",
-            "builtAt": "${PDF_BUILD_AT}",
-            "pdfSha256": "$(sha256sum main.pdf | cut -d ' ' -f1)",
-            "pdfSize": $(wc -c < main.pdf)
-          }
-          EOF
+        run: python3 pdf_server.py --write-version-once
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
