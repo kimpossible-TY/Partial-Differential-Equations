@@ -408,7 +408,7 @@ To find how the energy changes, we take the derivative of $E(t)$ with respect to
     \
     &= integral_(partial M) w frac(partial u, partial mark(nu, tag: #(m.tag)("outward normal vector"), color: #blue)) d S - integral_M w Delta u d V #dots_space #footnote[By Applying Green's first identity(@Greens_First_Identity)]
   $ #(s.tag)("Applying Green's first identity")
-  #annot((m.tag)("outward normal vector"), pos: top+right, dx: 1em, dy: -2em)[outward normal vector]
+  #annot((m.tag)("outward normal vector"), pos: bottom+right, dx: 1em)[outward normal vector]
   ])
 
   substituting #(s.ref)("being applied the Green's identities") to #(s.ref)("being applied the Green's identities"), we get :
