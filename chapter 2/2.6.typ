@@ -145,8 +145,17 @@ We start from the energy conservation law for the wave equation(@energy_conserva
   
 
   #paragraph-tab
-  To analyze #(m.ref)("need physics approach"), it is time to use the physics approach. The time manifold which is $bb(R)$ has origin(zero). Consider $0 in bb(R)$ means present, $(-infinity comma 0) in bb(R)$ means past and $(0 comma infinity) in bb(R)$ means future. Then we can split $partial Omega$ into two parts : the part in the past of present and the part in the future of present. Let's denote them by $Sigma_1$ and $Sigma_2$ respectively. Then, we can rewrite #(m.ref)("need physics approach") as :
+  To analyze #(m.ref)("need physics approach"), it is time to use the physics approach. The time manifold which is $bb(R)$ has origin(zero). Consider $0 in bb(R)$ means present, $(-infinity comma 0) in bb(R)$ means past and $(0 comma infinity) in bb(R)$ means future. Then we can split $partial Omega$ into two parts : the part in the past of present and the part in the future of present. Let's denote them by $Sigma_0$ and $Sigma_1$ respectively. Then, we can rewrite #(m.ref)("need physics approach") as :
   $
+    frac(1,2) integral_(Sigma_0) {
+      [
+        (partial_t u)^2 + chevron.l d_x u comma d_x u chevron.r
+      ] (N_t)_(Sigma_0)
+      -
+      2 partial_t u thin frac(partial u, partial nu_x) thin norm(N_x)
+    } thick d S
+    \
+    +
     frac(1,2) integral_(Sigma_1) {
       [
         (partial_t u)^2 + chevron.l d_x u comma d_x u chevron.r
@@ -155,49 +164,40 @@ We start from the energy conservation law for the wave equation(@energy_conserva
       2 partial_t u thin frac(partial u, partial nu_x) thin norm(N_x)
     } thick d S
     \
-    +
-    frac(1,2) integral_(Sigma_2) {
-      [
-        (partial_t u)^2 + chevron.l d_x u comma d_x u chevron.r
-      ] (N_t)_(Sigma_2)
-      -
-      2 partial_t u thin frac(partial u, partial nu_x) thin norm(N_x)
-    } thick d S
-    \
     &=0
   $ #(m.tag)("split into past and future")
-  The reasion why $N_t$ splits into $(N_t)_(Sigma_1)$ and $(N_t)_(Sigma_2)$ is that the direction of normal vector $N_t$ is different on $Sigma_1$ and $Sigma_2$!
+  The reasion why $N_t$ splits into $(N_t)_(Sigma_0)$ and $(N_t)_(Sigma_1)$ is that the direction of normal vector $N_t$ is different on $Sigma_0$ and $Sigma_1$!
   #figure(
     spacelike-boundary-decomposition-visualization(),
-    caption: [A spacelike bounded region with $partial Omega = Sigma_1 union Sigma_2$ and spatial slices $Omega_t$.]
+    caption: [A spacelike bounded region with $partial Omega = Sigma_0 union Sigma_1$ and spatial slices $Omega_t$.]
   ) <spacelike_boundary_decomposition_visualization>
   Therefore, we get :
   $
-    (N_t)_(Sigma_1)=-(N_t)_(Sigma_2)
+    (N_t)_(Sigma_0)=-(N_t)_(Sigma_1)
   $ #(m.tag)("normal time vector component relation")
 
   Applying #(m.ref)("normal time vector component relation") to #(m.ref)("split into past and future"), we have :
   $
-    overbracket(integral_(Sigma_2) {
+    overbracket(integral_(Sigma_1) {
       [
         (partial_t u)^2 + chevron.l d_x u comma d_x u chevron.r
-      ] (N_t)_(Sigma_2)
+      ] (N_t)_(Sigma_1)
       -
       2 partial_t u thin frac(partial u , partial nu_x) thin norm(N_x)
     } thick d S, "energy flux on future boundary")
     \
     =
-    underbracket(integral_(Sigma_1) {
+    underbracket(integral_(Sigma_0) {
       [
         (partial_t u)^2 + chevron.l d_x u comma d_x u chevron.r
-      ] (N_t)_(Sigma_2)
+      ] (N_t)_(Sigma_1)
       +
       2 partial_t u thin frac(partial u , partial nu_x) thin norm(N_x)
     } thick d S, "energy flux on past boundary")
   $ <energy_flux_relation>
 
   #paragraph-tab
-  Again, the physical interpretation is needed to #(m.ref)("normal time vector component relation"). As considering @energy_conservation_derivation#footnote[Remember that #(m.ref)("normal time vector component relation") is induced from @energy_conservation_derivation at the first of the current section(@finite_propagation_speed).], The LHS of #(m.ref)("normal time vector component relation") is the energy flux#footnote[Flux means “the amount of something passing through a surface.”] across $Sigma_2$ and the RHS of #(m.ref)("normal time vector component relation") is the energy flux across $Sigma_1$ which is past boundary. Since the energy of wave must be positive(@total_energy_of_wave), the energy flux must be positive too. To the energy flux must be positive, what does the condition is needed?
+  Again, the physical interpretation is needed to #(m.ref)("normal time vector component relation"). As considering @energy_conservation_derivation#footnote[Remember that #(m.ref)("normal time vector component relation") is induced from @energy_conservation_derivation at the first of the current section(@finite_propagation_speed).], The LHS of #(m.ref)("normal time vector component relation") is the energy flux#footnote[Flux means “the amount of something passing through a surface.”] across $Sigma_1$ and the RHS of #(m.ref)("normal time vector component relation") is the energy flux across $Sigma_0$ which is past boundary. Since the energy of wave must be positive(@total_energy_of_wave), the energy flux must be positive too. To the energy flux must be positive, what does the condition is needed?
 ]
 )
 #flowbox()[
@@ -227,39 +227,71 @@ We start from the energy conservation law for the wave equation(@energy_conserva
     Apply #(s.ref)("inequality for normal derivative term") to @energy_flux_relation :
     #text(size: 0.8em)[
       $
-        integral_(Sigma_2) {
+        integral_(Sigma_1) {
         [
           (partial_t u)^2 + norm(d_x u)^2
-        ] (N_t)_(Sigma_2)
+        ] (N_t)_(Sigma_1)
         -
         2 partial_t u thin frac(partial u , partial nu_x) thin norm(N_x)
       } thick d S 
       
-      & >= integral_(Sigma_2) {
+      & >= integral_(Sigma_1) {
         [
           (partial_t u)^2 + chevron.l d_x u comma d_x u chevron.r
-        ] (N_t)_(Sigma_2)
+        ] (N_t)_(Sigma_1)
         \
         -
         2 norm(partial_t u thin frac(partial u , partial nu_x)) thin norm(N_x)
       } thick d S #dots_space #footnote[$-a > -|a|$]
       \
-      &>= integral_(Sigma_2) [
+      &>= integral_(Sigma_1) [
         (partial_t u)^2 + norm(d_x u)^2
-      ] dot [(N_t)_(Sigma_2)- norm(N_x)] thin d S #dots_space #footnote[by applting #(s.ref)("inequality for normal derivative term")]
+      ] dot [(N_t)_(Sigma_1)- norm(N_x)] thin d S #dots_space #footnote[by applting #(s.ref)("inequality for normal derivative term")]
     $
     ]
   ])
 ]
-Since $(partial_t u)^2 + norm(d_x u)^2$ must be positive, the energy flux on $Sigma_2$ is positive if $(N_t)_(Sigma_2)- norm(N_x)$ is positive. Aslo $(N_t)_(Sigma_2)=norm((N_t)_(Sigma_2))$ by considering @spacelike_boundary_decomposition_visualization. Thus if $(N_t)_(Sigma_2)- norm(N_x)$ is positive, then the following inequality is satisfied :
+Since $(partial_t u)^2 + norm(d_x u)^2$ must be positive, the energy flux on $Sigma_1$ is positive if $(N_t)_(Sigma_1)- norm(N_x)$ is positive. Aslo $(N_t)_(Sigma_1)=norm((N_t)_(Sigma_1))$ by considering @spacelike_boundary_decomposition_visualization. Thus if $(N_t)_(Sigma_1)- norm(N_x)$ is positive, then the following inequality is satisfied :
 $
-  norm(N_x) < norm((N_t)_(Sigma_2))
-$
+  norm(N_x) < norm((N_t)_(Sigma_1))
+$ <normal_vector_inequality>
 
-If 
+#paragraph-tab
+Let assume that the inequality(@normal_vector_inequality) is satisfied.#footnote[This assumption is suitable for physics.] Moreover if we expend the idea that describing $partial Omega$ to the two parts $Sigma_0$ and $Sigma_1$ to the entire $Omega$:
+$
+  Omega= union.big_(0<=s<=1) Sigma_s
+$
+Then we can get the following result which is called finite propagation speed of wave.
 #theorem(title: "finite propagation speed of wave")[
-  Suppose $Omega in bb(R) times M$ is a domain of influence for its low boundary $Sigma_1$. If $u$ solves the wave equation $(partial_t^2 u - Delta u = 0)$ on $bb(R) times M$, and if $u$ and $d u$ vanish on $Sigma_1$, then $u$ vanishes throughout $Omega$.
+  Suppose $Omega in bb(R) times M$ is a domain of influence for its low boundary $Sigma_0$. If $u$ solves the wave equation $(partial_t^2 u - Delta u = 0)$ on $bb(R) times M$, and if $u$ and $d u$ vanish on $Sigma_0$, then $u$ vanishes throughout $Omega$.
 ]
 #proof[
-  The energy flux identity(@energy_flux_relation) implies that $d u$ also vanishes on $Sigma_2$.
+  The energy flux identity(@energy_flux_relation) implies that $d u$ also vanishes on $Sigma_1$.
+]
+
+#note(title: [@normal_vector_inequality is well-defined by the Lorentz metric])[
+  The inequality @normal_vector_inequality is not merely an artificial analytic assumption. It is exactly the condition that the normal vector $N=(N_t,N_x)$ is timelike with respect to the Lorentz metric on $bb(R) times M$.
+
+  Recall that the product spacetime $bb(R) times M$ carries the Lorentz metric
+  $
+    h=-d t^2+g
+  $ <definition_of_Lorentz_metric>
+  where $g$ is the Riemannian metric on $M$. Therefore, for a vector $N=(N_t,N_x)$, its Lorentz square length is
+  $
+    h(N,N)= - norm(N_t)^2 + norm(N_x)^2_g.
+  $
+  Thus $N$ is timelike precisely when
+  $
+    h(N,N)<0.
+  $
+  Expanding this condition gives
+  $
+    - norm(N_t)^2 + norm(N_x)^2_g <0
+  $
+  which is equivalent to
+  $
+    norm(N_x)_g < norm(N_t).
+  $
+
+  Hence the condition @normal_vector_inequality means that the normal direction to the boundary surface is timelike. Equivalently, the boundary surface itself is spacelike. This is why the boundary energy flux becomes positive-definite: the surface is crossed by time evolution rather than by spatial propagation.
 ]

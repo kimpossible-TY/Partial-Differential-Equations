@@ -293,21 +293,21 @@
     content((0.14, slice_y - 0.6), anchor: "south-west", text(fill: color_slice)[$Omega_t$])
 
     // Labels.
-    content((-3.55, 2.18), anchor: "west", text(size: 9pt)[$Sigma_1 union Sigma_2 = partial Omega$])
+    content((-3.55, 2.18), anchor: "west", text(size: 9pt)[$Sigma_0 union Sigma_1 = partial Omega$])
     content((-0.38, -0.55), anchor: "east")[$Omega$]
 
     line((3.85, 1.05), (2.35, 1.02), stroke: (paint: color_sigma_two, thickness: 0.85pt), mark: (end: ">"))
-    content((4.05, 1.08), anchor: "west", text(fill: color_sigma_two)[$Sigma_2$])
+    content((4.05, 1.08), anchor: "west", text(fill: color_sigma_two)[$Sigma_1$])
 
     line((3.85, -1.05), (2.35, -1.02), stroke: (paint: color_sigma_one, thickness: 0.85pt), mark: (end: ">"))
-    content((4.05, -1.08), anchor: "west", text(fill: color_sigma_one)[$Sigma_1$])
+    content((4.05, -1.08), anchor: "west", text(fill: color_sigma_one)[$Sigma_0$])
 
     // Time components of the outward normal on each boundary piece.
     line(upper_normal_base, (upper_normal_base.at(0), upper_normal_base.at(1) + 0.62), stroke: (paint: color_sigma_two, thickness: 1pt), mark: (end: ">"))
-    content((upper_normal_base.at(0) + 0.16, upper_normal_base.at(1) + 0.48), anchor: "west", text(fill: color_sigma_two)[$(N_t)_(Sigma_2)$])
+    content((upper_normal_base.at(0) + 0.16, upper_normal_base.at(1) + 0.48), anchor: "west", text(fill: color_sigma_two)[$(N_t)_(Sigma_1)$])
 
     line(lower_normal_base, (lower_normal_base.at(0), lower_normal_base.at(1) - 0.62), stroke: (paint: color_sigma_one, thickness: 1pt), mark: (end: ">"))
-    content((lower_normal_base.at(0) - 0.12, lower_normal_base.at(1) - 0.68), anchor: "north-east", text(fill: color_sigma_one)[$(N_t)_(Sigma_1)$])
+    content((lower_normal_base.at(0) - 0.12, lower_normal_base.at(1) - 0.68), anchor: "north-east", text(fill: color_sigma_one)[$(N_t)_(Sigma_0)$])
   })
 }
 
