@@ -246,3 +246,126 @@
     content((0, -2.3), text(size: 9pt, style: "italic")[Free boundary: wave has zero slope (horizontal tangent) at the endpoints $partial M$], anchor: "north")
   })
 }
+
+#let spacelike-boundary-decomposition-visualization() = context {
+  let theme = theme-from-text-fill()
+  let color_stroke = theme.text
+  let color_muted = theme.muted-text
+  let color_domain = rgb("#edf2ff")
+  let color_sigma_one = rgb("#2f8f6b")
+  let color_sigma_two = rgb("#5b6ee1")
+  let color_slice = rgb("#d06a45")
+
+  canvas(length: 0.9cm, {
+    import draw: *
+
+    let left = (-3.2, 0)
+    let right = (3.2, 0)
+    let top = (0, 1.65)
+    let bottom = (0, -1.65)
+    let slice_y = 0.78
+    let slice_left = (-2.35, slice_y)
+    let slice_right = (2.35, slice_y)
+    let upper_normal_base = (0, 1.18)
+    let lower_normal_base = (0, -1.18)
+
+    // The bounded spacetime region Omega.
+    bezier(left, right, (-2.2, 1.65), (2.2, 1.65), stroke: (paint: color_sigma_two, thickness: 1.8pt))
+    bezier(left, right, (-2.2, -1.65), (2.2, -1.65), stroke: (paint: color_sigma_one, thickness: 1.8pt))
+    bezier(left, right, (-2.2, 1.65), (2.2, 1.65), fill: color_domain, stroke: none)
+    bezier(left, right, (-2.2, -1.65), (2.2, -1.65), fill: color_domain, stroke: none)
+
+    // Redraw the boundary on top of the light fill.
+    bezier(left, right, (-2.2, 1.65), (2.2, 1.65), stroke: (paint: color_sigma_two, thickness: 1.8pt))
+    bezier(left, right, (-2.2, -1.65), (2.2, -1.65), stroke: (paint: color_sigma_one, thickness: 1.8pt))
+
+    // Product coordinates.
+    line((-3.6, 0), (3.85, 0), stroke: (paint: color_stroke, thickness: 0.8pt), mark: (end: ">"))
+    line((0, -2.05), (0, 2.05), stroke: (paint: color_stroke, thickness: 0.8pt), mark: (end: ">"))
+    content((4.05, 0), anchor: "west")[$"spaceline" M$]
+    content((0, 2.22), anchor: "south")[$"timeline" RR$]
+
+    // Spatial slice Omega_t.
+    line(slice_left, slice_right, stroke: (paint: color_slice, thickness: 1.25pt))
+    line((slice_left.at(0), 0), slice_left, stroke: (paint: color_muted, dash: "dashed", thickness: 0.55pt))
+    line((slice_right.at(0), 0), slice_right, stroke: (paint: color_muted, dash: "dashed", thickness: 0.55pt))
+    circle((0, slice_y), radius: 0.045, fill: color_slice)
+    content((0.14, slice_y - 0.6), anchor: "south-west", text(fill: color_slice)[$Omega_t$])
+
+    // Labels.
+    content((-3.55, 2.18), anchor: "west", text(size: 9pt)[$Sigma_1 union Sigma_2 = partial Omega$])
+    content((-0.38, -0.55), anchor: "east")[$Omega$]
+
+    line((3.85, 1.05), (2.35, 1.02), stroke: (paint: color_sigma_two, thickness: 0.85pt), mark: (end: ">"))
+    content((4.05, 1.08), anchor: "west", text(fill: color_sigma_two)[$Sigma_2$])
+
+    line((3.85, -1.05), (2.35, -1.02), stroke: (paint: color_sigma_one, thickness: 0.85pt), mark: (end: ">"))
+    content((4.05, -1.08), anchor: "west", text(fill: color_sigma_one)[$Sigma_1$])
+
+    // Time components of the outward normal on each boundary piece.
+    line(upper_normal_base, (upper_normal_base.at(0), upper_normal_base.at(1) + 0.62), stroke: (paint: color_sigma_two, thickness: 1pt), mark: (end: ">"))
+    content((upper_normal_base.at(0) + 0.16, upper_normal_base.at(1) + 0.48), anchor: "west", text(fill: color_sigma_two)[$(N_t)_(Sigma_2)$])
+
+    line(lower_normal_base, (lower_normal_base.at(0), lower_normal_base.at(1) - 0.62), stroke: (paint: color_sigma_one, thickness: 1pt), mark: (end: ">"))
+    content((lower_normal_base.at(0) - 0.12, lower_normal_base.at(1) - 0.68), anchor: "north-east", text(fill: color_sigma_one)[$(N_t)_(Sigma_1)$])
+  })
+}
+
+#let normal-measure-projection-visualization() = context {
+  let theme = theme-from-text-fill()
+  let color_stroke = theme.text
+  let color_muted = theme.muted-text
+  let color_boundary = rgb("#5b6ee1")
+  let color_time = rgb("#2f8f6b")
+  let color_space = rgb("#d06a45")
+
+  canvas(length: 1.25cm, {
+    import draw: *
+
+    // Boundary segment coordinates passing through the origin (0, 0)
+    let a = (-1.0, -1.2)
+    let b = (1.0, 1.2)
+    
+    // Normal vector starts at (0, 0)
+    let m = (0, 0)
+    
+    // Outward unit normal components: N_x = -1.0, N_t = 0.83 (perpendicular to (2.0, 2.4))
+    let n_end = (-1.0, 0.83)
+    let nx_end = (-1.0, 0)
+
+    // Ambient product coordinates.
+    line((-2.2, 0), (2.7, 0), stroke: (paint: color_muted, thickness: 0.65pt), mark: (end: ">"))
+    line((0, -1.7), (0, 1.75), stroke: (paint: color_muted, thickness: 0.65pt), mark: (end: ">"))
+    content((2.85, 0), anchor: "west")[$x in M$]
+    content((0, 1.92), anchor: "south")[$t in RR$]
+
+    // Boundary hypersurface element.
+    line(a, b, stroke: (paint: color_boundary, thickness: 2pt))
+    content((1.15, 1.2), anchor: "west", text(fill: color_boundary)[$partial Omega$])
+    content((1.15, 0.6), anchor: "west", text(fill: color_boundary)[$d S$])
+
+    // Projections of the same boundary element (drawn directly on the axes).
+    // Projection onto x-axis (spatial slice) -> omega = N_t d S
+    line((a.at(0), 0), (b.at(0), 0), stroke: (paint: color_time, thickness: 1.6pt))
+    line((a.at(0), a.at(1)), (a.at(0), 0), stroke: (paint: color_muted, dash: "dashed", thickness: 0.55pt))
+    line((b.at(0), b.at(1)), (b.at(0), 0), stroke: (paint: color_muted, dash: "dashed", thickness: 0.55pt))
+    content((0.5, -0.15), anchor: "north", text(fill: color_time)[$omega = N_t d S$])
+
+    // Projection onto t-axis (time-cylinder) -> d S_t d t = ||N_x|| d S
+    line((0, a.at(1)), (0, b.at(1)), stroke: (paint: color_space, thickness: 1.6pt))
+    line((a.at(0), a.at(1)), (0, a.at(1)), stroke: (paint: color_muted, dash: "dashed", thickness: 0.55pt))
+    line((b.at(0), b.at(1)), (0, b.at(1)), stroke: (paint: color_muted, dash: "dashed", thickness: 0.55pt))
+    content((0.25, -0.8), anchor: "west", text(fill: color_space)[$d S_t d t = norm(N_x) d S$])
+
+    // Normal and its decomposition.
+    line(m, n_end, stroke: (paint: color_stroke, thickness: 1.1pt), mark: (end: ">"))
+    line(m, nx_end, stroke: (paint: color_stroke, dash: "dotted", thickness: 0.85pt))
+    line(nx_end, n_end, stroke: (paint: color_stroke, dash: "dotted", thickness: 0.85pt))
+    
+    content((n_end.at(0) - 0.15, n_end.at(1) + 0.05), anchor: "south-east", text(fill: color_stroke)[$N=(N_t,N_x)$])
+    content((-0.6, -0.4), anchor: "south", text(fill: color_stroke)[$N_x$])
+    content((nx_end.at(0) - 0.1, (nx_end.at(1) + n_end.at(1)) / 2), anchor: "east", text(fill: color_stroke)[$N_t$])
+
+    circle(m, radius: 0.05, fill: color_stroke)
+  })
+}

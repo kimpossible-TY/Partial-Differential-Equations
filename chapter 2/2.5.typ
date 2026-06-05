@@ -379,7 +379,7 @@ Now, let's prove the energy conservation of wave equation. the total energy is :
     E(t) := frac(1,2) integral_M [
       rmark(norm(d_t u (t,x))^2, tag: #(m.tag)("kinetic")) + bmark(chevron.l xi comma xi chevron.r_g , tag: #(m.tag)("potential"))
     ] d V #dots_space #footnote[where $m=1$ for the convenience.]
-  $
+  $ <total_energy_of_wave>
   #annot((m.tag)("kinetic"), pos: bottom, dy: 1em)[kinetic energy density]
   #annot((m.tag)("potential"), pos: bottom, dy: 1em, dx: 2.5em)[potential energy density]
 ])
