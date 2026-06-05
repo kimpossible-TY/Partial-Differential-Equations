@@ -5,3 +5,6 @@
 
 == Lorentz manifolds and stress-energy tensor
 
+#definition(title: "Lorentz metric")[
+
+]<definition_of_Lorentz_metric>
