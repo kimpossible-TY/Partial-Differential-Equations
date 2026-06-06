@@ -9,11 +9,11 @@
 We study some properties of solutions to the wave equation on $bb(R) times M$ :
 $
   frac(partial^2 u, partial t^2) - Delta u=0
-$
+$ <simple_wave_equation>
 with initial conditions :
 $
   u(0 comma x)=f(x), quad partial_t u(0 comma x)=g(x)
-$
+$ <initial_conditions_of_finite_propagation_speed>
 and boundary condition either the Dirichlet(@Dirichlet_condition) or the Neumann condition(@neumann_condition).
 
 #paragraph_tab
@@ -197,7 +197,7 @@ We start from the energy conservation law for the wave equation(@energy_conserva
   $ <energy_flux_relation>
 
   #paragraph-tab
-  Again, the physical interpretation is needed to #(m.ref)("normal time vector component relation"). As considering @energy_conservation_derivation#footnote[Remember that #(m.ref)("normal time vector component relation") is induced from @energy_conservation_derivation at the first of the current section(@finite_propagation_speed).], The LHS of #(m.ref)("normal time vector component relation") is the energy flux#footnote[Flux means “the amount of something passing through a surface.”] across $Sigma_1$ and the RHS of #(m.ref)("normal time vector component relation") is the energy flux across $Sigma_0$ which is past boundary. Since the energy of wave must be positive(@total_energy_of_wave), the energy flux must be positive too. To the energy flux must be positive, what does the condition is needed?
+  #highlighted()[Again, the physical interpretation is needed to #(m.ref)("normal time vector component relation").] As considering @energy_conservation_derivation#footnote[Remember that #(m.ref)("normal time vector component relation") is induced from @energy_conservation_derivation at the first of the current section(@finite_propagation_speed).], The LHS of #(m.ref)("normal time vector component relation") is the energy flux#footnote[Flux means “the amount of something passing through a surface.”] across $Sigma_1$ and the RHS of #(m.ref)("normal time vector component relation") is the energy flux across $Sigma_0$ which is past boundary. Since the energy of wave must be positive(@total_energy_of_wave), the energy flux must be positive too. To the energy flux must be positive, what does the condition is needed?
 ]
 )
 #flowbox()[
@@ -261,13 +261,49 @@ Let assume that the inequality(@normal_vector_inequality) is satisfied.#footnote
 $
   Omega= union.big_(0<=s<=1) Sigma_s
 $
-Then we can get the following result which is called finite propagation speed of wave.
-#theorem(title: "finite propagation speed of wave")[
+Then we can get the following vanishing result on a spacelike domain of influence.
+#lemma(title: "Vanishing on a domain of influence")[
   Suppose $Omega in bb(R) times M$ is a domain of influence for its low boundary $Sigma_0$. If $u$ solves the wave equation $(partial_t^2 u - Delta u = 0)$ on $bb(R) times M$, and if $u$ and $d u$ vanish on $Sigma_0$, then $u$ vanishes throughout $Omega$.
-]
+] <vanishing_lemma_of_wave>
+
 #proof[
-  The energy flux identity(@energy_flux_relation) implies that $d u$ also vanishes on $Sigma_1$.
+  Consider that $d u =d_t u + d_x u$. The energy flux identity(@energy_flux_relation) implies that $d u$ also vanishes on $Sigma_(0+epsilon)$ when $d u$ is zero on $Sigma_0$ where $epsilon > 0$ is sufficiently small. If we expend this argument to the entire $Omega$, we can conclude that $d u$ vanishes on the entire $Omega$. Therefore, $u$ is constant on $Omega$. Since $u$ is zero on $Sigma_0$, we have $u=0$ on the entire $Omega$ which proves the theorem.
 ]
+
+#theorem(title: "Finite Propagation Speed for the Wave Equation")[
+  Let $(M,g)$ be a Riemannian manifold, and let $u$ be a sufficiently smooth solution of the wave equation(@simple_wave_equation) on $bb(R) times M$ with considering the initial conditions(@initial_conditions_of_finite_propagation_speed). Let $cal(O) subset M$ be an open set. If
+  $
+    f=0,quad g=0
+  $
+  on $cal(O)$, then
+  $
+    u(t comma x)=0
+  $
+  whenever
+  $
+    x in cal(O),quad op("dist")_g (x comma partial cal(O))>|t|.
+  $
+  Equivalently, $u$ vanishes on the shrinking spacetime region $cal(O)_t$ which is :
+  $
+    cal(O)_t := {(t comma x) in bb(R) times M :
+      x in cal(O),
+      op("dist")_g (x comma partial cal(O))>|t|}.
+  $
+]
+
+
+#proof[
+
+]
+
+#paragraph-tab
+Why does $cal(O)_t$ mean that the wave has finite propagation speed? As @finite_propagation_open_set_visualization shows, the boundary $op("dist")_g (x comma partial cal(O))=|t|$ works like a 'dike': waves(which means $u eq.not 0$) can approach from $partial cal(O)$, but before time $|t|$ they cannot cross into the region where $op("dist")_g (x comma partial cal(O))>|t|$. Thus the inside of $cal(O)_t$ remains a protected zero region until the time reaches $|t|$.
+
+
+#figure(
+  finite-propagation-open-set-visualization(),
+  caption: [The role of $cal(O)_t$: its boundary acts like a dike against waves entering from $partial cal(O)$, so the interior remains a protected zero region.]
+) <finite_propagation_open_set_visualization>
 
 #note(title: [@normal_vector_inequality is well-defined by the Lorentz metric])[
   The inequality @normal_vector_inequality is not merely an artificial analytic assumption. It is exactly the condition that the normal vector $N=(N_t,N_x)$ is timelike with respect to the Lorentz metric on $bb(R) times M$.
