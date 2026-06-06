@@ -369,3 +369,74 @@
     circle(m, radius: 0.05, fill: color_stroke)
   })
 }
+
+#let finite-propagation-open-set-visualization() = context {
+  let theme = theme-from-text-fill()
+  let color_stroke = theme.text
+  let color_muted = theme.muted-text
+  let color_protected = rgb("#dff4e8")
+  let color_dike = rgb("#23845f")
+  let color_wave = rgb("#d06a45")
+  let color_initial = rgb("#4f6bd8")
+
+  canvas(length: 0.95cm, {
+    import draw: *
+
+    // Ambient product coordinates.
+    line((-4.35, 0), (4.45, 0), stroke: (paint: color_muted, thickness: 0.7pt), mark: (end: ">"))
+    line((0, -0.45), (0, 3.05), stroke: (paint: color_muted, thickness: 0.7pt), mark: (end: ">"))
+    content((4.6, 0), anchor: "west")[$x in M$]
+    content((0, 3.22), anchor: "south")[$t$]
+    content((-0.16, -0.25), anchor: "east")[$0$]
+
+    // Initial zero interval cal(O).
+    line((-3, 0), (3, 0), stroke: (paint: color_initial, thickness: 2pt))
+    circle((-3, 0), radius: 0.06, fill: color_initial)
+    circle((3, 0), radius: 0.06, fill: color_initial)
+    content((0, -0.45), anchor: "north", text(fill: color_initial)[$cal(O)$ at $t=0$])
+    content((-3, -0.25), anchor: "north", text(fill: color_initial)[$partial cal(O)$])
+    content((3, -0.25), anchor: "north", text(fill: color_initial)[$partial cal(O)$])
+
+    // The protected spacetime region. Its boundary is the finite-speed dike.
+    line((-3, 0), (0, 2.55), (3, 0), (-3, 0), fill: color_protected, stroke: none)
+    line((-3, 0), (0, 2.55), stroke: (paint: color_dike, thickness: 2.4pt))
+    line((3, 0), (0, 2.55), stroke: (paint: color_dike, thickness: 2.4pt))
+    content((0, 1.45), anchor: "center", text(fill: color_dike)[$cal(O)_t$])
+    content((0, 0.84), anchor: "center", text(fill: color_dike, size: 9pt)[$u(t,x)=0$ is protected])
+
+    // Short blocks make the slanted boundary read like a dike.
+    line((-2.62, 0.32), (-2.24, 0.64), stroke: (paint: color_dike.darken(15%), thickness: 0.75pt))
+    line((-2.02, 0.83), (-1.64, 1.15), stroke: (paint: color_dike.darken(15%), thickness: 0.75pt))
+    line((-1.42, 1.34), (-1.04, 1.66), stroke: (paint: color_dike.darken(15%), thickness: 0.75pt))
+    line((-0.82, 1.85), (-0.44, 2.17), stroke: (paint: color_dike.darken(15%), thickness: 0.75pt))
+    line((2.62, 0.32), (2.24, 0.64), stroke: (paint: color_dike.darken(15%), thickness: 0.75pt))
+    line((2.02, 0.83), (1.64, 1.15), stroke: (paint: color_dike.darken(15%), thickness: 0.75pt))
+    line((1.42, 1.34), (1.04, 1.66), stroke: (paint: color_dike.darken(15%), thickness: 0.75pt))
+    line((0.82, 1.85), (0.44, 2.17), stroke: (paint: color_dike.darken(15%), thickness: 0.75pt))
+
+    // Left label near the dike boundary
+    content((-0.5, 2.2), anchor: "south-east", text(fill: color_dike, size: 9pt)[
+      dike boundary
+    ])
+
+    // Right label near the dike boundary
+    content((0.5, 2.2), anchor: "south-west", text(fill: color_dike, size: 9pt)[
+      $op("dist")_g (x, partial cal(O)) = t$
+    ])
+
+    // Incoming wave fronts from outside cal(O). They cannot enter the protected region.
+    line((-4.15, 0.28), (-3.18, 0.78), stroke: (paint: color_wave, thickness: 1.1pt), mark: (end: ">"))
+    line((-4.25, 0.78), (-2.72, 1.30), stroke: (paint: color_wave, thickness: 1.1pt), mark: (end: ">"))
+    line((-4.0, 1.34), (-2.16, 1.86), stroke: (paint: color_wave, thickness: 1.1pt), mark: (end: ">"))
+    content((-5, 1.9), anchor: "west", text(fill: color_wave, size: 9pt)[incoming wave \ $u eq.not 0$])
+
+    line((4.15, 0.28), (3.18, 0.78), stroke: (paint: color_wave, thickness: 1.1pt), mark: (end: ">"))
+    line((4.25, 0.78), (2.72, 1.30), stroke: (paint: color_wave, thickness: 1.1pt), mark: (end: ">"))
+    line((4.0, 1.34), (2.16, 1.86), stroke: (paint: color_wave, thickness: 1.1pt), mark: (end: ">"))
+
+    // A fixed time slice makes cal(O)_t visible as the surviving protected interval.
+    line((-2.05, 1.15), (2.05, 1.15), stroke: (paint: color_muted, dash: "dashed", thickness: 0.6pt))
+    line((-1.65, 1.15), (1.65, 1.15), stroke: (paint: color_dike, thickness: 1.3pt))
+    content((1.7, 1.4), anchor: "west", text(size: 9pt)[$t$-slice])
+  })
+}
