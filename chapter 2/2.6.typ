@@ -253,7 +253,7 @@ We start from the energy conservation law for the wave equation(@energy_conserva
 ]
 Since $(partial_t u)^2 + norm(d_x u)^2$ must be positive, the energy flux on $Sigma_1$ is positive if $(N_t)_(Sigma_1)- norm(N_x)$ is positive. Aslo $(N_t)_(Sigma_1)=norm((N_t)_(Sigma_1))$ by considering @spacelike_boundary_decomposition_visualization. Thus if $(N_t)_(Sigma_1)- norm(N_x)$ is positive, then the following inequality is satisfied :
 $
-  norm(N_x) < norm((N_t)_(Sigma_1))
+  norm(N_x) < norm((N_t)_(Sigma_1)) #dots_space #footnote[The normal vector is timelike as considering @meaning_of_timelike_and_spacelike.]
 $ <normal_vector_inequality>
 
 #paragraph-tab
@@ -263,11 +263,14 @@ $
 $
 Then we can get the following vanishing result on a spacelike domain of influence.
 #lemma(title: "Vanishing on a domain of influence")[
-  Suppose $Omega in bb(R) times M$ is a domain of influence for its low boundary $Sigma_0$. If $u$ solves the wave equation $(partial_t^2 u - Delta u = 0)$ on $bb(R) times M$, and if $u$ and $d u$ vanish on $Sigma_0$, then $u$ vanishes throughout $Omega$.
+  Suppose $Omega in bb(R) times M$ is a open set satisfied @normal_vector_inequality for its spacelike low boundary $Sigma_0$. If $u$ solves the wave equation $(partial_t^2 u - Delta u = 0)$ on $bb(R) times M$, and if $u$ and $d u$ vanish on $Sigma_0$, then $u$ vanishes throughout $Omega$.
 ] <vanishing_lemma_of_wave>
 
 #proof[
-  Consider that $d u =d_t u + d_x u$. The energy flux identity(@energy_flux_relation) implies that $d u$ also vanishes on $Sigma_(0+epsilon)$ when $d u$ is zero on $Sigma_0$ where $epsilon > 0$ is sufficiently small. If we expend this argument to the entire $Omega$, we can conclude that $d u$ vanishes on the entire $Omega$. Therefore, $u$ is constant on $Omega$. Since $u$ is zero on $Sigma_0$, we have $u=0$ on the entire $Omega$ which proves the theorem.
+  Consider that $d u =d_t u + d_x u$. By the given condition, the energy flux on $Sigma_0$ is zero. As applying @normal_vector_inequality and the energy flux identity(@energy_flux_relation), $d u$ also vanishes on $Sigma_(0+epsilon)$ when $d u$ is zero on $Sigma_0$ where $epsilon > 0$ is sufficiently small for the energy flux on $Sigma_(0+epsilon)$ be zero. 
+  
+  #paragraph-tab
+  If we expend this argument to the entire $Omega$, we can conclude that $d u$ vanishes on the entire $Omega$. Therefore, $u$ is constant on $Omega$. Since $u$ is zero on $Sigma_0$, we have $u=0$ on the entire $Omega$ which proves the theorem.
 ]
 
 #theorem(title: "Finite Propagation Speed for the Wave Equation")[
@@ -277,12 +280,8 @@ Then we can get the following vanishing result on a spacelike domain of influenc
   $
   on $cal(O)$, then
   $
-    u(t comma x)=0
-  $
-  whenever
-  $
-    x in cal(O),quad op("dist")_g (x comma partial cal(O))>|t|.
-  $
+    u(tau comma xi)=0
+  $ for some $(tau, xi) in bb(R) times M$ whenever$x in cal(O),quad op("dist")_g (x comma partial cal(O))>|t|$.
   Equivalently, $u$ vanishes on the shrinking spacetime region $cal(O)_t$ which is :
   $
     cal(O)_t := {(t comma x) in bb(R) times M :
@@ -293,17 +292,60 @@ Then we can get the following vanishing result on a spacelike domain of influenc
 
 
 #proof[
+  First of all, the $op("dist")_g$ means Riemannian distance function on $M$ with respect to the metric $g$. Let $y in partial cal(O)$ and define the path $gamma : [0,t] arrow M$ where $t in bb(R)$ and $gamma(0)=x$, $gamma(t)=y$. Then the distance between $x$ and $y$ is :
+  $
+    op("dist")_g (x comma y) = integral_0^t norm(partial_s gamma(s))_g d s
+  $
+  For convenience, let's assume that the velocity of $gamma$ is constantlly 1, Then we have the following :
+  #flowbox()[
+    $
+      op("dist")_g (x comma y) = integral_0^t 1 d s = t
+    $
 
+    $arrow.b$
+
+    consider $t$ can be negative. 
+    $
+      op("dist")_g (x comma y) = integral_0^t norm(partial_s gamma(s))_g d s = |t|
+    $
+  ]
+  Thus, picking $x$ satisfied $op("dist")_g (x comma y)>|t|$ where $y in partial cal(O)$ means $x$ is located deeper than the distance $|t|$ from the boundary $partial cal(O)$ when the speed of wave is 1. We will use this $x$.
+
+  #paragraph-tab
+  To prove $u(tau,xi)=0$ for some $(tau,xi)in bb(R) times M$, it is not sufficient to measure the distance about $cal(O)$. We have to investigate how long the 'deep area located inside of $cal(O)$' sevive. Now, pick the sufficiently deep area(ball) :
+  $
+    B(x_0, c t), quad op("dist")_g (x, partial cal(O)) > |t|, quad 0<c<1
+  $
+  #highlighted()[Since we picked $t$ arbitrarily, the existence of $B(x_0, c t)$ inside of $cal(O)$ is guaranteed by the definition of open set.] Furthremore, $B(x_0, c t) subset.eq cal(O)$ gives $u=0$ and $d u =0$ on $B(x_0, c t)$.
+
+  #paragraph-tab
+  Now, let's define $Omega in bb(R) times M$ to apply @vanishing_lemma_of_wave. It is natural to define $Omega_0:= {0} times B(x,c t)$. To construct the $Omega$ completely to apply @vanishing_lemma_of_wave, we need to consider that whether $Omega$ satisfies @normal_vector_inequality or not.As investigating the proof of @vanishing_lemma_of_wave, $Omega$ should be constructed the union of spacelike hypersurfaces, and contained $(tau, xi)$ where $u(tau, xi)=0$.
+
+  #emphasis(title: [What $Omega$ should be])[
+    + $Omega:= union.big_(i=0) Omega_i$ where $Omega_i$ is spacelike-hypersurface.
+    + $(tau, xi) in Omega_tau$
+  ]
+  
+  The easiest way to define $Omega$ satisfying the above conditions is to set $B(x_0, c t)$ as $Sigma_0$ and $(tau, xi)=Omega_tau$. Then $Omega$ looks like a 'Tower of Hanoi'.
+  $
+    Omega := {(s,x): 0<= s <= t, op("dist")_g (x_0,x)< c(t-s)}
+  $
+  Then $u=0$ on $Omega$ by @vanishing_lemma_of_wave. If we pick $xi=x_0$ and $tau=t$, $u(tau, xi)=0$, which proves the theorem.
 ]
 
 #paragraph-tab
-Why does $cal(O)_t$ mean that the wave has finite propagation speed? As @finite_propagation_open_set_visualization shows, the boundary $op("dist")_g (x comma partial cal(O))=|t|$ works like a 'dike': waves(which means $u eq.not 0$) can approach from $partial cal(O)$, but before time $|t|$ they cannot cross into the region where $op("dist")_g (x comma partial cal(O))>|t|$. Thus the inside of $cal(O)_t$ remains a protected zero region until the time reaches $|t|$.
+Why does $cal(O)_t$ mean that the wave has finite propagation speed? As @finite_propagation_open_set_visualization_1 shows, the boundary $op("dist")_g (x comma partial cal(O))=|t|$ works like a 'dike': waves(which means $u eq.not 0$) can approach from $partial cal(O)$, but before time $|t|$ they cannot cross into the region where $op("dist")_g (x comma partial cal(O))>|t|$. Thus the inside of $cal(O)_t$ remains a protected zero region until the time reaches $|t|$.
 
 
 #figure(
   finite-propagation-open-set-visualization(),
   caption: [The role of $cal(O)_t$: its boundary acts like a dike against waves entering from $partial cal(O)$, so the interior remains a protected zero region.]
-) <finite_propagation_open_set_visualization>
+) <finite_propagation_open_set_visualization_1>
+
+#figure(
+  image("figures/finite_propagation_speed.png", width: 60%),
+  caption: [The role of $cal(O)_t$ looks like a beach encountered the incoming wave.]
+)
 
 #note(title: [@normal_vector_inequality is well-defined by the Lorentz metric])[
   The inequality @normal_vector_inequality is not merely an artificial analytic assumption. It is exactly the condition that the normal vector $N=(N_t,N_x)$ is timelike with respect to the Lorentz metric on $bb(R) times M$.
@@ -331,3 +373,14 @@ Why does $cal(O)_t$ mean that the wave has finite propagation speed? As @finite_
 
   Hence the condition @normal_vector_inequality means that the normal direction to the boundary surface is timelike. Equivalently, the boundary surface itself is spacelike. This is why the boundary energy flux becomes positive-definite: the surface is crossed by time evolution rather than by spatial propagation.
 ]
+
+#figure(
+  table(
+      columns: 2,
+      align: horizon,
+      [*Name*], [*intuitive meaning*], 
+      [Timelike], [The time-component is bigger than another],
+      [Spacelike], [The norm of Space-components is biggger than another]
+    ),
+    caption: [what 'timelike' and 'spacelike' mean : $x$-like means the $x$-direction component is dominant]
+) <meaning_of_timelike_and_spacelike>
