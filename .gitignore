@@ -59,6 +59,7 @@ actions-runner/
 test/
 *.txt
 nightwatch_bulk_tasks.json
+notes/
 
 ### antigravity configs
 .antigravitycli/
