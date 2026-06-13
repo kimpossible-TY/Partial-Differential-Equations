@@ -1,4 +1,7 @@
-= Basic Theory of ODE and Vector fields
+#align(center)[
+
+   = Basic Theory of ODE and Vector fields
+]
 
 #include "1.11.typ"
 #pagebreak()
