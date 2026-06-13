@@ -1,6 +1,4 @@
-#align(center)[
-    = The Laplace Equation and Wave Equation
-]
+= The Laplace Equation and Wave Equation
 
 #include "2.2.typ"
 #pagebreak()
