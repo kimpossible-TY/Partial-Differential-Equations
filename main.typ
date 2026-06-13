@@ -128,11 +128,19 @@
 
 #set heading(numbering: "P1.1 :")
 #heading-numbering-style.update("P1.1")
+#show heading.where(level: 2): it => {
+  counter(math.equation).update(0)
+  align(center, it)
+}
 #include "Preliminaries/preliminaries.typ"
 
 #set heading(numbering: "1.1 :")
 #heading-numbering-style.update("1.1")
 #counter(heading).update(0)
+#show heading.where(level: 2): it => {
+  counter(math.equation).update(0)
+  it
+}
 #include "chapter 1/chapter 1.typ"
 #include "chapter 2/chapter 2.typ"
 #bibliography("references.bib")
