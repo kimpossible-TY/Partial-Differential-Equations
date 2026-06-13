@@ -1,6 +1,4 @@
-#align(center)[
-  == Riemannian manifolds
-]
+== Riemannian manifolds
 
 #include "conection.typ"
 #pagebreak()
