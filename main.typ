@@ -65,7 +65,7 @@
     pagebreak(weak: true)
     it
   } else {
-    // Reset the equation counter at the start of each section
+    // Reset scoped counters at the start of each section.
     counter(math.equation).update(0)
     counter(footnote).update(0)
     reset-math-block-counters()
@@ -77,12 +77,24 @@
   }
 }
 
-// Define equation numbering as (section.equation)
+// Reset the equation counter at the start of each subsection so equations use
+// section.subsection.number numbering.
+#show heading.where(level: 2): it => {
+  counter(math.equation).update(0)
+  it
+}
+
+// Define equation numbering as (section.subsection.equation).
 #set math.equation(numbering: num => {
+  let heading-numbers = counter(heading).get()
+  let section = heading-numbers.at(0, default: 0)
+  let subsection = heading-numbers.at(1, default: 0)
+
   numbering(
-    "(" + heading-numbering-style.get() + ")",
-    counter(heading).get().first(), // Get current section number
-    num, // Equation number within the section
+    "(" + heading-numbering-style.get() + ".1)",
+    section,
+    subsection,
+    num,
   )
 })
 
