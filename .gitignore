@@ -10,12 +10,6 @@ token_base64.txt
 .env
 .env.local
 
-### ⚙️ OPENCLAW RUNTIME
-# Local configuration and session data
-.openclaw/
-.openclaw_config/
-.openclaw_memory/
-.usage_metrics.json
 
 ### 🧠 MEMORY & LOGS
 # Personal and session-specific records
@@ -61,5 +55,7 @@ test/
 nightwatch_bulk_tasks.json
 notes/
 
-### antigravity configs
+### agent configs
 .antigravitycli/
+.codex/
+.Claude/
