@@ -36,7 +36,12 @@
 
         if same_chapter {
           let num = if current.numbering != none {
-            numbering(current.numbering, ..counter(heading).at(current.location()))
+            let nums = counter(heading).at(current.location())
+            if type(current.numbering) == function {
+              (current.numbering)(..nums)
+            } else {
+              numbering(current.numbering, ..nums)
+            }
           }
           align(left)[
             #text(size: 10pt, style: "italic")[
@@ -123,16 +128,36 @@
 // Just adds the indentation
 #show regex("\u{F000}"): h(1.5em)
 
+#let prefixed-heading-numbering(prefix, ..nums) = {
+  let values = nums.pos()
+  if values.len() == 0 {
+    [#prefix :]
+  } else {
+    let suffix = values.map(v => str(v)).join(".")
+    [#prefix.#suffix :]
+  }
+}
+
 // the includings
 #include "cover.typ"
 
-#set heading(numbering: "P1.1 :")
-#heading-numbering-style.update("P1.1")
+#set heading(numbering: prefixed-heading-numbering.with("P"))
+#heading-numbering-style.update("P.1")
 #show heading.where(level: 2): it => {
   counter(math.equation).update(0)
   align(center, it)
 }
 #include "Preliminaries/preliminaries.typ"
+
+#set heading(numbering: prefixed-heading-numbering.with("S"))
+#heading-numbering-style.update("S.1")
+#counter(heading).update(0)
+#show heading.where(level: 2): it => {
+  counter(math.equation).update(0)
+  align(center, it)
+}
+#include "Supplementary/supplementary.typ"
+#set heading(outlined: true)
 
 #set heading(numbering: "1.1 :")
 #heading-numbering-style.update("1.1")

@@ -75,5 +75,19 @@
 
   pagebreak()
   set page(margin: auto, fill: theme.page)
+  show outline.entry: it => {
+    let hide-prefix = it.level == 1 and (
+      it.body() == [Preliminaries] or
+      it.body() == [Supplementaries]
+    )
+
+    link(
+      it.element.location(),
+      it.indented(
+        if hide-prefix { none } else { it.prefix() },
+        it.inner(),
+      ),
+    )
+  }
   outline(title: "Contents", depth: 3)
 }
