@@ -31,9 +31,9 @@ $ <semi_colon_concention_and_covariant_derivative>
 #paragraph_tab
 The divergence of a vector field has an important expression in terms of the covariant derivative.
 
-#proposition(title: "3.1")[Given a vector field $X$ with components $X^k$, then
+#proposition(title: "divergence and trace")[Given a vector field $X$ with components $X^k$, then
   $ op("div") X = sum_j X_( ; j )^j $ <divergence_and_semi_colon>
-]
+]<divergence_and_trace>
 
 #proof[Since $X_( ; j )^j$ is related to the geodesic, it is good way to use the following formula defining with $frak(g) := det g$ :
   $
@@ -47,7 +47,7 @@ The divergence of a vector field has an important expression in terms of the cov
     1 / sqrt(frak(g)) partial_k sqrt(frak(g)) = 1 / sqrt(frak(g)) (1 / (2 sqrt(frak(g))) partial_k frak(g)) = 1 / (2 frak(g)) partial_k frak(g)
   $
 
-  Then how can we compute $partial_k frak(g)$? Since $frak(g)$ is actually $det g$, it is time to use Jacobi's formula!
+  Then how can we compute $partial_k frak(g)$? Since $frak(g)$ is actually $det g$, it is time to use Jacobi's formula(@Jacobis_formula)!
   $ d / (d t) det(A) = det(A) upright(T r)(A^(-1) (d A)/(d t)) & "Jacobi's formula" $
 
   $
@@ -64,7 +64,7 @@ The divergence of a vector field has an important expression in terms of the cov
     op("div") X &= 1 / sqrt(frak(g)) partial_j (sqrt(frak(g)) X^j) & "formula for divergence" \
     &= partial_j X^j + 1 / sqrt(frak(g)) (partial_j sqrt(frak(g))) X^j & "by distributing" partial_j "(product rule)" \
     &= partial_j X^j + (1 / (2 frak(g)) partial_j frak(g)) X^j & "by the chain rule" \
-    &= partial_j X^j + (1/2 (g^(d_1 d_2) partial_j g_(d_1 d_2))) X^j & "by Jacobi's formula"
+    &= partial_j X^j + (1/2 (g^(d_1 d_2) partial_j g_(d_1 d_2))) X^j #dots_space #footnote[by Jacobi's formula(@Jacobis_formula)]
   $
 
   Hence, it is sufficient to show that $1/2 (g^(d_1 d_2) partial_j g_(d_1 d_2))$ is the same as Christoffel symbol.
@@ -103,6 +103,62 @@ The divergence of a vector field has an important expression in terms of the cov
 
   Thus we can argue $1/2 (g^(d_1 d_2) partial_j g_(d_1 d_2)) = Gamma_(j d)^j$ where $d$ and $j$ are dummy indices.
 ]
+
+#paragraph_tab
+What does the result of @divergence_and_trace mean intuitively? Let $X = X^k partial_k$ and let $Phi_t$ be its local flow. At a point, the tensor
+$
+  nabla X = (nabla_j X^k)
+$
+is the infinitesimal deformation matrix of the flow: #highlight()[the lower index records the direction in which the field is differentiated, and the upper index records the component being changed.] Its trace is
+$
+  op("div") X = op("tr")(nabla X) = nabla_j X^j .
+$
+
+#figure(
+  divergence-flow-comparison-diagram(),
+  caption: [Expansion changes area to first order; pure rotation has zero trace.]
+)
+
+#figure(
+  divergence-matrix-trace-diagram(),
+  caption: [Only matching input-output directions enter the trace.]
+)
+
+#paragraph_tab
+The diagonal terms $nabla_j X^j$ measure first-order expansion or compression in the matching coordinate directions. The off-diagonal terms $nabla_j X^k$ with $j != k$ measure shear or rotation; they change the shape of a small element, but they do not contribute to its volume change to first order.
+
+#figure(
+  volume-jacobian-diagram(),
+  caption: [Volume change is controlled by the Jacobian determinant.]
+)
+
+#paragraph_tab
+In a local frame,
+$
+  D Phi_t = I + t nabla X + O(t^2).
+$
+For any square matrix $A$,
+$
+  det(I + t A) = 1 + t op("tr")(A) + O(t^2).
+$
+Therefore
+$
+  det(D Phi_t) = 1 + t op("div") X + O(t^2).
+$
+Equivalently,
+$
+  op("div") X
+  =
+  d / (d t) |_(t=0)
+  frac("new volume", "original volume").
+$
+
+#paragraph_tab
+The differential-form definition is the coordinate-free form of the same statement. If $d V$ is the metric volume form, then
+$
+  d(iota_X d V) = (op("div") X) d V.
+$
+Thus $op("div") X$ is the scalar density by which the flow infinitesimally creates or removes volume.
 
 === The Killing vector field#footnote[Nobody is actually killed. The concept is named after the 19th-century german mathematician wihelm killing.]
 
@@ -292,4 +348,3 @@ $ #annot(<symmetric_part_of_total_covariant_derivative>)[symmetric part] #annot(
 
 #paragraph_tab
 Therefore, when computing the actual geometric distortion, the antisymmetric part, $X_(k ; j) - X_( j ; k )$, naturally vanishes from the perspective of the metric. We are left exclusively with the symmetric part of the total covariant derivative, $X_(k ; j) + X_( j ; k )$, known as the deformation tensor. This tensor isolates the exact physical stretching of the metric's rulers. For the flow to be conformal, as dictated by @formal_conformal_killing_equation, this pure stretching must be isotropic. It must stretch the space equally in all directions, mathematically manifesting as a uniform scalar multiple of the metric itself.
-

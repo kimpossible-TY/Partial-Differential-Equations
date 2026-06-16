@@ -440,3 +440,94 @@
     content((1.7, 1.4), anchor: "west", text(size: 9pt)[$t$-slice])
   })
 }
+
+#let divergence-flow-comparison-diagram() = context {
+  let theme = theme-from-text-fill()
+  let stroke-color = theme.text
+  let muted = theme.muted-text
+  let expansion = rgb("#2f8f6b")
+  let rotation = rgb("#5b6ee1")
+
+  canvas(length: 0.72cm, {
+    import draw: *
+
+    let draw-axes = (x0) => {
+      line((x0 - 1.85, 0), (x0 + 1.85, 0), stroke: (paint: muted, thickness: 0.55pt), mark: (end: ">"))
+      line((x0, -1.45), (x0, 1.55), stroke: (paint: muted, thickness: 0.55pt), mark: (end: ">"))
+      content((x0 + 1.98, 0), anchor: "west", text(size: 8pt)[$x$])
+      content((x0, 1.72), anchor: "south", text(size: 8pt)[$y$])
+    }
+
+    draw-axes(-2.35)
+    rect((-2.72, -0.37), (-1.98, 0.37), stroke: (paint: stroke-color, thickness: 0.75pt), fill: rgb("#dff4e8"))
+    rect((-2.91, -0.56), (-1.79, 0.56), stroke: (paint: expansion, dash: "dashed", thickness: 0.85pt))
+    for p in ((-3.2, -0.9), (-3.2, 0), (-3.2, 0.9), (-2.35, -0.9), (-2.35, 0.9), (-1.5, -0.9), (-1.5, 0), (-1.5, 0.9)) {
+      let dx = p.at(0) + 2.35
+      let dy = p.at(1)
+      line(p, (p.at(0) + 0.28 * dx, p.at(1) + 0.28 * dy), stroke: (paint: expansion, thickness: 0.85pt), mark: (end: ">"))
+    }
+    content((-2.35, -1.7), anchor: "south", text(size: 8.5pt)[$X=(x,y), quad op("div") X=2$])
+
+    draw-axes(2.35)
+    rect((1.98, -0.37), (2.72, 0.37), stroke: (paint: stroke-color, thickness: 0.75pt), fill: rgb("#eef1ff"))
+    line((1.77, -0.18), (2.17, -0.58), (2.93, 0.18), (2.53, 0.58), close: true, stroke: (paint: rotation, dash: "dashed", thickness: 0.85pt))
+    for p in ((1.5, -0.9), (1.5, 0), (1.5, 0.9), (2.35, -0.9), (2.35, 0.9), (3.2, -0.9), (3.2, 0), (3.2, 0.9)) {
+      let dx = p.at(0) - 2.35
+      let dy = p.at(1)
+      line(p, (p.at(0) - 0.24 * dy, p.at(1) + 0.24 * dx), stroke: (paint: rotation, thickness: 0.85pt), mark: (end: ">"))
+    }
+    content((2.35, -1.7), anchor: "south", text(size: 8.5pt)[$X=(-y,x), quad op("div") X=0$])
+  })
+}
+
+#let divergence-matrix-trace-diagram() = context {
+  let theme = theme-from-text-fill()
+  let stroke-color = theme.text
+  let muted = theme.muted-text
+  let diag = rgb("#d06a45")
+  let offdiag = rgb("#5b6ee1")
+
+  canvas(length: 0.70cm, {
+    import draw: *
+
+    content((-3.25, 0.95), anchor: "west", text(size: 9pt)[$(nabla_j X^k) =$])
+    rect((-1.45, -1.05), (1.05, 1.05), stroke: (paint: stroke-color, thickness: 0.75pt))
+    line((-0.2, -1.05), (-0.2, 1.05), stroke: (paint: muted, thickness: 0.45pt))
+    line((-1.45, 0), (1.05, 0), stroke: (paint: muted, thickness: 0.45pt))
+
+    rect((-1.36, 0.09), (-0.29, 0.96), fill: rgb("#fff0e8"), stroke: (paint: diag, thickness: 0.8pt))
+    rect((-0.11, -0.96), (0.96, -0.09), fill: rgb("#fff0e8"), stroke: (paint: diag, thickness: 0.8pt))
+    rect((-0.11, 0.09), (0.96, 0.96), fill: rgb("#eef1ff"), stroke: (paint: offdiag, thickness: 0.55pt))
+    rect((-1.36, -0.96), (-0.29, -0.09), fill: rgb("#eef1ff"), stroke: (paint: offdiag, thickness: 0.55pt))
+
+    content((-0.82, 0.55), text(size: 8pt)[$nabla_1 X^1$])
+    content((0.42, 0.55), text(size: 8pt)[$nabla_2 X^1$])
+    content((-0.82, -0.55), text(size: 8pt)[$nabla_1 X^2$])
+    content((0.42, -0.55), text(size: 8pt)[$nabla_2 X^2$])
+
+    line((1.55, 0.45), (2.25, 0.45), stroke: (paint: diag, thickness: 0.8pt), mark: (end: ">"))
+    content((2.45, 0.45), anchor: "west", text(fill: diag, size: 9pt)[$op("tr")(nabla X)=nabla_j X^j$])
+    content((1.55, -0.45), anchor: "west", text(fill: offdiag, size: 8pt)[$j != k: "shear/rotation"$])
+  })
+}
+
+#let volume-jacobian-diagram() = context {
+  let theme = theme-from-text-fill()
+  let stroke-color = theme.text
+  let muted = theme.muted-text
+  let flow = rgb("#2f8f6b")
+
+  canvas(length: 0.68cm, {
+    import draw: *
+
+    rect((-3.15, -0.52), (-2.15, 0.52), fill: rgb("#dff4e8"), stroke: (paint: stroke-color, thickness: 0.75pt))
+    content((-2.65, -0.8), anchor: "north", text(size: 8.5pt)[$d V$])
+    line((-1.68, 0), (-0.56, 0), stroke: (paint: stroke-color, thickness: 0.85pt), mark: (end: ">"))
+    content((-1.12, 0.32), anchor: "south", text(size: 8.5pt)[$Phi_t$])
+    line((-0.05, -0.58), (1.18, -0.42), (0.98, 0.68), (-0.25, 0.52), close: true, fill: rgb("#edf8f1"), stroke: (paint: flow, thickness: 0.85pt))
+    content((0.46, -0.88), anchor: "north", text(size: 8.5pt)[$det(D Phi_t) d V$])
+    content((2.0, 0.18), anchor: "west", text(size: 9pt)[$D Phi_t = I + t nabla X + O(t^2)$])
+    content((2.0, -0.45), anchor: "west", text(size: 9pt)[$det(D Phi_t) = 1 + t op("div") X + O(t^2)$])
+  })
+}
+
