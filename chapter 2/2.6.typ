@@ -350,10 +350,10 @@ Why does $cal(O)_t$ mean that the wave has finite propagation speed? As @finite_
 #note(title: [@normal_vector_inequality is well-defined by the Lorentz metric])[
   The inequality @normal_vector_inequality is not merely an artificial analytic assumption. It is exactly the condition that the normal vector $N=(N_t,N_x)$ is timelike with respect to the Lorentz metric on $bb(R) times M$.
 
-  Recall that the product spacetime $bb(R) times M$ carries the Lorentz metric
+  Recall that the product spacetime $bb(R) times M$ carries the Lorentz metric(@definition_of_Lorentz_metric)
   $
     h=-d t^2+g
-  $ <definition_of_Lorentz_metric>
+  $
   where $g$ is the Riemannian metric on $M$. Therefore, for a vector $N=(N_t,N_x)$, its Lorentz square length is
   $
     h(N,N)= - norm(N_t)^2 + norm(N_x)^2_g.

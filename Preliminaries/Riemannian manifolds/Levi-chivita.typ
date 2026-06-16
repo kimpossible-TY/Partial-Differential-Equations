@@ -203,9 +203,9 @@ If the connection is *symmetric* (Torsion is zero), we will end up at the exact 
   ]
 ]
 
-#theorem(title: "5.10 (Fundamental Theorem of Riemannian Geometry)")[
+#theorem(title: "Fundamental Theorem of Riemannian Geometry")[
   Let $(M, g)$ be a smooth Riemannian manifold or pseudo-Riemannian manifold. Then there exists a unique connection $nabla$ on $T M$ that is compatible with $g$ and symmetric.
-]
+] <Fundamental_theorem_of_Riemannian_geometry>
 
 #proof[
   First, let's prove the uniqueness. To show the uniqueness, #highlight[we compute the arbitrary commections and compare them.] To compute, we neede to use the compatible and symmetric conditions actively. Since the connection is compatible with $g$, it is understandable to pick $X,Y,Z in frak(X)(M)$. Then let's compute all of possible connection made by $X,Y "and" Z$.#footnote[Since our goal is computing connection directly, the more information we have, the better.]
@@ -305,5 +305,5 @@ If the connection is *symmetric* (Torsion is zero), we will end up at the exact 
 ]
 
 #definition(title: "Levi-Civita Connection")[
-  The connection which is used to theorem 5.10 is called the Levi-Civita connection.
-]
+  The connection which is used to @Fundamental_theorem_of_Riemannian_geometry is called the Levi-Civita connection.
+]<Definition_of_Levi-Civita_connection>

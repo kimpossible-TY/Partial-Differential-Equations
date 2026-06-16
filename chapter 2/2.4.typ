@@ -61,6 +61,7 @@ $
   \
   &= nabla (d f) #dots_space #footnote[By the definition of differential. See chapter 3.2 of @Manifolds]
 $<modeified_definition_of_1_form_Hessian>
+
 We already know that the total covariant derivative is just the same as covariant derivative which omits the input that is arbitrary vector field. Thus let's define the arbitrary vector fields $X comma Y in frak(X)(M)$, and put them to @modeified_definition_of_1_form_Hessian.
 $
   ( nabla_X d f ) (Y) = X shell.l Y (f) shell.r - shell.l nabla_X Y shell.r (f) #dots_space #footnote[by the product rule of covariant derivative]
@@ -95,9 +96,9 @@ The laplacian is very closely related to Hessian.
 #lemma[
   Let's define $u in bb(C)^infinity(M)$ Then we can define Hessian which is strictly a type $(0,2)$ tensor field.
   $
-    Delta u = op("Tr")_g op("Hess") u
+    Delta u = op("Tr")_g op("Hess") u #dots_space #footnote[refer to @intuition_of_Riemannian_trace to understand what does trace mean intuitively.]
   $ <relationship_of_laplacian_and_hessian>
-] <specle_lemma_relationship_of_laplacian_and_hessian>
+] <lemma_relationship_of_laplacian_and_hessian>
 #proof[
  First of all, let's unpack the LHS and RHS of @relationship_of_laplacian_and_hessian, because @relationship_of_laplacian_and_hessian is too abstract!
   $
@@ -117,7 +118,7 @@ The laplacian is very closely related to Hessian.
  //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   #local-scope-annotations(s => [
     $
-      Delta u &= [ mark(nabla_i, tag: #(s.tag)("nabla_lemma_2_9")) ( rmark(g^(j k), tag: #(s.tag)("g_lemma_2_9")) bmark(nabla_k u, tag: #(s.tag)("u_lemma_2_9")) ]^i
+      Delta u &= [ mark(nabla_i, tag: #(s.tag)("nabla_lemma_2_9")) ( rmark(g^(j k), tag: #(s.tag)("g_lemma_2_9")) bmark(nabla_k u, tag: #(s.tag)("u_lemma_2_9")))]^i
       \
       &= [ cancel(nabla_i g^(j k) nabla_k u) + g^(j k) (nabla_i nabla_k u) ]^i
       #dots_space #footnote[By applying product rule(@basic_properties_of_connection)]
@@ -148,7 +149,7 @@ The laplacian is very closely related to Hessian.
 ]
 
 #paragraph_tab
-Using @specle_lemma_relationship_of_laplacian_and_hessian, we know that $Delta u = op("Hess")(u)$ when $op("dim")(M)=1$. Thus we can think the @beyond_1D_example_of_laplacian is the same as :
+Using @lemma_relationship_of_laplacian_and_hessian, we know that $Delta u = op("Hess")(u)$ when $op("dim")(M)=1$. Thus we can think the @beyond_1D_example_of_laplacian is the same as :
 $
   -(Delta u comma v)=(d u comma d v)
 $ <Laplacian_identity_1-D>
@@ -239,7 +240,7 @@ $
   \
   &= dash(v)]g^(j k) (nabla_k partial_j u)] #dots_space #footnote[by the fundamental theorem of Riemmanian geometry, $nabla$ is compatible with $g$.] 
   \
-  &= dash(v)[Delta u] #dots_space #footnote[by @specle_lemma_relationship_of_laplacian_and_hessian]
+  &= dash(v)[Delta u] #dots_space #footnote[by @lemma_relationship_of_laplacian_and_hessian]
 $
 
 Therefore, we have :
