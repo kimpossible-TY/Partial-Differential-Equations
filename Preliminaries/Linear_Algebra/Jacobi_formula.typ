@@ -9,7 +9,7 @@ Jacobi's formula describes how the determinant varies along a differentiable fam
 #proposition(title: "Jacobi's formula")[
   Let $A(t)$ be a differentiable curve in the space of $n times n$ matrices. If $A(t)$ is invertible, then
   $
-    d/(d t) det(A(t)) = det(A(t)) op("tr")(A(t)^(-1) A'(t)).
+    d/(d t) det(A(t)) = det(A(t)) op("tr")(A(t)^(-1) A'(t)) #dots_space #footnote[the trace is just a matrix trace, not Riemannian trace or pseudo-Riemannian trace.]
   $
   where $A'(t)$ means $frac(d, d t) A(t)$
 ] <Jacobis_formula>

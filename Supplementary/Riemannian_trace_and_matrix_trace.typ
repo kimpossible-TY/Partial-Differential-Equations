@@ -79,4 +79,4 @@ To visualize this geometrically, we can look at the Laplacian of a function $u$ 
 #figure(
   curvature-trace-diagram(),
   caption: [The Riemannian trace of the Hessian (the Laplacian) is the sum of the directional curvatures $kappa_1$ and $kappa_2$ along orthogonal paths.]
-)
+) <intuition_of_Riemannian_trace>
