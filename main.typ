@@ -86,7 +86,14 @@
 // section.subsection.number numbering.
 #show heading.where(level: 2): it => {
   counter(math.equation).update(0)
-  it
+  context {
+    let style = heading-numbering-style.get()
+    if style == "P.1" or style == "S.1" {
+      align(center, it)
+    } else {
+      it
+    }
+  }
 }
 
 // Define equation numbering as (section.subsection.equation).
@@ -143,29 +150,17 @@
 
 #set heading(numbering: prefixed-heading-numbering.with("P"))
 #heading-numbering-style.update("P.1")
-#show heading.where(level: 2): it => {
-  counter(math.equation).update(0)
-  align(center, it)
-}
 #include "Preliminaries/preliminaries.typ"
 
 #set heading(numbering: prefixed-heading-numbering.with("S"))
 #heading-numbering-style.update("S.1")
 #counter(heading).update(0)
-#show heading.where(level: 2): it => {
-  counter(math.equation).update(0)
-  align(center, it)
-}
 #include "Supplementary/supplementary.typ"
 #set heading(outlined: true)
 
 #set heading(numbering: "1.1 :")
 #heading-numbering-style.update("1.1")
 #counter(heading).update(0)
-#show heading.where(level: 2): it => {
-  counter(math.equation).update(0)
-  it
-}
 #include "chapter 1/chapter 1.typ"
 #include "chapter 2/chapter 2.typ"
 #bibliography("references.bib")
