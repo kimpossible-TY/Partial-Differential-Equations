@@ -194,7 +194,7 @@ We start from the energy conservation law for the wave equation(@energy_conserva
       +
       2 partial_t u thin frac(partial u , partial nu_x) thin norm(N_x)
     } thick d S, "energy flux on past boundary")
-  $ <energy_flux_relation>
+  $ <energy_flux_identity>
 
   #paragraph-tab
   #highlighted()[Again, the physical interpretation is needed to #(m.ref)("normal time vector component relation").] As considering @energy_conservation_derivation#footnote[Remember that #(m.ref)("normal time vector component relation") is induced from @energy_conservation_derivation at the first of the current section(@finite_propagation_speed).], The LHS of #(m.ref)("normal time vector component relation") is the energy flux#footnote[Flux means “the amount of something passing through a surface.”] across $Sigma_1$ and the RHS of #(m.ref)("normal time vector component relation") is the energy flux across $Sigma_0$ which is past boundary. Since the energy of wave must be positive(@total_energy_of_wave), the energy flux must be positive too. To the energy flux must be positive, what does the condition is needed?
@@ -224,7 +224,7 @@ We start from the energy conservation law for the wave equation(@energy_conserva
     
     $arrow.b$
 
-    Apply #(s.ref)("inequality for normal derivative term") to @energy_flux_relation :
+    Apply #(s.ref)("inequality for normal derivative term") to @energy_flux_identity :
     #text(size: 0.8em)[
       $
         integral_(Sigma_1) {
@@ -267,7 +267,7 @@ Then we can get the following vanishing result on a spacelike domain of influenc
 ] <vanishing_lemma_of_wave>
 
 #proof[
-  Consider that $d u =d_t u + d_x u$. By the given condition, the energy flux on $Sigma_0$ is zero. As applying @normal_vector_inequality and the energy flux identity(@energy_flux_relation), $d u$ also vanishes on $Sigma_(0+epsilon)$ when $d u$ is zero on $Sigma_0$ where $epsilon > 0$ is sufficiently small for the energy flux on $Sigma_(0+epsilon)$ be zero. 
+  Consider that $d u =d_t u + d_x u$. By the given condition, the energy flux on $Sigma_0$ is zero. As applying @normal_vector_inequality and the energy flux identity(@energy_flux_identity), $d u$ also vanishes on $Sigma_(0+epsilon)$ when $d u$ is zero on $Sigma_0$ where $epsilon > 0$ is sufficiently small for the energy flux on $Sigma_(0+epsilon)$ be zero. 
   
   #paragraph-tab
   If we expend this argument to the entire $Omega$, we can conclude that $d u$ vanishes on the entire $Omega$. Therefore, $u$ is constant on $Omega$. Since $u$ is zero on $Sigma_0$, we have $u=0$ on the entire $Omega$ which proves the theorem.
