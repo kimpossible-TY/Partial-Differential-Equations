@@ -531,3 +531,308 @@
   })
 }
 
+#let wave-operator-packaging-diagram() = context {
+  let theme = theme-from-text-fill()
+  let stroke-color = theme.text
+  let muted = theme.muted-text
+
+  let time-bg = theme.callouts.warning.bg
+  let time-stroke = theme.callouts.warning.border
+  let space-bg = theme.callouts.proposition.bg
+  let space-stroke = theme.callouts.proposition.border
+  let unified-bg = theme.callouts.important.bg
+  let unified-stroke = theme.callouts.important.border
+
+  canvas(length: 0.7cm, {
+    import draw: *
+
+    // Left Box: Time Component
+    rect((-5.0, 0.4), (-1.0, 3.2), fill: time-bg, stroke: (paint: time-stroke, thickness: 1.2pt), radius: 0.15)
+    content((-3.0, 1.8), anchor: "center", stack(
+      spacing: 3pt,
+      align(center, text(weight: "bold", size: 10pt, fill: time-stroke)[Time Component]),
+      align(center, text(size: 9pt)[Metric: $-d t^2$]),
+      align(center, text(size: 9pt)[Operator: $frac(partial^2, partial t^2)$])
+    ))
+
+    // Right Box: Spatial Component
+    rect((1.0, 0.4), (5.0, 3.2), fill: space-bg, stroke: (paint: space-stroke, thickness: 1.2pt), radius: 0.15)
+    content((3.0, 1.8), anchor: "center", stack(
+      spacing: 3pt,
+      align(center, text(weight: "bold", size: 10pt, fill: space-stroke)[Spatial Component]),
+      align(center, text(size: 9pt)[Metric: $g$]),
+      align(center, text(size: 9pt)[Operator: $- Delta_g$])
+    ))
+
+    // Bottom Box: Unified Lorentzian Spacetime
+    rect((-4.5, -3.0), (4.5, -0.2), fill: unified-bg, stroke: (paint: unified-stroke, thickness: 1.5pt), radius: 0.15)
+    content((0, -1.6), anchor: "center", stack(
+      spacing: 4pt,
+      align(center, text(weight: "bold", size: 10.5pt, fill: unified-stroke)[Unified Lorentz Manifold $(cal(M), h)$]),
+      align(center, text(size: 9.5pt)[Metric: $h = -d t^2 + g$]),
+      align(center, text(size: 9.5pt)[Wave Operator: $square_h = frac(partial^2, partial t^2) - Delta_g$])
+    ))
+
+    // Connecting arrows
+    line((-3.0, 0.4), (-1.5, -0.2), stroke: (paint: time-stroke, thickness: 1.2pt), mark: (end: ">"))
+    line((3.0, 0.4), (1.5, -0.2), stroke: (paint: space-stroke, thickness: 1.2pt), mark: (end: ">"))
+    
+    // Label for packaging on the arrows
+    content((-2.7, 0.1), text(size: 8.5pt, fill: muted, style: "italic")[packages], anchor: "east")
+    content((2.7, 0.1), text(size: 8.5pt, fill: muted, style: "italic")[packages], anchor: "west")
+  })
+}
+
+#let stress-energy-tensor-name-diagram() = context {
+  let theme = theme-from-text-fill()
+  let stroke-color = theme.text
+  let muted = theme.muted-text
+
+  let action-bg = theme.callouts.note.bg
+  let action-stroke = theme.callouts.note.border
+  let stress-bg = theme.callouts.warning.bg
+  let stress-stroke = theme.callouts.warning.border
+  let energy-bg = theme.callouts.proposition.bg
+  let energy-stroke = theme.callouts.proposition.border
+  let tensor-bg = theme.callouts.important.bg
+  let tensor-stroke = theme.callouts.important.border
+
+  canvas(length: 0.68cm, {
+    import draw: *
+
+    rect((-5.35, 0.75), (-1.45, 3.05), fill: action-bg, stroke: (paint: action-stroke, thickness: 1.1pt), radius: 0.12)
+    content((-3.4, 1.9), anchor: "center", stack(
+      spacing: 3pt,
+      align(center, text(weight: "bold", size: 9.5pt, fill: action-stroke)[Metric variation]),
+      align(center, text(size: 8.5pt)[$delta_h S$]),
+      align(center, text(size: 8.5pt)[$T_(a b) delta h^(a b)$])
+    ))
+
+    rect((-5.35, -2.65), (-1.45, -0.35), fill: stress-bg, stroke: (paint: stress-stroke, thickness: 1.1pt), radius: 0.12)
+    content((-3.4, -1.5), anchor: "center", stack(
+      spacing: 3pt,
+      align(center, text(weight: "bold", size: 9.5pt, fill: stress-stroke)[Stress part]),
+      align(center, text(size: 8.5pt)[$T_(i j)$]),
+      align(center, text(size: 8.3pt)[spatial flux of momentum])
+    ))
+
+    rect((1.45, -2.65), (5.35, -0.35), fill: energy-bg, stroke: (paint: energy-stroke, thickness: 1.1pt), radius: 0.12)
+    content((3.4, -1.5), anchor: "center", stack(
+      spacing: 3pt,
+      align(center, text(weight: "bold", size: 9.5pt, fill: energy-stroke)[Energy part]),
+      align(center, text(size: 8.5pt)[$T_(0 0), T_(0 i)$]),
+      align(center, text(size: 8.3pt)[density and flow])
+    ))
+
+    rect((1.15, 0.75), (5.65, 3.05), fill: tensor-bg, stroke: (paint: tensor-stroke, thickness: 1.25pt), radius: 0.12)
+    content((3.4, 1.9), anchor: "center", stack(
+      spacing: 2.5pt,
+      align(center, text(weight: "bold", size: 9.6pt, fill: tensor-stroke)[Stress-energy tensor]),
+      align(center, text(size: 8.2pt)[$T = d u times.o d u$]),
+      align(center, text(size: 8.2pt)[$- frac(1,2) chevron.l d u comma d u chevron.r_h h$]),
+      align(center, text(size: 8.3pt)[one geometric object])
+    ))
+
+    line((-1.45, 1.9), (1.15, 1.9), stroke: (paint: stroke-color, thickness: 0.9pt), mark: (end: ">"))
+    content((-0.15, 2.16), anchor: "south", text(size: 8pt, fill: muted)[coefficient])
+
+    line((-2.6, -0.35), (1.65, 0.75), stroke: (paint: stress-stroke, thickness: 0.85pt), mark: (end: ">"))
+    line((2.6, -0.35), (3.05, 0.75), stroke: (paint: energy-stroke, thickness: 0.85pt), mark: (end: ">"))
+    content((-0.6, 0.8), anchor: "south", text(size: 8pt, fill: muted)[spatial components])
+    content((3.5, 0.2), anchor: "west", text(size: 8pt, fill: muted)[time components])
+  })
+}
+
+#let killing-field-visualization() = context {
+  let theme = theme-from-text-fill()
+  let stroke-color = theme.text
+  let muted = theme.muted-text
+
+  let killing-color = rgb("#24734f")
+  let orbit-color = theme.rule
+
+  canvas(length: 0.78cm, {
+    import draw: *
+
+    // Integral curves of X(x,y)=(-y,x) are concentric circles.
+    circle(
+      (0, 0),
+      radius: 1.05,
+      stroke: (paint: orbit-color, thickness: 0.65pt, dash: "dashed"),
+    )
+    circle(
+      (0, 0),
+      radius: 2.05,
+      stroke: (paint: orbit-color, thickness: 0.65pt, dash: "dashed"),
+    )
+
+    // Coordinate axes.
+    line(
+      (-2.8, 0),
+      (2.8, 0),
+      stroke: (paint: muted, thickness: 0.65pt),
+      mark: (end: ">"),
+    )
+    line(
+      (0, -2.8),
+      (0, 2.8),
+      stroke: (paint: muted, thickness: 0.65pt),
+      mark: (end: ">"),
+    )
+    content((2.95, 0), anchor: "west", text(size: 8pt, fill: muted)[$x$])
+    content((0, 2.95), anchor: "south", text(size: 8pt, fill: muted)[$y$])
+
+    // At (x,y), the vector (-y,x) is perpendicular to the radius (x,y).
+    // Therefore every arrow is tangent to a circular symmetry orbit.
+    for x in (-2, -1, 0, 1, 2) {
+      for y in (-2, -1, 0, 1, 2) {
+        let px = 0.92 * x
+        let py = 0.92 * y
+
+        if x == 0 and y == 0 {
+          circle((0, 0), radius: 0.055, fill: stroke-color)
+        } else {
+          let dx = -0.26 * y
+          let dy = 0.26 * x
+
+          line(
+            (px - dx / 2, py - dy / 2),
+            (px + dx / 2, py + dy / 2),
+            stroke: (paint: killing-color, thickness: 1.15pt),
+            mark: (end: ">"),
+          )
+        }
+      }
+    }
+
+    // Highlight one radius and its tangent vector.
+    line(
+      (0, 0),
+      (1.84, 0),
+      stroke: (paint: stroke-color, thickness: 0.8pt),
+    )
+    content((0.92, -0.18), anchor: "north", text(size: 8pt)[$r$])
+    content((2.05, 0.48), anchor: "west", text(size: 8pt, fill: killing-color)[$X perp r$])
+
+    content(
+      (0, 3.45),
+      anchor: "center",
+      text(weight: "bold", size: 10pt)[
+        Rotational Killing field
+      ],
+    )
+    content(
+      (0, -3.25),
+      anchor: "center",
+      text(size: 9pt)[$X(x,y)=(-y,x)$],
+    )
+    content(
+      (0, -3.7),
+      anchor: "center",
+      text(size: 8.3pt, fill: muted)[the flow rotates every point without stretching],
+    )
+  })
+}
+
+#let divergence-free-non-killing-visualization() = context {
+  let theme = theme-from-text-fill()
+  let stroke-color = theme.text
+  let muted = theme.muted-text
+
+  let field-color = rgb("#3157c8")
+  let deformation-color = rgb("#c43d3d")
+
+  canvas(length: 0.76cm, {
+    import draw: *
+
+    content(
+      (0, 3.25),
+      anchor: "center",
+      text(weight: "bold", size: 10pt)[
+        Divergence-free does not imply Killing
+      ],
+    )
+
+    // Coordinate axes.
+    line(
+      (-2.8, 0),
+      (2.8, 0),
+      stroke: (paint: muted, thickness: 0.65pt),
+      mark: (end: ">"),
+    )
+    line(
+      (0, -2.65),
+      (0, 2.65),
+      stroke: (paint: muted, thickness: 0.65pt),
+      mark: (end: ">"),
+    )
+    content((2.95, 0), anchor: "west", text(size: 8pt, fill: muted)[$x$])
+    content((0, 2.8), anchor: "south", text(size: 8pt, fill: muted)[$y$])
+
+    // The dashed circle is a small material neighborhood before the flow.
+    circle(
+      (0, 0),
+      radius: 1.2,
+      stroke: (paint: stroke-color, thickness: 0.8pt, dash: "dashed"),
+    )
+
+    // Under phi_t(x,y)=(e^t x,e^(-t)y), the circle becomes an ellipse.
+    // The product of the two scale factors is one, so its area is unchanged.
+    group({
+      scale(x: 1.5, y: 2 / 3)
+      circle(
+        (0, 0),
+        radius: 1.2,
+        stroke: (paint: deformation-color, thickness: 1.1pt),
+      )
+    })
+
+    // Arrow field X(x,y)=(x,-y): horizontal expansion and vertical compression.
+    for x in (-2, -1, 0, 1, 2) {
+      for y in (-2, -1, 0, 1, 2) {
+        let px = 0.9 * x
+        let py = 0.9 * y
+
+        if x == 0 and y == 0 {
+          circle((0, 0), radius: 0.055, fill: stroke-color)
+        } else {
+          let dx = 0.23 * x
+          let dy = -0.23 * y
+
+          line(
+            (px - dx / 2, py - dy / 2),
+            (px + dx / 2, py + dy / 2),
+            stroke: (paint: field-color, thickness: 1.1pt),
+            mark: (end: ">"),
+          )
+        }
+      }
+    }
+
+    content(
+      (0, -3.05),
+      anchor: "center",
+      text(size: 9pt)[$X(x,y)=(x,-y)$],
+    )
+    content(
+      (0, -3.48),
+      anchor: "center",
+      text(size: 8.3pt, fill: muted)[
+        horizontal expansion cancels vertical compression
+      ],
+    )
+
+    line(
+      (-2.65, -2.45),
+      (-2.0, -2.45),
+      stroke: (paint: stroke-color, thickness: 0.8pt, dash: "dashed"),
+    )
+    content((-1.88, -2.45), anchor: "west", text(size: 7.8pt, fill: muted)[initial circle])
+    line(
+      (0.65, -2.45),
+      (1.3, -2.45),
+      stroke: (paint: deformation-color, thickness: 1.1pt),
+    )
+    content((1.42, -2.45), anchor: "west", text(size: 7.8pt, fill: muted)[equal-area ellipse])
+  })
+}
