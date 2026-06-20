@@ -13,6 +13,9 @@
 // Define differential operator
 #let dx = $upright(d) x$
 
+// Use a wider tilde accent by default while preserving per-call overrides.
+#let tilde(body, size: 150%) = math.tilde(body, size: size)
+
 // ---------- TITLE OF BOOK ----------
 #let book-title(body) = {
   v(8em)
