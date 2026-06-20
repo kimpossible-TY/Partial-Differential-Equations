@@ -224,7 +224,7 @@ Define $phi(x comma p)$ where $x = (r comma theta)$ #footnote[make $(x_1 comma x
 
 We already know that $d_x phi$ which is $frac(partial phi, partial r) + frac(partial phi, partial theta)$ and each are satisfied:
 
-$ F_2^(-1) = cases(frac(partial p, partial r) |-> p_1 tilde.eq xi_1, frac(partial p, partial theta) |-> p_2 approx xi_2) $
+$ F_2^(-1) = cases(frac(partial p, partial r) |-> p_1 #math.tilde.eq xi_1, frac(partial p, partial theta) |-> p_2 approx xi_2) $
 
 #paragraph_tab
 Then we can reformulate $u$ to $overline(u)$ by $(p_1 comma p_2)$ and polar coordinate representation.

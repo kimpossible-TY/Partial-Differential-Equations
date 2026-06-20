@@ -163,7 +163,7 @@ Thus $op("div") X$ is the scalar density by which the flow infinitesimally creat
 === The Killing vector field#footnote[Nobody is actually killed. The concept is named after the 19th-century german mathematician wihelm killing.]
 
 #paragraph_tab
-In the view of @divergence_and_semi_colon, we know that a vector field $X$ generates a volume-preserving flow if and only if $X_( ; j )^j=0$. Complementing this, we investigate that the flow leaves the metric g imvariant, or equivalently :
+In the view of @divergence_and_semi_colon, we know that a vector field $X$ generates a volume-preserving flow if and only if $X_( ; j )^j=0$. Complementing this, we investigate that the flow leaves the metric g invariant, or equivalently :
 $
   cal(L)_X g =0
 $ <second_condition_of_killing_vector_field>
@@ -276,9 +276,9 @@ There is a useful generalization of the concept of a Killing field, namely a con
 #note(title: "intuitive explanation of conformal Killing field")[
 	The conformal Killing field(@definition_of_conformal_killing_field) means that at every point, the "stretching" or "shrinking" caused by the vector field is the same in every direction.
 
-	#align(center)[
-		#conformal_killing_field_visualization()
-	]
+	#figure(conformal_killing_field_visualization(), caption: "Intuition to understand conformal killing field") <figure_of_conformal_Killing_field>
+
+  Due to @figure_of_conformal_Killing_field, using the divergence to represent it is inevitable.
 
 ] <intuitive_explanation_of_conformal_killing_field>
 
@@ -320,7 +320,7 @@ By defining $lambda$ entirely through the divergence of the field, we remove the
   $
     X_(k ; j) + X_( j ; k ) = frac(2, n) (op("div") X) g_(j k)
   $ <formal_conformal_killing_equation>
-]
+] <conformal_Killing_vector_field_with_divergence>
 
 #paragraph_tab
 Then what did we do? Intuitively, the above arguments is to analyze the vector field $X$. Thus let's deep dive to understand the above arguments intuitively(physically). To truly grasp the physical significance of @formal_conformal_killing_equation, we must look beyond the algebraic derivation and analyze how the vector field physically interacts with the manifold's geometry. The appearance of the symmetric term $X_(k ; j) + X_( j ; k )$ is not an arbitrary mathematical choice; it is a strict geometric necessity forced by the nature of the metric tensor.
@@ -333,7 +333,9 @@ Once the flow is embedded, #highlight[we measure its spatial variation by taking
 
 $
   X_(k ; j) = markul(frac(1, 2) (X_(k ; j) + X_( j ; k )), tag: #<symmetric_part_of_total_covariant_derivative>, color: #red) + markul(frac(1, 2) (X_(k ; j) - X_( j ; k )), tag: #<antisymmetric_part_of_total_covariant_derivative>, color: #blue)
-$ #annot(<symmetric_part_of_total_covariant_derivative>)[symmetric part] #annot(<antisymmetric_part_of_total_covariant_derivative>)[antisymmetric part]
+
+  #annot(<symmetric_part_of_total_covariant_derivative>)[symmetric part] #annot(<antisymmetric_part_of_total_covariant_derivative>)[antisymmetric part]
+$ <where_does_the_Killing_field_came_from>
 
 #figure(
   table(
@@ -348,3 +350,39 @@ $ #annot(<symmetric_part_of_total_covariant_derivative>)[symmetric part] #annot(
 
 #paragraph_tab
 Therefore, when computing the actual geometric distortion, the antisymmetric part, $X_(k ; j) - X_( j ; k )$, naturally vanishes from the perspective of the metric. We are left exclusively with the symmetric part of the total covariant derivative, $X_(k ; j) + X_( j ; k )$, known as the deformation tensor. This tensor isolates the exact physical stretching of the metric's rulers. For the flow to be conformal, as dictated by @formal_conformal_killing_equation, this pure stretching must be isotropic. It must stretch the space equally in all directions, mathematically manifesting as a uniform scalar multiple of the metric itself.
+
+#note(title: "The relationship between Killing field and conformal Killing field")[As considering @conformal_Killing_vector_field_with_divergence, the Killing field is conformal Killing field whose divergence is zero.
+
+#figure(
+  killing-field-visualization(),
+  caption: [The Euclidean Killing field $X(x,y)=(-y,x)$. Its arrows are tangent to concentric circles, and its flow is rigid rotation about the origin.]
+)<killing_field_visualization>
+
+]
+
+#note(title: "The converse is false")[
+Every Killing field is divergence-free, but a divergence-free field need not be Killing. On the Euclidean plane, consider
+$
+  X(x,y)=(x,-y).
+$
+Its divergence vanishes:
+$
+  op("div") X = partial_x x + partial_y (-y) = 1-1=0.
+$
+However, its flow is
+$
+  phi_t (x,y)=(e^t x,e^(-t)y).
+$
+Thus the flow expands the horizontal direction and compresses the vertical direction. Since the two scale factors multiply to one, area is preserved; nevertheless, a circle becomes an ellipse. Equivalently,
+$
+  cal(L)_X g = 2 d x times.o d x - 2 d y times.o d y != 0.
+$
+Therefore $X$ is divergence-free but is not a Killing field.
+
+#figure(
+  divergence-free-non-killing-visualization(),
+  caption: [The divergence-free field $X(x,y)=(x,-y)$ preserves area but deforms a circle into an ellipse. Hence zero divergence alone does not imply the Killing condition.]
+)<divergence_free_non_killing_visualization>
+
+#highlight()[Therefore, Killing field condition is more stronger than the divergence-free.]
+] <Killing_field_is_more_stronger_condition_than_divergence-free>

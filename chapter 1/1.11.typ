@@ -274,7 +274,7 @@ By the rescaling lemma, we know that if we vary the velocity, it impact to the t
   + $cal(D)$ is an open subset of $T M$ containing the image of the zero section, and each set $S_p subset.eq T_p M$ is star-shaped with respect to 0.
   + For each $v in T M$ the geodesic $gamma_v$ is given by $gamma_v (t) = exp(t v)$ for all $t$ such that either side is defined.
   + The exponential map is smooth.
-  + For each point $p in M$, the differential $d(exp_p)_0 : T_0 (T_p M) tilde.eq T_p M -> T_p M$ is the identity map of $T_p M$ under the usual identification of $T_0 (T_p M)$.
+  + For each point $p in M$, the differential $d(exp_p)_0 : T_0 (T_p M) #math.tilde.eq T_p M -> T_p M$ is the identity map of $T_p M$ under the usual identification of $T_0 (T_p M)$.
 ]
 
 #proof[
