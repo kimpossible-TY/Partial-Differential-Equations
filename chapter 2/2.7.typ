@@ -248,22 +248,22 @@ $ <Laplace-Beltrami_operator_of_metric_h>
 where $square$ means the Laplacian on Lorentz manifold. Therefore we get the the Lorentzian version of the Laplace-Beltrami operator. 
 
 #paragraph-tab
-However there is an remain thing, how can we re-write  @lemma_relationship_of_laplacian_and_hessian for the Lorentz manifold? Think about $h^(j k) Delta_j Delta_k u$ just like @lemma_relationship_of_laplacian_and_hessian. Since $(h_(j k))=mat(-1,0 ; 0 , (g_(alpha beta)))$ by its definition, we get :
+However there is an remain thing, how can we re-write  @lemma_relationship_of_laplacian_and_hessian for the Lorentz manifold? Think about $h^(j k) nabla_j nabla_k u$ just like @lemma_relationship_of_laplacian_and_hessian. Since $(h_(j k))=mat(-1,0 ; 0 , (g_(alpha beta)))$ by its definition, we get :
 #local-scope-annotations(s=>[
   $
-    h^(j k) Delta_j Delta_k u=h^(00), u_(; 00)+ h^(alpha beta)u_(;alpha beta)
+    h^(j k) nabla_j nabla_k u=h^(00), u_(; 00)+ h^(alpha beta)u_(;alpha beta)
   $ #(s.tag)("1")
   The 0-index is related to time. Since $h^(00)=-1$, we get :
   $
-    h^(00)u_(;00)=-Delta_0 Delta_0 u= partial_t^2 u
+    h^(00)u_(;00)=-nabla_0 nabla_0 u= partial_t^2 u
   $ #(s.tag)("2")
   In addition, since $h^(alpha beta)=g^(alpha beta)$, #(s.ref)("1") will be changed likely to the following if substituting to #(s.tag)("2") :
   $
-    h^(j k) Delta_j Delta_k u=underbrace(-(partial^2_t u) + Delta_g u, "wave equation")
+    h^(j k) nabla_j nabla_k u=underbrace(-(partial^2_t u) + nabla_g u, "wave equation")
   $ #(s.tag)("3")
   If we define 
   $
-    square := h^(j k) Delta_j Delta_k
+    square := h^(j k) nabla_j nabla_k
   $ <definition_of_Lorentizan_Laplacian_2>
   , it will achieve to explain the wave equation by using single operator! Fortunately, we can easily prove that makes sense by the similar argument to @lemma_relationship_of_laplacian_and_hessian.#footnote[If we just introduce the Lorentzian version of tangent-cotangent isomorphism, so that $op("grad")_h$ can be used, this argument is the same as @lemma_relationship_of_laplacian_and_hessian.] Thus we have the Lorentizan style wave equation :
   $
