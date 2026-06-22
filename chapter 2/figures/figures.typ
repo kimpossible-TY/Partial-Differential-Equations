@@ -836,3 +836,85 @@
     content((1.42, -2.45), anchor: "west", text(size: 7.8pt, fill: muted)[equal-area ellipse])
   })
 }
+
+#let quadratic-potential-energy-density-visualization() = context {
+  let theme = theme-from-text-fill()
+  let stroke-color = theme.text
+  let muted = theme.muted-text
+  let domain-fill = theme.callouts.note.bg
+  let domain-stroke = theme.callouts.note.border
+  let trace-fill = theme.callouts.proposition.bg
+  let trace-stroke = theme.callouts.proposition.border
+  let scalar-fill = theme.callouts.important.bg
+  let scalar-stroke = theme.callouts.important.border
+  let basis-color = rgb("#3157c8")
+  let image-color = rgb("#c64b45")
+
+  canvas(length: 0.78cm, {
+    import draw: *
+
+    rect(
+      (-5.2, -1.55),
+      (-1.75, 1.65),
+      radius: 0.12,
+      fill: domain-fill,
+      stroke: (paint: domain-stroke, thickness: 0.9pt),
+    )
+    content((-3.48, 1.35), anchor: "center", text(weight: "bold", size: 9pt)[$A:T_x M arrow.r T_y N$])
+    content((-3.48, 0.93), anchor: "center", text(size: 8pt, fill: muted)[$(e_1,dots,e_n)$ orthonormal])
+
+    line((-4.55, -0.72), (-4.55, 0.12), stroke: (paint: basis-color, thickness: 1.15pt), mark: (end: ">"))
+    line((-4.55, -0.72), (-3.72, -0.28), stroke: (paint: basis-color, thickness: 1.15pt), mark: (end: ">"))
+    content((-4.62, 0.2), anchor: "south", text(size: 7.5pt, fill: basis-color)[$e_1$])
+    content((-3.62, -0.23), anchor: "west", text(size: 7.5pt, fill: basis-color)[$e_2$])
+
+    line((-2.85, -0.72), (-2.85, 0.28), stroke: (paint: image-color, thickness: 1.35pt), mark: (end: ">"))
+    line((-2.85, -0.72), (-2.12, -0.12), stroke: (paint: image-color, thickness: 1.35pt), mark: (end: ">"))
+    content((-2.92, 0.36), anchor: "south", text(size: 7.5pt, fill: image-color)[$A e_1$])
+    content((-2.08, -0.18), anchor: "east", text(size: 7.5pt, fill: image-color)[$A e_2$])
+
+    rect(
+      (-0.95, -1.55),
+      (2.25, 1.65),
+      radius: 0.12,
+      fill: trace-fill,
+      stroke: (paint: trace-stroke, thickness: 0.9pt),
+    )
+    content((0.65, 1.32), anchor: "center", text(weight: "bold", size: 9pt)[take the trace])
+    content((0.65, 0.55), anchor: "center", text(size: 9pt)[$op("Tr")(A^*A)$])
+    content((0.65, 0.0), anchor: "center", text(size: 9pt)[$=sum_i norm(A e_i)^2_h$])
+    content(
+      (0.65, -0.67),
+      anchor: "center",
+      stack(
+        spacing: 1pt,
+        align(center, text(size: 7.2pt, fill: muted)[all directions]),
+        align(center, text(size: 7.2pt, fill: muted)[one scalar]),
+      ),
+    )
+
+    rect(
+      (3.05, -1.55),
+      (5.55, 1.65),
+      radius: 0.12,
+      fill: scalar-fill,
+      stroke: (paint: scalar-stroke, thickness: 0.95pt),
+    )
+    content((4.3, 1.32), anchor: "center", text(weight: "bold", size: 9pt)[$N=bb(R)$])
+    content((4.3, 0.72), anchor: "center", text(size: 8.5pt)[$A=xi=d_x u$])
+    content((4.3, 0.13), anchor: "center", text(size: 8.5pt)[$sum_i xi(e_i)^2$])
+    content((4.3, -0.38), anchor: "center", text(size: 8.5pt)[$=g^(j k)xi_j xi_k$])
+    content((4.3, -0.95), anchor: "center", text(size: 8.5pt, fill: scalar-stroke)[$f_Q=gamma norm(xi)^2_(g^(-1))$])
+
+    line((-1.75, 0.05), (-0.95, 0.05), stroke: (paint: stroke-color, thickness: 0.85pt), mark: (end: ">"))
+    line((2.25, 0.05), (3.05, 0.05), stroke: (paint: stroke-color, thickness: 0.85pt), mark: (end: ">"))
+
+    content(
+      (0.15, -2.05),
+      anchor: "center",
+      text(size: 8.5pt, fill: muted)[
+        coordinate independent $quad dot quad$ nonnegative $quad dot quad$ zero exactly when $d_x u=0$
+      ],
+    )
+  })
+}
