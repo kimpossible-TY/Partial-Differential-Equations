@@ -31,7 +31,7 @@ To analyze the wave equation on a Lorentz manifold especially from the perspecti
 $
   S[u,h]&=-frac(1,2) integral_Omega chevron.l d u comma d u chevron.r_h d V_h
   \
-  &= integral_Omega (frac(1,2)(partial_t u)^2 - frac(1,2)norm(d_x u)_g^2) d V_g d t
+  &= integral_Omega (frac(1,2)(partial_t u)^2 - frac(1,2)norm(d_x u)_g^2) d V_g d t #dots_space #footnote[Choosing $chevron.l d u comma d u chevron.r_h$ as Lagrangian is considered the Lagrangian for wave. $frac(1,2) (partial_t u)^2$ is just kinetic energy, and another term of Lagrangian is came from @quandratic_potential_energy_density.]
 $ <wave-action>
 
 Remember that the first variation of action induces the Euler-Lagrange equation, which is analogous to Newton's second law ($F = m a$). Thus, we compute the first variation of the action ($delta S$) by varying with respect to $h$.
@@ -279,7 +279,7 @@ However there is an remain thing, how can we re-write  @lemma_relationship_of_la
   More generally, for any $u$,
   $
     nabla_k T^(j k) = (nabla^j u) square u
-  $ where $nabla^j u=h^(j k) nabla_k u$.
+  $ where $nabla^j u=h^(j k) nabla_k u$.#footnote[Actually, $nabla^j u$ considering the summation convention is $op("grad")_h u$.]
 ]<divergence_free_of_stress-energy_tensor>
 
 #proof()[

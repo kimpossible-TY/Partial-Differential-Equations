@@ -99,8 +99,8 @@ $
   f(x,y,A)=op("Tr")_g (T_A)
 $ <definition_of_potential_energy_density_Riemannian_tensor_version>
 
-#lemma()[
-  Let $M $ and $N$ are Riemannian manifolds which are compact and $A in cal(L)(T_x M, T_y N)$ is a linear map. Then the following is true :
+#lemma(title: "natural potential energy density")[
+  Let $M$ and $N$ be Riemannian manifolds and let $A in cal(L)(T_x M, T_y N)$ be a linear map. Then the following is true :
   $
     op("Tr")_g (T_A)= op("Tr") (A^* A)
   $
@@ -108,7 +108,7 @@ $ <definition_of_potential_energy_density_Riemannian_tensor_version>
   $
     f(x,y,A)= op("Tr") (A^* A)
   $
-]
+] <trace_characterization_of_potential_energy_density>
 
 #local-scope-annotations(s => [
     #proof()[
@@ -249,10 +249,42 @@ we finally get :
 ])
 
 #paragraph_tab
-To induce the standard wave equation from @wave-like_equation, we choose the quandratic potential energy density :
+#highlighted()[To induce the standard wave equation from @wave-like_equation, we specialize the geometric potential energy density of @trace_characterization_of_potential_energy_density to the scalar-valued case $N=bb(R)$.] By @first_lemma_for_one_D_string_vibration, the spatial differential is a covector
+$
+  A=xi=d_x u in T_x^* M.
+$
+If $(e_1,dots,e_n)$ is a $g$-orthonormal basis of $T_x M$, then
+$
+  op("Tr")(A^*A)
+  = sum_(i=1)^n g(A^*A e_i,e_i)
+  = sum_(i=1)^n h(A e_i,A e_i)
+  = sum_(i=1)^n xi(e_i)^2.
+$
+This is precisely the squared dual norm $norm(xi)^2_(g^(-1))$. In local coordinates it becomes
+$
+  norm(xi)^2_(g^(-1))=g^(j k)(x)xi_j xi_k.
+$
+Therefore the quadratic potential energy density is
 $
   f_Q (x, xi):= sum^n_(j=1) sum^n_(k=1) gamma g^(j k) (x) xi_j xi_k quad "where" gamma >0
+$ <quandratic_potential_energy_density>
+
+#paragraph_tab
+Thus the quadratic form is not chosen merely because it produces the Laplace-Beltrami operator. It is the scalar-valued specialization of the previously constructed coordinate-independent deformation density:
 $
+  f_Q(x,xi)
+  =gamma op("Tr")(A^*A)
+  =gamma norm(xi)^2_(g^(-1)).
+$
+Consequently, $f_Q$ is nonnegative, vanishes exactly when $d_x u=0$, and is independent of both coordinates and the chosen orthonormal basis. It measures all infinitesimal spatial changes of $u$ at once. The constant $gamma$ scales this canonical density and physically represents stiffness.
+
+#figure(
+  quadratic-potential-energy-density-visualization(),
+  caption: [Mathematical origin of the quadratic potential density. The trace sums the squared images of an orthonormal basis; for $N=bb(R)$ this is the squared dual norm of $d_x u$.]
+) <quadratic_potential_energy_density_visualization>
+
+#paragraph_tab
+For a one-dimensional string this geometric statement reduces to the familiar physical formula. Since $xi=d_x u=(partial_x u)d x$, one obtains $f_Q=gamma(partial_x u)^2$. Hence a constant displacement stores no deformation energy, while a steeper displacement profile stores more energy quadratically. The conventional factor $1/2$ can be absorbed into $gamma$; with the present convention the wave speed satisfies $c^2=2 gamma slash m$.
 
 #lemma(title: "Laplace-Beltrami Operator")[
   Let $(M,g)$ is the Riemannian manifold and $u in C^infinity(M)$. Then the Laplacian of $u$ is in local coordinate :
@@ -270,7 +302,7 @@ $
 ]
 
 #theorem(title: "wave equation")[
-  As considering @wave-like_equation, let's substitute $f$ to the quandratic potential energy density $f_Q$. @wave-like_equation gives :
+  As considering @wave-like_equation, let's substitute $f$ with the quadratic potential energy density $f_Q$. @wave-like_equation gives :
   $
     frac(partial^2 u, partial t^2)- frac(2 gamma, m) Delta u =0
   $ <wave_equation>
