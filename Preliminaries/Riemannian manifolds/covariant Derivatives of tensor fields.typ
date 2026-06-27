@@ -85,7 +85,7 @@ Applying @Basic_formula_of_functional_evaluation to the mixed tensor field, we c
   title: "disassembly tool for tensor fields",
 )[@Basic_formula_of_tensor_field is very useful, because it allows to investigate inside of tensor field. Thus we can adjust the 'abstact level'!]
 
-#proposition(title: "4.15")[
+#proposition()[
   Let $M$ be a smooth manifold with or without boundary, and let $nabla$ be a connection in $T M$. Then $nabla$ uniquely determines a connection in each tensor bundle $T^((k,l)) T M$, also denoted by $nabla$, such that the following four conditions are satisfied.
 
   #set enum(numbering: "(i)")

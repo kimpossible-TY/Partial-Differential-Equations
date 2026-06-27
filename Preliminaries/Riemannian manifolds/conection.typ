@@ -34,7 +34,7 @@ What does the connections do? As we know its name, it is not just a 'derivative'
 Although a connection is defined by its action on global sections, it follows from the definitions that it is actually a local operator, as the next lemma shows.
 
 
-#lemma(title: "4.1 (Locality)")[Suppose $nabla$ is a connection in a smooth vector bundle $E -> M$. For every $X in frak(X)(M)$, $Y in Gamma(E)$, and $p in M$ the covariant derivative $nabla_X Y|_p$ depends only on the values of $X$ and $Y$ in an arbitrarily small neighborhood of $p$.
+#lemma(title: "Locality")[Suppose $nabla$ is a connection in a smooth vector bundle $E -> M$. For every $X in frak(X)(M)$, $Y in Gamma(E)$, and $p in M$ the covariant derivative $nabla_X Y|_p$ depends only on the values of $X$ and $Y$ in an arbitrarily small neighborhood of $p$.
 More precisely, If $X = tilde(X)$ and when $Y = tilde(Y)$ on a neighborhood of $p$, then
 $ nabla_X Y|_p = nabla_(tilde(X)) tilde(Y)|_p $
 ] <Lemma4.1>
@@ -86,10 +86,10 @@ The argument for $X$ is similar but easier.
 #paragraph_tab
 As the above, we treated the restriction of sections. Now, How about restrict the connection?
 
-#proposition(title: "4.3 (Restriction of a connection)")[Suppose $nabla$ is a connection in a smooth vector bundle $E -> M$. For every open subset $U subset.eq M$, there is a unique connection $nabla^U$ on the restricted bundle $E|_U$ that satisfies the following relation for every open subset $X in frak(X)(M)$ and $Y in Gamma(E)$:
+#proposition(title: "Restriction of a connection")[Suppose $nabla$ is a connection in a smooth vector bundle $E -> M$. For every open subset $U subset.eq M$, there is a unique connection $nabla^U$ on the restricted bundle $E|_U$ that satisfies the following relation for every open subset $X in frak(X)(M)$ and $Y in Gamma(E)$:
 
 $ nabla_(X|_U)^U (Y|_U) = (nabla_X Y)|_U $
-]
+]<proposition4.3>
 
 #paragraph_tab
 #proof[$nabla^U|_p$ is the connection which treats the local vector field and local section, not restricted global section and vector field.
@@ -98,11 +98,11 @@ $ nabla_(X|_U)^U (Y|_U) = (nabla_X Y)|_U $
 Now let's think about $tilde(X)$ and $tilde(Y)$ satisfying $tilde(X) = X$ and $tilde(Y) = Y$ only on $p$. In addition, we can extend $X|_U$ and $Y|_U$ via the smooth bump functions. We denote them $X|_U^phi$ and $Y|_U^phi$.
 
 #paragraph_tab
-However, the Lemma 4.1 guarantees:
+However, the @Lemma4.1 guarantees:
 
 $
 nabla_(X|_U)^U (Y|_U) &= nabla_(X|_U^phi)^U (Y|_U^phi) \
-&= nabla_(tilde(X)) tilde(Y)|_p #dots_space #footnote[by Lemma 4.1]
+&= nabla_(tilde(X)) tilde(Y)|_p #dots_space #footnote[by @Lemma4.1]
 $
 
 #paragraph_tab
@@ -110,7 +110,7 @@ Therefore, the result of $nabla^U$ is unique whatever the vector field and secti
 ]
 
 #paragraph_tab
-#note[Proposition 4.3 treats the vector fields and sections which are defined at local, and the other which are defined at global first, but restricted.]
+#note[@proposition4.3 treats the vector fields and sections which are defined at local, and the other which are defined at global first, but restricted.]
 
 ==== Connections In The Tangent Bundle
 
