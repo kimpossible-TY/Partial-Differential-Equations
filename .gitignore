@@ -57,5 +57,9 @@ notes/
 
 ### agent configs
 .antigravitycli/
-.codex/
+.codex/*
+!.codex/skills/
+.codex/skills/*
+!.codex/skills/pde-gitmoji-commits/
+!.codex/skills/pde-gitmoji-commits/**
 .Claude/
