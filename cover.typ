@@ -75,6 +75,12 @@
 
   pagebreak()
   set page(margin: auto, fill: theme.page)
+
+  [
+    #include "Frontmatter/notation.typ"
+  ]
+
+  pagebreak()
   show outline.entry: it => {
     let hide-prefix = it.level == 1 and (
       it.body() == [Preliminaries] or
