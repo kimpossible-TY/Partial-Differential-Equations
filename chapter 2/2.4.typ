@@ -188,7 +188,7 @@ $
 $ #annot(<conjugate_part>, pos: top, dy: -2em, dx: 1em)[It is the "conjegate part"!]
 Therefore, we can define the local $L$-2 norm of differential as :
 $
-  chevron.l d u comma d v chevron.r_p &= g^(j k) (partial_j u) (partial_k dash(v)) ,  forall p in M
+  chevron.l d u comma d v chevron.r_p &= g^(j k) (partial_j u) (partial_k dash(v)) ,  quad attach(p, tl: forall) in M
 $
 #paragraph_tab
 Now it is time to define the global $L$-2 norm. What we want for global norm is to combine all of the local norm. Thus the integration on manifold should appear. In additon, since we don't want to be dependent to path, the volume form is also needed.

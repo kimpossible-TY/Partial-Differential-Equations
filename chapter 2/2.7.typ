@@ -227,7 +227,7 @@ Remember that the first variation of action induces the Euler-Lagrange equation,
     $
     where $T_(a b):=
       partial_a u partial_b u -frac(1,2) h^(i j)partial_i u partial_j u thin h_(a b)$ from #(s.ref)("discorvering the coefficient of stress-energy tensor").
-  ]
+  ] <definition_of_stress-energy_tensor>
 
   #paragraph-tab
   The name "stress-energy tensor" comes from two facts at once. First, $T_(a b)$ is the coefficient paired with the metric variation $(delta h)^(a b)$ in $delta_h S$; thus it measures how the action changes when the geometry is strained. Second, after choosing a time direction, the time components $T_(0 0)$ and $T_(0 i)$ describe energy density and energy flux, while the spatial components $T_(i j)$ describe stress, or the flux of momentum through spatial directions.
@@ -432,22 +432,22 @@ Although we know that the stress-energy tensor is divergence free due to @diverg
 #paragraph-tab
 The easiest way to contract $T$ is :
 $
-  X^j := T^(j k) Z_k
+  X^j := T^(j k) Z^k
 $
 Then how can we make $X$ which inherit the divergence-free property from $T$? Again, the easiest way to think is to choose $Z$ as divergence-free. However it is not a good choice.
 #local-scope-annotations(s=>[
   $
-    nabla_j X^j &= nabla_j (T^(j k) Z_k)
+    nabla_j X^j &= nabla_j (T^(j k) Z^k)
     \
-    &= cancel((nabla_j T^(j k)) Z_k, stroke: #(paint: red)) + T^(j k)(nabla_j Z_k) #dots_space #footnote[by @divergence_free_of_stress-energy_tensor]
+    &= cancel((nabla_j T^(j k)) Z^k, stroke: #(paint: red)) + T^(j k)(nabla_j Z^k) #dots_space #footnote[by @divergence_free_of_stress-energy_tensor]
   $ #(s.tag)("1")
-  To $X$ is divergence-free, considering #(s.ref)("1"),$nabla_j Z_k$ should be zero. However we can't move forward without additional assumption! The assumption that $op("div") Z= 0$ isn't enough! As considering @Killing_field_is_more_stronger_condition_than_divergence-free, we can't help to introduce the Killing field.
+  To $X$ is divergence-free, considering #(s.ref)("1"),$nabla_j Z^k$ should be zero. However we can't move forward without additional assumption! The assumption that $op("div") Z= 0$ isn't enough! As considering @Killing_field_is_more_stronger_condition_than_divergence-free, we can't help to introduce the Killing field.
 ]) 
 
 #lemma(title: "divergence-free vector field from stress-energy tensor")[
   If $T^(j k)$ is divergence-free and $Z_(k)$ is a Killing field, then 
   $
-    X^j = T^(j k) Z_k
+    X^j = T^(j k) Z^k
   $
   is exist which is the divergence free vector field.
 ] <naturally_induced_divergence-free_vector_field_from_stress-energy_tensor>
@@ -456,31 +456,31 @@ Then how can we make $X$ which inherit the divergence-free property from $T$? Ag
  #local-scope-annotations(s=> [
   Again, we get :
  $
-    nabla_j X^j &= nabla_j (T^(j k) Z_k)
+    nabla_j X^j &= nabla_j (T^(j k) Z^k)
     \
-    &= cancel((nabla_j T^(j k)) Z_k, stroke: #(paint: red)) + rmark(T^(j k)(nabla_j Z_k)) #dots_space #footnote[by @divergence_free_of_stress-energy_tensor]
+    &= cancel((nabla_j T^(j k)) Z^k, stroke: #(paint: red)) + rmark(T^(j k)(nabla_j Z^k)) #dots_space #footnote[by @divergence_free_of_stress-energy_tensor]
   $
   To apply the condition that $Z$ is Killing field, let's expand 
   likely to @where_does_the_Killing_field_came_from.
   #flowbox()[
     $
-      T^(j k)(nabla_j Z_k) &=frac(1,2)T^(j k)[nabla_j Z_k + nabla_k Z_j] + bmark(frac(1,2)T^(j k)[nabla_j Z_k - nabla_k Z_j])
+      T^(j k)(nabla_j Z^k) &=frac(1,2)T^(j k)[nabla_j Z^k + nabla_k Z^j] + bmark(frac(1,2)T^(j k)[nabla_j Z^k - nabla_k Z^j])
       \
-      &= frac(1,2)T^(j k)[nabla_j Z_k + nabla_k Z_j] + bmark(frac(1,2)T^(k j)[nabla_k Z_j - nabla_j Z_k]) #dots_space #footnote[by interchanging $j<=> k$]
+      &= frac(1,2)T^(j k)[nabla_j Z^k + nabla_k Z^j] + bmark(frac(1,2)T^(k j)[nabla_k Z^j - nabla_j Z^k]) #dots_space #footnote[by interchanging $j<=> k$]
     $
 
     $arrow.b$
 
     By the symmetry of $T$
     $
-      frac(1,2)T^(k j)[nabla_k Z_j - nabla_j Z_k]=bmark(frac(1,2)T^(j k)[nabla_k Z_j - nabla_j Z_k])
+      frac(1,2)T^(k j)[nabla_k Z^j - nabla_j Z^k]=bmark(frac(1,2)T^(j k)[nabla_k Z^j - nabla_j Z^k])
     $ #(s.tag)("the reasion why anti-symmetric part is canceled")
   ]
-  Define $bmark(B):= frac(1,2)T^(j k)[nabla_j Z_k - nabla_k Z_j]$, then #(s.ref)("the reasion why anti-symmetric part is canceled") gives $B=-B$. It means $B=0$. Therefore, we get :
+  Define $bmark(B):= frac(1,2)T^(j k)[nabla_j Z^k - nabla_k Z^j]$, then #(s.ref)("the reasion why anti-symmetric part is canceled") gives $B=-B$. It means $B=0$. Therefore, we get :
   $
-    T^(j k)(nabla_j Z_k) &=frac(1,2)T^(j k)[nabla_j Z_k + nabla_k Z_j] + cancel(bmark(frac(1,2)T^(j k)[nabla_j Z_k - nabla_k Z_j]))
+    T^(j k)(nabla_j Z^k) &=frac(1,2)T^(j k)[nabla_j Z^k + nabla_k Z^j] + cancel(bmark(frac(1,2)T^(j k)[nabla_j Z^k - nabla_k Z^j]))
     \
-    &= cancel(frac(1,2)T^(j k)[nabla_j Z_k + nabla_k Z_j], stroke: #(paint: red))
+    &= cancel(frac(1,2)T^(j k)[nabla_j Z^k + nabla_k Z^j], stroke: #(paint: red))
     \
     &= 0  #dots_space #footnote[by the condition that $Z$ is the Killing field.]
   $
@@ -500,15 +500,15 @@ Then how can we make $X$ which inherit the divergence-free property from $T$? Ag
   To do that, we have to investigate #(s.ref)("starting point") more. let's use $X=T Z$ where $Z$ is Killing field.
   #flowbox()[
     $
-      h(X, nu)=h_(j l) X^j nu^l, X^j = T^(j k) Z_k
+      h(X, nu)=h_(j l) X^j nu^l, X^j = T^(j k) Z^k
     $
 
     $arrow.b$
 
     $
-      h(X, nu) & = markrect(h_(j l) T^(j k), color: #blue) Z_k nu^l
+      h(X, nu) & = markrect(h_(j l) T^(j k), color: #blue) Z^k nu^l
       \
-      &= bmark(T_(l)^k) nu^l Z_k #dots_space #footnote[where $T_(l)^k= h_(j l) T^(j k)$]
+      &= bmark(T_(l)^k) nu^l Z^k #dots_space #footnote[where $T_(l)^k= h_(j l) T^(j k)$]
     $
 
     $arrow.b$
@@ -518,7 +518,7 @@ Then how can we make $X$ which inherit the divergence-free property from $T$? Ag
     $arrow.b$
 
     $
-      h(X, nu) & = T_(l)^k nu^l pmark(Z_k)
+      h(X, nu) & = T_(l)^k nu^l pmark(Z^k)
       \
       &= T_(l)^k nu^l pmark(h_(m k), tag: #(s.tag)("h-start")) Z^m
       \
@@ -547,7 +547,7 @@ Then how can we make $X$ which inherit the divergence-free property from $T$? Ag
   substituting #(s.ref)("reformulate h to T") to #(s.ref)("starting point"), we get :
   $
    integral_cal(O) op("div") X d V = integral_(partial O) T (tilde(nu) comma tilde(Z)) thick d S=0 
-  $
+  $ <stress-energy_tensor_applied_divergence_theorem>
   Similar to @spacelike_boundary_decomposition_visualization, let's split the integral domain, $partial cal(O)= Sigma_1 union Sigma_2$.
   #flowbox()[
     $
@@ -561,14 +561,14 @@ Then how can we make $X$ which inherit the divergence-free property from $T$? Ag
 
     $
       integral_(Sigma_1) T(tilde(nu)_1, tilde(Z)) d S = integral_(Sigma_2) T(tilde(nu)_1, tilde(Z)) d S
-    $ #(s.tag)("almost energy flux identity")
+    $ <stress-energy_tensor_flux_identity>
   ]
 
   #paragraph-tab
-  Now, we have the similar equation(#(s.ref)("almost energy flux identity")) to @energy_flux_identity. Then let's check $T$ could be energy flux. 
+  Now, we have the similar equation(@stress-energy_tensor_flux_identity) to @energy_flux_identity. Then let's check $T$ could be energy flux. 
   #lemma(title: "Stress-energy tensor and energyflux")[
     If $Z$ and $nu$ are non-zero timelkie vectors pointing the fucture, then $T$ is positive-definite.
-  ] #(s.tag)("Stress-energy tensor and energy flux")
+  ] <stress-energy_tensor_and_energy_flux_lemma>
 
   #proof[
     To compute $T(Z, nu)$ directly, let's pick some point and local coordinates.
@@ -604,7 +604,7 @@ Then how can we make $X$ which inherit the divergence-free property from $T$? Ag
       $arrow.b$
       
       $
-        T(Z, nu)= underbrace(frac(1,2)Z_0 [(partial_0 u )^2 + sum^n_(j=1) (partial_j u)^2], (1)) + overbrace(sum^n_(j=1)Z_j (partial_0 u) (partial_j u), (2))
+        T(Z, nu)= underbrace(frac(1,2)Z_0 [(partial_0 u )^2 + sum^n_(j=1) (partial_j u)^2], (1)) + overbrace(sum^n_(j=1)Z^j (partial_0 u) (partial_j u), (2))
       $ #(s.tag)("first expandsion of T")
     ]
     (1) is definitely positive, #highlighted()[but (2) could be negative. Since the only way that $T$ can be negative is (2) is also negative, let's assume (2) be negative.] Then 
@@ -633,5 +633,5 @@ Then how can we make $X$ which inherit the divergence-free property from $T$? Ag
     By #(s.ref)("conditions"), $Z_0 > |Z_x|$.Therefore $T(Z, nu)> 0$ which proves the lemma.
   ]
 
-  Due to #(s.ref)("Stress-energy tensor and energy flux"), $T$ could be energy flux itself.
+  #note()[Due to @stress-energy_tensor_and_energy_flux_lemma, $T$ could be energy flux itself.] <Stress-energy_tensor_and_energy_flux>
 ])
