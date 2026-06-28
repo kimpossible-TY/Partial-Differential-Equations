@@ -311,6 +311,122 @@
   })
 }
 
+#let swept-hyperbolic-region-visualization() = context {
+  let theme = theme-from-text-fill()
+  let color_stroke = theme.text
+  let color_muted = theme.muted-text
+  let color_domain = rgb("#edf2ff")
+  let color_truncated = rgb("#dff4e8")
+  let color_sigma_one = rgb("#2f8f6b")
+  let color_sigma_two = rgb("#5b6ee1")
+  let color_slice = rgb("#d06a45")
+
+  canvas(length: 0.9cm, {
+    import draw: *
+
+    let left = (-3.2, -1.25)
+    let right = (3.2, 0.72)
+    let lower_c1 = (-2.15, -1.85)
+    let lower_c2 = (1.55, -0.65)
+    let upper_c1 = (-2.15, 1.35)
+    let upper_c2 = (2.0, 2.05)
+    let slice_right = (2.65, 0.32)
+    let slice_c1 = (-1.15, 0.15)
+    let slice_c2 = (1.2, 0.52)
+    let s_y = 0.32
+
+    // Ambient product coordinates.
+    line((-3.75, -2.0), (3.95, -2.0), stroke: (paint: color_muted, thickness: 0.7pt), mark: (end: ">"))
+    line((-3.75, -2.0), (-3.75, 2.45), stroke: (paint: color_muted, thickness: 0.7pt), mark: (end: ">"))
+    content((4.1, -2.0), anchor: "west")[$M$]
+    content((-3.75, 2.62), anchor: "south")[$t$]
+    content((-3.93, s_y), anchor: "east", text(size: 8.5pt)[$s$])
+    line((-3.75, s_y), (3.45, s_y), stroke: (paint: color_muted, dash: "dashed", thickness: 0.55pt))
+
+    // The full swept region dash(cal(O)).
+    bezier(left, right, lower_c1, lower_c2, fill: color_domain, stroke: none)
+    bezier(left, right, upper_c1, upper_c2, fill: color_domain, stroke: none)
+
+    // The truncated part cal(O)(s), bounded above by Sigma_2(s).
+    bezier(left, slice_right, lower_c1, (0.65, -0.72), fill: color_truncated, stroke: none)
+    bezier(left, slice_right, slice_c1, slice_c2, fill: color_truncated, stroke: none)
+    bezier(left, slice_right, slice_c1, slice_c2, stroke: (paint: color_slice, thickness: 1.7pt))
+
+    // Full boundary pieces.
+    bezier(left, right, lower_c1, lower_c2, stroke: (paint: color_sigma_one, thickness: 1.25pt))
+    bezier(left, right, upper_c1, upper_c2, stroke: (paint: color_sigma_two, thickness: 1.7pt))
+
+    // The part of Sigma_1 lying below the time level s.
+    bezier(left, slice_right, lower_c1, (0.65, -0.72), stroke: (paint: color_sigma_one, thickness: 2.2pt))
+
+    // Vertical cut marker indicates intersection with {t <= s}.
+    line((slice_right.at(0), -2.0), slice_right, stroke: (paint: color_muted, dash: "dashed", thickness: 0.55pt))
+    circle(slice_right, radius: 0.045, fill: color_slice)
+
+    // Labels.
+    content((0.05, -0.4), anchor: "center", text(fill: color_sigma_one)[$cal(O)(s)$])
+    content((-0.05, 1.6), anchor: "center", text(fill: color_sigma_two)[$cal(O)$])
+    content((2.75, 1.3), anchor: "west", text(fill: color_sigma_two)[$Sigma_2$])
+    content((2.8, 0), anchor: "west", text(fill: color_slice)[$Sigma_2(s)=dash(cal(O)) inter {t=s}$])
+    content((-3.08, -1.42), anchor: "north-east", text(fill: color_sigma_one)[$Sigma_1$])
+    content((0.3, -1.55), anchor: "north", text(fill: color_sigma_one, size: 9pt)[$Sigma_1^b (s)=Sigma_1 inter {t <= s}$])
+  })
+}
+
+#let stress-energy-normal-fields-visualization() = context {
+  let theme = theme-from-text-fill()
+  let color_stroke = theme.text
+  let color_muted = theme.muted-text
+  let color_sigma_one = rgb("#2f8f6b")
+  let color_slice = rgb("#d06a45")
+  let color_timelike = rgb("#5b6ee1")
+  let color_choice = rgb("#c64b45")
+
+  canvas(length: 0.9cm, {
+    import draw: *
+
+    let sigma_one_left = (-3.05, -1.05)
+    let sigma_one_right = (2.55, -0.18)
+    let sigma_two_left = (-2.7, 0.85)
+    let sigma_two_right = (2.8, 0.85)
+    let p = (-0.95, -0.72)
+    let q = (-0.2, 0.85)
+
+    // Ambient product coordinates.
+    line((-3.55, -1.65), (3.35, -1.65), stroke: (paint: color_muted, thickness: 0.7pt), mark: (end: ">"))
+    line((-3.55, -1.65), (-3.55, 2.05), stroke: (paint: color_muted, thickness: 0.7pt), mark: (end: ">"))
+    content((3.5, -1.65), anchor: "west")[$M$]
+    content((-3.55, 2.22), anchor: "south")[$t$]
+
+    // The two hypersurfaces from the flux identity.
+    bezier(sigma_one_left, sigma_one_right, (-2.0, -1.55), (0.85, -1.12), stroke: (paint: color_sigma_one, thickness: 1.9pt))
+    line(sigma_two_left, sigma_two_right, stroke: (paint: color_slice, thickness: 1.8pt))
+    content((-2.9, -0.72), anchor: "east", text(fill: color_sigma_one)[$Sigma_1$])
+    content((2.95, 1.02), anchor: "west", text(fill: color_slice)[$Sigma_2(s)={t=s}$])
+
+    // Forward-pointing unit normal on Sigma_1.
+    circle(p, radius: 0.045, fill: color_sigma_one)
+    line(p, (p.at(0) - 0.45, p.at(1) + 0.92), stroke: (paint: color_sigma_one, thickness: 1.3pt), mark: (end: ">"))
+    content((p.at(0) - 0.62, p.at(1) + 0.88), anchor: "south-east", text(fill: color_sigma_one)[$nu_1$])
+    content((p.at(0) - 0.92, p.at(1) + 0.38), anchor: "east", text(size: 8pt, fill: color_sigma_one)[forward unit normal])
+
+    // grad t is normal to the level surface, and nu_2 is its normalization.
+    circle(q, radius: 0.045, fill: color_slice)
+    line(q, (q.at(0), q.at(1) + 0.9), stroke: (paint: color_choice, thickness: 1.35pt), mark: (end: ">"))
+    content((q.at(0) + 0.16, q.at(1) + 0.8), anchor: "west", text(fill: color_choice)[$nu_2 = op("grad") t / norm(op("grad") t)$])
+    content((q.at(0) + 0.15, q.at(1) - 0.28), anchor: "north-west", text(size: 8pt, fill: color_slice)[$d t$ timelike])
+
+    // Timelike choices for Z; the energy estimate later chooses Z=nu_2.
+    line((2.0, -1.08), (2.0, 0.62), stroke: (paint: color_muted, dash: "dotted", thickness: 0.6pt))
+    line((1.55, -0.72), (2.0, 0.36), (2.45, -0.72), (1.55, -0.72), fill: color_timelike.lighten(62%), stroke: (paint: color_timelike, thickness: 0.75pt))
+    content((2.0, -0.85), anchor: "north", text(size: 8pt, fill: color_timelike)[timelike cone])
+    line((2.0, -0.5), (1.78, 0.18), stroke: (paint: color_timelike, thickness: 1.1pt), mark: (end: ">"))
+    content((1.68, 0.2), anchor: "south-east", text(fill: color_timelike)[$Z$])
+    line((2.0, -0.5), (2.0, 0.28), stroke: (paint: color_choice, thickness: 1.35pt), mark: (end: ">"))
+    content((2.18, -0.04), anchor: "west", text(fill: color_choice)[choose $Z=nu_2$])
+  })
+}
+
 #let normal-measure-projection-visualization() = context {
   let theme = theme-from-text-fill()
   let color_stroke = theme.text
@@ -916,5 +1032,73 @@
         coordinate independent $quad dot quad$ nonnegative $quad dot quad$ zero exactly when $d_x u=0$
       ],
     )
+  })
+}
+
+#let gronwall-convolution-visualization() = context {
+  let theme = theme-from-text-fill()
+  let stroke-color = theme.text
+  let muted = theme.muted-text
+  let kernel-color = rgb("#3157c8")
+  let forcing-color = rgb("#c64b45")
+  let result-fill = theme.callouts.note.bg
+  let result-stroke = theme.callouts.note.border
+
+  canvas(length: 0.78cm, {
+    import draw: *
+
+    content(
+      (0, 2.35),
+      anchor: "center",
+      text(weight: "bold", size: 10pt)[
+        Gronwall estimate as causal convolution
+      ],
+    )
+
+    // Left panel: forcing history on [s_0,s].
+    line((-5.2, -1.35), (-1.15, -1.35), stroke: (paint: muted, thickness: 0.7pt), mark: (end: ">"))
+    line((-5.0, -1.55), (-5.0, 1.55), stroke: (paint: muted, thickness: 0.7pt), mark: (end: ">"))
+    content((-5.0, -1.75), anchor: "north", text(size: 8pt, fill: muted)[$s_0$])
+    content((-1.25, -1.75), anchor: "north", text(size: 8pt, fill: muted)[$s$])
+    content((-3.1, 1.55), anchor: "center", text(size: 8.5pt, fill: forcing-color)[$cal(F)(r)$])
+
+    for x in (-4.65, -4.15, -3.55, -2.95, -2.45, -1.85) {
+      let h = 0.55 + 0.28 * calc.sin((x + 4.8) * 150deg)
+      line((x, -1.35), (x, -1.35 + h), stroke: (paint: forcing-color, thickness: 1.35pt))
+      circle((x, -1.35 + h), radius: 0.045, fill: forcing-color)
+    }
+
+    // Middle panel: kernel viewed backward from the observation time s.
+    line((-0.35, -1.35), (3.65, -1.35), stroke: (paint: muted, thickness: 0.7pt), mark: (end: ">"))
+    line((-0.15, -1.55), (-0.15, 1.55), stroke: (paint: muted, thickness: 0.7pt), mark: (end: ">"))
+    content((3.25, -1.75), anchor: "north", text(size: 8pt, fill: muted)[$r$])
+    content((1.75, 1.55), anchor: "center", text(size: 8.5pt, fill: kernel-color)[$G_s(r)=e^(frak(C)(s-r))$])
+
+    bezier(
+      (-0.15, 1.18),
+      (3.35, -0.92),
+      (0.75, 0.62),
+      (2.15, -0.58),
+      stroke: (paint: kernel-color, thickness: 1.35pt),
+    )
+    content((-0.15, -1.75), anchor: "north", text(size: 8pt, fill: muted)[$s_0$])
+    content((3.35, -1.75), anchor: "north", text(size: 8pt, fill: muted)[$s$])
+
+    // Output panel: weighted accumulation.
+    rect(
+      (4.25, -1.35),
+      (7.05, 1.35),
+      radius: 0.12,
+      fill: result-fill,
+      stroke: (paint: result-stroke, thickness: 0.9pt),
+    )
+    content((5.65, 0.58), anchor: "center", text(size: 9pt)[$(G * cal(F))(s)$])
+    content((5.65, -0.04), anchor: "center", text(size: 8.4pt)[weighted history])
+    content((5.65, -0.68), anchor: "center", text(size: 8.4pt, fill: result-stroke)[$E(s) <= "output"$])
+
+    line((-1.05, 0.0), (-0.45, 0.0), stroke: (paint: stroke-color, thickness: 0.85pt), mark: (end: ">"))
+    line((3.75, 0.0), (4.15, 0.0), stroke: (paint: stroke-color, thickness: 0.85pt), mark: (end: ">"))
+
+    content((1.25, -2.25), anchor: "center", text(size: 8.2pt, fill: muted)[older forcing is weighted by the propagation factor from $r$ to $s$])
   })
 }
