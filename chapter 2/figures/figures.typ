@@ -1072,7 +1072,7 @@
     line((-0.35, -1.35), (3.65, -1.35), stroke: (paint: muted, thickness: 0.7pt), mark: (end: ">"))
     line((-0.15, -1.55), (-0.15, 1.55), stroke: (paint: muted, thickness: 0.7pt), mark: (end: ">"))
     content((3.25, -1.75), anchor: "north", text(size: 8pt, fill: muted)[$r$])
-    content((1.75, 1.55), anchor: "center", text(size: 8.5pt, fill: kernel-color)[$G_s(r)=e^(frak(C)(s-r))$])
+    content((1.75, 1.55), anchor: "center", text(size: 8.5pt, fill: kernel-color)[$G_s (r)=e^(frak(C)(s-r))$])
 
     bezier(
       (-0.15, 1.18),
