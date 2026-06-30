@@ -1,7 +1,7 @@
 #import "../Styles/styles.typ" : *
 #import "figures.typ" : *
 #import "@preview/cetz:0.4.2"
-#import "@preview/mannot:0.3.3": *
+#import "@preview/mannot:0.4.0": *
 
 == Geodesics
 

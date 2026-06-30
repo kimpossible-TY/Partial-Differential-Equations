@@ -1,4 +1,4 @@
-#import "@preview/mannot:0.3.3" : *
+#import "@preview/mannot:0.4.0" : *
 #import "local_tags.typ": local-tag-scope
 
 #let _annot-cetz-local-counter = counter("_annot-cetz-local-counter")

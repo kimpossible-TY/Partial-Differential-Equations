@@ -3,7 +3,7 @@
 #import "@local/math-blocks:0.1.0": *
 #import "@local/scoped-annotations:0.1.0": *
 #import "@local/cetz-helpers:0.1.0": *
-#import "@preview/mannot:0.3.3": *
+#import "@preview/mannot:0.4.0": *
 
 // ---------- Marks ----------
 #let rmark = mark.with(color: red)
