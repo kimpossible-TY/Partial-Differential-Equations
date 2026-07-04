@@ -201,6 +201,25 @@ Now it is time to define the global $L$-2 norm. What we want for global norm is 
   where $V_g$ is the volume form of $M$.
 ] <L-2_norm_of_1-form>
 
+#paragraph-tab
+Due to the definition of local inner product, the following lemma can be induced :
+#lemma()[
+  Let $X$ be a vector field and $(M,g)$ be the Riemmanian manifold, Then the following equation is true where $u in C^infinity (M)$.
+  $
+    chevron.l X, op("grad")u chevron.r_g = chevron.l X, d u chevron.r = X u #dots_space #footnote[$chevron.l X, d u chevron.r$ is not a inner product but also the functional evaluation(@Definition_of_functional_evaluation).]
+  $
+]
+#proof()[
+  $
+    chevron.l X, op("grad")u chevron.r_g &= g_(i j) (X) (op("grad")u)
+    \
+    &= d u (X) #dots_space #footnote[$g_(i j) (op("grad")u)= d u$ by musical isomorphism]
+    \
+    &= X u #dots_space #footnote[by the definition of differential.]
+  $
+  By the definition of functional evaluation(@Definition_of_functional_evaluation), we can write $d u (X)$ as $chevron.l X, u chevron.r$.
+]
+
 === Green First Identity <subsection_Greens_First_Identity>
 
 #paragraph_tab
@@ -347,112 +366,7 @@ Equivalently, the outward unit normal vector field $nu$ along $partial M$ is a s
  ]
 
 #paragraph_tab
-In @Greens_Identities_with_boundaries, we treat somethings on the bundaries of manifolds. As we can guess from the previous discussion(@subsection_Greens_First_Identity), the integral on the boundary will appear and the divergence theorem will be useful. Hence introducing the following lemma is helpful.
-#lemma(title: "The Product Rule of Riemmanian divergence")[
-  Let $M$ be a smooth Riemannian manifold and $ Y in frak(X)(M)$, $f in bb(C)^infinity (M)$. Then :
-  $
-    op("div") (f Y) = f op("div") Y + g( op("grad") f comma Y)
-  $
-] <the_product_rule_of_Riemmanian_divergence>
-
-#proof()[We start from the definition of divergence. Define $X:= f Y$. Then we have :
-  $
-   cal(L)_X d V_g =(op("div") X) d V_g
-  $
-  By Cartan's magic formula, we have :
-  $
-  cal(L)_X d V_g &= X corner.r.b overbrace(cancel(d(d V_g), stroke: #(paint: red)), d^2=0) + d(X corner.r.b d V_g)
-  \
-  &= d(X corner.r.b d V_g)
-  $
-  Now, replace $X$ to $f Y$.
-  $
-    cal(L)_X d V_g &= (op("div") (f Y)) d V_g #dots_space #footnote[by definition of divergence]
-    \
-    &= d((f Y) corner.r.b d V_g)
-    \
-    &= d[f(Y corner.r.b d V_g)] #dots_space #footnote[by the linearity of interior multiplication]
-  $
-
-  #paragraph_tab
-  Since $f$ is the scalar function, we can use a wedge product from another point of view.
-  $
-    d[f (Y corner.r.b d V_g)] = d[f and (Y corner.r.b d V_g)]
-  $
-  Then we get the following equation by using proposition 14.23(b) of @Manifolds.
-  $
-    markrect(d[f and (Y corner.r.b d V_g)], color: #red, tag: #<LHS_using_proposition_14.23_Riemannian_divergence>) &= d f and (Y corner.r.b d V_g) + markrect(f and d(Y corner.r.b d V_g),color: #blue, tag: #<RHS_using_proposition_14.23_Riemannian_divergence>)
-
-    #annot(<LHS_using_proposition_14.23_Riemannian_divergence>, pos: bottom)[$=d [f and Y corner.r.b d V_g)]=op("div") (f Y) d V_g$]
-    #annot(<RHS_using_proposition_14.23_Riemannian_divergence>, pos: top+right)[The sign of this term is positive because $f$ is 0-form]
-    #annot(<RHS_using_proposition_14.23_Riemannian_divergence>, pos: bottom+right, dx: 2em)[As using the definition of divergence, \ $f(op("div") Y) d V_g$]
-  $
-  Therefore, it is sufficient to show that $d f and (Y corner.r.b d V_g)=g(op("grad") f, Y)$
-
-  #paragraph_tab
-  For any 1-form $alpha$ any the vector field $Y$, and any top-degree form $omega$, the following strict algebraic identity holds :
-  $
-  (alpha and (Y corner.r.b omega)) = rmark(alpha(Y) omega) #dots_space #footnote[When feeding $Y$ into $d f$, the result $d f(Y)$ is simply the directional derivative of the function $f$ along the vector field $Y$.]
-  $ <identity_of_1-form_and_volume_form>
-  The volumne form is an $n$-form, In our local basis, it is written as :
-  $
-  Omega = dx^1 and dx^2 and dots and dx^n
-  $
-  also, 
-  $
-    Y= sum_(i=1)^n Y^i frac(partial, partial x^i)
-  $
-  and,
-  $
-    alpha = sum_(j=1)^n alpha_j dx^j #dots_space #footnote[where $alpha$ is a 1-form.]
-  $
-  Now, let's directly compute the interior multiplication($Y corner.r.b Omega$) which is RHS of @identity_of_1-form_and_volume_form.
-  $
-  Y corner.r.b Omega = sum^n_(i=1) (-1)^(i-1) Y^i dx^1 and dots and overbrace(bmark(hat(d x)^i), frac(partial x^i, partial x^j)=0) and dots and dx^n
-  $ <direct_computation_of_interior_multiplication_of_identity_of_1-form_and_volume_form>
-  where $hat(d x)^i$ means that $d x^i$ is omitted. Similar to @direct_computation_of_interior_multiplication_of_identity_of_1-form_and_volume_form, let's directly compute RHS of @identity_of_1-form_and_volume_form.
-  $
-    alpha and (Y corner.r.b Omega) &= sum_(j=1)^n alpha_j dx^j and (sum^n_(i=1) (-1)^(i-1) Y^i dx^1 and dots and hat(d x)^i and dots and dx^n)
-    \
-    &= sum_(i=1)^n alpha_i Y^i (-1)^(i-1) dx^1 and dots and hat(d x)^i and dots and dx^n #dots_space #footnote[by $dx^i and dx^i=0$]
-  $
-
-  To cancel $hat(d x)^i$ by $dx^i$, we have to move $hat(d x)^i$ to the front. In this moment, we have to apply the property which is about the changing the position of wedge product.
-  #local-scope-annotations(s => [
-    $
-      dx^1 and dots and rmark(hat(d x)^i, tag: #(s.tag)("position_change")) and dots and dx^n = (-1)^(i-1) hat(d x)^i and dx^1 and dots and dx^n
-
-      #(s.annot)(
-        "position_change",
-        cetz,
-        {
-          import cetz.draw: *
-          set-style(mark: (end: "straight"))
-          
-          // Change the position of hat(dx)^i
-          bezier-through((s.node)("position_change", "south"), (rel: (x: -1.6, y: -0.5)), (rel: (x: -1, y: 0.4)), stroke: red)
-        }
-      )
-    $
-  ])
-
-
-  
-  Therefore, we have :
-  $
-    alpha and (Y corner.r.b Omega) &= sum_(i=1)^n alpha_i Y^i dx^1 and dots and dx^n
-    \
-    &= overbracket((sum_(i=1)^n alpha_i Y^i), alpha(Y)) underbracket((d x^1 and dots and dx^n), Omega)
-    \
-    &= alpha(Y) Omega
-  $
-  As applying the above, finally we have : 
-  $
-    d f and (Y corner.r.b d V_g) &= (d f)(Y) d V_g 
-    \
-    &= g(op("grad") f, Y) d V_g #dots_space #footnote[by the tangent-cotangent isomorphism]
-  $
-]
+In @Greens_Identities_with_boundaries, we treat somethings on the bundaries of manifolds. As we can guess from the previous discussion(@subsection_Greens_First_Identity), the integral on the boundary will appear and the divergence theorem will be useful.
 
 #proposition(title: "Green's identities with boundaries")[
   If $M$ is a compact#footnote[If the compactness isn't assumed, the identities isn't true for all of smooth functions, only satisfied when $bb(C)^infinity_0 (M)$. Furthermore, the compactness guarantees the convergence of the integrals on the boundary.] Riemannian manifold with boundary, then for $u comma v in bb(C)^infinity (M)$, the following identities hold :
