@@ -1,7 +1,7 @@
 #import "../Styles/styles.typ" : *
 #import "@preview/cetz:0.4.2"
 
-== the Divergence of a Vector Field
+== The Divergence of a Vector Field
 
 #paragraph_tab
 As we know from Proposition 16.33 of _Introduction to Smooth Manifolds_, the divergence operator can be written:
@@ -203,12 +203,12 @@ The following Lemma is directly induced from @the_product_rule_of_Riemmanian_div
 
 #paragraph-tab
 Let define the formal adjoint :
-#definition(title: "formal conjucate")[
+#definition(title: "formal adjoint of vector field")[
   Let $M$ be a smooth manifold, and $u ,  v in C^infinity (M)$. For a vector field $X$ on $M$, we define the formal adjoint of $X$ :
   $
     integral_M (X^* u) dash(v) thin d V = integral_M u (X dash(v)) thin d V
   $ where $dash(v)$ is a conjucate of $v$.
-]
+] <formal_adjoint_of_vector_field>
 We can know the divergence is deeply related to adjoint operation by the following propositions.
 
 #proposition(title: "adjoint relationship between divergence and gradient")[
@@ -256,7 +256,7 @@ We can know the divergence is deeply related to adjoint operation by the followi
   $
     X^* u = - X u -(op("div") X)u
   $
-]
+] <adjoint_and_diveregence>
 
 #proof()[
   By the divergence theorem,
@@ -291,7 +291,7 @@ We can know the divergence is deeply related to adjoint operation by the followi
   $
     integral_M [ (X u )v + u(X v)] d V &= - integral_M (op("div") X) u v thin d V + integral_(partial M) chevron.l X comma nu chevron.r u v thin d S
   $
-]
+] <general_integral_version_of_the_product_rule_of_Riemmanian_divergence>
 
 #proof[
   Let $omega:= v u$ and apply @integral_version_of_the_product_rule_of_Riemmanian_divergence.
