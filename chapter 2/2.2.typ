@@ -78,7 +78,7 @@ therefore op("div") X &= 1 / sqrt(det g) partial_j (sqrt(det g) thick X^j)
 #dots_space #footnote[where the summation convention is used.]
 $ <formula_of_divergence>
 
-== Some useful formulas of divergence
+=== Some useful formulas of divergence
 
 #paragraph-tab
 There are other characterizations of the divergence operation, of a more analytical flavor, which are also quite useful. Here is one.
@@ -249,7 +249,7 @@ We can know the divergence is deeply related to adjoint operation by the followi
   $
     op("div")=-op("grad")^*
   $
-]
+] <relationship_between_divergence_and_gradient>
 
 #proposition()[
   If $X$ is a smooth vector field on $M$ and $v in C^(infinity)_0 (op("int") M)$, then :
