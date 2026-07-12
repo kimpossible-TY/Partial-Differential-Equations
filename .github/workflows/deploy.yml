@@ -57,6 +57,12 @@ jobs:
       - name: Generate Published Version Metadata
         run: python3 typst-packages/tools/pdf-versioning/pdf_version_server.py --root . --write-version-once
 
+      - name: Generate Note Statistics
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils
+          python3 tools/generate_statistics.py --output-dir .
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
@@ -66,6 +72,8 @@ jobs:
           mkdir -p _site
           cp main.pdf _site/
           cp index.html _site/
+          cp statistics.html _site/
+          cp -R statistics-assets _site/
           cp version.json _site/
           cp typst-packages/tools/pdf-versioning/pdf-version-check.js _site/
 

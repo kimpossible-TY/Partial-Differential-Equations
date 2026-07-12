@@ -13,6 +13,8 @@ understanding.
 
 [Open the published notes on GitHub Pages](https://kimpossible-ty.github.io/Partial-Differential-Equations/)
 
+[View note statistics and rankings](https://kimpossible-ty.github.io/Partial-Differential-Equations/statistics.html)
+
 ## Primary reference
 
 Michael E. Taylor, *Partial Differential Equations I: Basic Theory*,  
