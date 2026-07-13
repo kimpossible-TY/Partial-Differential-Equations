@@ -11,9 +11,10 @@ understanding.
 
 ## Read the notes
 
-[Open the published notes on GitHub Pages](https://kimpossible-ty.github.io/Partial-Differential-Equations/)
+[Open the unified notes homepage](https://kimpossible-ty.github.io/Partial-Differential-Equations/)
 
-[View note statistics and rankings](https://kimpossible-ty.github.io/Partial-Differential-Equations/statistics.html)
+The homepage includes the interactive PDF reader, direct PDF access, and the
+build-derived statistics view.
 
 ## Primary reference
 
