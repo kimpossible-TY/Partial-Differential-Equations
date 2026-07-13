@@ -8,6 +8,7 @@ import html
 import json
 import re
 import subprocess
+import tempfile
 from pathlib import Path
 
 
@@ -16,21 +17,45 @@ FONT_ARGS = ["--font-path", str(ROOT / "fonts")]
 TOP_LIMIT = 10
 
 
-def typst_eval(expression: str) -> object:
-    output = subprocess.check_output(
-        ["typst", "eval", expression, "--in", str(ROOT / "main.typ"), *FONT_ARGS],
-        cwd=ROOT,
-        text=True,
-    )
-    return json.loads(output)
+def collect_document_data() -> dict[str, object]:
+    probe = """#include "main.typ"
+
+#context {
+  let headings = query(heading.where(level: 2)).filter(it => it.outlined).map(it => (
+    title: repr(it.body),
+    page: counter(page).at(it.location()).first(),
+  ))
+  let refs = query(ref).map(it => {
+    let found = query(it.target)
+    if found.len() > 0 {
+      let x = found.first()
+      (
+        target: repr(it.target),
+        page: counter(page).at(x.location()).first(),
+        pos: x.location().position(),
+      )
+    }
+  }).filter(it => it != none)
+  [#metadata((headings: headings, refs: refs)) <statistics-data>]
+}
+"""
+    with tempfile.NamedTemporaryFile("w", dir=ROOT, suffix=".typ", delete=False, encoding="utf-8") as handle:
+        handle.write(probe)
+        probe_path = Path(handle.name)
+    try:
+        output = subprocess.check_output(
+            ["typst", "query", str(probe_path), "<statistics-data>", "--one", "--field", "value", *FONT_ARGS],
+            cwd=ROOT,
+            text=True,
+        )
+    finally:
+        probe_path.unlink(missing_ok=True)
+    result = json.loads(output)
+    assert isinstance(result, dict)
+    return result
 
 
-def section_ranking(total_pages: int) -> list[dict[str, object]]:
-    expression = (
-        "query(heading.where(level: 2)).filter(it => it.outlined).map(it => ("
-        "title: repr(it.body), page: counter(page).at(it.location()).first()))"
-    )
-    headings = typst_eval(expression)
+def section_ranking(headings: object, total_pages: int) -> list[dict[str, object]]:
     assert isinstance(headings, list)
     sections = []
     for index, heading in enumerate(headings):
@@ -53,13 +78,7 @@ def clean_repr(value: str) -> str:
     return "".join(text_parts).strip() or value
 
 
-def ref_ranking() -> list[dict[str, object]]:
-    expression = (
-        "query(ref).map(it => { let found = query(it.target); if found.len() > 0 { "
-        "let x = found.first(); (target: repr(it.target), page: counter(page).at(x.location()).first(), "
-        "pos: x.location().position()) } }).filter(it => it != none)"
-    )
-    references = typst_eval(expression)
+def ref_ranking(references: object) -> list[dict[str, object]]:
     assert isinstance(references, list)
     grouped: dict[str, dict[str, object]] = {}
     for reference in references:
@@ -136,8 +155,9 @@ def main() -> None:
     output_dir = args.output_dir.resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
     total_pages = pdf_pages(ROOT / "main.pdf")
-    sections = section_ranking(total_pages)
-    tags = ref_ranking()
+    data = collect_document_data()
+    sections = section_ranking(data["headings"], total_pages)
+    tags = ref_ranking(data["refs"])
     for item in tags:
         item["asset"] = render_preview(item, output_dir)
     (output_dir / "statistics.html").write_text(page_html(sections, tags, total_pages), encoding="utf-8")
