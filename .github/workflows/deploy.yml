@@ -72,6 +72,7 @@ jobs:
           mkdir -p _site
           cp main.pdf _site/
           cp index.html _site/
+          cp site.css _site/
           cp statistics.html _site/
           cp -R statistics-assets _site/
           cp version.json _site/
