@@ -120,11 +120,11 @@ $ nabla : frak(X)(M) times Gamma(E) -> Gamma(E) $
 
 Written $(X, Y) |-> nabla_X Y$, satisfying the following properties:
 
-+ $nabla_X Y$ is linear over $C^infinity(M)$ in $X$: for $f_1, f_2 in C^infinity(M)$ and $X_1, X_2 in frak(X)(M)$,$ nabla_(f_1 X_1 + f_2 X_2) Y = f_1 nabla_(X_1) Y + f_2 nabla_(X_2) Y $
++ $nabla_X Y$ is linear over $C^(infinity)(M)$ in $X$: for $f_1, f_2 in C^(infinity)(M)$ and $X_1, X_2 in frak(X)(M)$,$ nabla_(f_1 X_1 + f_2 X_2) Y = f_1 nabla_(X_1) Y + f_2 nabla_(X_2) Y $
 
 + $nabla_X Y$ is linear over $RR$ in $Y$: for $a_1, a_2 in RR$ and $Y_1, Y_2 in Gamma(E)$,$ nabla_X (a_1 Y_1 + a_2 Y_2) = a_1 nabla_X Y_1 + a_2 nabla_X Y_2 $
 
-+ $nabla$ satisfies the following product rule: for $f in C^infinity(M)$, $ nabla_X (f Y) = f nabla_X Y + (X f) Y $
++ $nabla$ satisfies the following product rule: for $f in C^(infinity)(M)$, $ nabla_X (f Y) = f nabla_X Y + (X f) Y $
 ]
 
 // proposition is not auto-numbering, so that you should write numberse manually.
