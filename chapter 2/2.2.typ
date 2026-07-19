@@ -35,7 +35,7 @@ $ omega = sqrt(det g) (-1)^(j-1) d x^j and d x^1 and dots and hat(d x^j) and dot
 $
 
 #highlighted[
-This approach makes that we can treat $i_(partial_j) omega$ as just the general interior multiplication not considering $d x^i(partial_j) = delta_j^i$!
+This approach makes that we can treat $i_(partial_j) omega$ as just the general interior multiplication not considering $d x^(i)(partial_j) = delta_j^i$!
 ]
 
 Define $f := sqrt(det g) (-1)^(j-1)$ and $beta := (d x^1 and dots and hat(d x^j) and dots and d x^n)$ then

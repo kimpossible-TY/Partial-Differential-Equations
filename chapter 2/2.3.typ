@@ -183,7 +183,7 @@ $
     $nabla_X (chevron.l U comma V chevron.r_g) = chevron.l nabla_X U comma V chevron.r + chevron.l U comma nabla_X V chevron.r$.
   ] \
   &= chevron.l cancel(nabla_X U, stroke: #(paint: blue)) - shell.l cancel(nabla_X U, stroke: #(paint: blue)) - nabla_V X shell.r comma V chevron.r + chevron.l U comma cancel(nabla_X V, stroke: #(paint: red)) - shell.l cancel(nabla_X V, stroke: #(paint: red)) - nabla_U X shell.r chevron.r #dots_space #footnote[As we know, the torsion tensor is : $T(X comma V):= nabla_X V - nabla_V X - [X comma V]$. If torsion free condition is satisfied, then $T(X comma V) = 0$ and thus we get : $nabla_X V - nabla_V X = [X comma V]$. By theorem9.38 of @Manifolds, we have : $cal(L)_X V = [X comma V]$. Hence we get : $cal(L)_X V = nabla_X V - nabla_V X$. Similarly, we can get : $cal(L)_X U = nabla_X U - nabla_U X$.] \
-  &= nabla_U X comma V chevron.r + chevron.l U comma nabla_V X chevron.r
+  &= chevron.l nabla_U X comma V chevron.r + chevron.l U comma nabla_V X chevron.r
 $ <Lie_derivative_of_metric_when_torsion_free>
 
 #paragraph_tab
@@ -222,14 +222,14 @@ $ <identitiy_of_Lie_derivative_of_metric_when_torsion_free_2>
 
 #paragraph_tab
 By the above statement, we can argue the following :
-#proposition(title: "3.2")[$X$ is a Killing vector field if and only if
+#proposition(title: "necessary and sufficient condition of Killing field")[$X$ is a Killing vector field if and only if
   $
     X_(k ; j) + X_( j; k ) = 0 #dots_space #footnote[the left side is called the deformation tensor of $X$]
-  $ <condition_of_proposition_3.2>
-]
+  $ <condition_of_necessary_and_sufficient_condition_of_Killing_field>
+] <necessary_and_sufficient_condition_of_Killing_field>
 
 #proof[
-  By using @identitiy_of_Lie_derivative_of_metric_when_torsion_free_2, we know that @condition_of_proposition_3.2 is the same as the Lie derivative of metric when torsion free. By the definition of Killing vector field(@definition_of_killing_vector_field), we know that :
+  By using @identitiy_of_Lie_derivative_of_metric_when_torsion_free_2, we know that @condition_of_necessary_and_sufficient_condition_of_Killing_field is the same as the Lie derivative of metric when torsion free. By the definition of Killing vector field(@definition_of_killing_vector_field), we know that :
   $
     X_(k ; j) + X_( j; k ) & = cal(L)_X g (D_j, D_k) #dots_space #footnote[by @identitiy_of_Lie_derivative_of_metric_when_torsion_free_2] \
     & = 0 #dots_space #footnote[by @definition_of_killing_vector_field]
@@ -237,7 +237,11 @@ By the above statement, we can argue the following :
   which proves the proposition.
 ]
 
-#proposition(title: "3.3")[We have :
+#proposition()[For a vector field $X = X^k D_k$, define its metric-dual 1-form by
+  $
+    xi := X^flat = g_(j k) X^k d x^j = X_j d x^j.
+  $
+  Then we have :
   $
     d xi = frac(1, 2) sum_(j comma k)(X_(j ; k) - X_(k ; j)) dx_k and dx_j
   $
@@ -264,7 +268,7 @@ By the above statement, we can argue the following :
     $
   ]
 ]
-#note[As considering @semicolon_convention_is_related_to_nabla, Proposition 3.3 shows the relationships between the exterior derivative and total covariant derivative.]
+#note[As considering @semicolon_convention_is_related_to_nabla, @necessary_and_sufficient_condition_of_Killing_field shows the relationships between the exterior derivative and total covariant derivative.]
 
 
 #paragraph_tab

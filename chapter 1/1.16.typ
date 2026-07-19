@@ -145,7 +145,7 @@ H_(tilde(u)_j) &= sum_k (frac(partial tilde(u)_j, partial p_k) frac(partial, par
 \
 &= sum_k (delta_k^j frac(partial, partial q_k)) #dots_space #footnote[because $tilde(u)(q, p) = p$ implies $tilde(u)_j = p_j$] \
 &= frac(partial, partial q_j)
-$
+$ <linearlied_Hamiltonian_vector_field>
 ]
 
 #paragraph_tab
@@ -199,7 +199,7 @@ The first function, $u_1$, is always the Hamiltonian $H$, which represents the t
 
 $ u_1 (x comma xi) = H(x comma xi) = frac(1, 2) |xi|^2 + V(|x|) = frac(1, 2) |xi_1^2 + xi_2^2| + V(sqrt(x_1^2 + x_2^2)) $
 
-where $V$ is potential energy and $cases(x = sum_i x_i, xi = sum_i xi_i)$. Now, we have to fine $u_2$ which satisfying ${u_1 comma u_2} = 0$. By Proposition 22.21 of _Introduction to Smooth Manifolds_ @Manifolds, we know that $u_2$ is conserved quantity, because $u_1$ is actually Hamiltonian. By Noether's theorem, we already know the angular momentum is conserved. Thus define $u_2$ as the angular momentum.
+where $V$ is potential energy and $cases(x = sum_i x_i, xi = sum_i xi_i)$. #highlighted()[Now, we have to fine $u_2$ which satisfying ${u_1 comma u_2} = 0$.#footnote[We can conjecture the existance of $u_2$ by symmetry!]] By Proposition 22.21 of _Introduction to Smooth Manifolds_ @Manifolds, we know that $u_2$ is conserved quantity, because $u_1$ is actually Hamiltonian. By Noether's theorem, we already know the angular momentum is conserved. Thus define $u_2$ as the angular momentum.
 
 #flowbox[
 $
@@ -220,14 +220,15 @@ Now, let's apply the canonical transformation and linearization to the problem. 
 
 #emphasis[Define $p = (p_1 comma p_2)$, $p_1 := H$("total energy") and $p_2 :=$ "angular momentum".
 
-Define $phi(x comma p)$ where $x = (r comma theta)$ #footnote[make $(x_1 comma x_2)$ specifically to $(r comma theta)$ which is polar coordinates for the comfortable.] and $p = (E comma L)$.]
+Define the auxiliary function,needed for canonical transformation, $phi(x comma p)$ where $x = (r comma theta)$ #footnote[make $(x_1 comma x_2)$ specifically to $(r comma theta)$ which is polar coordinates for the comfortable.] and $p = (E comma L)$.#footnote[Move phase space to more easy space which has another structure differing to phase space, which is "symplectic structure".]
+]
 
 We already know that $d_x phi$ which is $frac(partial phi, partial r) + frac(partial phi, partial theta)$ and each are satisfied:
 
 $ F_2^(-1) = cases(frac(partial p, partial r) |-> p_1 #math.tilde.eq xi_1, frac(partial p, partial theta) |-> p_2 approx xi_2) $
 
 #paragraph_tab
-Then we can reformulate $u$ to $overline(u)$ by $(p_1 comma p_2)$ and polar coordinate representation.
+#highlighted()[Then we can reformulate $u$ to $overline(u)$ by $(p_1 comma p_2)$] where $overline(u):= u compose F_2$ and polar coordinate representation.
 
 #flowbox[
 $
@@ -312,25 +313,32 @@ $
 #paragraph_tab
 Now, let's think $H_(tilde(u)_1)$. #highlighted[We already know that $H_(overline(u)_1) = frac(partial, partial q_1)$. Since $frac(partial, partial q_1)$ physically means 'shifting $q_1 (gamma)$ slightly' where $gamma$ is integral curve.] By the definition of integral curves, we know :
 
-#flowbox[
-$
-gamma'(t) &= H_(tilde(u)_1) (gamma(t)) #dots_space #footnote[by the definition of integral curves]
-\
-&= gamma'_i frac(partial, partial alpha_i) #dots_space #footnote[where $alpha_i = q_1 comma q_2 comma p_1 comma p_2$]
-$
+#local-scope-annotations(s=>[
+  #flowbox[
+    $
+      gamma'(t) &= H_(tilde(u)_1) (gamma(t)) #dots_space #footnote[by the definition of integral curves]
+      \
+      &= gamma'_i frac(partial, partial alpha_i) #dots_space #footnote[where $alpha_i = q_1 comma q_2 comma p_1 comma p_2$]
+    $
 
-$arrow.b$
+    $arrow.b$
 
-$H_(overline(u)_1) = overbrace((1), =gamma'_1) dot frac(partial, partial q_1)$
+    $
+      H_(overline(u)_1) = markuw(overbrace((1), =gamma'_1) dot frac(partial, partial q_1),color: #olive, tag: #(s.tag)("applying linearized hamiltonian vector field")) #dots_space #footnote[by applying @linearlied_Hamiltonian_vector_field]
 
-$arrow.b$
+      #annot((s.tag)("applying linearized hamiltonian vector field"), pos: top+right, dx: 2em, dy: -0.5em)[it is just a definition of vector field]
+    $
 
-$
-cases(
-  gamma'_1 (t) = dot(q)_1 = 1,
-  gamma'_2 (t) = dot(q)_2 = 0
-)
-$]
+    $arrow.b$
+
+    $
+    cases(
+      gamma'_1 (t) = dot(q)_1 = 1,
+      gamma'_2 (t) = dot(q)_2 = 0
+    )
+    $
+  ]
+])
 
 Finally, we now compute the trajectory of central forces problem!
 #flowbox[

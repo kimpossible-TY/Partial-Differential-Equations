@@ -262,8 +262,8 @@ $
 $
 This is precisely the squared dual norm $norm(xi)^2_(g^(-1))$. In local coordinates it becomes
 $
-  norm(xi)^2_(g^(-1))=g^(j k)(x)xi_j xi_k.
-$
+  norm(xi)^2_(g^(-1))=g^(j k)(x)xi_j xi_k=iota_(xi^(sharp))xi
+$ <perspective_represening_norm_to_interior_multplication>
 Therefore the quadratic potential energy density is
 $
   f_Q (x, xi):= sum^n_(j=1) sum^n_(k=1) gamma g^(j k) (x) xi_j xi_k quad "where" gamma >0
@@ -287,7 +287,7 @@ Consequently, $f_Q$ is nonnegative, vanishes exactly when $d_x u=0$, and is inde
 For a one-dimensional string this geometric statement reduces to the familiar physical formula. Since $xi=d_x u=(partial_x u)d x$, one obtains $f_Q=gamma(partial_x u)^2$. Hence a constant displacement stores no deformation energy, while a steeper displacement profile stores more energy quadratically. The conventional factor $1/2$ can be absorbed into $gamma$; with the present convention the wave speed satisfies $c^2=2 gamma slash m$.
 
 #lemma(title: "Laplace-Beltrami Operator")[
-  Let $(M,g)$ is the Riemannian manifold and $u in C^infinity(M)$. Then the Laplacian of $u$ is in local coordinate :
+  Let $(M,g)$ is the Riemannian manifold and $u in C^(infinity)(M)$. Then the Laplacian of $u$ is in local coordinate :
   $
     Delta u = frac(1, sqrt(op("det") g)) thick partial_i (sqrt(op("det") g) thick g^(i j) thick partial_j u)
   $

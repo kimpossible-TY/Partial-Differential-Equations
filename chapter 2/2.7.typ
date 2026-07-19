@@ -251,7 +251,7 @@ where $square$ means the Laplacian on Lorentz manifold. Therefore we get the the
 However there is an remain thing, how can we re-write  @lemma_relationship_of_laplacian_and_hessian for the Lorentz manifold? Think about $h^(j k) nabla_j nabla_k u$ just like @lemma_relationship_of_laplacian_and_hessian. Since $(h_(j k))=mat(-1,0 ; 0 , (g_(alpha beta)))$ by its definition, we get :
 #local-scope-annotations(s=>[
   $
-    h^(j k) nabla_j nabla_k u=h^(00), u_(; 00)+ h^(alpha beta)u_(;alpha beta)
+    h^(j k) nabla_j nabla_k u=h^(00) u_(; 00)+ h^(alpha beta)u_(;alpha beta)
   $ #(s.tag)("1")
   The 0-index is related to time. Since $h^(00)=-1$, we get :
   $

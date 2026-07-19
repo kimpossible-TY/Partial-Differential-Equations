@@ -38,7 +38,7 @@ where $m:= op("dim") M$. #highlighted()[Heuristically, $xi$ is a covector versio
     d phi = sum_(j=1)^n partial_j phi thin d x^j
     \
     xi := d phi in T^*_x M
-  $ #(s.tag)("covector version of D")
+  $ <covector_version_of_D_in_differential_operator>
 
   $arrow.b$
 
@@ -101,9 +101,10 @@ $r(x, lambda)$ is quite cumbersome. let's cancel the residual polynomial. In #(s
 
   $
     lim_(lambda arrow.r infinity) lambda^(-m) e^(-i lambda psi) P(u(x) e^(i lambda psi)) = p_m (x, d psi) u (x) #dots_space #footnote[The limit represents that we don't care about the lower order terms of $lambda$ and we only want to focus on the leading term.]
-  $ #(s.tag)("coordinate-free definition of principal symbol")
+  $ <coordinate-free_definition_of_principal_symbol>
+  
 ]
-#(s.ref)("coordinate-free definition of principal symbol") gives the coordiate-free definition of the principal symbol, instead of the coordinate-dependent definition(#(s.ref)("definition of principal symbol")).#footnote[#(s.ref)("definition of principal symbol") is coordinate-dependent because $xi^alpha$ depends on the choice of local coordinates. Be careful that $xi$ doesn't depend on coordinates itself, but also the 'components' of $xi$ depend on the choice of local coordinates.] The meaning of #(s.ref)("coordinate-free definition of principal symbol") isn't just a cleaner definition, if we assume that :
+@coordinate-free_definition_of_principal_symbol gives the coordiate-free definition of the principal symbol, instead of the coordinate-dependent definition(#(s.ref)("definition of principal symbol")).#footnote[#(s.ref)("definition of principal symbol") is coordinate-dependent because $xi^alpha$ depends on the choice of local coordinates. Be careful that $xi$ doesn't depend on coordinates itself, but also the 'components' of $xi$ depend on the choice of local coordinates.] The meaning of @coordinate-free_definition_of_principal_symbol isn't just a cleaner definition, if we assume that :
 $
   P: C^(infinity)(M, E_0) arrow.r C^(infinity)(M, E_1)
 $ #(s.tag)("differential operator between section spaces")
@@ -111,13 +112,18 @@ where $E_0, E_1$ are smooth vector bundles over $M$. Then for each $(x, xi) in T
 $
   p_m (x, xi): E_(0)bar.v_x arrow.r E_(1)bar.v_x
 $ #(s.tag)("principal symbol is a fiber map")
-#highlighted()[Since #(s.ref)("coordinate-free definition of principal symbol") guarantees that $p_m (x, xi)$ can be defined independently of the choice of local coordinates, #(s.ref)("principal symbol is a fiber map") is well-defined. ]
+#highlighted()[Since @coordinate-free_definition_of_principal_symbol guarantees that $p_m (x, xi)$ can be defined independently of the choice of local coordinates, #(s.ref)("principal symbol is a fiber map") is well-defined. ]
 
 #paragraph-tab
 First of all, define a metric on the vector bundle $E_j$.
 #definition(title: "metric on vector bundles")[
-  We can easily define the metric on the vector bundles. By the definition of vector bundle(local trivialization property), $E_x approx.eq bb(R)^m$ which is also satisfied the manifold definition. Thus $cal(M)$ be the manifold satisfying $cal(M)=E_x$. Then we can introduce the metric $cal(g)_x: cal(M)times cal(M) arrow.r bb(R)$. As expanding $cal(g)_x$ to the global which denotes $cal(g)$, we will use $cal(g)$ as the metric of vector bundles.
-]
+  We can easily define the metric on the vector bundles. By the definition of vector bundle(local trivialization property), each fiber $E_x$ is a finite-dimensional vector space isomorphic to $RR^m$. Therefore we may equip $E_x$ with an inner product:
+  $
+    cal(g)_x: E_x times E_x arrow.r RR
+  $
+  As expanding $cal(g)_x$ to the global which denotes $cal(g)$, we will use $cal(g)$ as the metric of vector bundles.#footnote[The globalization is constructed by partitions of unity.]
+] <definition_of_bundle_metric>
+
 Then it gives the formal adjoint of a differential operator. The formal adjoint is defined as follows.
 
 #definition(title: "formal adjoint of a differential operator")[
@@ -1122,12 +1128,22 @@ We often expand some functions defined on real vector spaces to complex vector s
   $
   Then its symbol is :
   $
-    sigma_(Delta)(x, xi) = -xi chevron.l v, xi chevron.r, quad (x, xi) in T^* Omega
-  $ 
+    sigma_(Delta)(x, xi) &= -xi chevron.l v, xi chevron.r, quad (x, xi) in T^* Omega
+    \
+    &= -norm(xi)^2 pi_(xi)
+  $ #(s.tag)("result of principal symbol of Laplacian proposition")
+  where $pi_(xi)$ is the orthogonal projection onto the linear span of $xi$.
 ]
 
 #proof[
   The proposition is proved directly by applying @properties_of_principal_symbol with @principal_symbol_of_divergence and @principal_symbol_of_gradient.
+
+  #paragraph-tab
+  consider that 
+  $
+    pi_(xi):= frac(chevron.l xi comma dot.c chevron.r,norm(xi)^2) xi
+  $ #(s.tag)("definition of orthogonal projection of xi")
+  Then the second equation #(s.ref)("result of principal symbol of Laplacian proposition") is proved by substituting #(s.ref)("definition of orthogonal projection of xi") to the first equation of #(s.ref)("result of principal symbol of Laplacian proposition").
 ]
 
 ])
