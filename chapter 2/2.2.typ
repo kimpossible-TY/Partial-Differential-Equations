@@ -204,9 +204,9 @@ The following Lemma is directly induced from @the_product_rule_of_Riemmanian_div
 #paragraph-tab
 Let define the formal adjoint :
 #definition(title: "formal adjoint of vector field")[
-  Let $M$ be a smooth manifold, and $u ,  v in C^infinity (M)$. For a vector field $X$ on $M$, we define the formal adjoint of $X$ :
+  Let $(M,g)$ be a smooth Riemannian manifold, and $u ,  v in C^infinity (M)$. For a vector field $X$ on $M$, we define the formal adjoint of $X$ :
   $
-    integral_M (X^* u) dash(v) thin d V = integral_M u (X dash(v)) thin d V
+    integral_M g (X^* u) dash(v) thin d V_g = integral_M g u (X dash(v)) thin d V_g
   $ where $dash(v)$ is a conjucate of $v$.
 ] <formal_adjoint_of_vector_field>
 We can know the divergence is deeply related to adjoint operation by the following propositions.
