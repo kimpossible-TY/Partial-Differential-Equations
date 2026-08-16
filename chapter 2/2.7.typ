@@ -22,7 +22,10 @@ A Lorentz metric on an $(n+1)$-dimensional smooth manifold $cal(M)$ is a smooth,
 $
   h_p (X,X) < 0, quad h_p (X,X) = 0, quad "or" quad h_p (X,X) > 0.
 $
-On the product spacetime $bb(R) times M$, the standard example is $h=-d t^2+g$, where $g$ is the Riemannian metric on $M$.
+On the product spacetime $bb(R) times M$, the standard example is $h=-d t^2+g$, where $g$ is the Riemannian metric on $M$. In coordinates, $h_(j k)$ has the form :
+$
+  (h_(j k))=mat(-1,0 ; 0 , (g_(alpha beta)))
+$
 ]<definition_of_Lorentz_metric>
 
 === Definition of Stress-Energy Tensor
