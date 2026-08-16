@@ -52,14 +52,14 @@ $ <definition_of_L-2_norm_on_k-forms>
 
 @definition_of_L-2_norm_on_k-forms gives the formal adjoint of $d$ :
 #definition(title: "formal adjoint of exterior derivative")[
-  Let $d$ is a exterior derivative satisfied @definition_of_exterior_derivative. Using @@definition_of_L-2_norm_on_k-forms, we can define :
+  Let $d$ is a exterior derivative satisfied @definition_of_exterior_derivative. Using @definition_of_L-2_norm_on_k-forms, we can define :
   $
     delta: Omega^(k+1)(M) arrow.r Omega^(k)(M)
     \
     (d u, v)=(u, delta v), quad u in Omega^(k+1)(M), thin v in Omega^(k)(M)
   $
   where $u$ and $v$ are compactly supported.
-]
+] <formal_adjoint_of_exterior_derivative>
 We set $delta=0$ on 0-forms. Of course, @conditions_of_exterior_derivative implies :
 $
   delta^2=0
