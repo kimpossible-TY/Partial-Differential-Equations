@@ -1,7 +1,7 @@
 // Compatibility facade for the local Typst packages used by this project.
-#import "@local/text-utils:0.1.0": *
-#import "@local/math-blocks:0.1.0": *
-#import "@local/scoped-annotations:0.1.0": *
+#import "@local/text-utils:0.1.1": *
+#import "@local/math-blocks:0.2.0": *
+#import "@local/scoped-annotations:0.2.0": *
 #import "@local/cetz-helpers:0.1.0": *
 #import "@preview/mannot:0.4.0": *
 
