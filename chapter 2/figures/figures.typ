@@ -1,5 +1,19 @@
 #import "@preview/cetz:0.4.2": *
+#import "@preview/fletcher:0.5.8" as fletcher: diagram, node, edge
 #import "../../Styles/styles.typ": theme-from-text-fill
+
+#let first-isomorphism-factorization-diagram() = context {
+  let theme = theme-from-text-fill()
+
+  diagram(
+    cell-size: 18mm,
+    edge-stroke: 0.8pt + theme.rule,
+    $
+      V times.o V edge(hat(omega), ->) edge("d", pi, ->>) & bb(F) \
+      Lambda^2 V edge("ur", tilde(omega), ->)
+    $,
+  )
+}
 
 #let conformal_killing_field_visualization() = canvas({
   import draw: *
@@ -1100,5 +1114,138 @@
     line((3.75, 0.0), (4.15, 0.0), stroke: (paint: stroke-color, thickness: 0.85pt), mark: (end: ">"))
 
     content((1.25, -2.25), anchor: "center", text(size: 8.2pt, fill: muted)[older forcing is weighted by the propagation factor from $r$ to $s$])
+  })
+}
+
+#let maxwell-source-domain-comparison() = context {
+  let theme = theme-from-text-fill()
+  let stroke-color = theme.text
+  let muted = theme.muted-text
+  let domain-fill = theme.callouts.proposition.bg
+  let domain-stroke = theme.callouts.proposition.border
+  let source-fill = theme.callouts.warning.bg
+  let source-stroke = theme.callouts.warning.border
+  let field-stroke = theme.callouts.tip.border
+
+  canvas(length: 0.72cm, {
+    import draw: *
+
+    // Panel headings and separator.
+    content(
+      (-3.65, 2.35),
+      anchor: "center",
+      text(weight: "bold", size: 9.5pt)[Source inside $U$],
+    )
+    content(
+      (3.75, 2.35),
+      anchor: "center",
+      text(weight: "bold", size: 9.5pt)[Source outside $U$],
+    )
+    line(
+      (0, -2.35),
+      (0, 2.1),
+      stroke: (paint: theme.rule, thickness: 0.6pt, dash: "dashed"),
+    )
+
+    // Left panel: U intersects the support of the charge-current.
+    rect(
+      (-6.2, -1.35),
+      (-1.15, 1.75),
+      radius: 0.22,
+      fill: domain-fill,
+      stroke: (paint: domain-stroke, thickness: 1.1pt, dash: "dashed"),
+    )
+    content((-5.85, 1.48), anchor: "west", text(fill: domain-stroke)[$U$])
+
+    circle(
+      (-3.65, 0.18),
+      radius: 0.62,
+      fill: source-fill,
+      stroke: (paint: source-stroke, thickness: 1pt),
+    )
+    content((-3.65, 0.3), anchor: "center", text(fill: source-stroke, size: 12pt)[$+$])
+    line(
+      (-4.05, -0.18),
+      (-3.12, 0.65),
+      stroke: (paint: source-stroke, thickness: 1.15pt),
+      mark: (end: ">"),
+    )
+    content((-3.0, 0.72), anchor: "west", text(fill: source-stroke, size: 8.5pt)[$cal(J)$])
+    content((-3.65, -0.66), anchor: "north", text(fill: source-stroke, size: 8pt)[$op("supp") cal(J)$])
+
+    content(
+      (-3.65, -1.68),
+      anchor: "north",
+      text(size: 8.4pt)[$U inter op("supp") cal(J) eq.not emptyset$],
+    )
+    content(
+      (-3.65, -2.08),
+      anchor: "north",
+      text(size: 8.4pt, fill: source-stroke)[$d_(h)^(*)cal(F)=4 pi cal(J)^(flat)$],
+    )
+
+    // Right panel: the source is outside U, but its field can enter U.
+    rect(
+      (2.05, -1.35),
+      (6.25, 1.75),
+      radius: 0.22,
+      fill: domain-fill,
+      stroke: (paint: domain-stroke, thickness: 1.1pt, dash: "dashed"),
+    )
+    content((5.9, 1.48), anchor: "east", text(fill: domain-stroke)[$U$])
+
+    circle(
+      (1.05, 0.18),
+      radius: 0.58,
+      fill: source-fill,
+      stroke: (paint: source-stroke, thickness: 1pt),
+    )
+    content((1.05, 0.3), anchor: "center", text(fill: source-stroke, size: 12pt)[$+$])
+    line(
+      (0.72, -0.18),
+      (1.47, 0.58),
+      stroke: (paint: source-stroke, thickness: 1.1pt),
+      mark: (end: ">"),
+    )
+    content((0.82, -0.62), anchor: "north", text(fill: source-stroke, size: 7.8pt)[$op("supp") cal(J)$])
+
+    // Representative field lines cross partial U even though no source lies in U.
+    bezier(
+      (1.58, 0.52),
+      (4.15, 1.08),
+      (2.35, 1.22),
+      (3.15, 1.3),
+      stroke: (paint: field-stroke, thickness: 1pt),
+      mark: (end: ">"),
+    )
+    bezier(
+      (1.65, 0.18),
+      (4.55, 0.18),
+      (2.55, 0.5),
+      (3.55, 0.5),
+      stroke: (paint: field-stroke, thickness: 1pt),
+      mark: (end: ">"),
+    )
+    bezier(
+      (1.58, -0.16),
+      (4.15, -0.72),
+      (2.35, -0.86),
+      (3.15, -0.94),
+      stroke: (paint: field-stroke, thickness: 1pt),
+      mark: (end: ">"),
+    )
+    content((4.72, 0.72), anchor: "west", text(fill: field-stroke, size: 8.3pt)[$cal(F)|_U eq.not 0$])
+    content((4.72, 0.34), anchor: "west", text(fill: muted, size: 7.7pt)[is possible])
+
+    content(
+      (4.15, -1.68),
+      anchor: "north",
+      text(size: 8.4pt)[$U inter op("supp") cal(J)=emptyset$],
+    )
+    content(
+      (4.15, -2.08),
+      anchor: "north",
+      text(size: 8.4pt, fill: domain-stroke)[$d_(h)^(*)cal(F)=0$],
+    )
   })
 }
