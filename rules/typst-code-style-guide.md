@@ -62,14 +62,33 @@ Local figure colors may still be hard-coded when the color is semantic, e.g. red
 
 
 ## highlight
-- If there are some equations, don't use `highlight` instead of `highlighted`.
-- However, if there are only text, use `highlight`.
+- If highlighted prose contains inline or single-line equation content, use `highlighted` instead of `highlight`.
+- If the highlighted content contains only text, use `highlight`.
+- Never place an aligned or multiline display equation inside `highlighted`. In particular, an equation using alignment points (`&`) or line breaks (`\`) must remain a standalone equation block.
 
-for example :
+For example, this highlighted prose contains inline equations, so `highlighted` is appropriate:
 ```typst
 #highlighted[
 This approach makes that we can treat $i_(partial_j) omega$ as just the general interior multiplication not considering $d x^i(partial_j) = delta_j^i$!
 ]
+```
+
+Do not write:
+```typst
+#highlighted[
+$
+  A &= B+C \
+  &=D.
+$
+]
+```
+
+Keep the aligned equation standalone:
+```typst
+$
+  A &= B+C \
+  &=D.
+$
 ```
 
 ## paragraph break
@@ -83,6 +102,17 @@ $ Z_X V = ( op("div") X) omega = d(i_X omega) $
 ```
 
 ## Equations
+
+### Superscripts and subscripts
+Use parentheses (shells) around superscript and subscript expressions. This keeps
+single-character and multi-character indices consistent and makes the extent of
+each script unambiguous:
+
+```typst
+$X^(i)$, $X_(j)$, $T^(i)_(j)$, $partial^(alpha) u$
+```
+
+Do not write bare scripts such as `$X^i$` or `$X_j$`.
 
 ### Equations blocks
 #### flowbox
@@ -141,7 +171,7 @@ you have to write the proof inside of the `#proof` function.
 
 for example :
 ```typst
-#proof[$nabla^U|_p$ is the connection which treats the local vector field and local section, not restricted global section and vector field.
+#proof[$nabla^(U)|_(p)$ is the connection which treats the local vector field and local section, not restricted global section and vector field.
 
 #paragraph_tab
 Now let's think about $tilde(X)$ and $tilde(Y)$ satisfying $tilde(X) = X$ and $tilde(Y) = Y$ only on $p$. In addition, we can extend $X|_U$ and $Y|_U$ via the smooth bump functions. We denote them $X|_U^phi$ and $Y|_U^phi$.
@@ -158,6 +188,9 @@ $
 Therefore, the result of $nabla^U$ is unique whatever the vector field and sections locally are. This shows that $nabla^U$ is uniquely defined.
 ]
 ```
+
+Leave a blank source line after every closing `#proof[...]` block before the next
+paragraph, equation, heading, or other block.
 
 ### Footnotes in equation
 ```typst
