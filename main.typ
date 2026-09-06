@@ -2,6 +2,7 @@
 
 // Theme toggle.
 // Use `light-theme` or `dark-theme`; the mode is applied through #set below.
+//
 #let theme = light-theme
 
 // global setup
@@ -163,4 +164,5 @@
 #counter(heading).update(0)
 #include "chapter 1/chapter 1.typ"
 #include "chapter 2/chapter 2.typ"
+#include "chapter 3/chapter_3.typ"
 #bibliography("references.bib")
