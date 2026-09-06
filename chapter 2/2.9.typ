@@ -21,9 +21,9 @@ $
 #paragraph-tab
 Why do we define $D_j$ strangely? It is becuase it is common in microlocal analysis and PDE symbol theory.
 $
-  D_j e^(i x dot xi)= frac(1, i) frac(partial, partial x_j) e^(i x dot xi) = frac(1,i)(i xi)e^(i x dot xi)= xi_j e^(i x dot xi)
-$
-So $D_j$ turns into the multiplication by $xi_j$. This is the main reason for using $D_j:=1/i partial_j$. It makes the symbol cleaner.
+  D_j e^(i x dot xi)= frac(1, i) frac(partial, partial x_j) e^(i x dot xi) = frac(1,i)(i xi)e^(i x dot xi)= xi_j e^(i x dot xi) #dots_space #footnote[$partial_(x_j)(x dot.c xi)=partial_(x_j) sum_{k=1}^n (x^k xi_k)=xi_(j)$ where $xi_j:= $]
+$ <differential_operator_plane_wave_eigenfunction>
+So $D_j$ turns into the multiplication by $xi_j$.#footnote[The relationship between $D_j$ and $xi_j$ will reveal at ] This is the main reason for using $D_j:=1/i partial_j$. It makes the symbol cleaner.
 
 #paragraph-tab
 Let $xi in T_x M$. Then we denote the high-order part of $p$.
@@ -53,7 +53,20 @@ where $m:= op("dim") M$. #highlighted()[Heuristically, $xi$ is a covector versio
     #annot((s.tag)("covector version of D is independent of coordinates itself"), pos:left, dx: -2em)[$xi$ is independent of 
     \
     the choice of local coordinates itself.]
+  $ <relationship_between_x_and_xi_in_differential_operator>
+
+  $arrow.b$
+
   $
+    x dot.c xi &= chevron.l x, xi chevron.r 
+    \
+    &= xi(x)
+    \
+    &= sum_(j=1)^n x_j xi_j dx_(j)(e_(j))
+    \
+    &= sum_(j=1)^n x_j xi_j
+  $
+  where $x= sum_(j=1)^n x_j e_j$ and $xi= sum_(j=1)^n xi_j dx_(j)$
 ]
 $P_m$ is called the principal symbol(or just the symbol) of $P$.#footnote[This is usually the most important part because it controls the leading behavior of the equation.] Now, we want to give an intrinsic characterization, which will show that $p_(m)(x, xi)$ is well defined on the cotangent bundle of $M$. For a smooth function $psi$, a simple calculation, using the product rule and chain rule of differentiation, gives :
 #flowbox()[
