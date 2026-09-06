@@ -3,7 +3,7 @@
 #import "@preview/cetz:0.4.2"
 #import "@preview/mannot:0.4.0": *
 
-== The symbol of a differental operator and a general Green-Stokes formula
+== The symbol of a differental operator and a general Green-Stokes formula <differential_operator>
 #local-scope-annotations(s =>[
 === The symbol of a differental operator
 #paragraph-tab
@@ -29,7 +29,7 @@ So $D_j$ turns into the multiplication by $xi_j$. This is the main reason for us
 Let $xi in T_x M$. Then we denote the high-order part of $p$.
 $
   p_m (x,xi):= sum_(|alpha|=m) p_(alpha)(x) xi^alpha
-$ #(s.tag)("definition of principal symbol")
+$ <principal_symbol_coordinate_formula>
 where $m:= op("dim") M$. #highlighted()[Heuristically, $xi$ is a covector version of $D$.] In more detail, 
 #flowbox()[
   $
@@ -83,7 +83,7 @@ $P_m$ is called the principal symbol(or just the symbol) of $P$.#footnote[This i
 ]
 
 #paragraph-tab
-$r(x, lambda)$ is quite cumbersome. let's cancel the residual polynomial. In #(s.ref)("before intrinsic characteristization"), $p_m (x, d psi)$ is evaluated by substituting $xi = ((partial psi)/ (partial x_1) , dots.c , (partial psi)/ (partial x_n))$ into #(s.ref)("definition of principal symbol"). Thus the following formula is induced.
+$r(x, lambda)$ is quite cumbersome. let's cancel the residual polynomial. In #(s.ref)("before intrinsic characteristization"), $p_m (x, d psi)$ is evaluated by substituting $xi = ((partial psi)/ (partial x_1) , dots.c , (partial psi)/ (partial x_n))$ into @principal_symbol_coordinate_formula. Thus the following formula is induced.
 #flowbox()[
   $
     lambda^(-m) e^(-i lambda psi) P(u(x) e^(i lambda psi)) 
@@ -104,7 +104,7 @@ $r(x, lambda)$ is quite cumbersome. let's cancel the residual polynomial. In #(s
   $ <coordinate-free_definition_of_principal_symbol>
   
 ]
-@coordinate-free_definition_of_principal_symbol gives the coordiate-free definition of the principal symbol, instead of the coordinate-dependent definition(#(s.ref)("definition of principal symbol")).#footnote[#(s.ref)("definition of principal symbol") is coordinate-dependent because $xi^alpha$ depends on the choice of local coordinates. Be careful that $xi$ doesn't depend on coordinates itself, but also the 'components' of $xi$ depend on the choice of local coordinates.] The meaning of @coordinate-free_definition_of_principal_symbol isn't just a cleaner definition, if we assume that :
+@coordinate-free_definition_of_principal_symbol gives the coordiate-free definition of the principal symbol, instead of the coordinate-dependent definition @principal_symbol_coordinate_formula.#footnote[@principal_symbol_coordinate_formula is coordinate-dependent because $xi^alpha$ depends on the choice of local coordinates. Be careful that $xi$ doesn't depend on coordinates itself, but also the 'components' of $xi$ depend on the choice of local coordinates.] The meaning of @coordinate-free_definition_of_principal_symbol isn't just a cleaner definition, if we assume that :
 $
   P: C^(infinity)(M, E_0) arrow.r C^(infinity)(M, E_1)
 $ #(s.tag)("differential operator between section spaces")
@@ -862,7 +862,7 @@ The following table organizes the three adjoint symbols used in this section: $t
 #paragraph-tab
 The highest-order part of a differential operator is often useful. Define it as follows.
 $
-  sigma_P (x, xi)&:= p_m (x, xi) #dots_space #footnote[by using #(s.ref)("definition of principal symbol")]
+  sigma_P (x, xi)&:= p_m (x, xi) #dots_space #footnote[by using @principal_symbol_coordinate_formula]
   \
   (x, xi) & in T^* M
 $
@@ -1068,7 +1068,7 @@ We often expand some functions defined on real vector spaces to complex vector s
       op("div") X = sum_j^n partial_j partial^j = sum_j^n D_j v^j = i sum^n_j D_j v^j
     $
   ]
-  Now take the principal part and replace each $D_j$ by $xi_j$.#footnote[We did at #(s.ref)("definition of principal symbol").]
+  Now take the principal part and replace each $D_j$ by $xi_j$.#footnote[We did at @principal_symbol_coordinate_formula.]
   $
     sigma_("div")(x,xi) v &= i sum_j^n xi_j v^j
     \
