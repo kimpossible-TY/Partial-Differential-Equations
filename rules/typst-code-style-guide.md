@@ -62,15 +62,15 @@ Local figure colors may still be hard-coded when the color is semantic, e.g. red
 
 
 ## highlight
-- If highlighted prose contains inline or single-line equation content, use `highlighted` instead of `highlight`.
-- If the highlighted content contains only text, use `highlight`.
-- Never place an aligned or multiline display equation inside `highlighted`. In particular, an equation using alignment points (`&`) or line breaks (`\`) must remain a standalone equation block.
+- Use `#highlighted[...]` only for prose that needs the highlighted treatment; never wrap an equation (including a single-line display) in `#highlighted[...]`. Keep every display equation as a standalone `$ ... $` block. Use `#highlight[...]` only for text-only highlights.
 
-For example, this highlighted prose contains inline equations, so `highlighted` is appropriate:
+Use highlighting only for text. Keep prose with inline mathematics unwrapped, and keep display equations standalone:
 ```typst
-#highlighted[
-This approach makes that we can treat $i_(partial_j) omega$ as just the general interior multiplication not considering $d x^i(partial_j) = delta_j^i$!
-]
+#highlight[The interior-multiplication convention is the key local observation.]
+
+$
+  d x^(i)(partial_(j))=delta^(i)_(j)
+$
 ```
 
 Do not write:
@@ -116,7 +116,7 @@ Do not write bare scripts such as `$X^i$` or `$X_j$`.
 
 ### Equations blocks
 #### flowbox
-if treating complicated argument logically, use `flowbox`. Ensure that all steps and connecting arrows (like `$arrow.b$`) are contained *within* the `flowbox`. For example :
+Use `flowbox` for a complicated logical equation argument. Keep algebraic steps inside the `flowbox`, but use Fletcher for a diagrammatic flowchart or commutative diagram with directed arrows; do not encode a flowchart as one large math equation. Ensure any equation-level connecting arrows (like `$arrow.b$`) remain within the `flowbox`. For example :
 
 ```typst
 #flowbox[
@@ -133,8 +133,24 @@ The arrow should be inline math.
 
 `flowbox` is theme-aware. If you modify it or create a similar box, do not use a bare `stroke: 1pt`; use `stroke: 1pt + theme.rule` inside `context` so the border stays visible in dark mode.
 
+#### Fletcher diagrams
+Use `@preview/fletcher` for diagrammatic arrows, flowcharts, and commutative diagrams. Prefer reusable helpers in the chapter's `figures/figures.typ`, and call them from the content body (wrapping them in `#figure(...)` when they should be numbered). Use CeTZ or mannot for geometric illustrations and local annotations; do not use a single display equation as a flowchart.
+
+#### CeTZ selection rule
+CeTZ is reserved for genuinely abstract or geometrically nontrivial objects whose important relations are difficult to recover from prose or a formula alone. A CeTZ figure must materially reduce the reader's effort by revealing a non-obvious spatial, geometric, or structural relation.
+
+Do not use CeTZ as decoration or to redraw an object the intended reader can imagine immediately. In particular, omit CeTZ figures for a coordinate axis, an elementary plane wave or sinusoid, a single familiar vector, or a formula that is already visually self-explanatory. Before adding CeTZ, require all of the following:
+
+- the depicted object is abstract or nontrivial;
+- the drawing exposes a relation that is not immediately visible from the mathematics;
+- prose, an equation, or a standard Fletcher diagram cannot communicate the same point more directly.
+
+If any condition fails, omit the CeTZ figure. Use mannot/CeTZ annotations under the same selection principle: annotate only when the local structure is genuinely hard to parse without the visual aid.
+
 #### Definition, theorem, Lemma , Note, proposition,  Special Lemma, Speical Proposition and Special Definition
 Something will be auto-numbering, but something is not.
+- Use these themed math blocks selectively: definitions for introduced objects, propositions or lemmas for named results, notes for cautions, and proofs for derivations. Keep routine calculation displays outside boxes when a box would add no conceptual structure.
+- Follow every newly stated proposition or lemma immediately with its proof. If a passage only recalls, motivates, or explains an identity and no proof is supplied, keep it as ordinary prose rather than labeling it a proposition or lemma.
 - auto-numbering
  - Definition
  - Note
