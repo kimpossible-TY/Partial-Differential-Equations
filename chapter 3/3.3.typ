@@ -88,20 +88,20 @@ Due to @coordinate-free_definition_of_principal_symbol, the symbol describes how
         color: #olive,
       )
       mark(
-        e^(-i lambda x dot phi),
+        e^(-i lambda phi(x)),
         tag: #(m.tag)("phase-cancellation"),
         color: #purple,
       )
       P(
         u(x)
         mark(
-          e^(i lambda x dot phi),
+          e^(i lambda phi(x)),
           tag: #(m.tag)("frequency-oscillation"),
           color: #blue,
         )
       )
       &= mark(
-        p_(m)(x,phi),
+        p_(m)(x,d phi_(x)),
         tag: #(m.tag)("principal-symbol-at-frequency"),
         color: #fuchsia,
       )u(x).
@@ -124,13 +124,13 @@ Due to @coordinate-free_definition_of_principal_symbol, the symbol describes how
         pos: top + right,
         dx: 0.8em,
         leader-connect: "elbow",
-      )[test oscillation with frequency $phi$]
+      )[test oscillation with phase $phi$]
       #annot(
         (m.tag)("principal-symbol-at-frequency"),
         pos: bottom + right,
         dx: 0.8em,
         leader-connect: "elbow",
-      )[leading response at $phi$]
+      )[leading response at $d phi_(x)$]
     $
     #v(0.8em)
   ],
@@ -138,7 +138,7 @@ Due to @coordinate-free_definition_of_principal_symbol, the symbol describes how
 )
 
 #paragraph_tab
-The oscillatory factor in the preceding limit is already a plane wave: for the special phase $phi(x)=x dot rho$, it is $e^(i lambda x dot rho)$. This points naturally to Fourier analysis, which reconstructs functions by superposing precisely these plane-wave modes.
+The oscillatory factor in the preceding limit is $e^(i lambda phi(x))$. For the special linear phase $phi(x)=x dot rho$, it becomes the plane wave $e^(i lambda x dot rho)$. This points naturally to Fourier analysis, which reconstructs functions by superposing precisely these plane-wave modes.
 
 === Fourier analysis and differential operator
 
@@ -247,13 +247,13 @@ This is Statement 1.11 of @Fourier.
 ]
 
 #paragraph_tab
-@unitary_fourier_convolution_formulas exposes exactly why the constant-coefficient assumption is essential. Under the lemma's Schwartz hypotheses, take $f=p_(alpha)$ and $g=D^(alpha)u$. The product formula and the derivative identity give
+@unitary_fourier_convolution_formulas exposes the mechanism behind the constant-coefficient assumption. To see it in the lemma's Schwartz setting, suppose $p_(alpha),u in cal(S)(bb(R)^(n))$ and take $f=p_(alpha)$ and $g=D^(alpha)u$. The product formula and the derivative identity give
 $
   cal(F)lr(p_(alpha)(x)D^(alpha)u)
   =(2 pi)^(-n/2)
    hat(p_(alpha)) * lr(xi^(alpha)hat(u)),
 $
-not $p_(alpha)(x)xi^(alpha)hat(u)(xi)$. #highlighted()[Thus multiplication by a variable coefficient becomes convolution with $hat(p_(alpha))$ and couples different frequencies.] The local symbol still describes the leading response to oscillation, #highlight()[but the Fourier transform no longer diagonalizes the whole operator by pointwise multiplication.]
+not $p_(alpha)(x)xi^(alpha)hat(u)(xi)$. #highlighted()[Thus multiplication by a variable coefficient becomes convolution with $hat(p_(alpha))$ and couples different frequencies.] For a general variable coefficient, $p_(alpha)$ need not belong to $cal(S)$; then its Fourier transform must be interpreted in a broader distributional framework. The conclusion remains the same: the local symbol describes the leading response to oscillation, #highlight()[but the Fourier transform no longer diagonalizes the whole operator by pointwise multiplication.]
 
 
 #paragraph_tab
@@ -338,7 +338,11 @@ $ #(s.tag)("result of Fourier-algebraic problem")
 From #(s.ref)("result of Fourier-algebraic problem"), we see that the rapid decay of $hat(f)$ controls the quotient as $|xi| arrow.r infinity$. The difficulty is at $xi = 0$: the factor $|xi|^(-2)$ blows up, and $hat(f)(0)$ need not vanish.
 
 #paragraph_tab
-Therefore, $U$ does not belong to the Schwartz space $cal(S)$ in general, which means we cannot apply the classical inverse Fourier transform directly! This is the exact moment where distributions become necessary: we want to find a generalized object $U$ that satisfies $-|xi|^(2) U = hat(f)$, and then recover our solution $u$ by extending the inverse Fourier transform to these generalized objects. (Consider #link(distribution-probe-video-url)[#underline[narrated visualization]] for further intuition).
+The candidate generally lies outside the Schwartz space $cal(S)$. This does not by itself rule out a classical inverse Fourier transform: when $n >= 3$, the quotient is locally integrable at the origin, as we verify below. For $n=1,2$, however, $|xi|^(-2)$ is not locally integrable near $xi=0$ when $hat(f)(0) != 0$. To obtain one framework that covers every dimension and prepares us for general symbols, we seek a generalized object $U$ satisfying
+$
+  -|xi|^(2) U = hat(f).
+$
+The construction of such a $U$ is a distributional division problem. We will ultimately place $U$ in the tempered-distribution space so that its inverse Fourier transform is defined by duality. (Consider #link(distribution-probe-video-url)[#underline[narrated visualization]] for further intuition).
 
 #definition(title: "Distribution as a continuous covector")[
 The test-function space
@@ -399,30 +403,30 @@ so $T_(f)$ is continuous and has distributional order zero on each compact set.
 ] <regular_distribution_induced_by_locally_integrable_function>
 
 #paragraph_tab
-Now @regular_distribution_induced_by_locally_integrable_function gives a clear meaning to our candidate in #(s.ref)("result of Fourier-algebraic problem"). Away from $xi = 0$, $U$ is the smooth function $-hat(f)(xi)/|xi|^(2)$ and defines a regular distribution. At $xi = 0$, we treat the singular quotient distributionally so that:
+Now @regular_distribution_induced_by_locally_integrable_function explains the candidate in #(s.ref)("result of Fourier-algebraic problem") wherever it is locally integrable. Away from $xi=0$, the quotient $-hat(f)(xi)/|xi|^(2)$ is smooth and therefore defines a regular distribution on the punctured space $bb(R)^(n) minus {0}$. For $n >= 3$, it also defines a global regular distribution; for $n=1,2$, it does not in general. Thus we have not yet defined $U$ at the origin. The equation
 $
-  -|xi|^(2) U = hat(f).
+  -|xi|^(2) U = hat(f)
 $
-Thus $U$ does not need to be an ordinary function at the origin; its action on test functions completely replaces pointwise evaluation.
+is the problem that the tempered-distribution and fundamental-solution constructions below will solve.
 
 === Distributional derivative
 
 #paragraph_tab
-Now we face our next big question. Suppose we find $U$ as a distribution and take its inverse Fourier transform:
+Now we face our next big question. Suppose we find $U$ as a tempered distribution, to be defined below, and take its inverse Fourier transform:
 $
   u = cal(F)^(-1) U.
 $ #(s.tag)("reconstructed_distributional_solution")
-Since $U$ is a distribution, its inverse transform $u$ in #(s.ref)("reconstructed_distributional_solution") is also a distribution rather than a smooth $C^(m)$ function.
+Since $U$ is tempered, its inverse transform $u$ in #(s.ref)("reconstructed_distributional_solution") is again a tempered distribution rather than necessarily a smooth $C^(m)$ function.
 
 #paragraph_tab
 Then how can we apply the differential operator $P(D)$ to $u$? #highlight()[The classical differential operator only knows how to differentiate smooth functions point by point.] If we try to differentiate a distribution point by point, it makes no sense at all!
 
 #flowbox[
-$ U = hat(f) / p "is a distribution" $
+$ U "is a tempered distribution satisfying" p U = hat(f) $
 
 $arrow.b$
 
-$ u = cal(F)^(-1) U "is also a distribution" $
+$ u = cal(F)^(-1) U "is also a tempered distribution" $
 
 $arrow.b$
 
@@ -645,18 +649,18 @@ $
   P(D) w := sum_(|alpha| <= m) a_(alpha) D^(alpha) w.
 $ #(s.tag)("distributional_differential_operator_definition")
 
-Once the Fourier transform and its inverse are extended to distributions, the identity in @Fourier_transform_of_constant_coefficient_differential_operator
+We have now extended $P(D)$ to all distributions. To connect this extension with Fourier analysis, we must restrict to tempered distributions. The next subsection proves that, for $w in cal(S)^(*)(bb(R)^(n))$, the identity in @Fourier_transform_of_constant_coefficient_differential_operator becomes
 $
   cal(F)(P(D) w) = p cal(F) w
 $
-will continue to hold. Then, if $U$ satisfies $p U = hat(f)$ from #(s.ref)("result of Fourier-algebraic problem") and we set $u = cal(F)^(-1) U$, we get:
+holds in $cal(S)^(*)(bb(R)^(n))$. Consequently, if $U in cal(S)^(*)(bb(R)^(n))$ satisfies $p U = hat(f)$ and we set $u = cal(F)^(-1) U$, then
 $
   P(D) u
-  &= cal(F)^(-1)(p U) #dots_space #footnote[by the multiplier identity extended from @Fourier_transform_of_constant_coefficient_differential_operator] \
+  &= cal(F)^(-1)(p U) #dots_space #footnote[by @fourier_multiplier_identity_on_tempered_distributions, proved below] \
   &= cal(F)^(-1)(hat(f)) #dots_space #footnote[from #(s.ref)("result of Fourier-algebraic problem")] \
   &= f.
 $
-This closes the loop from our frequency-space candidate to the actual solution of the differential equation!
+Thus a tempered solution of the multiplication equation gives a tempered solution of the original differential equation.
 
 === Tempered distributions and Fourier duality
 
@@ -826,27 +830,7 @@ as an exact equality in $cal(S)^(*)(bb(R)^(n))$. This completely finishes the ar
 === Fundamental solutions and convolution
 
 #paragraph_tab
-At first glance, our journey to solve constant-coefficient differential equations seems complete: for any given source $f in cal(S)(bb(R)^(n))$, we transform $P(D) u = f$ into the algebraic division problem $hat(u)(xi) = frac(hat(f)(xi), p(xi))$, resolve the singularities at the zero set $Z(p)$ in the distributional sense, and then recover $u = cal(F)^(-1) hat(u)$. #highlight()[However, let's think about what this method requires in practice.] Every single time someone gives us a new source function $f$, we must compute its Fourier transform $hat(f)$, analyze the division $frac(hat(f)(xi), p(xi))$ near the zero set $Z(p)$, and compute the inverse Fourier integral from scratch. #highlighted[In other words, the operator $P(D)$ and the external source $f$ are glued together throughout the entire calculation!]
-
-#paragraph_tab
-Can we separate the operator $P(D)$ from the source $f$ once and for all? Let's look at the frequency-space solution formula again:
-$
-  hat(u)(xi) = frac(1, p(xi)) dot hat(f)(xi).
-$
-
-Now remember our Fourier convolution theorem from @unitary_fourier_convolution_formulas: #highlight()[multiplication in frequency space corresponds to convolution in physical space!] Specifically,
-$
-  cal(F)^(-1) lr( hat(A) dot hat(B) ) = (2 pi)^(-n/2) (A * B).
-$
-This observation gives us a wonderful idea: suppose we can find a single universal distribution $Phi$ in physical space whose Fourier transform is exactly the reciprocal multiplier:
-$
-  hat(Phi)(xi) = frac((2 pi)^(-n/2), p(xi)).
-$ #(s.tag)("formal_reciprocal_symbol_of_fundamental_solution")
-If such a distribution $Phi$ exists, then for *any* source function $f$, we can immediately compute the physical solution $u$ by a single convolution:
-$
-  u = Phi * f.
-$
-We would never need to compute another Fourier transform or analyze frequency division separately for each source.#footnote[The singularity at $Z(p)$ is handled once in the construction of the fundamental solution.]
+For the Laplacian in dimensions $n >= 3$, we have constructed a solution by an ordinary locally integrable quotient. In general, however, solving $p U = g$ in tempered distributions is a genuine division problem. The existence of a fundamental solution for every nonzero constant-coefficient operator is the Malgrange–Ehrenpreis theorem; we will not invoke that theorem here. Instead, we now construct a fundamental solution explicitly for the Laplacian, which gives a uniform treatment in every dimension.
 
 #definition(title: "Fundamental solution of linear constant-coefficient PDE")[
 Let $P(D)$ be a constant-coefficient differential operator. A distribution $Phi in cal(D)^(*)(bb(R)^(n))$ satisfying
@@ -855,11 +839,6 @@ $
 $
 is called a *fundamental solution* of $P(D)$.
 ] <definition_of_fundamental_solution>
-
-For the Laplacian $Delta = -sum_(j=1)^(n) D_(j)^(2)$, the symbol is $p(xi) = -|xi|^(2)$, so the formal Fourier transform of the fundamental solution from #(s.ref)("formal_reciprocal_symbol_of_fundamental_solution") becomes:
-$
-  hat(Phi)(xi) = -(2 pi)^(-n/2) |xi|^(-2).
-$ #(s.tag)("fourier-transform-of-laplace-fundamental-solution")
 
 #theorem(title: "Fundamental solution of the Laplacian")[
 For $Delta = sum_(j=1)^(n) partial_(j)^(2)$, define
@@ -1044,6 +1023,29 @@ For $n = 2$, the same calculation with $Phi_(2) = frac(1, 2 pi) log |x|$ gives t
 ]
 
 #paragraph_tab
+Can we separate the operator $P(D)$ from the source $f$ once and for all? A fundamental solution does precisely this. First recall that, for Schwartz functions $A$ and $B$, @unitary_fourier_convolution_formulas gives
+$
+  cal(F)^(-1) lr( hat(A) dot hat(B) ) = (2 pi)^(-n/2) (A * B).
+$
+For a tempered fundamental solution, the corresponding identity is interpreted in $cal(S)^(*)$. If $Phi in cal(S)^(*)(bb(R)^(n))$ satisfies $P(D) Phi = delta_(0)$, then
+$
+  p(xi) cal(F) Phi = (2 pi)^(-n/2)
+$ #(s.tag)("fourier-equation-for-fundamental-solution")
+as an equality of tempered distributions. On $Omega_(p)$, this forces the pointwise identity
+$
+  cal(F) Phi(xi) = frac((2 pi)^(-n/2), p(xi)).
+$
+Across $Z(p)$, the right-hand side requires a distributional extension, and that extension need not be unique. If two extensions differ by $V$, then $p V=0$; consequently, $V$ is supported on $Z(p)$. For the Laplacian $Delta = -sum_(j=1)^(n) D_(j)^(2)$, the symbol is $p(xi) = -|xi|^(2)$, so #(s.ref)("fourier-equation-for-fundamental-solution") becomes
+$
+  -|xi|^(2) cal(F) Phi = (2 pi)^(-n/2)
+$ #(s.tag)("fourier-equation-for-laplacian-fundamental-solution")
+in $cal(S)^(*)(bb(R)^(n))$. Away from the origin, this forces
+$
+  cal(F) Phi(xi) = -(2 pi)^(-n/2) |xi|^(-2).
+$
+For $n >= 3$, the right-hand side is locally integrable at the origin. For $n=1,2$, it must instead be understood through a distributional extension.
+
+#paragraph_tab
 Now, how can we solve general equations $Delta u = f$? The fundamental solution gives the answer immediately via convolution! For any $f in cal(S)(bb(R)^(n))$, convolving the distribution $T_(Phi_(n))$ with $f$ gives the ordinary function
 $
   u(x) := lr(T_(Phi_(n)) * f)(x)
@@ -1059,17 +1061,20 @@ $
   &= f #dots_space #footnote[since the Dirac delta is the identity under convolution (@definition_of_dirac_distribution)].
 $
 
-Moreover, applying the Fourier transform to the convolution gives:
+Moreover, applying the Fourier transform to the convolution gives the following equality in $cal(S)^(*)(bb(R)^(n))$:
 $
-  hat(u)(xi)
-  &= (2 pi)^(n/2) lr(cal(F) T_(Phi_(n)))(xi) hat(f)(xi) #dots_space #footnote[by the convolution theorem extended to tempered distributions] \
-  &= - frac(hat(f)(xi), |xi|^(2)) #dots_space #footnote[substituting #(s.ref)("fourier-transform-of-laplace-fundamental-solution")],
+  cal(F)u
+  &= (2 pi)^(n/2) cal(F)T_(Phi_(n)) hat(f) #dots_space #footnote[by the convolution theorem for a tempered distribution convolved with a Schwartz function].
 $
-which matches our frequency candidate in #(s.ref)("result of Fourier-algebraic problem") from @fourier_algebraic_problem perfectly!
+Applying #(s.ref)("fourier-equation-for-laplacian-fundamental-solution") to $Phi=T_(Phi_(n))$ and multiplying by $hat(f)$ therefore gives
+$
+  -|xi|^(2) cal(F)u = hat(f).
+$
+Thus the convolution solution satisfies the transformed Laplace equation in every dimension. Away from $xi=0$, this is the pointwise candidate in #(s.ref)("result of Fourier-algebraic problem"); at the origin, its interpretation is distributional when $n=1,2$.
 
 #emphasis[
 *Two Sides of the Same Coin:*
-- *Frequency Space (Algebraic)*: $hat(u)(xi) = frac(hat(f)(xi), p(xi)) = (2 pi)^(n/2) hat(Phi)(xi) hat(f)(xi)$ (Division by symbol).
+- *Frequency Space (Algebraic)*: $p cal(F)u = hat(f)$ in $cal(S)^(*)(bb(R)^(n))$; on $Omega_(p)$, $cal(F)u(xi) = hat(f)(xi)/p(xi)$.
 - *Physical Space (Geometric)*: $u(x) = (Phi * f)(x) = integral_(bb(R)^(n)) Phi(x - y) f(y) thin d y$ (Convolution with fundamental solution).
 
 The Fourier transform beautifully bridges these two identical worlds!
