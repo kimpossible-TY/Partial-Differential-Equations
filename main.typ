@@ -83,10 +83,11 @@
   }
 }
 
-// Reset the equation counter at the start of each subsection so equations use
-// section.subsection.number numbering.
+// Reset the equation counter and math block counters at the start of each subsection so equations use
+// section.subsection.number numbering and math blocks use chapter.section.order numbering.
 #show heading.where(level: 2): it => {
   counter(math.equation).update(0)
+  reset-math-block-counters()
   context {
     let style = heading-numbering-style.get()
     if style == "P.1" or style == "S.1" {
