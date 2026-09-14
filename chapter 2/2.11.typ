@@ -290,22 +290,52 @@ $
   \
   cal(F)(u, omega)= chevron.l u , tilde(cal(F)) omega chevron.r
 $
-#highlighted()[Howerver it isn't sufficient to say that $cal(F)$ is 2-form if $tilde(cal(F))$ is skew-symmetric isn't proved.] @orthogonality_and_skew-symmetry provides that the skew-symmetry is deeply related to orthogonality. Since $tilde(cal(F))$ is ovbiously not orthogonal,#footnote[If the orthogonality is satisfied, then $cal(F)$ is constantly zero.] consider that $F$ is orthogonal to $u$.
+#highlighted()[However, a $(0,2)$-tensor is a differential $2$-form only if it is alternating (skew-symmetric).] In terms of the linear endomorphism $tilde(cal(F))$, this requires skew-symmetry with respect to the Minkowski metric $h$:
+$
+  chevron.l tilde(cal(F)) u, w chevron.r_(h) = - chevron.l u, tilde(cal(F)) w chevron.r_(h).
+$
+By @orthogonality_and_skew-symmetry, an endomorphism is skew-symmetric if and only if every vector is orthogonal to its image: $chevron.l tilde(cal(F)) u, u chevron.r_(h) = 0$. Since the electromagnetic $4$-force on a charged particle is $F = tilde(cal(F)) u$, skew-symmetry follows if $F$ is orthogonal to the $4$-velocity $u$. We first establish this orthogonality directly.
+
 #lemma(title: "electromagnetic field is orthogonal to 4-velocity")[
-  Let $F$ be the eletromagnetric field considering @eletromagnetric_field and $u$ is a 4-velocity. Then the following equation is true :
+  Let $u$ be the $4$-velocity of a particle and let $F = tilde(cal(F)) u$ be the electromagnetic $4$-force given by @eletromagnetric_field. Then $F$ is orthogonal to $u$ under the Minkowski metric $h$:
   $
-    chevron.l F u , u chevron.r_(h) =0
+    chevron.l F, u chevron.r_(h) = chevron.l tilde(cal(F)) u, u chevron.r_(h) = 0.
   $
 ]
 
 #proof[
-The fact that $F$ is linear is easily proved. Hence @orthogonality_and_skew-symmetry proves the lemma.
+  Let the $4$-velocity be decomposed into time and spatial components as $u = (u^(0), bold(u)) = (gamma, gamma bold(v))$, where $bold(v)$ is the $3$-velocity and $gamma = (1 - |bold(v)|^(2))^(-1/2)$. By @eletromagnetric_field, the electromagnetic $4$-force is
+  $
+    F = e (bold(E) dot bold(u), u^(0) bold(E) + bold(u) times bold(B)).
+  $
+  Computing the Minkowski inner product with signature $(-, +, +, +)$, we obtain
+  $
+    chevron.l F, u chevron.r_(h)
+    &= - F^(0) u^(0) + bold(F) dot bold(u) \
+    &= - e (bold(E) dot bold(u)) u^(0) + e (u^(0) bold(E) + bold(u) times bold(B)) dot bold(u) \
+    &= - cancel(e u^(0) (bold(E) dot bold(u)), stroke: #(paint: red)) + cancel(e u^(0) (bold(E) dot bold(u)), stroke: #(paint: red)) + cancel(e ((bold(u) times bold(B)) dot bold(u)), stroke: #(paint: blue)) #dots_space #footnote[by $(bold(u) times bold(B)) dot bold(u) = 0$.] \
+    &= 0.
+  $
+  The first two terms cancel identically, and the cross product $bold(u) times bold(B)$ is perpendicular to $bold(u)$, so $(bold(u) times bold(B)) dot bold(u) = 0$. Therefore, $chevron.l F, u chevron.r_(h) = 0$.
+  #highlight[From a physical viewpoint, this identity is a direct consequence of rest-mass conservation]: since $p = m_(0) u$ satisfies $h(p, p) = -m_(0)^(2) = "const"$, differentiating along proper time $tau$ yields
+  $
+    frac(d, d tau) h(p, p) = 2 h(frac(d p, d tau), p) = 2 m_(0) h(F, u) = 0,
+  $
+  which independently confirms $chevron.l F, u chevron.r_(h) = 0$ for every particle of non-zero rest mass.
 ]
 
-Therefore, $cal(F)$ can be represented to 2-form.
+Having verified that $chevron.l tilde(cal(F)) u, u chevron.r_(h) = 0$ for all $4$-velocities, @orthogonality_and_skew-symmetry implies that $tilde(cal(F))$ is skew-symmetric with respect to $h$:
+$
+  chevron.l tilde(cal(F)) u, w chevron.r_(h) = - chevron.l u, tilde(cal(F)) w chevron.r_(h).
+$
+Lowering an index defines the $(0,2)$-tensor $cal(F)(u, w) := chevron.l u, tilde(cal(F)) w chevron.r_(h)$. By symmetry of the metric and skew-symmetry of $tilde(cal(F))$,
+$
+  cal(F)(w, u) = chevron.l w, tilde(cal(F)) u chevron.r_(h) = - chevron.l tilde(cal(F)) w, u chevron.r_(h) = - chevron.l u, tilde(cal(F)) w chevron.r_(h) = - cal(F)(u, w).
+$
+Hence $cal(F)$ is alternating, establishing that it is a differential $2$-form on Minkowski space.
 
 #paragraph-tab
-Fially, let's specify $cal(F)$ in more detail. First,
+Finally, let's specify $cal(F)$ in more detail. First,
 $
   tilde(cal(F)) u = e(E dot v, E u^(0) + v times B), quad "for" u=(u^(0), v)
 $
