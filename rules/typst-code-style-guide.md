@@ -6,22 +6,20 @@ trigger: always_on
 ```typst
 #import "../Styles/styles.typ" : *
 #import "figures.typ" : * // this should be on the mannot.
-#import "@preview/mannot:0.3.1": *
+#import "@preview/mannot:0.4.0": *
 ```
 
 
 ## theme and dark mode
 
-The project supports light/dark mode through `Typst_project/Styles/theme.typ`, re-exported by `Styles/styles.typ`.
+The project imports shared palettes from `@local/math-blocks:0.2.0` through `Styles/styles.typ`. Local style files are compatibility imports; edit implementations in the `typst-packages` repository.
 
-Choose the active palette in `Typst_project/main.typ`:
-
-```typst
-#let theme = dark-theme // or light-theme
-
-#set text(font: "Times New Roman", size: 12pt, fill: theme.text)
-#set page(fill: theme.page, margin: auto, ...)
-```
+`main.typ` applies `@local/math-book:0.2.0` through `apply-math-book`.
+Compile the default light theme with `typst compile --font-path fonts main.typ`;
+use `--input theme=dark` for the dark theme. The package owns page styles,
+paragraph marker rules, equation numbering, and counter resets.
+`book-part(prefix: "P")`, `book-part(prefix: "S")`, and `book-part` group the
+preliminaries, supplements, and main chapters. Keep their include lists local.
 
 Typst does not allow plain custom functions to be used directly as `#set` targets. Do not write `#set theme(...)`. Apply theme values through settable Typst elements such as `#set page(fill: theme.page)` and `#set text(fill: theme.text)`.
 
@@ -147,40 +145,19 @@ Do not use CeTZ as decoration or to redraw an object the intended reader can ima
 
 If any condition fails, omit the CeTZ figure. Use mannot/CeTZ annotations under the same selection principle: annotate only when the local structure is genuinely hard to parse without the visual aid.
 
-#### Definition, theorem, Lemma , Note, proposition,  Special Lemma, Speical Proposition and Special Definition
-Something will be auto-numbering, but something is not.
-- Use these themed math blocks selectively: definitions for introduced objects, propositions or lemmas for named results, notes for cautions, and proofs for derivations. Keep routine calculation displays outside boxes when a box would add no conceptual structure.
-- Follow every newly stated proposition or lemma immediately with its proof. If a passage only recalls, motivates, or explains an identity and no proof is supplied, keep it as ordinary prose rather than labeling it a proposition or lemma.
-- auto-numbering
- - Definition
- - Note
- - Special Lemma, Speical Proposition and Special Definition
+#### Definitions, theorems, lemmas, notes, and propositions
 
-Others(Lemma, proposition, theorem) are not auto-numbering.
+`theorem`, `proposition`, `lemma`, `definition`, and `note` all number themselves
+through `@local/math-blocks:0.2.0`. Numbers follow `chapter.section.order`;
+preliminaries and supplements add `P.` and `S.`. Counters reset at chapters and
+sections through `apply-math-book`. Attach labels to these blocks for references.
+Do not add an automatic number manually. A cited textbook number belongs in the
+title or source text, clearly distinguished from the document number.
 
-```typ
-// definition is auto-numbering.
-#definition[Let $pi: E -> M$ be a smooth vector bundle over a smooth manifold $M$ with or without boundary, and let $Gamma(E)$ denote the space of smooth sections of $E$. A connection in $E$ is a map:
-
-$ nabla : frak(X)(M) times Gamma(E) -> Gamma(E) $
-
-Written $(X, Y) |-> nabla_X Y$, satisfying the following properties:
-
-+ $nabla_X Y$ is linear over $C^(infinity)(M)$ in $X$: for $f_1, f_2 in C^(infinity)(M)$ and $X_1, X_2 in frak(X)(M)$,$ nabla_(f_1 X_1 + f_2 X_2) Y = f_1 nabla_(X_1) Y + f_2 nabla_(X_2) Y $
-
-+ $nabla_X Y$ is linear over $RR$ in $Y$: for $a_1, a_2 in RR$ and $Y_1, Y_2 in Gamma(E)$,$ nabla_X (a_1 Y_1 + a_2 Y_2) = a_1 nabla_X Y_1 + a_2 nabla_X Y_2 $
-
-+ $nabla$ satisfies the following product rule: for $f in C^(infinity)(M)$, $ nabla_X (f Y) = f nabla_X Y + (X f) Y $
-]
-
-// proposition is not auto-numbering, so that you should write numberse manually.
-#proposition[4.3 (Restriction of a connection): Suppose $nabla$ is a connection in a smooth vector bundle $E -> M$. For every open subset $U subset.eq M$, there is a unique connection $nabla^U$ on the restricted bundle $E|_U$ that satisfies the following relation for every open subset $X in frak(X)(M)$ and $Y in Gamma(E)$:
-
-$ nabla_(X|_U)^U (Y|_U) = (nabla_X Y)|_U $
-]
-```
-
-Those seperation is becuase what are not auto-numbering came from text-book.
+Use definitions for introduced objects, propositions or lemmas for named results,
+notes for cautions, and proofs for derivations. Keep routine calculations outside
+boxes. Follow newly stated propositions or lemmas with their proofs; use ordinary
+prose for a recalled or motivational identity without a proof.
 
 #### proof
 you have to write the proof inside of the `#proof` function.
@@ -237,7 +214,7 @@ $
 # plugin usage rule
 ## local tag scopes
 
-Use the reusable local tag system when a feature needs short names that must become globally unique labels or anchor names. The implementation lives in `Typst_project/Styles/local_tags.typ` and is re-exported by `Typst_project/Styles/styles.typ`.
+Use the reusable local tag system when a feature needs short names that must become globally unique labels or anchor names. The implementation lives in `@local/scoped-annotations:0.3.0` and is re-exported by `Styles/styles.typ`. `Styles/local_tags.typ` remains a compatibility import.
 
 ```typst
 #local-tag-scope(s => [
@@ -319,7 +296,7 @@ This converts `"a"` into a label with a prefix like `local-scope-1-first-annotat
 ## mannot
 ### local mannot scope
 
-`mannot-scope` is the mannot/CeTZ wrapper around the general `local-tag-scope` system. Its implementation lives in `Typst_project/Styles/mannot_utils.typ`; keep it separate from CeTZ-only helpers in `cetz_utils.typ`.
+`mannot-scope` is the mannot/CeTZ wrapper around the general `local-tag-scope` system. Its implementation lives in `@local/scoped-annotations:0.3.0`; `Styles/mannot_utils.typ` remains a compatibility import. Keep CeTZ-only drawing helpers in `@local/cetz-helpers:0.2.0`.
 
 Use `mannot-scope` when writing several `mannot` annotations in the same file.  
 The purpose of `mannot-scope` is to avoid manually writing globally unique tags such as `<special_lemma_2_9_nabla>`, `<special_lemma_2_9_g>`, and so on.

@@ -1,5 +1,4 @@
 #import "../Styles/styles.typ": *
-#import "../Styles/mannot_utils.typ": mannot-scope
 #import "figures/figures.typ": *
 #import "@preview/cetz:0.4.2"
 #import "@preview/mannot:0.4.0": *

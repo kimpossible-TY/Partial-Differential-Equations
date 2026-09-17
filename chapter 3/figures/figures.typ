@@ -1,15 +1,13 @@
 #import "../../Styles/styles.typ": theme-from-text-fill
 #import "@preview/fletcher:0.5.8" as fletcher: diagram, node, edge
 #import "@preview/cetz:0.4.2": canvas, draw
+#import "@local/fletcher-helpers:0.1.0": themed-diagram
 
 #let development-chain-diagram() = context {
   let theme = theme-from-text-fill()
 
-  diagram(
+  themed-diagram(
     spacing: (5mm, 4mm),
-    node-stroke: 0.8pt + theme.rule,
-    edge-stroke: 0.8pt + theme.rule,
-    node-fill: theme.callouts.note.bg,
     node-inset: 4pt,
     node((0, 0), [Operator $P(D)$], name: <operator>),
     node((0, 1), [Principal symbol $sigma_P$], name: <symbol>),
@@ -32,11 +30,8 @@
 #let differential-fourier-diagram() = context {
   let theme = theme-from-text-fill()
 
-  diagram(
+  themed-diagram(
     spacing: (12mm, 9mm),
-    node-stroke: 0.8pt + theme.rule,
-    edge-stroke: 0.8pt + theme.rule,
-    node-fill: theme.callouts.note.bg,
     node-inset: 5pt,
     node((0, 0), [$w$], name: <w>),
     node((1, 0), [$D^(alpha)w$], name: <dw>),

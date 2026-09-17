@@ -1,5 +1,5 @@
 #import "@preview/cetz:0.4.2": *
-#import "@local/cetz-helpers:0.1.0": *
+#import "@local/cetz-helpers:0.2.0": *
 #import "../Styles/styles.typ": *
 
 #let trace-comparison-diagram() = context {
