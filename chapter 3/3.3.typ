@@ -1,6 +1,5 @@
 #import "../Styles/styles.typ": *
 #import "figures/figures.typ": *
-#import "../Styles/mannot_utils.typ": mannot-scope
 #import "@preview/mannot:0.4.0": *
 
 #let distribution-probe-video-url = "https://github.com/kimpossible-TY/Partial-Differential-Equations/releases/download/distribution-video-v2/DistributionProbeResponseV2.mp4"
