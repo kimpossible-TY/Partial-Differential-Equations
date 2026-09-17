@@ -826,10 +826,45 @@ $
 $
 as an exact equality in $cal(S)^(*)(bb(R)^(n))$. This completely finishes the argument that started from dividing by the full symbol in @fourier_algebraic_problem!
 
+#pagebreak()
 === Fundamental solutions and convolution
 
 #paragraph_tab
-For the Laplacian in dimensions $n >= 3$, we have constructed a solution by an ordinary locally integrable quotient. In general, however, solving $p U = g$ in tempered distributions is a genuine division problem. The existence of a fundamental solution for every nonzero constant-coefficient operator is the Malgrange–Ehrenpreis theorem; we will not invoke that theorem here. Instead, we now construct a fundamental solution explicitly for the Laplacian, which gives a uniform treatment in every dimension.
+For the Laplacian in dimensions $n >= 3$, we have constructed a solution by an ordinary locally integrable quotient. Let's now ask what part of that construction belongs to the operator and what part belongs to the chosen source. In $P(D)u=f$, the source $f$ prescribes a local input, while $u$ describes the resulting field. Linearity allows us to superpose responses once a linear solution rule has been chosen; initial, boundary, or growth conditions may be needed to select that rule.
+
+#paragraph_tab
+Away from $Z(p)$, the quotient $hat(u)=hat(f)/p$ separates the input spectrum $hat(f)$ from the factor $1/p$ determined by the operator. To isolate this factor, let's seek a tempered distribution $Phi$ whose transformed equation has the constant right-hand side
+$
+  p(xi)hat(Phi)(xi)=(2 pi)^(-n/2).
+$
+Why this constant? By #(s.ref)("fourier-transform-of-dirac-and-one"), it is exactly the Fourier transform of a unit point source. Fourier inversion and @fourier_multiplier_identity_on_tempered_distributions therefore give
+#mannot-scope(m => [
+  #block(breakable: false, above: 1.8em, below: 1.8em)[
+  $
+    mark(p(xi)hat(Phi)(xi), tag: #(m.tag)("symbol-mult"))
+    = mark((2 pi)^(-n/2), tag: #(m.tag)("flat-spec"))
+    quad arrow.l.r quad
+    mark(P(D)Phi, tag: #(m.tag)("physical-op"))
+    = mark(delta_(0), tag: #(m.tag)("point-source")).
+    #annot((m.tag)("symbol-mult"), pos: top + left, dx: -0.5em, dy: -0.6em,
+      leader: true, leader-connect: "elbow")[symbol multiplication in $xi$]
+    #annot((m.tag)("flat-spec"), pos: bottom + left, dx: -0.5em, dy: 0.6em,
+      leader: true, leader-connect: "elbow")[flat spectrum: all frequencies equal]
+    #annot((m.tag)("physical-op"), pos: top + right, dx: 0.5em, dy: -0.6em,
+      leader: true, leader-connect: "elbow")[differential operator in $x$]
+    #annot((m.tag)("point-source"), pos: bottom + right, dx: 0.5em, dy: 0.6em,
+      leader: true, leader-connect: "elbow")[unit point source (impulse)]
+  $
+  ]
+], prefix: "chapter-3-fourier-delta-duality")
+Thus the same object represents division by the symbol in frequency space and the response to a unit point source in physical space. The normalization makes the source have total weight one. This reformulation does not yet solve the division problem at $Z(p)$ or make the solution unique.
+
+#note(title: "An acoustic impulse as a model for the point source")[
+Think of a short, sharp sound, such as an idealized pistol shot, used to probe a hall. In a linear, time-invariant acoustic model, a unit temporal impulse has a flat temporal Fourier spectrum, and the recorded response describes how the hall transforms that input. A real pulse approximates this ideal only over a finite frequency range. Likewise, a spatial point source $delta_(0)$ has equal Fourier amplitude at every spatial frequency. The analogy concerns localized input and its response: the spatial fundamental solution of an elliptic operator is a static field, whereas an acoustic impulse response evolves in time. A source localized in both space and time is modeled by $delta_(0)(x)delta_(0)(t)$.
+]
+
+#paragraph_tab
+The point-source equation also makes sense for distributions that are not tempered, so we use that broader setting in the definition. The existence of a fundamental solution for every nonzero constant-coefficient operator is the Malgrange–Ehrenpreis theorem; we will not invoke that theorem here. Instead, we construct a tempered fundamental solution explicitly for the Laplacian, which gives a uniform treatment in every dimension.
 
 #definition(title: "Fundamental solution of linear constant-coefficient PDE")[
 Let $P(D)$ be a constant-coefficient differential operator. A distribution $Phi in cal(D)^(*)(bb(R)^(n))$ satisfying
@@ -1022,7 +1057,7 @@ For $n = 2$, the same calculation with $Phi_(2) = frac(1, 2 pi) log |x|$ gives t
 ]
 
 #paragraph_tab
-Can we separate the operator $P(D)$ from the source $f$ once and for all? A fundamental solution does precisely this. First recall that, for Schwartz functions $A$ and $B$, @unitary_fourier_convolution_formulas gives
+We can now return to the operator-source separation that motivated the definition and check how it reconstructs solutions for general inputs. First recall that, for Schwartz functions $A$ and $B$, @unitary_fourier_convolution_formulas gives
 $
   cal(F)^(-1) lr( hat(A) dot hat(B) ) = (2 pi)^(-n/2) (A * B).
 $
