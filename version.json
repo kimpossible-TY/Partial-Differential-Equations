@@ -1,7 +1,7 @@
 {
-  "branch": "local",
-  "builtAt": "2026-08-16T10:41:01Z",
-  "versionId": "local@2026-08-16T10:41:01Z",
-  "pdfSha256": "de32aa73873283fb0f7006fd5389b4030626996826b4a8445021d6ece27c9401",
-  "pdfSize": 8615917
+  "branch": "main",
+  "builtAt": "2026-10-01T06:52:16Z",
+  "versionId": "main@2026-10-01T06:52:16Z",
+  "pdfSha256": "35bcffe912c7cdc4c622b4ae55fec13c419023813a882a301ea608c6dc43fb78",
+  "pdfSize": 10009415
 }
