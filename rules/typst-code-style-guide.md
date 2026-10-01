@@ -18,7 +18,8 @@ The project imports shared palettes from `@local/math-blocks:0.2.0` through `Sty
 Compile the default light theme with `typst compile --font-path fonts main.typ`;
 use `--input theme=dark` for the dark theme. The package owns page styles,
 paragraph marker rules, equation numbering, and counter resets.
-`book-part(prefix: "P")`, `book-part(prefix: "S")`, and `book-part` group the
+`book-part(prefix: "P", single-chapter: true)`,
+`book-part(prefix: "S", single-chapter: true)`, and `book-part` group the
 preliminaries, supplements, and main chapters. Keep their include lists local.
 
 Typst does not allow plain custom functions to be used directly as `#set` targets. Do not write `#set theme(...)`. Apply theme values through settable Typst elements such as `#set page(fill: theme.page)` and `#set text(fill: theme.text)`.
@@ -149,7 +150,8 @@ If any condition fails, omit the CeTZ figure. Use mannot/CeTZ annotations under 
 
 `theorem`, `proposition`, `lemma`, `definition`, and `note` all number themselves
 through `@local/math-blocks:0.2.0`. Numbers follow `chapter.section.order`;
-preliminaries and supplements add `P.` and `S.`. Counters reset at chapters and
+preliminaries and supplements replace the chapter number with `P` and `S`,
+giving `P.section.order` and `S.section.order`. Counters reset at chapters and
 sections through `apply-math-book`. Attach labels to these blocks for references.
 Do not add an automatic number manually. A cited textbook number belongs in the
 title or source text, clearly distinguished from the document number.

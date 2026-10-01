@@ -73,7 +73,7 @@ $
   Psi(x, z) = sum_(j in bb(Z)^(m), k in bb(Z)^(n))
     c_(j,k)(Psi) e_(j)(x) h_(k)(z),
 $
-where the orthogonal Fourier modes are
+where the orthogonal trigonometric basis functions are
 $
   e_(j)(x) := exp(i j dot x slash L),
   quad h_(k)(z) := exp(i k dot z slash L),
@@ -118,7 +118,7 @@ Whenever $2N > |alpha| + |beta| + m + n$, the decay factor $(1 + |j| + |k|)^(-2N
 
 #figure(
   schwartz-kernel-periodization-diagram(),
-  caption: [Torus periodization and localized tensor product decomposition of a coupled test function $Psi in cal(D)(X times Z)$. (Left) An arbitrary compact support $op("supp") Psi$ is enclosed within the cube $Q_(x) times Q_(z)$, with projections $A subset X$ and $D subset Z$ covered by smooth cutoffs $chi, eta$. (Middle) Periodizing $Psi$ over $bb(T)^(m+n)$ decouples the coordinates into orthogonal Fourier modes $e_(j)(x) h_(k)(z)$. (Right) Multiplying by $chi(x) eta(z)$ yields compactly supported tensor building blocks $(chi e_(j)) ⊗ (eta h_(k)) in cal(D)(X) ⊗ cal(D)(Z)$, whose super-polynomially decaying sum converges to $Psi$ in $cal(D)(X times Z)$.],
+  caption: [Torus periodization and localized tensor product decomposition of a coupled test function $Psi in cal(D)(X times Z)$. (Left) An arbitrary compact support $op("supp") Psi$ is enclosed within the cube $Q_(x) times Q_(z)$, with projections $A subset X$ and $D subset Z$ covered by smooth cutoffs $chi, eta$. (Middle) Periodizing $Psi$ over $bb(T)^(m+n)$ decouples the coordinates into orthogonal trigonometric basis functions $e_(j)(x) h_(k)(z)$. (Right) Multiplying by $chi(x) eta(z)$ yields compactly supported tensor building blocks $(chi e_(j)) ⊗ (eta h_(k)) in cal(D)(X) ⊗ cal(D)(Z)$, whose super-polynomially decaying sum converges to $Psi$ in $cal(D)(X times Z)$.],
 ) #(sk.tag)("schwartz-kernel-periodization")
 
 #paragraph_tab
@@ -232,7 +232,7 @@ Conversely, every distribution $K in cal(D)^(*)(X times Z)$ defines a unique con
 $
   cal(L)(cal(D)(Z), cal(D)^(*)(X)) approx.eq cal(D)^(*)(X times Z).
 $
-] #(sk.tag)("schwartz-kernel-theorem")
+] <schwartz-kernel-theorem>
 
 #proof[
 We work with complex-valued test functions; for real scalars, complexify $T$, apply the construction below, and restrict to real test functions (uniqueness guarantees that the resulting kernel is real).
@@ -248,7 +248,7 @@ Define the bilinear form $B(phi, f) := chevron.l T f, phi chevron.r$ on $cal(D)(
 $
   |B(phi, f)| <= C norm(phi)_(C^(p)) norm(f)_(C^(q)).
 $
-Choose cubes $Q_(x), Q_(z)$ containing $K_(1), K_(2)$ and Fourier modes $e_(j), h_(k)$ as in #(sk.ref)("tensor-product-density"). For $Psi in cal(D)(U times V)$, define
+Choose cubes $Q_(x), Q_(z)$ containing $K_(1), K_(2)$ and trigonometric basis functions $e_(j), h_(k)$ as in #(sk.ref)("tensor-product-density"). For $Psi in cal(D)(U times V)$, define
 $
   Lambda_(U,V)(Psi) := sum_(j in bb(Z)^(m), k in bb(Z)^(n)) c_(j,k)(Psi) B(chi e_(j), eta h_(k)).
 $
@@ -296,7 +296,7 @@ $
 ]
 
 #definition(title: "Schwartz kernel of a continuous linear operator")[
-Let $X subset.eq bb(R)^(m)$ and $Z subset.eq bb(R)^(n)$ be open sets. For any continuous linear operator $T in cal(L)(cal(D)(Z), cal(D)^(*)(X))$, the unique distribution $K in cal(D)^(*)(X times Z)$ guaranteed by #(sk.ref)("schwartz-kernel-theorem") such that
+Let $X subset.eq bb(R)^(m)$ and $Z subset.eq bb(R)^(n)$ be open sets. For any continuous linear operator $T in cal(L)(cal(D)(Z), cal(D)^(*)(X))$, the unique distribution $K in cal(D)^(*)(X times Z)$ guaranteed by @schwartz-kernel-theorem such that
 $
   chevron.l T f, phi chevron.r = chevron.l K, phi ⊗ f chevron.r, quad forall phi in cal(D)(X), #h(1em) f in cal(D)(Z),
 $

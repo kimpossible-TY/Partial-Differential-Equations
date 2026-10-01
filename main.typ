@@ -13,11 +13,11 @@
 
 #include "cover.typ"
 
-#book-part(prefix: "P", center-sections: true)[
+#book-part(prefix: "P", single-chapter: true, center-sections: true)[
   #include "Preliminaries/preliminaries.typ"
 ]
 
-#book-part(prefix: "S", center-sections: true)[
+#book-part(prefix: "S", single-chapter: true, center-sections: true)[
   #include "Supplementary/supplementary.typ"
 ]
 

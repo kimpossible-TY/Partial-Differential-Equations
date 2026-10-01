@@ -9,7 +9,7 @@
 The analysis of vibrating membranes in Euclidean space has important extensions to studies of vibrating manifolds. We will start with a fairly general situation, specializing quickly to models that gives rise to "the wave equation".
 $
   frac(partial^2 u, partial t^2) = Delta u
-$ <wave_equation>
+$
 
 #paragraph_tab
 After constructing the wave equation on a product manifold, we will show that the energy of the system is conserved. This is a fundamental property of wave equations and has important implications for the behavior of solutions over time.
