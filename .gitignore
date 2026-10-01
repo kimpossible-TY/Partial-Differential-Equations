@@ -55,6 +55,7 @@ test/
 nightwatch_bulk_tasks.json
 notes/
 video/
+output/
 
 ### agent configs
 .antigravitycli/
