@@ -57,6 +57,15 @@ jobs:
       - name: Generate Published Version Metadata
         run: python3 typst-packages/tools/pdf-versioning/pdf_version_server.py --root . --write-version-once
 
+      - name: Export Published Project References
+        run: |
+          python3 typst-packages/tools/project-references/export_references.py main.typ \
+            --project pde \
+            --title "Partial Differential Equations" \
+            --pdf-url https://kimpossible-ty.github.io/Partial-Differential-Equations/main.pdf \
+            --font-path fonts \
+            --catalog project-references.json
+
       - name: Generate Note Statistics
         run: |
           sudo apt-get update
@@ -76,6 +85,7 @@ jobs:
           cp statistics.html _site/
           cp -R statistics-assets _site/
           cp version.json _site/
+          cp project-references.json _site/
           cp typst-packages/tools/pdf-versioning/pdf-version-check.js _site/
 
       - name: Upload Pages Artifact
