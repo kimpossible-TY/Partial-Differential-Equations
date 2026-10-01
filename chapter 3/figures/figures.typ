@@ -1,8 +1,284 @@
 #import "../../Styles/styles.typ": theme-from-text-fill
 #import "@preview/fletcher:0.5.8" as fletcher: diagram, node, edge
 #import "@preview/cetz:0.4.2": canvas, draw
+#import "@preview/maquette:0.1.3": render-obj
 #import "@local/cetz-helpers:0.2.0": sample-function
 #import "@local/fletcher-helpers:0.1.0": themed-diagram
+
+// Four graphs on the same world-space domain and with the same camera.
+// The OBJ meshes are generated here, so no external 3D assets are required.
+#let coordinate-averaging-surfaces() = context {
+  let theme = theme-from-text-fill()
+  let bump(t) = if calc.abs(t) >= 1 { 0.0 } else {
+    calc.exp(1 - 1 / (1 - t * t))
+  }
+  let n = 400
+  let step = 2 / n
+  let cumulative = (0.0,)
+  for i in range(n) {
+    cumulative.push(cumulative.last() + step * bump(-1 + (i + .5) * step))
+  }
+  let normalization = cumulative.last()
+  let eta-profile(t) = bump(t) / normalization
+  let primitive(t) = {
+    if t <= -1 { 0.0 } else if t >= 1 { 1.0 } else {
+      let u = (t + 1) / step
+      let k = calc.min(int(calc.floor(u)), n - 1)
+      (cumulative.at(k) + (u - k) *
+        (cumulative.at(k + 1) - cumulative.at(k))) / normalization
+    }
+  }
+  let mesh(f) = {
+    let obj = "g surface\nusemtl surface\n"
+    let nx = 64
+    let ny = 48
+    for j in range(ny + 1) {
+      let y = -1.6 + 3.2 * j / ny
+      for i in range(nx + 1) {
+        let x = -2.2 + 4.4 * i / nx
+        obj += "v " + str(x) + " " + str(y) + " " + str(2.4 * f(x, y)) + "\n"
+      }
+    }
+    for j in range(ny) {
+      for i in range(nx) {
+        let a = 1 + j * (nx + 1) + i
+        let b = a + 1
+        let c = a + nx + 1
+        obj += "f " + str(a) + " " + str(b) + " " + str(c + 1) + "\n"
+        obj += "f " + str(a) + " " + str(c + 1) + " " + str(c) + "\n"
+      }
+    }
+    // Thin flat strips provide a common zero plane reference and axes.
+    let count = (nx + 1) * (ny + 1)
+    for (name, bounds) in (
+      ("z₁", (-2.25, -1.64, 2.4, -1.62)),
+      ("z₂", (-2.24, -1.64, -2.22, 1.8)),
+    ) {
+      let (x0, y0, x1, y1) = bounds
+      obj += "g " + name + "\nusemtl axes\n"
+      for (x, y) in ((x0, y0), (x1, y0), (x1, y1), (x0, y1)) {
+        obj += "v " + str(x) + " " + str(y) + " -0.02\n"
+      }
+      obj += "f " + str(count + 1) + " " + str(count + 2) + " " + str(count + 3) + " " + str(count + 4) + "\n"
+      count += 4
+    }
+    // Typst formats negative numbers with U+2212; OBJ requires ASCII minus.
+    obj.replace("−", "-")
+  }
+  let panel(f, title, description, color) = {
+    align(center)[
+      #text(size: 10pt, weight: "semibold", title)
+      #v(2pt)
+      #render-obj(mesh(f), (
+        width: 720, height: 420,
+        camera: (5, -7, 6), center: (0, 0, .45),
+        projection: "orthographic", auto_center: false, auto_fit: false,
+        fov: 32, zoom: 1.15,
+        background: none, cull_backface: false,
+        ambient: .5, light_dir: (-3, -4, 8), specular: .05,
+        smooth: true, antialias: 2,
+        materials: (surface: color.to-hex(), axes: theme.muted-text.to-hex()),
+        annotations: (groups: ("z₁", "z₂"), color: theme.text.to-hex(), font_size: 24, offset: 18),
+      ), width: 100%)
+      #v(1pt)
+      #text(size: 9pt, description)
+    ]
+  }
+  grid(columns: (1fr, 1fr), column-gutter: 12pt, row-gutter: 13pt,
+    panel((x, y) => eta-profile(x + .65) * eta-profile(y),
+      [(a) Original $F$], [Already compactly supported], theme.callouts.tip.border),
+    panel((x, y) => eta-profile(y),
+      [(b) $M(z_(2))=integral F thin d z_(1)$],
+      [The ridge continues in both $z_(1)$ directions], theme.callouts.important.border),
+    panel((x, y) => eta-profile(x) * eta-profile(y),
+      [(c) $P_(1)F=eta(z_(1))M(z_(2))$],
+      [Compact support; the same slice integrals], theme.callouts.proposition.border),
+    panel((x, y) => (primitive(x + .65) - primitive(x)) * eta-profile(y),
+      [(d) $H_(1)=integral_(-infinity)^(z_(1))(F-P_(1)F) thin d t$],
+      [Exactly zero for $z_(1)>1$ and $z_(1) < -1.65$], theme.callouts.tip.border),
+  )
+}
+
+#let coordinate-averaging-diagram() = context {
+  let theme = theme-from-text-fill()
+  let original = theme.callouts.tip.border
+  let replacement = theme.callouts.proposition.border
+  let negative = theme.callouts.important.border
+  let bump(t) = if calc.abs(t) >= 1 { 0 } else {
+    calc.exp(1 - 1 / (1 - t * t))
+  }
+  // Normalize a smooth bump; both shifted/scaled components below
+  // have unit integral before multiplying by their mixture weights.
+  let n = 400
+  let normalization = 0.0
+  for i in range(0, n) {
+    normalization += 2 / n * bump(-1 + (i + .5) * 2 / n)
+  }
+  let eta-profile(t) = bump(t) / normalization
+  let profile(t) = (.65 / .65 * eta-profile((t + .65) / .65) +
+    .35 / .45 * eta-profile((t - .8) / .45))
+  let residual(t) = profile(t) - eta-profile(t)
+  let points(f, cx, cy, sx: 1, sy: 1.4) = range(0, 241).map(i => {
+    let t = -1.8 + 3.6 * i / 240
+    (cx + sx * t, cy + sy * f(t))
+  })
+  canvas(length: 1.18cm, {
+    import draw: *
+    content((0, 5.65), text(size: 10pt)[Hold $r$ and every $z_(k)$ with $k eq.not j$ fixed])
+    content((0, 5.13), text(size: 9pt)[$M:=integral F(r,z) thin d z_(j)$; the example below has $M=1$.])
+    for (cx, f, color, label) in (
+      (-2.8, profile, original, $F$),
+      (2.8, eta-profile, replacement, $P_(j)F=M eta_(j)$),
+    ) {
+      content((cx, 4.55), text(size: 10pt, fill: color, label))
+      line((cx - 1.8, 2.8), ..points(f, cx, 2.8), (cx + 1.8, 2.8),
+        close: true, fill: color.transparentize(80%), stroke: none)
+      line((cx - 1.95, 2.8), (cx + 2.0, 2.8),
+        stroke: .6pt + theme.muted-text, mark: (end: ">"))
+      line(..points(f, cx, 2.8), stroke: 1.6pt + color)
+      content((cx + 2.0, 2.48), text(size: 9pt)[$z_(j)$])
+      content((cx, 2.22), text(size: 9pt)[signed area $=M$])
+    }
+    line((-.6, 3.5), (.6, 3.5),
+      stroke: .8pt + theme.text, mark: (end: ">"))
+    content((0, 3.91), text(size: 10pt)[$P_(j)$])
+    content((0, 1.62), text(size: 10pt)[Replace the shape; preserve the integral])
+    content((0, .91), text(size: 10pt)[$F-P_(j)F$])
+    line((-2.52, 0), ..points(t => calc.max(residual(t), 0), 0, 0, sx: 1.4),
+      (2.52, 0), close: true, fill: original.transparentize(75%), stroke: none)
+    line((-2.52, 0), ..points(t => calc.min(residual(t), 0), 0, 0, sx: 1.4),
+      (2.52, 0), close: true, fill: negative.transparentize(75%), stroke: none)
+    line((-2.75, 0), (2.9, 0),
+      stroke: .6pt + theme.muted-text, mark: (end: ">"))
+    line(..points(residual, 0, 0, sx: 1.4), stroke: 1.5pt + theme.text)
+    content((3.05, 0), text(size: 9pt)[$z_(j)$])
+    content((-3.55, .35), text(size: 9pt, fill: original)[positive area])
+    content((3.65, -.65), text(size: 9pt, fill: negative)[negative area])
+    content((0, -1.65), text(size: 10pt)[$integral (F-P_(j)F) thin d z_(j)=M-M=0$])
+    content((0, -2.3), text(size: 9pt)[The one-coordinate argument now applies: $F-P_(j)F=partial_(z_(j))H_(j)$, $H_(j) in cal(D)$.])
+  })
+}
+
+#let compact-primitive-diagram() = context {
+  let theme = theme-from-text-fill()
+  let positive = theme.callouts.tip.border
+  let negative = theme.callouts.important.border
+  let primitive = theme.callouts.proposition.border
+  // A smooth compactly supported primitive and its exact derivative, R = 2.
+  let bump(z) = if calc.abs(z) >= 2 { 0 } else {
+    calc.exp(1 - 1 / (1 - (z / 2) * (z / 2)))
+  }
+  let source(z) = if calc.abs(z) >= 2 { 0 } else {
+    -z / 2 * bump(z) / calc.pow(1 - (z / 2) * (z / 2), 2)
+  }
+  let points(f, lo, hi, y) = range(0, 161).map(i => {
+    let z = lo + (hi - lo) * i / 160
+    (z, y + f(z))
+  })
+  canvas(length: 1.35cm, {
+    import draw: *
+    rect((-2, -0.45), (2, 4.7),
+      fill: theme.callouts.proposition.bg, stroke: none)
+    for z in (-2, 2) {
+      line((z, -0.45), (z, 4.7),
+        stroke: (paint: theme.muted-text, thickness: .6pt, dash: "dashed"))
+    }
+    content((0, 5.12), text(size: 10pt)[Fixed $r in A$: cancellation preserves compact support])
+    for y in (3.1, 0) {
+      line((-3.25, y), (3.35, y),
+        stroke: .65pt + theme.muted-text, mark: (end: ">"))
+      content((3.5, y), text(size: 10pt)[$z$])
+    }
+    line((-2, 3.1), ..points(source, -2, 0, 3.1), (0, 3.1),
+      close: true, fill: positive.transparentize(78%), stroke: none)
+    line((0, 3.1), ..points(source, 0, 2, 3.1), (2, 3.1),
+      close: true, fill: negative.transparentize(78%), stroke: none)
+    line(..points(source, -3.15, 0, 3.1), stroke: 1.5pt + positive)
+    line(..points(source, 0, 3.15, 3.1), stroke: 1.5pt + negative)
+    content((-3.45, 3.1), anchor: "east", text(size: 10pt)[$F(r,z)$])
+    content((-1.05, 3.48), text(size: 10pt, fill: positive)[$+$])
+    content((1.05, 2.72), text(size: 10pt, fill: negative)[$-$])
+    content((0, 4.55), text(size: 10pt)[$integral F(r,z) thin d z=0$])
+    content((0, 1.65), text(size: 10pt)[$H(r,z)=integral_(-infinity)^(z)F(r,t) thin d t$])
+    line((-2, 0), ..points(bump, -2, 2, 0), (2, 0),
+      close: true, fill: primitive.transparentize(84%), stroke: none)
+    line(..points(bump, -3.15, 3.15, 0), stroke: 1.7pt + primitive)
+    content((-3.45, 0), anchor: "east", text(size: 10pt)[$H(r,z)$])
+    content((-2.65, .42), text(size: 9pt)[$H=0$])
+    content((2.65, .42), text(size: 9pt)[$H=0$])
+    for (z, label) in ((-2, $-R$), (2, $R$)) {
+      content((z, -.7), text(size: 10pt, label))
+    }
+    content((0, -1.13), text(size: 9pt)[For $r in.not A$, both profiles vanish identically.])
+  })
+}
+
+#let noncompact-primitive-diagram() = context {
+  let theme = theme-from-text-fill()
+  let source = theme.callouts.tip.border
+  let primitive = theme.callouts.proposition.border
+  let tail = theme.callouts.important.border
+  // Sample eta(z) = c exp(-1/(1-z^2)) on (-1,1), zero elsewhere.
+  // Normalize and accumulate with the same trapezoidal rule so the
+  // numerical drawing preserves unit mass and a right-hand plateau of one.
+  let n = 240
+  let dz = 2 / n
+  let raw = range(0, n + 1).map(i => {
+    let z = -1 + i * dz
+    if i == 0 or i == n { 0 } else { calc.exp(-1 / (1 - z * z)) }
+  })
+  let mass = 0.0
+  for i in range(1, n + 1) {
+    mass += dz * (raw.at(i - 1) + raw.at(i)) / 2
+  }
+  let density = raw.map(v => v / mass)
+  let accumulated = (0.0,)
+  for i in range(1, n + 1) {
+    accumulated.push(accumulated.last() + dz * (density.at(i - 1) + density.at(i)) / 2)
+  }
+  let density-points = range(0, n + 1).map(i => (
+    1.6 * (-1 + i * dz), 3.15 + 1.4 * density.at(i),
+  ))
+  let primitive-points = range(0, n + 1).map(i => (
+    1.6 * (-1 + i * dz), 1.4 * accumulated.at(i),
+  ))
+  canvas(length: 1.25cm, {
+    import draw: *
+    rect((-1.6, -0.45), (1.6, 4.7),
+      fill: theme.callouts.proposition.bg, stroke: none)
+    for x in (-1.6, 1.6) {
+      line((x, -0.45), (x, 4.7),
+        stroke: (paint: theme.muted-text, thickness: .6pt, dash: "dashed"))
+    }
+    content((0, 5.1), text(size: 10pt)[Nonzero mass leaves a nonzero primitive tail])
+    for y in (3.15, 0) {
+      line((-3.25, y), (3.35, y),
+        stroke: .65pt + theme.muted-text, mark: (end: ">"))
+      content((3.5, y), text(size: 10pt)[$z$])
+    }
+    line((-1.6, 3.15), ..density-points, (1.6, 3.15),
+      close: true, fill: source.transparentize(78%), stroke: none)
+    line((-3.15, 3.15), ..density-points, (3.15, 3.15),
+      stroke: 1.6pt + source)
+    content((-3.45, 3.15), anchor: "east", text(size: 10pt)[$eta(z)$])
+    content((0, 4.65), text(size: 10pt)[$integral eta(z) thin d z=1$])
+    content((0, 2.2), text(size: 10pt)[$h(z)=integral_(-infinity)^(z)eta(t) thin d t$])
+    line((-1.6, 0), ..primitive-points, (1.6, 0),
+      close: true, fill: primitive.transparentize(84%), stroke: none)
+    line((-3.15, 0), ..primitive-points, stroke: 1.7pt + primitive)
+    line((1.6, 1.4), (3.2, 1.4),
+      stroke: 2pt + tail, mark: (end: ">"))
+    content((-3.45, 0), anchor: "east", text(size: 10pt)[$h(z)$])
+    content((-2.5, .42), text(size: 9pt)[$h=0$])
+    content((2.5, 1.82), text(size: 9pt, fill: tail)[$h=1$])
+    content((2.5, .85), text(size: 9pt, fill: tail)[persists to $+infinity$])
+    for (x, label) in ((-1.6, $-1$), (1.6, $1$)) {
+      content((x, -.7), text(size: 10pt, label))
+    }
+    content((0, -1.2), text(size: 10pt)[$h'=eta in cal(D), quad h in.not cal(D)$])
+    content((0, -1.8), text(size: 9pt)[$chevron.l 1,h' chevron.r=h(+infinity)-h(-infinity)=1$])
+  })
+}
 
 #let wave-kernel-descent-diagram() = context {
   let theme = theme-from-text-fill()
@@ -1556,29 +1832,5 @@
       content((cx, -1.95), text(size: 10pt, label))
     }
     content((0, -2.6), text(size: 9pt)[Support only: no curve or shading represents a kernel's height.])
-  })
-}
-
-#let frequency-operator-map() = context {
-  let theme = theme-from-text-fill()
-  canvas(length: 0.85cm, {
-    import draw: *
-    for (xx, body) in ((-5, [$f$]), (-1.8, [$hat(f)$]), (1.8, [$h(|xi|)hat(f)$]), (5, [$h(A)f$])) {
-      content((xx, 1.7), text(size: 11pt, body))
-    }
-    for (x1, x2, label) in ((-4.6, -2.2, [$cal(F)$]), (-1.35, 0.7, [$times h(|xi|)$]), (2.9, 4.0, [$cal(F)^(-1)$])) {
-      line((x1, 1.7), (x2, 1.7), stroke: theme.text, mark: (end: ">"))
-      content(((x1+x2)/2, 2.2), text(size: 9pt, label))
-    }
-    line((-5.5, 0.9), (5.5, 0.9), stroke: 0.5pt + theme.rule)
-    for (xx, title, body) in (
-      (-3.8, [Heat], [$h(a)=e^(-t a^(2))$]),
-      (0, [Poisson], [$h(a)=e^(-y a)$]),
-      (3.8, [Wave], [$h(a)=cos(t a)$ #linebreak() or $h(a)=b_(t)(a)$]),
-    ) {
-      content((xx, 0.35), text(size: 10pt, weight: "bold", title))
-      content((xx, -0.45), text(size: 10pt, body))
-    }
-    content((0, -1.4), text(size: 9pt)[$a=|xi|$, $A=cal(F)^(-1)|xi|cal(F)$])
   })
 }

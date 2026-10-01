@@ -1,6 +1,9 @@
 #import "../Styles/styles.typ": *
-#import "figures/figures.typ": translation-orbit-diagram, subordination-mixture-diagram, kernel-support-comparison-diagram, frequency-operator-map, wave-kernel-descent-diagram, wave-source-observer-diagram, source-mass-superposition-diagram, boundary-image-kernel-diagram, diagonal-kernel-support-diagram, distributional-tensor-coupling-diagram, kernel-duality-fletcher-diagram
+#import "figures/figures.typ": translation-orbit-diagram, subordination-mixture-diagram, source-mass-superposition-diagram, diagonal-kernel-support-diagram, distributional-tensor-coupling-diagram, kernel-duality-fletcher-diagram, compact-primitive-diagram, noncompact-primitive-diagram, coordinate-averaging-diagram, coordinate-averaging-surfaces
 #import "@preview/mannot:0.4.0": *
+
+#let translation-convolution-video-url = "https://github.com/kimpossible-TY/Partial-Differential-Equations/releases/download/translation-invariance-convolution-v1/translation-invariance-convolution-v1.mp4"
+#let coordinate-averaging-video-url = "https://github.com/kimpossible-TY/Partial-Differential-Equations/releases/download/coordinate-averaging-video-v1/eta-lifting-en-3d-1.25x.mp4"
 
 #local-tag-scope(s => [
 
@@ -149,6 +152,10 @@ $
   quad phi in cal(D)(X).
 $
 In this section we place the distribution first in the pairing; the preceding section placed the test function first. Both conventions denote the same linear evaluation, without complex conjugation. The same pairing remains meaningful for singular objects; for example, $chevron.l delta_(a),phi chevron.r=phi(a)$ for $a in X$. The detector is only a model: mathematical test functions may change sign and need not have integral one.
+#emphasis(title : "Intuition of test functions used for distributional pairing")[
+  + $f(z)$ : describes the input at the source point $z$.
+  + $phi(x)$ : weights the output at the observation point $x$.
+]
 
 #figure(
   distributional-tensor-coupling-diagram(),
@@ -223,7 +230,7 @@ $
 ) #(s.tag)("kernel-duality-fletcher")
 
 #paragraph_tab
-For a known function kernel, Fubini justifies this relation. What if we are given only a continuous linear map $T: cal(D)(Z) arrow.r cal(D)^(*)(X)$? The values $B(phi,f)$ determine a linear functional on finite sums of product test functions. The remaining question is whether it extends continuously to all of $cal(D)(X times Z)$. #highlight[The Schwartz kernel theorem guarantees a unique such extension.] It gives a distribution kernel for every continuous linear map between these spaces.#footnote[The present section constructs each required kernel directly and then verifies that it represents the desired operator. The Schwartz kernel theorem, together with the topological definitions and auxiliary lemmas needed for its proof, is therefore developed separately in #link(<schwartz-kernel-theorem-supplement>)[the supplementary section “The Schwartz kernel theorem”]. See Richard Melrose, #link("https://math.mit.edu/~rbm/18.155-F16/L15.pdf")[18.155, Lecture 15 (2016)], for another test-function formulation of the theorem.]
+For a known function kernel, Fubini justifies this relation. What if we are given only a continuous linear map $T: cal(D)(Z) arrow.r cal(D)^(*)(X)$? The values $B(phi,f)$ determine a linear functional on finite sums of product test functions. The remaining question is whether it extends continuously to all of $cal(D)(X times Z)$. #highlight[The Schwartz kernel theorem(@schwartz-kernel-theorem) guarantees a unique such extension.] It gives a distribution kernel for every continuous linear map between these spaces.#footnote[The present section constructs each required kernel directly and then verifies that it represents the desired operator. The Schwartz kernel theorem, together with the topological definitions and auxiliary lemmas needed for its proof, is therefore developed separately in #link(<schwartz-kernel-theorem-supplement>)[the supplementary section “The Schwartz kernel theorem”]. See Richard Melrose, #link("https://math.mit.edu/~rbm/18.155-F16/L15.pdf")[18.155, Lecture 15 (2016)], for another test-function formulation of the theorem.]
 #parbreak()
 
 #paragraph_tab
@@ -249,16 +256,91 @@ Its diagonal support expresses that the identity passes each input value to the 
 === Translation invariance reduces two positions to one difference
 
 #paragraph_tab
-When translating the source and observer together leaves the chosen solution operator unchanged, its kernel satisfies
+The gravitational kernel depends on the displacement $x-z$ between source and observer. Let's identify the symmetry behind this dependence. Recall that $z$ records where the input is placed, while $x$ records where its output is observed. Moving the input by $a$ should move the output by the same amount whenever the chosen solution rule has no preferred origin. We first define this movement for both functions and distributions.
+
+#definition(title: "Translation operator")[
+Let $a in bb(R)^(n)$. For $f in cal(D)(bb(R)^(n))$, its *translation by* $a$ is the test function
+$
+  (tau_(a)f)(x):=f(x-a).
+$
+For $u in cal(D)^(*)(bb(R)^(n))$, its translation is defined by duality:
+$
+  chevron.l tau_(a)u,phi chevron.r
+  :=chevron.l u,tau_(-a)phi chevron.r,
+  quad phi in cal(D)(bb(R)^(n)),
+$ #(s.tag)("translation-operator condition")
+where $(tau_(-a)phi)(x)=phi(x+a)$.
+] #(s.tag)("translation-operator")
+
+For a locally integrable function $u$, the opposite sign in the duality definition follows by substituting $x=y+a$:
+$
+  chevron.l tau_(a)u,phi chevron.r
+  =integral u(x-a)phi(x) thin d x
+  =integral u(y)phi(y+a) thin d y
+  =chevron.l u,tau_(-a)phi chevron.r.
+$
+
+#paragraph_tab
+We can also express #(s.ref)("translation-operator condition") by translating the distribution and the test function together:
+$
+  chevron.l tau_(a)u,tau_(a)psi chevron.r
+  =chevron.l u,tau_(-a)(tau_(a)psi) chevron.r
+  =chevron.l u,psi chevron.r.
+$
+Thus moving both the field and its test observer by the same amount preserves the measured pairing. Could we take this identity itself as the definition of $tau_(a)u$? Yes, provided we require it for every $psi in cal(D)(bb(R)^(n))$. Translation is a bijection of the test-function space with inverse $tau_(-a)$, so every test function $phi$ has the unique form $phi=tau_(a)psi$, with $psi=tau_(-a)phi$. The simultaneous-translation identity therefore gives
+$
+  chevron.l tau_(a)u,phi chevron.r
+  =chevron.l u,psi chevron.r
+  =chevron.l u,tau_(-a)phi chevron.r,
+$ 
+recovering the stated definition. The two formulations are equivalent: one emphasizes preservation of the pairing, #highlight[while the other directly specifies the new distribution's action on an arbitrary test function.] This action is continuous and linear because $phi arrow.r tau_(-a)phi$ is continuous and linear on the test-function space and $u$ is a distribution.
+
+#definition(title: "Translation Invariance")[With this convention(#(s.ref)("translation-operator")), translating the input and then applying $T$ gives the translated original output precisely when
+$
+  T tau_(a)f=tau_(a)(T f), quad a in bb(R)^(n).
+$
+We call this property *translation invariance*.]
+
+#paragraph_tab
+To see what this symmetry requires of a kernel, first suppose that $T$ has a continuous function kernel $K$ on $bb(R)^(n) times bb(R)^(n)$:
+$
+  (T f)(x)=integral_(bb(R)^(n))K(x,z)f(z) thin d z,
+  quad f in cal(D)(bb(R)^(n)).
+$
+Here $K(x,z)$ describes the response at $x$ per unit source at $z$; the integral superposes these responses with weights $f(z)$. Compact support of $f$ makes the integral finite, and continuity of $K$ makes $T f$ continuous. We can therefore compare the two translated outputs pointwise. Translating the input gives
+$
+  (T tau_(a)f)(x)
+  &=integral_(bb(R)^(n))K(x,z)f(z-a) thin d z \
+  &=integral_(bb(R)^(n))K(x,w+a)f(w) thin d w,
+$
+where $w=z-a$. Translating the output instead gives
+$
+  (tau_(a)(T f))(x)=(T f)(x-a)
+  =integral_(bb(R)^(n))K(x-a,w)f(w) thin d w.
+$
+Translation invariance says these expressions agree for every test function $f$, so
+$
+  integral_(bb(R)^(n))lr((K(x,w+a)-K(x-a,w)))f(w) thin d w=0.
+$
+For each fixed $x$ and $a$, the continuous function in parentheses thus represents the zero distribution in $w$. It vanishes everywhere: a nonzero continuous function would be detected by a test function supported near a point where it is nonzero. Consequently, $K(x,w+a)=K(x-a,w)$. Replacing $x$ by $x+a$ and renaming $w$ as $z$ yields
 $
   K(x+a,z+a)=K(x,z).
 $
-For a continuous kernel, taking $a=-z$ gives $K(x,z)=K(x-z,0)$. Writing $k(r):=K(r,0)$ therefore yields
+#highlight[Moving the source and observer together leaves their coupling unchanged.]
+
+#paragraph_tab
+Now fix a pair $(x,z)$. The identity holds for every translation vector $a$, so we may choose $a=-z$. This moves the source to the origin and the observer to $x-z$:
 $
-  K(x,z)=k(x-z),
-  quad (T f)(x)=integral_(bb(R)^(n))k(x-z)f(z) thin d z=(k*f)(x).
+  (x,z) arrow.r (x-z,0), quad K(x,z)=K(x-z,0).
 $
-In one dimension, the pairs with the same difference lie on a line in the $(x,z)$-plane. Simultaneous translation moves along this line, as shown in #(s.ref)("translation-orbits").
+Thus the response at $x$ to a source at $z$ equals the response at $x-z$ to a source at the origin. Define that origin-source response by
+$
+  k(r):=K(r,0).
+$
+Then $K(x,z)=k(x-z)$: the entire two-position kernel is determined by one function of the displacement $r=x-z$. Here $r$ is a vector, so translation invariance alone does not require dependence only on the distance $|r|$.
+
+#paragraph_tab
+Geometrically, simultaneous translation preserves the difference because $(x+a)-(z+a)=x-z$. Conversely, any two pairs with the same difference are simultaneous translates of one another. #highlighted[The kernel is therefore constant along each set $x-z=r$.] In one dimension these sets are parallel lines in the $(x,z)$-plane, and each meets the slice $z=0$ at exactly one point $(r,0)$, as shown in #(s.ref)("translation-orbits").
 
 #figure(
   translation-orbit-diagram(),
@@ -266,28 +348,55 @@ In one dimension, the pairs with the same difference lie on a line in the $(x,z)
 ) #(s.tag)("translation-orbits")
 
 #paragraph_tab
-For a distribution, evaluation on the slice $z=0$ may not exist. To recover the same reduction, we instead integrate test functions along the translation direction. Write $cal(D)'=cal(D)^(*)$ and $cal(S)'=cal(S)^(*)$ for the distribution spaces introduced earlier.
+Substituting the resulting kernel into the integral representation gives
+$
+  (T f)(x)
+  =integral_(bb(R)^(n))K(x,z)f(z) thin d z
+  =integral_(bb(R)^(n))k(x-z)f(z) thin d z
+  =(k*f)(x).
+$
+This is why convolution appears: all source responses are translates of the same origin-source response, and the integral superposes them. For example, in one dimension $k(r)=e^(-r^(2))$ gives $K(x,z)=e^(-(x-z)^(2))$. The pairs $(3,1)$ and $(13,11)$ have the same displacement, so $K(3,1)=K(13,11)=e^(-4)$.
 
-#proposition(title: "Translation invariance characterizes convolution operators")[
-Let $T:cal(D)(bb(R)^(n)) arrow.r cal(D)'(bb(R)^(n))$ be continuous and linear. Set $(tau_(a)f)(x)=f(x-a)$, with translation of distributions defined by duality. Then $T tau_(a)=tau_(a)T$ for every $a in bb(R)^(n)$ if and only if there exists $k in cal(D)'(bb(R)^(n))$ such that $T f=k*f$ for every $f in cal(D)(bb(R)^(n))$. In this case, $k$ is unique, and the distribution kernel $K$ of $T$ satisfies, for every $Psi in cal(D)(bb(R)^(n) times bb(R)^(n))$,
+#paragraph_tab
+The accompanying #link(translation-convolution-video-url)[#underline[narrated animation: from translation invariance to convolution (MP4 download)]] follows the same construction dynamically. It moves the source and observer together, carries their pair along a fixed-displacement line to $(x-z,0)$, and builds convolution by refining a weighted sum of translated responses. Its final sequence previews how integrating test functions along these lines replaces the unavailable slice for a distribution kernel.
+
+#paragraph_tab
+The step $k(r)=K(r,0)$ used pointwise values of a continuous kernel. #highlighted[For a distribution, evaluation on the slice $z=0$ may not exist. To recover the same reduction, we instead integrate test functions along the translation direction.] The next theorem makes this replacement precise: $Q$ integrates a two-position test function over the pairs with fixed displacement, and $k$ acts on the resulting test function of $r$. First, let's define convolution when the kernel is a distribution.
+
+#definition(title: "Convolution of a distribution with a test function")[
+Let $k in cal(D)^(*)(bb(R)^(n))$ and $f in cal(D)(bb(R)^(n))$, and let $r in bb(R)^(n)$ denote the variable on which $k$ acts. Their *convolution* is defined by
+$
+  (k*f)(x):=lr(chevron.l k,f(x-r) chevron.r)_(r),
+  quad x in bb(R)^(n).
+$
+] #(s.tag)("distributional-convolution")
+
+If $k$ is represented by a locally integrable function, this definition agrees with the usual convolution integral:
+$
+  (k*f)(x)
+  =integral_(bb(R)^(n))k(r)f(x-r) thin d r
+  =integral_(bb(R)^(n))k(x-z)f(z) thin d z.
+$
+The last equality uses $z=x-r$.
+
+#theorem(title: "Translation invariance characterizes convolution operators")[
+Let $T:cal(D)(bb(R)^(n)) arrow.r cal(D)^(*)(bb(R)^(n))$ be continuous and linear. Then $T tau_(a)=tau_(a)T$ for every $a in bb(R)^(n)$ if and only if there exists $k in cal(D)^(*)(bb(R)^(n))$ such that $T f=k*f$ for every $f in cal(D)(bb(R)^(n))$. In this case, $k$ is unique, and the distribution kernel $K$ of $T$ satisfies, for every $Psi in cal(D)(bb(R)^(n) times bb(R)^(n))$,
 $
   chevron.l K,Psi chevron.r=chevron.l k,Q Psi chevron.r,
   quad (Q Psi)(r):=integral_(bb(R)^(n))Psi(r+z,z) thin d z.
 $ #(s.tag)("translation-kernel-pairing")
 This identity defines the notation $K(x,z)=k(x-z)$ without restricting $K$ to a slice.
-]
+] #(s.tag)("translation-convolution-theorem")
 
 #paragraph_tab
-Let's first unpack the hypothesis. The translated input $tau_(a)f$ moves the source profile by $a$. The equality $T tau_(a)f=tau_(a)(T f)$ says that moving the input and then applying the operator gives exactly the translated original output. Thus the operator has no preferred origin. For a distribution $u$, the precise convention is
-$
-  chevron.l tau_(a)u,phi chevron.r
-  :=chevron.l u,tau_(-a)phi chevron.r,
-  quad (tau_(-a)phi)(x)=phi(x+a).
-$
-The opposite sign on the test function follows by substituting $x=y+a$ in the pairing for an ordinary function. The proposition says that this symmetry is equivalent to describing the whole operator by convolution with a single distribution $k$ of the displacement $r=x-z$.
+The continuous-kernel calculation suggests the conclusion, but the proof must now recover $k$ without evaluating $K$ at a point or on a slice. #highlighted[The proposition says that this symmetry is equivalent to describing the whole operator by convolution with a single distribution $k$ of the displacement $r=x-z$.]
 
 #proof[
-*From translation invariance to convolution.* Assume $T tau_(a)=tau_(a)T$ for every $a$. By the Schwartz kernel theorem, $T$ has a unique distribution kernel $K$. Test a translated input with a translated observer. Commutation and the duality convention give
+Assume $T tau_(a)=tau_(a)T$ for every $a$. The Schwartz kernel theorem (@schwartz-kernel-theorem) states that, for open sets $X$ and $Z$, every continuous linear map $T: cal(D)(Z) arrow.r cal(D)^(*)(X)$ has a unique distribution $K in cal(D)^(*)(X times Z)$ satisfying
+$
+  chevron.l T f,phi chevron.r=chevron.l K,phi ⊗ f chevron.r
+$ #(s.tag)("schwartz-kernel-representation")
+for all $f in cal(D)(Z)$ and $phi in cal(D)(X)$. Our operator satisfies these hypotheses, so let $K$ denote this unique kernel. Test a translated input with a translated observer. Commutation and the duality convention give
 $
   chevron.l K,(tau_(a)phi) ⊗ (tau_(a)f) chevron.r
   &=chevron.l T(tau_(a)f),tau_(a)phi chevron.r \
@@ -300,10 +409,10 @@ $
   chevron.l K,(x,z) arrow.r Psi(x-a,z-a) chevron.r
   =chevron.l K,Psi chevron.r.
 $
-This is the distributional meaning of $K(x+a,z+a)=K(x,z)$; no pointwise values of $K$ are used.
+#highlighted[This is the distributional meaning of $K(x+a,z+a)=K(x,z)$; no pointwise values of $K$ are used.]
 
 #paragraph_tab
-*Separate displacement from common translation.* Introduce $r=x-z$ and retain $z$ as the second coordinate. The inverse map is $(r,z) arrow.r (r+z,z)$, and its absolute Jacobian is one. Define the transformed distribution by
+It is uncomfortable to control two variables, so we now reduce to one. Introduce $r=x-z$ and retain $z$ as the second coordinate. The inverse map is $(r,z) arrow.r (r+z,z)$, and its absolute Jacobian is one. Define the transformed distribution by
 $
   chevron.l U,Phi chevron.r
   :=chevron.l K,(x,z) arrow.r Phi(x-z,z) chevron.r.
@@ -313,136 +422,265 @@ $
   chevron.l U,(r,z) arrow.r Phi(r,z-a) chevron.r
   =chevron.l U,Phi chevron.r.
 $
-Differentiate with respect to $a_(j)$ at $a=0$. This differentiation is valid in the test-function topology: for $a$ near zero the supports stay in one compact set, and every derivative converges uniformly. Consequently,
-$
-  chevron.l U,partial_(z_(j))H chevron.r=0,
-  quad H in cal(D)(bb(R)^(n) times bb(R)^(n)),
-  quad j=1,dots,n.
-$
-Thus $U$ annihilates derivatives in the direction along which the source and observer move together. We must now show that it can read only the total integral of a test function in that direction.
 
 #paragraph_tab
-*Why zero integral implies zero pairing.* First consider one translation coordinate $z$. If $F(r,z)$ satisfies $integral F(r,z) thin d z=0$ for every $r$, set
+The identity above says that $U$ does not change however far we move in the $z$ direction while keeping $r$ fixed. When studying Noether's theorem in _Introduction to Smooth Manifolds_ (@Manifolds, Theorem 22.22), #highlight[we learned to view tangent vectors as infinitesimal shifts and differentiation as measuring change along them.] This gives a familiar way to read our identity: no change under a shift should mean zero derivative in that direction. Let's express this through the pairing by setting $a=t e_(j)$, where $e_(j)$ is the $j$th standard basis vector, and differentiating at $t=0$:
+$
+  0
+  &=lr(frac(d,d t)chevron.l U,(r,z) arrow.r Phi(r,z-t e_(j))chevron.r)|_(t=0) \
+  &=-chevron.l U,partial_(z_(j))Phi chevron.r
+  =chevron.l partial_(z_(j))U,Phi chevron.r.
+$ #(s.tag)("translation-vanishing-derivative")
+The minus sign comes from translating the test function by $-t e_(j)$ and agrees with the definition of a distributional derivative. Differentiation through the pairing is valid because the translated test functions have a common compact support for small $t$, and their difference quotients converge with every derivative. Since the pairing in #(s.ref)("translation-vanishing-derivative") is zero for every test function $Phi$, the distribution $partial_(z_(j))U$ is zero. This does not say that $partial_(z_(j))Phi=0$; it says that $U$ annihilates these derivatives.
+
+#paragraph_tab
+#highlight[The fundamental theorem of calculus suggests reversing differentiation by integration.] Let's use this idea on the test functions in #(s.ref)("translation-vanishing-derivative"). First consider one translation coordinate $z in bb(R)$, with the other variables as parameters. We already know that $chevron.l U,partial_(z)H chevron.r=0$ for every $H in cal(D)$. To apply this identity to a test function $F$, we would like to find $H in cal(D)$ with $F=partial_(z)H$. This suggests the following construction strategy:
+#mannot-scope(m => [
+  #block(breakable: false)[
+  #v(1.8em)
+  $
+    mark(underbrace(chevron.l U "," partial_(z)phi chevron.r=0),
+      tag: #(m.tag)("known"))
+    #h(3em)
+    mark(arrow.r, tag: #(m.tag)("bridge"))
+    #h(3em)
+    mark(underbrace(F=partial_(z)H),
+      tag: #(m.tag)("goal"))
+    #annot((m.tag)("known"), pos: bottom, dy: 0.3em, leader: false,
+      annot-text-props: (size: .8em))[
+      Known for every $phi in cal(D)$ \
+      #(s.ref)("translation-vanishing-derivative")
+    ]
+    #annot((m.tag)("bridge"), pos: top, dy: -0.8em,
+      leader: true, leader-connect: "elbow",
+      annot-text-props: (size: .8em))[
+      Try integrating $F$ to find $H$
+    ]
+    #annot((m.tag)("goal"), pos: bottom, dy: 0.3em, leader: false,
+      annot-text-props: (size: .8em))[
+      Representation to construct \
+      with $H in cal(D)$
+    ]
+  $ #(s.tag)("primitive-construction-strategy")
+  #v(2.8em)
+  ]
+], parent: s, name: "derivative-to-zero-integral")
+The requirement $H in cal(D)$ in #(s.ref)("primitive-construction-strategy") restricts which $F$ can have this representation. If such an $H$ exists, choose $R$ large enough that its support lies in the strip $|z|<R$. Since $F=partial_(z)H$ also vanishes outside that strip, the fundamental theorem of calculus gives, for every $r$,
+$
+  integral_(bb(R))F(r,z) thin d z
+  &=integral_(-R)^(R)partial_(z)H(r,z) thin d z \
+  &=H(r,R)-H(r,-R)=0.
+$ #(s.tag)("primitive-necessary-integral")
+Thus #(s.ref)("primitive-necessary-integral") reveals a necessary condition: #highlight[the integral in the translation coordinate must vanish for each fixed choice of the other variables.] This condition comes from requiring the primitive to vanish at both ends.
+
+#paragraph_tab
+Let's now check whether this necessary condition is sufficient. For $F in cal(D)$ with $integral_(bb(R))F(r,z) thin d z=0$ for every $r$, define
 $
   H(r,z):=integral_(-infinity)^(z)F(r,t) thin d t.
+$ #(s.tag)("test-function-primitive")
+Applying the fundamental theorem of calculus to #(s.ref)("test-function-primitive") gives $partial_(z)H=F$. Before using this identity in the distributional argument, however, #highlighted[we must check that $H$ itself belongs to $cal(D)$.] To distinguish the defining identity from its intended application to $H$, recall that for an arbitrary test function $psi in cal(D)$,
 $
-Then $partial_(z)H=F$. The primitive vanishes below the support of $F$, and above that support it equals the full integral, which is zero. Its $r$ support remains in the compact projection of $op("supp")F$, so $H$ is smooth and compactly supported in all variables. Hence
-$
-  chevron.l U,F chevron.r
-  =chevron.l U,partial_(z)H chevron.r=0.
-$
-The zero-integral assumption is essential: without it the primitive can remain nonzero arbitrarily far to the right and would no longer be a test function.
+  chevron.l U,partial_(z)psi chevron.r
+  =-chevron.l partial_(z)U,psi chevron.r.
+$ #(s.tag)("primitive-derivative-duality")
+We cannot yet substitute $psi=H$ in #(s.ref)("primitive-derivative-duality"). Its left side would be defined because $partial_(z)H=F in cal(D)$, #highlighted[but its right side requires $H in cal(D)$], which remains to be proved. #highlight[The derivative being a test function does not by itself make the primitive an admissible test function.] We must verify both smoothness and compact support before making this substitution and using the vanishing derivative from #(s.ref)("translation-vanishing-derivative").
+
+#block(sticky: true)[
 
 #paragraph_tab
-For $z=(z_(1),dots,z_(n))$, we apply this argument one coordinate at a time. Choose $eta_(j) in cal(D)(bb(R))$ with $integral eta_(j)=1$, and write $eta(z)=product_(j=1)^(n)eta_(j)(z_(j))$. Define the averaging operation
+To verify $H in cal(D)$, first let's check smoothness of $H$. Since $F$ has compact support, choose a compact set $A$ in the parameter variables and $R>0$ such that $op("supp")F subset.eq A times [-R,R]$. We can then rewrite #(s.ref)("test-function-primitive") as $H(r,z)=integral_(-R)^(z)F(r,t) thin d t$. Differentiating this finite-interval integral gives, for every multi-index $alpha$ in the parameter variables and integer $m>=1$,
+]
+$
+  partial_(r)^(alpha)H(r,z)
+  &=integral_(-R)^(z)partial_(r)^(alpha)F(r,t) thin d t, \
+  partial_(r)^(alpha)partial_(z)^(m)H(r,z)
+  &=partial_(r)^(alpha)partial_(z)^(m-1)F(r,z).
+$ #(s.tag)("primitive-smoothness")
+The derivatives in #(s.ref)("primitive-smoothness") are continuous because $F$ is smooth, so $H$ is smooth in all variables.
+
+#paragraph_tab
+To check compact support, return to the primitive in #(s.ref)("test-function-primitive") and consider where it can be nonzero. If $r in.not A$, then $F(r,t)=0$ for every $t$, so $H(r,z)=0$. If $z < -R$, its defining integral has not reached the support of $F$, so again $H(r,z)=0$. If $z>R$, it has passed the entire support in the integration variable, and hence
+$
+  H(r,z)=integral_(-infinity)^(infinity)F(r,t) thin d t=0 quad "where" F in cal(D).
+$ #(s.tag)("primitive-zero-tail")
+The two equalities in #(s.ref)("primitive-zero-tail") have different roles: compact support of $F$ makes the primitive constant after the support, and the zero-integral condition in #(s.ref)("primitive-necessary-integral") makes that constant zero. #highlighted[Thus $H(r,z)=0$ at every finite $z>R$, not merely in the limit as $z arrow.r infinity$.] Consequently, $op("supp")H subset.eq A times [-R,R]$, which is compact. Together with the smoothness established in #(s.ref)("primitive-smoothness"), this proves $H in cal(D)$.
+
+#figure(
+  compact-primitive-diagram(),
+  caption: [A smooth example at fixed $r in A$, with $partial_(z)H=F$. The positive and negative areas cancel, so the accumulated integral returns to zero for $z>R$. The dashed boundaries align the support interval in both plots; vanishing for $r in.not A$ gives the full compact support bound $A times [-R,R]$.],
+) #(s.tag)("compact-primitive-support")
+
+#paragraph_tab
+The support check in #(s.ref)("primitive-zero-tail") has already identified the role of the zero-integral condition. Let's make the failure without it concrete, still in one translation coordinate. Take a nonnegative test function $eta$ with support in $[-1,1]$ and integral one. Its primitive $h(z):=integral_(-infinity)^(z)eta(t) thin d t$ is smooth, but equals zero for $z < -1$ and one for $z>1$. As #(s.ref)("noncompact-primitive-support") shows, #highlight[the accumulated integral retains a nonzero tail after the derivative has vanished.] Thus $h$ is not compactly supported even though $h'=eta$ is.
+
+#figure(
+  noncompact-primitive-diagram(),
+  caption: [Removing the zero-integral condition. The shaded area under the smooth test function $eta$ is one, so its primitive stays at one for $z>1$. The arrow continues the plateau beyond the plotted interval. Here $h(plus.minus infinity)$ denotes the corresponding limit; their difference is the nonzero pairing with the constant distribution $1$.],
+) #(s.tag)("noncompact-primitive-support")
+
+#paragraph_tab
+For our zero-integral $F$, we have now verified that the primitive in #(s.ref)("test-function-primitive") is a test function. We may therefore apply #(s.ref)("primitive-derivative-duality") and then #(s.ref)("translation-vanishing-derivative") to obtain
+$
+  chevron.l U,F chevron.r
+  =chevron.l U,partial_(z)H chevron.r
+  =-chevron.l partial_(z)U,H chevron.r=0.
+$ #(s.tag)("zero-integral-pairing")
+The construction proposed in #(s.ref)("primitive-construction-strategy") is now justified: the necessary condition #(s.ref)("primitive-necessary-integral") is also sufficient for a test-function primitive to exist. #highlighted[In several coordinates, zero total $z$ integral need not imply zero integral in each coordinate separately]. The original $F$ is still compactly supported; its primitive in one coordinate may retain the nonzero tail illustrated in #(s.ref)("noncompact-primitive-support").
+
+#paragraph_tab
+To use the known derivative identities(#(s.ref)("translation-vanishing-derivative")), we would like to express a test function with zero total integral as $F=sum_(j=1)^(n)partial_(z_(j))H_(j)$ with $H_(j) in cal(D)$: by linearity, #(s.ref)("translation-vanishing-derivative") would then give $chevron.l U,F chevron.r=0$. 
+$
+  cancel(chevron.l U comma partial_(z_1) H_(1) chevron.r) + dots.c cancel(chevron.l partial_(z_n) H_(n) chevron.r) &= chevron.l U comma sum_(j=1)^n partial_(z_j) H_(j) chevron.r \ &= chevron.l U,F chevron.r 
+  \
+  &=0 #dots_space #footnote[becuase of #(s.ref)("translation-vanishing-derivative")]
+$ #(s.tag)("multi-variable-pairing") 
+Then can the #(s.ref)("multi-variable-pairing") induce an equalvalance to 
+$
+  0 = sum_(j=1)^n chevron.l U , partial_(z_j) H_(j) chevron.r  attach(=, t: ?) - sum^n_(j=1) chevron.l partial_(z_j) U , H_j chevron.r quad "where" F in cal(D)
+$
+likely to #(s.ref)("translation-vanishing-derivative")? We have to prove that the primitive $H_(j)$ in each coordinate is a test function, in other words $H_(j) in cal(D)$. For $z=(z_(1),dots,z_(n))$, we apply the one-coordinate conclusion #(s.ref)("zero-integral-pairing") successively. Choose $eta_(j) in cal(D)(bb(R))$ with $integral eta_(j)=1$, and write $eta(z)=product_(j=1)^(n)eta_(j)(z_(j))$. Define the averaging operation
 $
   (P_(j)F)(r,z)
   :=eta_(j)(z_(j))integral_(bb(R))
   F(r,z_(1),dots,z_(j-1),t,z_(j+1),dots,z_(n)) thin d t.
+$ #(s.tag)("coordinate-averaging")
+To see why both ingredients in #(s.ref)("coordinate-averaging") are needed, write $t=z_(j)$ and collect all the remaining variables, including $r$, into $x$. In this notation, let $M(x)=integral_(bb(R))F(x,t) thin d t$. This is a smooth, compactly supported function of $x$. But if $M eq.not 0$, regarding $M(x)$ as a function of $(x,t)$ produces a profile that extends unchanged along the entire $t$ axis, as in panel (b) of #(s.ref)("coordinate-averaging-surfaces"). #highlighted[Multiplication by $eta_(j)(t)$ gives $P_(j)F$ compact support in all variables, while the normalization $integral eta_(j)=1$ preserves each slice integral]:
 $
+  integral_(bb(R))(P_(j)F)(x,t) thin d t
+  =M(x)integral_(bb(R))eta_(j)(t) thin d t=M(x).
+$ #(s.tag)("coordinate-integral-preservation")
+Thus $G_(j):=F-P_(j)F$ is a test function with $integral G_(j)(x,t) thin d t=0$ for every $x$. The cancellation in #(s.ref)("coordinate-integral-preservation") is shown one slice at a time in #(s.ref)("coordinate-averaging-role").
+
+#figure(
+  coordinate-averaging-diagram(),
+  caption: [One coordinate at a time. The upper profiles have the same integral $M$; their difference below has cancelling signed areas. The drawing uses $M=1$, but integral preservation and the zero-integral difference hold for any $M$. The other variables remain fixed throughout.],
+) #(s.tag)("coordinate-averaging-role")
+
+#paragraph_tab
+Let's now check what this gives for the primitive, rather than only for the integrand. Since $G_(j)$ has compact support in all variables, choose a compact $K$ and a single $R>0$ such that $op("supp")G_(j) subset.eq K times [-R,R]$. #highlighted[Define $H_(j)(x,t)=integral_(-infinity)^(t)G_(j)(x,s) thin d s$.]#footnote[At the above, we showed this definition doesn't influence the integral result(value). Hence it is justified.] The two steps of #(s.ref)("primitive-zero-tail") now read, for every $t>R$,
+$
+  underbrace(
+    H_(j)(x,t)=integral_(-infinity)^(infinity)G_(j)(x,s) thin d s,
+    #text(size: .8em)[Compact support: the tail is constant],
+  )
+  =underbrace(0, #text(size: .8em)[Zero slice integral]).
+$ #(s.tag)("coordinate-primitive-tail")
+Also $H_(j)=0$ for $t < -R$ or $x in.not K$, and #(s.ref)("primitive-smoothness") supplies smoothness. Hence $H_(j) in cal(D)$ and $partial_(z_(j))H_(j)=F-P_(j)F$, so #(s.ref)("zero-integral-pairing") applies. #highlight[The compact support of the integrand makes the tail constant; cancellation makes that constant zero.]
+
+#figure(
+  coordinate-averaging-surfaces(),
+  caption: [A two-coordinate example with $r$ fixed: $F(z_(1),z_(2))=eta(z_(1)+0.65)eta(z_(2))$, where $eta$ is a smooth unit-integral bump supported in $[-1,1]$. All panels use the same axes, height scale, and viewing window; the flat sheet is height zero. Panel (b) is a cropped view of an unbounded ridge. In (d), the integrand is evaluated at $(t,z_(2))$: the primitive of $F-P_(1)F$ vanishes outside a bounded rectangle by #(s.ref)("coordinate-primitive-tail"). This construction works for arbitrary $F$; the example has total integral one.],
+) #(s.tag)("coordinate-averaging-surfaces")
+
+#paragraph_tab
+See the #link(coordinate-averaging-video-url)[#underline[English 3D visualization of coordinate averaging (MP4 download)]].
+
+#paragraph_tab
 Set $F_(0)=F$ and $F_(j)=P_(j)F_(j-1)$. Each difference $F_(j-1)-F_(j)$ has zero integral in $z_(j)$, with all other variables fixed. The one-coordinate primitive construction therefore writes it as $partial_(z_(j))H_(j)$ for a test function $H_(j)$. Adding these differences gives
 $
   F-F_(n)=sum_(j=1)^(n)partial_(z_(j))H_(j),
   quad F_(n)(r,z)=eta(z)integral_(bb(R)^(n))F(r,w) thin d w.
 $
-Since $U$ annihilates every derivative on the right, it has the same pairing with $F$ and $F_(n)$. In particular, if the full $z$ integral of $F$ is zero, then $chevron.l U,F chevron.r=0$.
+Since $U$ annihilates every derivative on the right, it has the same pairing with $F$ and $F_(n)$. Indeed, each constructed primitive $H_(j)$ belongs to $cal(D)$, so we may use the distributional derivative identity #(s.ref)("primitive-derivative-duality"). By linearity and the vanishing derivatives in #(s.ref)("translation-vanishing-derivative"),
+$
+  chevron.l U,F chevron.r-chevron.l U,F_(n) chevron.r
+  &=chevron.l U,F-F_(n) chevron.r \
+  &=sum_(j=1)^(n)chevron.l U,partial_(z_(j))H_(j) chevron.r \
+  &=-sum_(j=1)^(n)chevron.l partial_(z_(j))U,H_(j) chevron.r=0.
+$ #(s.tag)("coordinate-averaging-pairing")
+Thus #(s.ref)("coordinate-averaging-pairing") gives $chevron.l U,F chevron.r=chevron.l U,F_(n) chevron.r$. #highlighted[In particular, if the full $z$ integral of $F$ is zero, then $F_(n)=0$ and hence $chevron.l U,F chevron.r=0$.]
 
 #paragraph_tab
-*Construct the distribution of the displacement.* Using the unit-integral function $eta$ above, define
+Above, we established the relevant properties of $U$. Let's now use them to construct a kernel that depends only on the displacement $r$. For any test function $Phi(r,z)$, set
+$
+  psi(r):=integral_(bb(R)^(n))Phi(r,z) thin d z.
+$ #(s.tag)("displacement-test-function")
+#highlighted[We have shown that two test functions with the same $z$-integral give the same pairing with $U$. Thus $psi$ alone determines $chevron.l U,Phi chevron.r$.] This suggests defining a distribution $k$ that acts directly on $psi$.
+
+#paragraph_tab
+To define $k$ on an arbitrary $psi in cal(D)(bb(R)^(n))$, however, we must first represent $psi$ by a test function that $U$ can accept. Viewing $psi(r)$ as a function of $(r,z)$ makes it constant along the entire $z$ direction, so it is not compactly supported unless $psi=0$. Choose the test function $eta(z)$ above, with $integral eta=1$. Then $psi(r)eta(z)$ is a test function in both variables, and its $z$-integral is exactly $psi(r)$. We therefore define
 $
   chevron.l k,psi chevron.r
-  :=chevron.l U,(r,z) arrow.r psi(r)eta(z) chevron.r,
-  quad psi in cal(D)(bb(R)^(n)).
+  :=chevron.l U,psi(r)eta(z) chevron.r.
 $
-This defines a distribution because $psi arrow.r psi ⊗ eta$ is continuous in the test-function topology. Indeed, a fixed compact support for $psi$ gives a fixed compact product support, and derivatives of the product are bounded by derivatives of $psi$ times fixed derivatives of $eta$. For an arbitrary $Phi$, subtract its normalized average:
-$
-  F(r,z):=Phi(r,z)-eta(z)integral_(bb(R)^(n))Phi(r,w) thin d w.
-$
-Its $z$ integral is zero, so the preceding step gives
+This defines a distribution because $psi arrow.r psi ⊗ eta$ is continuous in the test-function topology. Indeed, a fixed compact support for $psi$ gives a fixed compact product support, and derivatives of the product are bounded by derivatives of $psi$ times fixed derivatives of $eta$.
+
+#paragraph_tab
+The coordinate-averaging identity #(s.ref)("coordinate-averaging-pairing") already applies to every test function. Taking $F=Phi$ there and using the definition of $k$ gives
 $
   chevron.l U,Phi chevron.r
-  =chevron.l U,eta(z)integral Phi(r,w) thin d w chevron.r
-  =chevron.l k,r arrow.r integral Phi(r,z) thin d z chevron.r.
+  =chevron.l U,eta(z)psi(r) chevron.r
+  =chevron.l k,psi chevron.r.
 $
-This also proves that $k$ does not depend on the chosen $eta$: replacing it by another unit-integral test function changes $psi(r)eta(z)$ by a function whose $z$ integral is zero. In distribution notation, we have proved $U=k ⊗ 1$, where $1$ is the regular distribution that integrates test functions in $z$.
+This also proves that $k$ does not depend on the chosen $eta$: replacing it by another unit-integral test function changes $psi(r)eta(z)$ by a function whose $z$ integral is zero. #highlighted[In distribution notation, we have proved $U=k ⊗ 1$, where $1$ is the regular distribution that integrates test functions in $z$.]
 
 #paragraph_tab
-*Return to the original variables.* Take $Phi(r,z)=Psi(r+z,z)$. Then
+Finally, let's return to the original variables. Take $Phi(r,z)=Psi(r+z,z)$. For this choice, the test function defined above is $psi(r)=integral_(bb(R)^(n))Psi(r+z,z) thin d z=(Q Psi)(r)$. Thus
 $
   chevron.l K,Psi chevron.r
-  =chevron.l k,r arrow.r integral Psi(r+z,z) thin d z chevron.r
+  =chevron.l U,Phi chevron.r
+  =chevron.l k,psi chevron.r
   =chevron.l k,Q Psi chevron.r,
+$ #(s.tag)("original-variable-kernel-pairing")
+which proves #(s.ref)("translation-kernel-pairing"). For a product test function $Psi=phi ⊗ f$, we have $psi(r)=integral_(bb(R)^(n))phi(r+z)f(z) thin d z$, and the kernel relation becomes
 $
-which proves #(s.ref)("translation-kernel-pairing"). All the marginals used here are test functions: their supports lie in compact projections of the transformed support, and their derivatives pass under the integral. For a product test function $Psi=phi ⊗ f$, the kernel relation now becomes
+  chevron.l T f,phi chevron.r \
+  &=chevron.l K,phi ⊗ f chevron.r #dots_space #footnote[The kernel identity #(s.ref)("schwartz-kernel-representation").] \
+  &=chevron.l k,Q (phi ⊗ f) chevron.r #dots_space #footnote[Apply #(s.ref)("original-variable-kernel-pairing") with $Psi=phi ⊗ f$.] \
+  &=chevron.l k,psi chevron.r #dots_space #footnote[The definition of $Q$ in #(s.ref)("translation-kernel-pairing") gives $Q(phi ⊗ f)=psi$.] \
+  &=chevron.l k*f,phi chevron.r. #dots_space #footnote[Expand this pairing as in #(s.ref)("convolution-pairing-expansion").]
 $
-  chevron.l T f,phi chevron.r
-  =chevron.l k,r arrow.r integral phi(r+z)f(z) thin d z chevron.r
-  =chevron.l k*f,phi chevron.r.
+To see the last equality directly, expand the pairing with $psi$:
 $
-To see the last equality directly, convolution with a test function is the smooth function
-$
-  (k*f)(x):=chevron.l k,r arrow.r f(x-r) chevron.r.
-$
-Pairing this function with $phi$ and substituting $z=x-r$ inside the test function gives exactly the preceding integral. Interchanging the pairing and integration is valid because $x$ ranges over $op("supp")phi$, and all the test functions in $r$ then have support in one compact set. Thus $T f=k*f$ as distributions.
+  chevron.l k,psi chevron.r
+  &=chevron.l k,integral_(bb(R)^(n))phi(r+z)f(z) thin d z chevron.r \
+  &=chevron.l k,integral_(bb(R)^(n))phi(x)f(x-r) thin d x chevron.r, quad "where " z=x-r
+  \
+  &=integral_(bb(R)^(n))phi(x)lr(chevron.l k,f(x-r) chevron.r)_(r) thin d x #dots_space #footnote[
+    From the finite-sum perspective, linearity lets $k$ act inside the sum:
+    $
+      lr(chevron.l k,sum_(j)phi(x_(j))f(x_(j)-r)Delta V_(j) chevron.r)_(r)
+      =sum_(j)phi(x_(j))lr(chevron.l k,f(x_(j)-r) chevron.r)_(r)Delta V_(j).
+    $
+  ] \
+  &=integral_(bb(R)^(n))phi(x)(k*f)(x) thin d x #dots_space #footnote[By #(s.ref)("distributional-convolution").] \
+  &=chevron.l k*f,phi chevron.r.
+$ #(s.tag)("convolution-pairing-expansion")
+The change from the $z$ integral to the $x$ integral uses $x=r+z$. Interchanging the pairing and integration is valid because $x$ ranges over $op("supp")phi$, and all the test functions in $r$ then have support in one compact set. #highlighted[Thus $T f=k*f$ as distributions.]
 
 #paragraph_tab
-*Uniqueness.* Every displacement test function $psi$ is of the form $Q Psi$: choose $Psi(x,z)=psi(x-z)eta(z)$. This is compactly supported because both $x-z$ and $z$ range over compact sets, and
+Now let's show that the distribution $k$ in $T f=k*f$ is uniquely determined by $T$. By a uniquness of kernel $K$ guaranteed by @schwartz-kernel-theorem, the following equation is true if there is a two convolution distributions $K_1$ and $K_2$ for the same operator $T$:
+$  chevron.l k_1, Q Psi chevron.r=chevron.l K , Psi chevron.r= chevron.l k_2, Q Psi chevron.r quad => k_(1)=k_(2)
+$ #(s.tag)("kernel-uniqueness-pairing")
+
+However, #(s.ref)("kernel-uniqueness-pairing") can be useful when every test function $d in cal(D)(RR^n)$ can be expressed as $Q Psi$ for some $Psi$. Take an arbitrary $d in cal(D)(bb(R)^(n))$ and use the unit-integral test function $eta$ above to set $Psi(x,z):=d(x-z)eta(z)$. This is a test function on the product space: $z$ lies in $op("supp")eta$, while $x-z$ lies in $op("supp")psi$, so $x$ lies in the sum of these compact sets. Applying $Q$ gives
 $
-  (Q Psi)(r)=psi(r)integral eta(z) thin d z=psi(r).
+  (Q Psi)(r)
+  &=integral_(bb(R)^(n))Psi(r+z,z) thin d z \
+  &=integral_(bb(R)^(n))d((r+z)-z)eta(z) thin d z \
+  &=d(r)integral_(bb(R)^(n))eta(z) thin d z
+  =d(r).
 $
-Any other convolution distribution representing $T$ gives the same two-position kernel by uniqueness in the Schwartz kernel theorem. Its pairing with every $psi=Q Psi$ must therefore equal that of $k$, proving uniqueness.
+Thus the uniqueness of $k$ from #(s.ref)("kernel-uniqueness-pairing") is reserved usefully, So we can represent $T f = k * f$ for every $cal(D)(bb(R)^(n)) |-> cal(D)^(*)(bb(R)^(n))$ where $T$ has translation invariance and $f in cal(D)(bb(R)^(n))$.
 
 #paragraph_tab
-*From convolution to translation invariance.* Conversely, suppose $T f=k*f$ for every test function $f$. The distributional convolution formula gives, for every $a in bb(R)^(n)$,
+Conversely, suppose $T f=k*f$ for every test function $f$. For every $a in bb(R)^(n)$, the definitions of convolution and translation give
 $
-  (k*(tau_(a)f))(x)
-  =chevron.l k,r arrow.r f(x-a-r) chevron.r
-  =(k*f)(x-a).
+  (T(tau_(a)f))(x)
+  &=(k*(tau_(a)f))(x) \
+  &=lr(chevron.l k,(tau_(a)f)(x-r) chevron.r)_(r) \
+  &=lr(chevron.l k,f(x-r-a) chevron.r)_(r) \
+  &=lr(chevron.l k,f((x-a)-r) chevron.r)_(r) \
+  &=(k*f)(x-a) \
+  &=(T f)(x-a) \
+  &=(tau_(a)(T f))(x).
 $
 Thus $T tau_(a)f=tau_(a)(T f)$ for every test function $f$, proving the converse.
 ]
 
-#paragraph_tab
-No decay or temperedness assumption on $k$ is needed here, since $f$ is compactly supported. Although the proposition allows distribution-valued outputs, it shows that each $T f$ is represented by a smooth function; singular behavior is carried by $k$ before it is convolved with the smooth input.
-
-#paragraph_tab
-Two examples clarify why $k$ must be allowed to be a distribution. For the identity operator, $k=delta_(0)$ and
-$
-  (delta_(0)*f)(x)=f(x),
-  quad chevron.l K_(I),Psi chevron.r
-  =chevron.l delta_(0),Q Psi chevron.r
-  =integral Psi(z,z) thin d z.
-$
-For $T=partial_(j)$, the convolution distribution is $k=partial_(j)delta_(0)$. The minus sign from distributional differentiation cancels the minus sign from differentiating $f(x-r)$:
-$
-  ((partial_(j)delta_(0))*f)(x)
-  =-lr(partial_(r_(j))f(x-r))|_(r=0)
-  =partial_(j)f(x).
-$
-We may think of $k$ as the response to a point source at the origin, but writing $k=T delta_(0)$ is only heuristic under the stated hypotheses: $T$ is defined on test functions, and $delta_(0)$ is not a test function. The proof constructs $k$ without making that unsupported extension.
-
-#paragraph_tab
-In the Laplace example, the chosen convolution solution has $k=Phi_(n)$. Translation invariance concerns the entire solution rule, including any conditions used to select it.
-
-#paragraph_tab
-A boundary can remove this symmetry. For a homogeneous Dirichlet problem with a Green kernel, the kernel must satisfy both
-$
-  Delta_(x)K(dot,z)=delta_(z) " in " Omega,
-  quad K(x,z)=0 " for " x in partial Omega,
-$
-with the boundary condition understood in the appropriate trace sense. Moving the source changes its position relative to the fixed boundary. In general, a correction depending separately on $x$ and $z$ is needed to make the free-space response meet that condition. Likewise, variable coefficients make the medium itself depend on position. Some symmetries can survive, but we can no longer assume invariance under every simultaneous translation. The Legendre example at the end of this section will exhibit a kernel with separate dependence on both positions.
-
-#paragraph_tab
-For a concrete geometric example, take the half-space $Omega={x in bb(R)^(3):x_(3)>0}$ and reflect $z$ across its boundary to $z^("*")=(z_(1),z_(2),-z_(3))$. The image construction gives
-$
-  K_(Omega)(x,z)=Phi_(3)(x-z)-Phi_(3)(x-z^("*")).
-$
-The image point lies outside $Omega$, so its term is harmonic there and $Delta_(x)K_(Omega)(dot,z)=delta_(z)$ in $Omega$. On the boundary, the two distances are equal and the terms cancel, giving the required zero trace. In #(s.ref)("boundary-image"), translating both points upward preserves $|x-z|$ but changes $|x-z^("*")|$. The kernel therefore changes even though the direct separation does not. Translations parallel to the boundary still preserve it.
-
-#figure(
-  boundary-image-kernel-diagram(),
-  caption: [Cross-sections of the three-dimensional Dirichlet image construction for $Delta$. The hollow image source is outside the domain. Both panels use the same scale and direct separation; only the distance to the reflected source changes.],
-) #(s.tag)("boundary-image")
+#note(title: [Scope of #(s.ref)("translation-convolution-theorem")])[
+The theorem assumes an operator on $bb(R)^(n)$ that commutes with every translation. The shape of a domain or the imposed boundary conditions may prevent the solution operator from having this symmetry. In that case, the theorem does not apply, and its convolution representation need not hold.
+]
 
 #definition(title: "Convolution kernel")[
 Let $T$ be a linear operator on a suitable class of functions or distributions on $bb(R)^(n)$ equipped with Lebesgue measure. A function or distribution $k$ on $bb(R)^(n)$ is a *convolution kernel* for $T$ if
@@ -455,94 +693,161 @@ $
 $
 ] #(s.tag)("convolution-kernel")
 
-#paragraph_tab
-The source-response viewpoint also applies to evolution, where the input may be initial data rather than a forcing term in the PDE. For reference, #(s.ref)("kernel-influence-diagram") shows the three-dimensional free-space wave response to initial velocity $delta_(z)$ and zero initial displacement, with speed one. Writing $R_(t)^(3)$ for the three-dimensional initial-velocity convolution kernel, the two-position response is $R_(t)^(3)(x-z)$. Its formula is derived later in this section.
-
-#figure(
-  wave-source-observer-diagram(),
-  caption: [The wave front reaches $x$ at $t=|x-z|$. The time signal is a distribution; the impulse arrow indicates weight, not finite height.],
-) #(s.tag)("kernel-influence-diagram")
+=== Fourier representation of translation-invariant operators
 
 #paragraph_tab
-We construct the heat, wave, and harmonic-extension kernels by spatial Fourier transformation: solve the resulting ODE at each frequency, then invert the solution multiplier. We first work on $bb(R)^(n)$, $n >= 1$; the final eigenfunction example will return to kernels on an interval. Our Fourier convention is
+Earlier, we defined the translation operator $tau_(a)$ in #(s.ref)("translation-operator") and used it to describe translation invariance. We have not yet examined its eigenfunctions. Let's now study this operator from the viewpoint of linear algebra. For a linear operator, an eigenvector is a nonzero vector that the operator multiplies by a scalar. Here the vectors are functions. Since translation invariance involves every displacement $a$, we look for a *common eigenfunction* of all the translation operators. First consider one dimension: can we find a nonzero smooth complex-valued function $v$ such that
 $
-  hat(f)(xi)=(2 pi)^(-n/2) integral_(bb(R)^(n)) e^(-i x dot xi) f(x) thin d x,
-  quad cal(F)(-Delta f)(xi)=|xi|^(2)hat(f)(xi).
+  tau_(a)v=lambda(a)v,
+  quad v(x-a)=lambda(a)v(x)
+$ #(s.tag)("translation-common-eigenfunction")
+for every $a in bb(R)$? The function $v$ must be the same for all $a$, while the eigenvalue $lambda(a)$ may depend on the displacement. Since $tau_(a+b)=tau_(a)tau_(b)$, applying #(s.ref)("translation-common-eigenfunction") to two successive translations gives
 $
-We retain the unitary normalization of the preceding section. In particular, $hat(delta)_(0)=(2 pi)^(-n/2)$ and $cal(F)(K*f)=(2 pi)^(n/2)hat(K)hat(f)$. These constants determine the normalization of every kernel below.
-
-=== From a multiplier to a point-source response
+  lambda(a+b)=lambda(a)lambda(b),
+  quad lambda(0)=1.
+$ #(s.tag)("translation-eigenvalue-composition")
+To solve #(s.ref)("translation-eigenvalue-composition"), let's first check that we can differentiate $lambda$. Choose $x_(0)$ with $v(x_(0)) eq.not 0$. Evaluating #(s.ref)("translation-common-eigenfunction") at $x=x_(0)$ gives
+$
+  lambda(a)=frac(v(x_(0)-a),v(x_(0))).
+$ #(s.tag)("translation-eigenvalue-ratio")
+The denominator in #(s.ref)("translation-eigenvalue-ratio") is a fixed nonzero number, and $v$ is smooth, so $lambda$ is smooth as a function of the displacement $a$. Now hold $a$ fixed and differentiate both sides of #(s.ref)("translation-eigenvalue-composition") with respect to $b$. The chain rule on the left and the fact that $lambda(a)$ is constant with respect to $b$ on the right give
+$
+  frac(d,d b)lambda(a+b)&=lambda'(a+b), \
+  frac(d,d b)lr(lambda(a)lambda(b))&=lambda(a)lambda'(b).
+$ #(s.tag)("translation-eigenvalue-derivatives")
+Equating the two derivatives in #(s.ref)("translation-eigenvalue-derivatives") and setting $b=0$ gives
+$
+  lambda'(a)=lambda(a)lambda'(0).
+$ #(s.tag)("translation-eigenvalue-derivative-at-zero")
+Writing $c:=lambda'(0)$ in #(s.ref)("translation-eigenvalue-derivative-at-zero"), we obtain an ordinary differential equation for $lambda$ with the initial value from #(s.ref)("translation-eigenvalue-composition"):
+$
+  lambda'(a)=c lambda(a),
+  quad lambda(0)=1.
+$ #(s.tag)("translation-eigenvalue-initial-value-problem")
+Since $c$ is constant, the unique solution of #(s.ref)("translation-eigenvalue-initial-value-problem") is
+$
+  lambda(a)=e^(c a).
+$ #(s.tag)("translation-eigenvalue-exponential")
+The constant $c$ in #(s.ref)("translation-eigenvalue-exponential") may be any complex number: the translation law alone also allows exponentially growing or decaying patterns.
 
 #paragraph_tab
-If $cal(F)(T f)=m hat(f)$, the Fourier convolution identity requires
+Let's now determine the common eigenfunctions themselves. Substituting #(s.ref)("translation-eigenvalue-exponential") into #(s.ref)("translation-common-eigenfunction") and setting $a=x$ gives
+$
+  v(0)=e^(c x)v(x),
+  quad v(x)=v(0)e^(-c x).
+$ #(s.tag)("translation-common-eigenfunction-exponential")
+Here $v(0) eq.not 0$, since otherwise #(s.ref)("translation-common-eigenfunction-exponential") would make $v$ identically zero. Among these common eigenfunctions, let's look for those that remain bounded on the whole real line. This is an additional condition on $v$. Writing $c=alpha+i beta$ with $alpha,beta in bb(R)$, we get
+$
+  |v(x)|=|v(0)|e^(-alpha x).
+$ #(s.tag)("translation-eigenfunction-magnitude")
+If $alpha>0$, #(s.ref)("translation-eigenfunction-magnitude") grows without bound as $x arrow.r -infinity$; if $alpha<0$, it grows without bound as $x arrow.r infinity$. Thus $v$ is bounded on $bb(R)$ exactly when $alpha=op("Re")c=0$. Write $c=-i xi$ for $xi in bb(R)$. Then #(s.ref)("translation-common-eigenfunction-exponential") becomes $v(x)=v(0)e^(i x xi)$, so we choose the normalized eigenfunction
+$
+  e_(xi)(x):=e^(i x xi),
+  quad tau_(a)e_(xi)=e^(-i a xi)e_(xi).
+$ #(s.tag)("one-dimensional-translation-mode")
+The minus sign in #(s.ref)("one-dimensional-translation-mode") follows directly from $e^(i(x-a)xi)=e^(-i a xi)e^(i x xi)$. Both $|e_(xi)(x)|$ and the absolute value of its translation eigenvalue $e^(-i a xi)$ are $1$.
+
+#paragraph_tab
+In $bb(R)^(n)$, these functions take the form
+$
+  e_(xi)(x):=e^(i x dot xi),
+  quad tau_(a)e_(xi)=e^(-i a dot xi)e_(xi),
+  quad -i partial_(x_(j))e_(xi)=xi_(j)e_(xi).
+$ #(s.tag)("multidimensional-translation-mode")
+We call the continuous family $e_(xi)$ in #(s.ref)("multidimensional-translation-mode") the *trigonometric basis* for the Fourier inversion below, and $xi$ its *spatial frequency*. Here reconstruction uses an integral over $xi$, as these functions do not form a discrete $L^(2)$ basis on $bb(R)^(n)$. For $xi eq.not 0$, the phase $x dot xi$ changes fastest along the direction of $xi$, at a rate $|xi|$ per unit distance. The wavelength in that direction is therefore $2 pi/|xi|$. When $xi=0$, the basis function is the constant $1$.
+
+#paragraph_tab
+Having found these bounded common eigenfunctions, let's use them to reconstruct more general functions. The Fourier inversion theorem on Schwartz functions (@Fourier) expresses $f in cal(S)(bb(R)^(n))$ as an integral of the trigonometric basis functions. We use the normalization introduced in the preceding section:
+$
+  hat(f)(xi)
+  &=(2 pi)^(-n/2) integral_(bb(R)^(n))e^(-i x dot xi)f(x) thin d x, \
+  f(x)
+  &=(2 pi)^(-n/2) integral_(bb(R)^(n))e^(i x dot xi)hat(f)(xi) thin d xi.
+$ #(s.tag)("trigonometric-basis-inversion")
+The coefficient $hat(f)(xi)$ in #(s.ref)("trigonometric-basis-inversion") gives the weight of $e_(xi)$ in the inversion integral.
+
+#paragraph_tab
+We can also use this decomposition for square-integrable functions. With the normalization in #(s.ref)("trigonometric-basis-inversion"), the Plancherel identity (@Fourier) gives $norm(hat(f))_(2)=norm(f)_(2)$, and the Fourier transform extends to a unitary operator on $L^(2)$. Each $e_(xi)$ has absolute value $1$ everywhere and hence is not in $L^(2)(bb(R)^(n))$; these basis functions serve as *generalized eigenfunctions* in the $L^(2)$ representation. To see how translation acts in this representation, apply the Fourier transform in #(s.ref)("trigonometric-basis-inversion") to $tau_(a)f$ and substitute $x=z+a$. For Schwartz functions, this gives
+$
+  hat(tau_(a)f)(xi)=e^(-i a dot xi)hat(f)(xi).
+$ #(s.tag)("translation-trigonometric-basis")
+The identity in #(s.ref)("translation-trigonometric-basis") extends to $L^(2)$ by density and shows that translation changes the phase of each Fourier coefficient while preserving its absolute value. Combining it with the Plancherel identity gives
+$
+  norm(tau_(a)f)_(2)=norm(hat(tau_(a)f))_(2)=norm(hat(f))_(2)=norm(f)_(2).
+$ #(s.tag)("translation-l2-isometry")
+The norm preservation in #(s.ref)("translation-l2-isometry") also follows directly by substituting $y=x-a$ in $integral |f(x-a)|^(2) thin d x$.
+
+#paragraph_tab
+Let's return to the translation-invariant operators in #(s.ref)("translation-convolution-theorem"). That theorem gives $T f=k*f$ but does not compute $k$. By #(s.ref)("translation-trigonometric-basis"), translation acts on each Fourier coefficient by multiplication. To understand what commutation with translation implies for $T$, temporarily suppose that $T e_(xi)$ is defined and is a smooth function. Then
+$
+  T(tau_(a)e_(xi)) &= tau_(a)(T e_(xi)), \
+  T(tau_(a)e_(xi)) &= e^(-i a dot xi)T e_(xi).
+$
+Thus every translation multiplies $T e_(xi)$ by the same factor $e^(-i a dot xi)$. Setting $a=x$, as in the one-dimensional calculation, gives $(T e_(xi))(0)=e^(-i x dot xi)(T e_(xi))(x)$. Consequently,
+$
+  m(xi) &:= (T e_(xi))(0), \
+  T e_(xi) &= m(xi)e_(xi).
+$ #(s.tag)("translation-operator-mode-multiplier")
+The formal relation in #(s.ref)("translation-operator-mode-multiplier") explains the expected form of the answer, but applying $T$ to these basis functions requires an extension beyond compactly supported or $L^(2)$ functions.
+
+#paragraph_tab
+For $k in L^(1)(bb(R)^(n))$, convolution also acts on the bounded function $e_(xi)$: the integral below converges absolutely, and
+$
+  (T e_(xi))(x)
+  &=(k*e_(xi))(x) \
+  &=integral_(bb(R)^(n))k(r)e^(i(x-r) dot xi) thin d r \
+  &=e_(xi)(x) integral_(bb(R)^(n))e^(-i r dot xi)k(r) thin d r.
+$ #(s.tag)("integrable-kernel-eigenfunction")
+Setting $x=0$ in #(s.ref)("integrable-kernel-eigenfunction") and using the definition of $m(xi)$ in #(s.ref)("translation-operator-mode-multiplier") gives $m(xi)=(2 pi)^(n/2)hat(k)(xi)$. For $f in cal(S)(bb(R)^(n))$, the convolution identity in @unitary_fourier_convolution_formulas extends from Schwartz kernels to $L^(1)$ kernels by Fubini's theorem. Thus
+$
+  hat(T f)(xi)&=(2 pi)^(n/2)hat(k)(xi)hat(f)(xi)=m(xi)hat(f)(xi)
+  \
+  m(xi)&:=(2 pi)^(n/2)hat(k)(xi), quad "where" f in cal(S)(bb(R)^(n))
+$ #(s.tag)("integrable-kernel-multiplier")
+The function $m$ in #(s.ref)("integrable-kernel-multiplier") is called a *Fourier multiplier*: in Fourier variables, $T$ acts by multiplication by $m(xi)$.
+
+#paragraph_tab
+#highlight[The identity in #(s.ref)("integrable-kernel-multiplier") suggests how to recover a kernel from a multiplier.] If $cal(F)(T f)=m hat(f)$ and $T f=K*f$, the Fourier convolution identity in @unitary_fourier_convolution_formulas requires
 $
   (2 pi)^(n/2)hat(K)hat(f)=m hat(f).
 $
 
-#definition(title: "Convolution kernel produced by a Fourier multiplier")[
-Let $m$ be a measurable function with $|m(xi)| <= C(1+|xi|)^(N)$ for some $C,N >= 0$. Define
+Let $m$ be measurable with $|m(xi)| <= C(1+|xi|)^(N)$ for some $C,N >= 0$. It defines a tempered distribution, so the preceding identity suggests the kernel
 $
-  T f:=cal(F)^(-1)(m hat(f)), quad f in cal(S)(bb(R)^(n)),
-  quad K:=(2 pi)^(-n/2)cal(F)^(-1)m.
+  K:=(2 pi)^(-n/2)cal(F)^(-1)m.
 $ #(s.tag)("multiplier-kernel")
-Here $m$ and $K$ are interpreted as tempered distributions. Then $K$ is the convolution kernel of $T$.
-]
-
-#paragraph_tab
-Indeed, convolution of a tempered distribution with a Schwartz function is defined, and the Fourier convolution identity gives $T f=K*f$. If $m$ is integrable, Fourier inversion gives the ordinary integral
+For $f in cal(S)(bb(R)^(n))$, set $T f:=cal(F)^(-1)(m hat(f))$. Convolution with the tempered distribution $K$ is defined on such $f$, and the Fourier convolution identity verifies
+$
+  cal(F)(K*f)
+  =(2 pi)^(n/2)hat(K)hat(f)
+  =m hat(f)
+  =cal(F)(T f).
+$
+Thus $T f=K*f$: inverse transformation of the multiplier recovers the convolution kernel. If $m$ is integrable, Fourier inversion gives the ordinary integral
 $
   K(x)=(2 pi)^(-n)integral_(bb(R)^(n))e^(i x dot xi)m(xi) thin d xi.
 $
-Otherwise, the inverse transform remains meaningful in $cal(S)'$. A singular kernel is therefore part of the same construction.
+Otherwise, the inverse transform remains meaningful in $cal(S)^(*)$. A singular kernel is therefore part of the same construction.
+
+=== A common operator for heat, Poisson, and waves
 
 #paragraph_tab
-The notation $K=T delta_(0)$ expresses its point-source meaning whenever $T$ has the required extension to that datum. Even when $T$ is initially defined only on functions, the formula for $K$ above gives a precise meaning to this notation. It does not claim that $T$ acts on every tempered distribution.
-
-#note(title: "Three different roles for a kernel")[
-Distinguish initial-data propagation, a spatial point-source equation $L K=delta_(0)$, and a causal space-time point-source equation. Their defining data differ; convolution form additionally requires spatial translation invariance.
-]
-
-=== Which multipliers do the evolution equations give?
-
-#paragraph_tab
-Transforming only $x$ replaces $Delta$ by $-|xi|^(2)$ and leaves time or height derivatives unchanged. Take Schwartz initial data for heat and waves, and $L^(2)$ boundary data for harmonic extension.
-
-#paragraph_tab
-For the heat equation $u_(t)-Delta u=0$ with $u(0)=f$, each frequency solves a first-order decay equation:
+We already studied the heat, Poisson, and wave kernels in Stein and Shakarchi's @Fourier. Recall their Fourier representations, which will let us relate the corresponding solution operators. For the heat equation with initial temperature $u(0,x)=f(x)$,
 $
-  partial_(t)hat(u)(t,xi)=-|xi|^(2)hat(u)(t,xi),
-  quad hat(u)(0,xi)=hat(f)(xi), \
   hat(u)(t,xi)=e^(-t|xi|^(2))hat(f)(xi), quad t>=0.
 $ #(s.tag)("heat-multiplier")
-High spatial frequencies decay faster because their decay rate is $|xi|^(2)$.
-
-#paragraph_tab
-For the half-space Laplace equation $u_(y y)+Delta_(x)u=0$, the variable $y>0$ is height above the boundary. The transformed equation is
-$
-  partial_(y)^(2)hat(u)(y,xi)=|xi|^(2)hat(u)(y,xi).
-$
-For $xi eq.not 0$, its two modes are $e^(y|xi|)$ and $e^(-y|xi|)$. The boundary condition $u(0)=f$ alone does not choose between them. Requiring the extension to stay uniformly bounded in $L^(2)$ for all heights excludes the growing branch and selects
+For the harmonic extension $u$ with boundary values $u(0,x)=f(x)$, assume that $u(y,dot)$ remains uniformly bounded in $L^(2)$ as the height $y>0$ varies. Then
 $
   hat(u)(y,xi)=e^(-y|xi|)hat(f)(xi).
 $ #(s.tag)("poisson-multiplier")
-The single frequency $xi=0$ has measure zero and does not change the $L^(2)$ formula. The choice of decay explains which harmonic extension we are constructing.
-
-#paragraph_tab
-For the wave equation $u_(t t)-Delta u=0$ with $u(0)=f$ and $u_(t)(0)=g$, each frequency is a harmonic oscillator:
+For the wave equation with initial displacement $f$ and velocity $g$,
 $
-  partial_(t)^(2)hat(u)(t,xi)+|xi|^(2)hat(u)(t,xi)=0, \
   hat(u)(t,xi)=cos(t|xi|)hat(f)(xi)+b_(t)(|xi|)hat(g)(xi),
 $ #(s.tag)("wave-multiplier")
-where $b_(t)(a)=sin(t a)/a$ for $a>0$ and $b_(t)(0)=t$. This value at zero is the continuous limit; it also gives the zero-frequency solution $hat(f)(0)+t hat(g)(0)$ for Schwartz data. Heat damps frequencies, whereas waves evolve them by oscillation.
-
-=== From the common frequency factor to the operator A
+where $b_(t)(a)=sin(t a)/a$ for $a>0$ and $b_(t)(0)=t$.
 
 #paragraph_tab
-The multipliers in #(s.ref)("heat-multiplier"), #(s.ref)("poisson-multiplier"), and #(s.ref)("wave-multiplier") all depend on the same scalar quantity $a=|xi|$. Their scalar functions are
-$
-  e^(-t a^(2)), quad e^(-y a), quad cos(t a), quad b_(t)(a).
-$
-This suggests a useful question: which spatial operator corresponds to multiplication by $|xi|$? Defining that operator will let us express all three evolutions as functions of one spatial operator.
+#highlighted[The heat formula #(s.ref)("heat-multiplier") contains $|xi|^(2)$, whereas the Poisson and wave formulas #(s.ref)("poisson-multiplier") and #(s.ref)("wave-multiplier") contain $|xi|$.] By the Fourier derivative rule @fourier_transform_of_derivatives, $|xi|^(2)$ is the multiplier of $-Delta$. This suggests defining $A$ by the multiplier $|xi|$: its square should recover $-Delta$, and all three solution formulas should become functions of the same operator.
 
 #definition(title: "The spatial frequency operator")[
 On $L^(2)(bb(R)^(n))$, define
@@ -550,121 +855,133 @@ $
   A f:=cal(F)^(-1)(|xi|hat(f)(xi)),
   quad cal(D)(A):={f in L^(2): |xi|hat(f) in L^(2)}.
 $ #(s.tag)("frequency-operator")
-The domain consists of exactly those data for which the output of this multiplication is still in $L^(2)$.
+The domain consists of exactly those functions $f in L^(2)$ for which $|xi|hat(f)$ also belongs to $L^(2)$.
+] #(s.tag)("spatial-frequency-operator")
+
+We can now check that this square is $-Delta$. For $f in cal(D)(A^(2))$,#footnote[$cal(D)(A^(2)):={f in cal(D)(A): A f in cal(D)(A)}$] apply #(s.ref)("frequency-operator") first to $f$ and then to $A f$:
+#flowbox[
+  $
+    cal(F)(A f)(xi) &= |xi|hat(f)(xi), \
+    cal(F)(A^(2)f)(xi)
+      &= |xi|cal(F)(A f)(xi) \
+      &= |xi| |xi|hat(f)(xi) \
+      &= |xi|^(2)hat(f)(xi).
+  $
+
+  $arrow.b$
+
+  $
+    A^(2)=-Delta, quad A=sqrt(-Delta)
+  $ #(s.tag)("square-root-laplacian")
 ]
 
 #paragraph_tab
-To relate $A$ to the Laplacian, let's apply it twice. For $f$ in the domain of $A^(2)$,
+Therefore we can rewrite #(s.ref)("heat-multiplier"), #(s.ref)("poisson-multiplier"), and #(s.ref)("wave-multiplier"):
 $
-  cal(F)(A^(2)f)(xi)
-  =|xi|cal(F)(A f)(xi)
-  =|xi|^(2)hat(f)(xi)
-  =cal(F)(-Delta f)(xi).
+  cal(F)^(-1)(e^(-t|xi|^(2))hat(f)(xi)) &arrow.r e^(-t A^(2))f, \
+  cal(F)^(-1)(e^(-y|xi|)hat(f)(xi)) &arrow.r e^(-y A)f, \
+  cal(F)^(-1)(cos(t|xi|)hat(f)(xi)) &arrow.r cos(t A)f, \
+  cal(F)^(-1)(b_(t)(|xi|)hat(f)(xi)) &arrow.r b_(t)(A)f.
+$ #(s.tag)("operator-multiplier-correspondence")
+Here $t>=0$ for heat, $y>0$ for the Poisson extension, and $t in bb(R)$ for waves. Combining #(s.ref)("spatial-frequency-operator") with #(s.ref)("operator-multiplier-correspondence") gives the re-formulated solution formulas in #(s.ref)("The solutions written by A"):
 $
-The domain of this square is ${f in L^(2): |xi|^(2)hat(f) in L^(2)}$. Indeed, this condition also implies $|xi|hat(f) in L^(2)$: use $|xi|<=1$ near zero and $|xi|<=|xi|^(2)$ for $|xi|>=1$. Thus both operators agree on the same domain.
-
-#paragraph_tab
-Multiplication by the real nonnegative function $|xi|$, with its maximal $L^(2)$ domain, is self-adjoint and nonnegative. The unitary Fourier transform transfers these properties to $A$. Consequently,
-$
-  A^(2)=-Delta, quad A=sqrt(-Delta).
-$ #(s.tag)("square-root-laplacian")
-The square-root notation now records what we have constructed: $A$ is the nonnegative self-adjoint square root of $-Delta$.
-
-#paragraph_tab
-We can next replace each scalar function of $a$ by the corresponding operator. For a bounded Borel function $h$ on $[0,infinity)$, define
-$
-  h(A)f:=cal(F)^(-1)(h(|xi|)hat(f)(xi)).
-$ #(s.tag)("functional-calculus")
-This construction is called *functional calculus*. It is the same principle as applying $h$ to each diagonal entry of a diagonal matrix: Fourier transformation represents $A$ by multiplication, and we apply $h$ to that multiplier. Plancherel's theorem gives $norm(h(A)f)_(2)<=norm(h)_(infinity)norm(f)_(2)$, so the definition acts on all of $L^(2)$ for bounded $h$.
-
-#paragraph_tab
-The three frequency formulas can now be written as spatial solution operators:
-$
-  "Heat:" &quad u(t)=e^(-t A^(2))f=e^(t Delta)f, \
-  "Poisson extension:" &quad u(y)=e^(-y A)f, \
+  "Heat:" &quad u(t)=rmark(e^(-t A^(2)))f=e^(t Delta)f, \
+  "Poisson extension:" &quad u(y)= bmark(e^(-y A))f, \
   "Wave:" &quad u(t)=cos(t A)f+b_(t)(A)g.
-$ #(s.tag)("evolution-operators")
-Here heat time satisfies $t>=0$, height satisfies $y>0$, and wave time may be any real number. These formulas restate the multipliers already derived. Exponential notation follows #(s.ref)("functional-calculus") and does not assume that an operator power series converges on every datum. Likewise, $sin(t A)/A$ means the combined bounded multiplier $b_(t)(A)$, without separately applying $A^(-1)$. The common construction is summarized in #(s.ref)("frequency-operator-map").
-
-#figure(
-  frequency-operator-map(),
-  caption: [Functional calculus applies a scalar function to the spatial frequency $a=|xi|$. The same transform-multiply-invert construction produces each evolution operator.],
-) #(s.tag)("frequency-operator-map")
+$ #(s.tag)("The solutions written by A")
+These formulas restate the multipliers already derived. The exponential and trigonometric operator notation refers to the four definitions above; $b_(t)(A)$ uses its bounded multiplier at $xi=0$ without applying $A^(-1)$.
 
 #paragraph_tab
-The benefit of this notation will appear when we relate kernels: a scalar identity connecting $e^(-y a)$ and $e^(-t a^(2))$ will connect Poisson and heat evolution, and Fourier inversion in $a$ will build $h(A)$ from waves. We first need one explicit kernel to use in those constructions.
-
-#note(title: "The data space is part of the formula")[
-The heat and wave multipliers are smooth in $xi$, with polynomially bounded derivatives, and hence act on all of $cal(S)'$ by duality. In contrast, $e^(-y|xi|)$ is not smooth at $xi=0$, so multiplication by it is not defined on arbitrary tempered distributions. We use the Poisson operator on $L^(2)$, and construct its point-source kernel by inverse transformation of its integrable multiplier. These statements are compatible: a particular point source can be admissible even when arbitrary distributional data are not.
-]
-
-=== Direct inversion: the heat kernel
-
-#block(sticky: true, above: 0.65em, below: 0.3em)[
-
-#paragraph_tab
-We begin with the heat multiplier from #(s.ref)("heat-multiplier"), $m_(t)(xi)=e^(-t|xi|^(2))$, $t>0$. Substituting it into #(s.ref)("multiplier-kernel") and taking the inverse Gaussian transform yields
-]
-$
-  p_(t)(x)
-  &=(2 pi)^(-n)integral_(bb(R)^(n))e^(-t|xi|^(2)+i x dot xi) thin d xi \
-  &=(2 pi)^(-n)(pi/t)^(n/2)e^(-|x|^(2)/(4t)) \
-  &=(4 pi t)^(-n/2)e^(-|x|^(2)/(4t)).
-$ #(s.tag)("heat-kernel")
-Thus $e^(-t A^(2))f=p_(t)*f$. The Gaussian is positive, has integral one, and satisfies $p_(t)(x)=t^(-n/2)p_(1)(x/sqrt(t))$.
-
-#paragraph_tab
-The initial point source is recovered through probes. For every $phi in cal(S)$, dominated convergence gives
-$
-  chevron.l p_(t),phi chevron.r
-  =integral_(bb(R)^(n))p_(1)(z)phi(sqrt(t)z) thin d z
-  arrow.r phi(0)=chevron.l delta_(0),phi chevron.r.
-$
-Hence $p_(t) arrow.r delta_(0)$ distributionally as $t arrow.r 0^(+)$. More generally, $p_(t)*f arrow.r f$ in the distributional sense for $f in cal(S)'$, because multiplication by $e^(-t|xi|^(2))$ tends to the identity on Schwartz test functions. For positive time, $p_(t)*f$ is smooth: differentiating the translated Gaussian inside the distributional pairing gives every spatial derivative.
-
-#paragraph_tab
-We can already read the propagation behavior from the kernel. Since $p_(t)(x)>0$ everywhere, heat has no finite propagation radius. Also,
-$
-  p_(t)*p_(s)=p_(t+s), quad s,t>0,
-$
-because the corresponding multipliers multiply to $e^(-(t+s)|xi|^(2))$. Evolving for two successive time intervals gives the same result as evolving for their sum.
+Writing these solutions in terms of the same operator $A$ lets us compare their evolution operators. #highlighted()[In particular, #(s.ref)("The solutions written by A") pairs the Poisson operator $e^(-y A)$ with the heat operators $e^(-t A^(2))$.] Both are decaying exponentials built from $A$, with $A$ in one exponent and $A^(2)$ in the other. This common structure suggests that the two solution operators may be related.
 
 === Subordination: construct the Poisson kernel from heat
 
 #paragraph_tab
-Now that #(s.ref)("heat-kernel") gives us an explicit heat kernel, let's use it to construct the Poisson kernel. We need the multiplier $e^(-y|xi|)$ from #(s.ref)("poisson-multiplier"). Can we express it as a weighted average of the Gaussian multipliers we already inverted? The following scalar identity supplies exactly that representation.
-
-#lemma(title: "Scalar subordination identity")[
-For $a>=0$ and $y>0$,
+To investigate this relation, recall the heat kernel studied in Stein and Shakarchi's @Fourier. For $t>0$, write
 $
-  e^(-y a)=frac(y,2 sqrt(pi))integral_(0)^(infinity)
-    e^(-y^(2)/(4t))t^(-3/2)e^(-t a^(2)) thin d t.
-$ #(s.tag)("subordination")
-]
-
-#proof[
-To evaluate the integral, set $r=y/(2sqrt(t))$ and $b=y a/2$. Its right side becomes $2 J(b)/sqrt(pi)$, where
-$
-  J(b):=integral_(0)^(infinity)e^(-r^(2)-b^(2)/r^(2)) thin d r.
-$
-For $b>0$, differentiation under the integral is justified by the exponential decay at both endpoints. Substituting $s=b/r$ in the resulting integral gives
-$
-  J'(b)
-  &=-2b integral_(0)^(infinity)r^(-2)e^(-r^(2)-b^(2)/r^(2)) thin d r \
-  &=-2 integral_(0)^(infinity)e^(-s^(2)-b^(2)/s^(2)) thin d s=-2J(b).
-$
-Dominated convergence gives $J(0)=sqrt(pi)/2$. Solving this first-order ODE and taking the continuous limit at zero yields $J(b)=sqrt(pi)e^(-2b)/2$, which proves the identity.
-]
-
-#block(sticky: true, above: 0.65em, below: 0.3em)[
+  p_(t)(x):=(4 pi t)^(-n/2)e^(frac(-|x|^(2),4t)),
+  quad e^(-t A^(2))f=p_(t)*f.
+$ #(s.tag)("heat-kernel")
+This kernel is nonnegative and has integral one: $p_(t)>=0$ and $integral_(bb(R)^(n))p_(t)(x) thin d x=1$.
 
 #paragraph_tab
-Define the positive weight
+The similar forms of the Poisson and heat multipliers suggest asking whether a weighted sum of heat multipliers can represent the Poisson multiplier.#footnote[In Fourier series, we approximate a function by weighted sums of trigonometric basis functions. Having just used the Fourier transform, it is natural to try a similar idea here: represent the desired multiplier by combining a family of known functions, in this case the heat multipliers.] Since the heat time $t>0$ varies continuously, we look for such a representation as an integral over $t$.#footnote[For $t>=0$, the heat multiplier $e^(-t|xi|^(2))$ is bounded by one and defines an operator on all of $L^(2)$. For $t<0$, it becomes $e^(|t||xi|^(2))$, whose growth can take an $L^(2)$ Fourier transform outside $L^(2)$. We therefore use the forward heat operators.] By #(s.ref)("operator-multiplier-correspondence"), we seek a weight $w_(y)$ such that, with $a=|xi|$,
+#mannot-scope(m => [
+  #block(breakable: false, above: 1.2em, below: 1.2em)[
+  $
+    bmark(e^(-y a), tag: #(m.tag)("poisson-multiplier"))
+    = integral_(0)^(infinity)w_(y)(t)
+      rmark(e^(-t a^(2)), tag: #(m.tag)("heat-multiplier")) thin d t
+    quad "for every" a>=0.
+    #annot((m.tag)("poisson-multiplier"), pos: top, dy: -0.6em,
+      leader: true, leader-connect: "elbow")[Poisson multiplier]
+    #annot((m.tag)("heat-multiplier"), pos: bottom, dy: 0.6em,
+      leader: true, leader-connect: "elbow")[heat multiplier]
+  $ #(s.tag)("subordination-target")
+  ]
+], parent: s, name: "subordination-multiplier-annotations")
+The same weight must work at every frequency. To find a candidate for #(s.ref)("subordination-target"), we use the one-dimensional Poisson kernel already studied in Stein and Shakarchi's @Fourier as a guide.
+
+#paragraph_tab
+Write $P_(y)^((1))$ and $p_(t)^((1))$ for the known kernels in one spatial dimension:
+$
+  P_(y)^((1))(x)=frac(y,pi(y^(2)+x^(2))), quad
+  p_(t)^((1))(x)=frac(1,sqrt(4pi t))e^(-x^(2)/(4t)),
+  quad y,t>0.
+$ #(s.tag)("subordination-known-kernels")
+#highlighted()[To reveal a Gaussian inside $P_(y)^((1))$, first turn its denominator into an integral of exponentials.] For $B>0$, the antiderivative $-e^(-s B)/B$ gives
+$
+  integral_(0)^(infinity)e^(-s B) thin d s=lim_(R arrow.r infinity)frac(1-e^(-R B),B)=frac(1,B).
+$ #(s.tag)("subordination-reciprocal-integral")
+Taking $B=y^(2)+x^(2)>0$ in #(s.ref)("subordination-reciprocal-integral") rewrites #(s.ref)("subordination-known-kernels") as
+$
+  P_(y)^((1))(x)=frac(y,pi)integral_(0)^(infinity)e^(-s y^(2))e^(-s x^(2)) thin d s.
+$ #(s.tag)("subordination-poisson-exponentials")
+#highlighted[We want the spatial factor $e^(-s x^(2))$ in #(s.ref)("subordination-poisson-exponentials") to match $e^(-x^(2)/(4t))$ in the heat kernel #(s.ref)("subordination-known-kernels").] This determines the substitution
+$
+  s=frac(1,4t), quad thin d s=-frac(1,4t^(2)) thin d t.
+$ #(s.tag)("subordination-kernel-substitution")
+As $s$ runs from $0$ to $infinity$, $t$ runs from $infinity$ to $0$. Applying #(s.ref)("subordination-kernel-substitution") to #(s.ref)("subordination-poisson-exponentials") and reversing the limits gives
+$
+  P_(y)^((1))(x)
+  &=-frac(y,4pi)integral_(infinity)^(0)t^(-2)e^(-(y^(2)+x^(2))/(4t)) thin d t \
+  &=frac(y,4pi)integral_(0)^(infinity)t^(-2)e^(-y^(2)/(4t))e^(-x^(2)/(4t)) thin d t.
+$ #(s.tag)("subordination-kernel-change")
+To factor out the full heat kernel in #(s.ref)("subordination-known-kernels"), including its coefficient $(4pi t)^(-1/2)$, split the integrand in #(s.ref)("subordination-kernel-change"):
+$
+  P_(y)^((1))(x)=integral_(0)^(infinity)
+    lr(frac(y,2sqrt(pi))t^(-3/2)e^(-y^(2)/(4t)))
+    p_(t)^((1))(x) thin d t.
+$ #(s.tag)("subordination-kernel-candidate")
+The coefficient of $p_(t)^((1))(x)$ in #(s.ref)("subordination-kernel-candidate") gives the candidate weight. The factor $e^(-y^(2)/(4t))$ comes from $e^(-s y^(2))$, while $t^(-3/2)$ remains after factoring the heat kernel's $t^(-1/2)$ out of $t^(-2)$. We now verify directly that this weight satisfies the scalar identity #(s.ref)("subordination-target"), which we can then apply in any spatial dimension.
+
+#lemma(title: "Scalar subordination identity")[
+For $y>0$, define
+$
+  w_(y)(t):=frac(y,2sqrt(pi))t^(-3/2)e^(-y^(2)/(4t)), quad t>0.
+$ #(s.tag)("subordination-weight")
+Then, for every $a>=0$,
+$
+  e^(-y a)=integral_(0)^(infinity)w_(y)(t)e^(-t a^(2)) thin d t.
+$ #(s.tag)("subordination")
+Moreover, $w_(y)(t)>0$ for $t>0$ and $integral_(0)^(infinity)w_(y)(t) thin d t=1$.
 ]
+
+#block(breakable: false)[
+#proof[
+Positivity follows from #(s.ref)("subordination-weight"). Both one-dimensional kernels in #(s.ref)("subordination-known-kernels") have integral one. Integrating #(s.ref)("subordination-kernel-candidate") over $x$ and using Tonelli's theorem therefore gives $integral_(0)^(infinity)w_(y)(t) thin d t=1$. Since $|e^(-i xi x)|=1$, the absolute integral of $w_(y)(t)e^(-i xi x)p_(t)^((1))(x)$ over $x$ and $t$ equals $integral_(0)^(infinity)w_(y)(t) thin d t=1$. Thus Fubini's theorem applies to the spatial Fourier transform of #(s.ref)("subordination-kernel-candidate"). The Fourier formulas #(s.ref)("poisson-multiplier") and #(s.ref)("heat-multiplier") give, for $xi in bb(R)$,
 $
-  w_(y)(t):=frac(y,2sqrt(pi))e^(-y^(2)/(4t))t^(-3/2).
-$
-Setting $a=0$ in #(s.ref)("subordination") shows $integral_(0)^(infinity)w_(y)(t) thin d t=1$. Applying the same identity at $a=|xi|$ gives, for $f in L^(2)$,
+  e^(-y|xi|)
+  &=hat(P_(y)^((1)))(xi) \
+  &=integral_(0)^(infinity)w_(y)(t)hat(p_(t)^((1)))(xi) thin d t \
+  &=integral_(0)^(infinity)w_(y)(t)e^(-t|xi|^(2)) thin d t.
+$ #(s.tag)("subordination-fourier-proof")
+Every $a>=0$ occurs as $|xi|$ for some $xi in bb(R)$. Thus #(s.ref)("subordination-fourier-proof") proves #(s.ref)("subordination") for every $a>=0$.
+]
+
+]
+#paragraph_tab
+Applying #(s.ref)("subordination") at $a=|xi|$ makes the Poisson multiplier equal to the weighted integral of heat multipliers at every frequency. By #(s.ref)("operator-multiplier-correspondence"), this gives, for $f in L^(2)$,
 $
   e^(-y A)f=integral_(0)^(infinity)w_(y)(t)e^(-t A^(2))f thin d t.
 $
@@ -692,223 +1009,4 @@ Consequently, $e^(-y A)f=P_(y)*f$. Its multiplier verifies $(partial_(y)^(2)+Del
   caption: [Subordination in one spatial dimension with $y=1$. Three unit-mass heat profiles illustrate the family being averaged; the right curve is the exact Poisson profile, not the sum of the three samples. The horizontal and vertical scales agree across the two plots.],
 ) #(s.tag)("subordination-mixture")
 
-=== Time integration: construct a resolvent kernel
-
-#paragraph_tab
-There is another way to use the heat kernel. To solve an elliptic equation, we want division by its symbol. The elementary Laplace integral writes that division as an integral of heat multipliers:
-$
-  frac(1,lambda^(2)+|xi|^(2))
-  =integral_(0)^(infinity)e^(-lambda^(2)t)e^(-t|xi|^(2)) thin d t,
-  quad lambda>0.
-$
-Thus the resolvent, meaning the indicated shifted inverse, is
-$
-  (lambda^(2)-Delta)^(-1)f
-  =integral_(0)^(infinity)e^(-lambda^(2)t)e^(t Delta)f thin d t,
-  quad f in L^(2).
-$
-This integral has operator norm at most $lambda^(-2)$. Multiplying its Fourier transform by $lambda^(2)+|xi|^(2)$ verifies the inverse identity and shows that the result belongs to the domain of $-Delta$.
-
-#paragraph_tab
-Its kernel is therefore
-$
-  G_(lambda)(x):=integral_(0)^(infinity)e^(-lambda^(2)t)p_(t)(x) thin d t,
-  quad (lambda^(2)-Delta)G_(lambda)=delta_(0).
-$
-The integral defines a nonnegative $L^(1)$ function up to values on a set of measure zero, with integral $lambda^(-2)$; it may be singular at the origin. In dimension three, #(s.ref)("subordination") with $y=r=|x|>0$ and $a=lambda$ evaluates it directly:
-$
-  G_(lambda)(x)
-  &=(4pi)^(-3/2)integral_(0)^(infinity)t^(-3/2)
-      e^(-r^(2)/(4t)-lambda^(2)t) thin d t \
-  &=frac(e^(-lambda r),4pi r).
-$
-As $lambda arrow.r 0^(+)$, these kernels converge in $cal(S)'(bb(R)^(3))$ to $G_(0)(x)=1/(4pi|x|)$. Indeed, $frac(1,|x|)$ is locally integrable in three dimensions and integrable against the absolute value of any Schwartz function at infinity, so dominated convergence applies. Passing to the limit in the distributional equation gives
-$
-  -Delta G_(0)=delta_(0).
-$
-This is the negative of the fundamental solution for $Delta$ in @fundamental_solution_of_laplacian. The sign changes because we are now inverting $-Delta$. Kernel convergence here does not assert convergence to a bounded inverse of $-Delta$ on all of $L^(2)$; the multiplier $|xi|^(-2)$ is unbounded near zero.
-
-=== Wave kernels: a point source can remain singular
-
-#paragraph_tab
-The wave solution in #(s.ref)("wave-multiplier") has two terms because its initial data specify both displacement and velocity. Let's first construct the response to a point source in initial velocity. Applying #(s.ref)("multiplier-kernel") to $b_(t)(|xi|)$ gives
-$
-  R_(t):=(2pi)^(-n/2)cal(F)^(-1)lr(frac(sin(t|xi|),|xi|)).
-$
-The quotient is given its value $t$ at zero. Its power series contains only powers of $|xi|^(2)$, so it is smooth at the origin. Both this multiplier and $cos(t|xi|)$ act on $cal(S)'$. Differentiation in time gives
-$
-  R_(0)=0, quad partial_(t)R_(0)=delta_(0),
-  quad partial_(t)^(2)R_(t)=Delta R_(t).
-$
-The solution is consequently
-$
-  u(t)=(partial_(t)R_(t))*f+R_(t)*g.
-$
-Initially we may take $f,g in cal(S)$. The compact support of the wave kernels, established below, also makes these convolutions meaningful for arbitrary tempered distributions.
-
-#proposition(title: "The three-dimensional velocity kernel")[
-In $bb(R)^(3)$ and for $t>0$, the wave kernel is the surface distribution
-$
-  chevron.l R_(t),phi chevron.r
-  =frac(1,4pi t)integral_(|x|=t)phi(x) thin d S(x),
-  quad phi in cal(S)(bb(R)^(3)).
-$ #(s.tag)("sphere-kernel")
-]
-
-#proof[
-To identify the distribution, compute its Fourier transform. Rotate the polar axis toward $xi$ and put $a=|xi|$. The spherical integral is
-$
-  integral_(S^(2))e^(-i t omega dot xi) thin d S(omega)
-  =2pi integral_(-1)^(1)e^(-i t a s) thin d s
-  =4pi frac(sin(t a),t a),
-$
-with the continuous value $4pi$ at $a=0$. Since surface measure on the radius-$t$ sphere is $t^(2)d S(omega)$, the Fourier transform of the proposed distribution is
-$
-  (2pi)^(-3/2)frac(t^(2),4pi t)4pi frac(sin(t a),t a)
-  =(2pi)^(-3/2)frac(sin(t a),a).
-$
-This is precisely $hat(R)_(t)$, and the Fourier transform is injective on $cal(S)'$.
-]
-
-#paragraph_tab
-Thus, for smooth initial velocity $g$,
-$
-  (R_(t)*g)(x)=frac(1,4pi t)integral_(|z-x|=t)g(z) thin d S(z).
-$
-The familiar spherical mean is convolution with a distribution concentrated on a sphere. The kernel is often written $delta(|x|-t)/(4pi t)$; the pairing in #(s.ref)("sphere-kernel") specifies exactly what that notation means.
-
-#figure(
-  wave-kernel-descent-diagram(),
-  caption: [Descent projects both sphere sheets onto the disk; their surface weights add. Colored section segments have equal projected radial widths but unequal lifted lengths, illustrating the slope factor. They are not area patches. Fixed $t>0$.],
-) #(s.tag)("descent-figure")
-
-#paragraph_tab
-We can now construct the two-dimensional kernel without another Fourier inversion. In #(s.ref)("descent-figure"), each interior point $x$ receives contributions from two sphere points. Project the surface distribution in #(s.ref)("sphere-kernel") onto the first two coordinates. On the sphere, the two graphs over $|x|<t$ are $z=plus.minus sqrt(t^(2)-|x|^(2))$. Each graph has surface element $t/sqrt(t^(2)-|x|^(2)) thin d x$. Adding their contributions gives
-$
-  R_(t)^(2)(x)=frac(bold(1)_( {|x|<t} ),2pi sqrt(t^(2)-|x|^(2))).
-$ #(s.tag)("disk-kernel")
-Here the superscript denotes spatial dimension. Let $pi_(2)(x,z)=x$ be the projection from three to two dimensions. For a compactly supported distribution $V$, its pushforward is defined by $chevron.l (pi_(2))_(*)V,phi chevron.r=chevron.l V,(x,z) arrow.r phi(x) chevron.r$; a cutoff equal to one near $op("supp")V$ makes the right side a valid test pairing. With our unitary Fourier convention, integrating out one spatial coordinate contributes a factor $sqrt(2pi)$:
-$
-  cal(F)_(2)R_(t)^(2)(xi)
-  &=sqrt(2pi)cal(F)_(3)R_(t)^(3)(xi,0) \
-  &=sqrt(2pi)(2pi)^(-3/2)frac(sin(t|xi|),|xi|)
-  =(2pi)^(-1)frac(sin(t|xi|),|xi|).
-$
-This is exactly the required two-dimensional normalization. The quotient takes its continuous value $t$ at zero. This construction is the *method of descent*. The weight in #(s.ref)("disk-kernel") grows toward the rim, as the graph becomes steeper in #(s.ref)("descent-figure"). The singularity at the circle is integrable, and the entire disk contributes. Descending once more, for $|x|<t$, gives
-$
-  R_(t)^(1)(x)
-  =frac(1,2pi)integral_(-sqrt(t^(2)-x^(2)))^(sqrt(t^(2)-x^(2)))
-    frac(1,sqrt(t^(2)-x^(2)-z^(2))) thin d z
-  =frac(1,2).
-$
-Outside the interval it vanishes. Projection is legitimate here because the distributions have compact support.
-
-#paragraph_tab
-These formulas distinguish two geometric statements. *Finite propagation* means that the response is supported in the closed ball of radius $|t|$. In three dimensions the stronger *strict Huygens principle* holds: for $t>0$, the response is supported on the sphere itself. In dimensions one and two the velocity kernel has an interior tail. The three-dimensional sphere and the two-dimensional disk are therefore different propagation patterns, even though both have speed one. The comparison in #(s.ref)("kernel-support-comparison") records supports only, keeping this geometric distinction separate from the size or singularity of a kernel.
-
-#figure(
-  kernel-support-comparison-diagram(),
-  caption: [Supports at a fixed $t>0$. Heat has support throughout space; the three-dimensional velocity kernel lies on a sphere; the two-dimensional velocity kernel fills the closed disk. The three-dimensional panels show central sections. Shading records support, not amplitude.],
-) #(s.tag)("kernel-support-comparison")
-
-#paragraph_tab
-In any dimension, the local energy argument of @finite_propagation_speed gives the ball support of $R_(t)$ and $partial_(t)R_(t)$. To apply it to the point source, approximate $delta_(0)$ by smooth functions supported in a ball of radius $epsilon$. Their wave solutions are supported in the ball of radius $|t|+epsilon$, and converge distributionally to the multiplier-defined kernels. Testing outside the limiting ball proves
-$
-  op("supp")R_(t) subset.eq {x:|x|<=|t|},
-  quad op("supp")(partial_(t)R_(t)) subset.eq {x:|x|<=|t|}.
-$ #(s.tag)("wave-support")
-Negative times are determined by $R_(-t)=-R_(t)$.
-
-=== Wave synthesis: construct functions of the Laplacian
-
-#paragraph_tab
-We have built Poisson and resolvent kernels from heat. Waves provide a more general construction. Let $h in cal(S)(bb(R))$ be even, and let $hat(h)$ denote its one-dimensional unitary Fourier transform. Fourier inversion and evenness give
-$
-  h(a)
-  =frac(1,sqrt(2pi))integral_(bb(R))hat(h)(s)e^(i s a) thin d s
-  =frac(1,sqrt(2pi))integral_(bb(R))hat(h)(s)cos(s a) thin d s.
-$
-The sine term integrates to zero because its integrand is odd. Substituting $a=|xi|$ proves the following identity for $f in L^(2)$. The two marked factors separate how much of each wave we use from how far that wave can propagate.
-#mannot-scope(m => [
-  #block(breakable: false, above: 1.8em, below: 1.8em)[
-  $
-    h(A)f=frac(1,sqrt(2pi))integral_(bb(R))
-      mark(hat(h)(s), tag: #(m.tag)("weight"))
-      mark(cos(s A)f, tag: #(m.tag)("wave")) thin d s.
-    #annot((m.tag)("weight"), pos: top + left, dx: -0.5em, dy: -0.6em,
-      leader: true, leader-connect: "elbow")[wave synthesis weight]
-    #annot((m.tag)("wave"), pos: bottom + right, dx: 0.5em, dy: 0.6em,
-      leader: true, leader-connect: "elbow")[propagation distance $<=|s|$]
-  $ #(s.tag)("wave-synthesis")
-  ]
-], parent: s, name: "synthesis-annotations")
-This is an $L^(2)$-valued integral: $norm(cos(s A)f)_(2)<=norm(f)_(2)$ and $hat(h) in L^(1)$. The scalar identity identifies its Fourier multiplier, which justifies the operator equality.
-
-#block(sticky: true, above: 0.65em, below: 0.3em)[
-
-#paragraph_tab
-At the kernel level, #(s.ref)("wave-synthesis") becomes
-]
-$
-  K_(h):=(2pi)^(-n/2)cal(F)^(-1)(h(|xi|))
-  =frac(1,sqrt(2pi))integral_(bb(R))hat(h)(s)partial_(s)R_(s) thin d s.
-$ #(s.tag)("kernel-synthesis")
-The right side is interpreted after pairing with a Schwartz test function. Those pairings are uniformly bounded in $s$, since $|cos(s|xi|)|<=1$ and the Fourier transform of the test function is integrable. Thus the distributional integral is well-defined. The variable $s$ is wave time, dual to the spectral variable $a$; the next condition concerns $hat(h)(s)$, not the support of $h(a)$.
-
-#proposition(title: "Fourier support of the multiplier bounds spatial support")[
-If $h in cal(S)(bb(R))$ is even and $op("supp")hat(h) subset.eq [-L,L]$ for some $L>0$, then
-$
-  op("supp")K_(h) subset.eq {x:|x|<=L}.
-$
-]
-
-#proof[
-Take a compactly supported smooth test function $phi$ whose support is outside the closed radius-$L$ ball. For $|s|<=L$, #(s.ref)("wave-support") gives $chevron.l partial_(s)R_(s),phi chevron.r=0$. For $|s|>L$, the coefficient $hat(h)(s)$ vanishes. Pairing #(s.ref)("kernel-synthesis") with $phi$ therefore gives zero, which is the required support statement.
-]
-
-#paragraph_tab
-For example, with $h(a)=e^(-t a^(2))$ and fixed $t>0$, the one-dimensional Gaussian transform gives
-$
-  e^(t Delta)f=frac(1,sqrt(4pi t))integral_(bb(R))
-    e^(-s^(2)/(4t))cos(s A)f thin d s.
-$
-Each wave operator has finite propagation distance $|s|$, but this integral includes arbitrarily large $|s|$. The formula is therefore consistent with the heat kernel being positive at every spatial point.
-
-=== Eigenfunction expansions construct kernels too
-
-#paragraph_tab
-Fourier waves are one choice of spatial modes. To see how the general definition in #(s.ref)("integral-kernel") also covers separation of variables, suppose a nonnegative self-adjoint operator $L$ on $L^(2)(Omega,d mu)$ has a complete orthonormal eigenbasis $(phi_(j))$ with eigenvalues $lambda_(j)$. Expanding $f$ and evolving each coefficient gives
-$
-  e^(-t L)f(x)
-  &=sum_(j)e^(-t lambda_(j))phi_(j)(x)
-    integral_(Omega)overline(phi_(j)(z))f(z) thin d mu(z).
-$
-The series converges in $L^(2)$. Whenever the kernel series converges in a suitable function or distribution space, it identifies
-$
-  K_(t)(x,z)=sum_(j)e^(-t lambda_(j))phi_(j)(x)overline(phi_(j)(z)).
-$
-Pointwise convergence of this kernel series needs additional information about the eigenfunctions; it does not follow from the abstract eigenbasis assumption alone.
-
-#block(sticky: true, above: 0.65em, below: 0.3em)[
-
-#paragraph_tab
-For a concrete instance, use the self-adjoint Legendre realization of
-]
-$
-  L=-frac(d,d x)lr((1-x^(2))frac(d,d x))
-$
-on $L^(2)(-1,1)$ selected by its complete normalized Legendre eigenbasis. Since $L P_(ell)=ell(ell+1)P_(ell)$ and
-$
-  integral_(-1)^(1)P_(ell)(x)P_(k)(x) thin d x
-  =frac(2,2ell+1)delta_(ell k),
-$
-the heat kernel is
-$
-  K_(t)(x,z)=sum_(ell=0)^(infinity)e^(-t ell(ell+1))
-    frac(2ell+1,2)P_(ell)(x)P_(ell)(z), quad t>0.
-$
-The standard bound $|P_(ell)(x)|<=1$ on $[-1,1]$ (see #link("https://dlmf.nist.gov/18.14.E1")[DLMF 18.14.1] with Jacobi parameters zero) makes this series absolutely and uniformly convergent for each positive time. Its coefficients are the same coefficients obtained by separation of variables. Here the kernel depends separately on $x$ and $z$, since the Legendre operator is not translation invariant.
-
-#paragraph_tab
-The choice of operator realization, geometry, and initial or boundary conditions determines which kernel we must construct. Fourier inversion builds it from continuous frequency modes; eigenfunction expansions build it from discrete modes; subordination and wave synthesis build it from known evolution kernels. Once constructed, its mass, singularities, and support explain how that particular PDE responds to a localized input.
 ])
