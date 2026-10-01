@@ -1767,8 +1767,8 @@
   let scale-y = 2.5
   canvas(length: 0.85cm, {
     import draw: *
-    content((-3.6, 3.3), text(size: 10pt, weight: "bold")[Heat profiles $p_(t)$])
-    content((3.6, 3.3), text(size: 10pt, weight: "bold")[Poisson profile $P_(1)$])
+    content((-3.6, 3.3), text(size: 10pt, weight: "bold")[Heat profiles $p_(t)^((1))$])
+    content((3.6, 3.3), text(size: 10pt, weight: "bold")[Poisson profile $P_(1)^((1))$])
     for cx in (-3.6, 3.6) {
       line((cx - 2.1, 0), (cx + 2.25, 0), stroke: 0.6pt + theme.muted-text, mark: (end: ">"))
       content((cx + 2.35, -0.15), text(size: 9pt)[$x$])
@@ -1802,7 +1802,7 @@
     line((-0.95, 1.3), (0.95, 1.3), stroke: 1pt + theme.text, mark: (end: ">"))
     content((0, 1.9), text(size: 9pt)[$w_(1)(t) thin d t$])
     content((0, 0.75), text(size: 8pt)[all $t>0$])
-    content((0, -1.0), text(size: 10pt)[$P_(1)(x)=integral_(0)^(infinity)w_(1)(t)p_(t)(x) thin d t$])
+    content((0, -1.0), text(size: 10pt)[$P_(1)^((1))(x)=integral_(0)^(infinity)w_(1)(t)p_(t)^((1))(x) thin d t$])
     content((0, -1.6), text(size: 9pt)[Each profile has integral one over the full real line.])
   })
 }

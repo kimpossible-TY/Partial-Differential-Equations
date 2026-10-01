@@ -376,7 +376,7 @@ $
   (k*f)(x)
   =integral_(bb(R)^(n))k(r)f(x-r) thin d r
   =integral_(bb(R)^(n))k(x-z)f(z) thin d z.
-$
+$ #(s.tag)("ordinary-convolution-integral")
 The last equality uses $z=x-r$.
 
 #theorem(title: "Translation invariance characterizes convolution operators")[
@@ -897,12 +897,13 @@ Writing these solutions in terms of the same operator $A$ lets us compare their 
 === Subordination: construct the Poisson kernel from heat
 
 #paragraph_tab
-To investigate this relation, recall the heat kernel studied in Stein and Shakarchi's @Fourier. For $t>0$, write
+To investigate this relation, recall the heat kernel studied in Stein and Shakarchi's @Fourier. Let $n>=1$ be the number of spatial coordinates, with $x in bb(R)^(n)$. We record this dimension in the superscript $(n)$. The heat kernel is readily available in every dimension: multiplying the one-dimensional Gaussian kernels gives, for $t>0$,
 $
-  p_(t)(x):=(4 pi t)^(-n/2)e^(frac(-|x|^(2),4t)),
-  quad e^(-t A^(2))f=p_(t)*f.
+  p_(t)^((n))(x):=product_(j=1)^(n)p_(t)^((1))(x_(j))
+  =(4 pi t)^(-n/2)e^(frac(-|x|^(2),4t)), \
+  e^(-t A^(2))f=p_(t)^((n))*f.
 $ #(s.tag)("heat-kernel")
-This kernel is nonnegative and has integral one: $p_(t)>=0$ and $integral_(bb(R)^(n))p_(t)(x) thin d x=1$.
+This kernel is nonnegative and has integral one: $p_(t)^((n))>=0$ and $integral_(bb(R)^(n))p_(t)^((n))(x) thin d x=1$.
 
 #paragraph_tab
 The similar forms of the Poisson and heat multipliers suggest asking whether a weighted sum of heat multipliers can represent the Poisson multiplier.#footnote[In Fourier series, we approximate a function by weighted sums of trigonometric basis functions. Having just used the Fourier transform, it is natural to try a similar idea here: represent the desired multiplier by combining a family of known functions, in this case the heat multipliers.] Since the heat time $t>0$ varies continuously, we look for such a representation as an integral over $t$.#footnote[For $t>=0$, the heat multiplier $e^(-t|xi|^(2))$ is bounded by one and defines an operator on all of $L^(2)$. For $t<0$, it becomes $e^(|t||xi|^(2))$, whose growth can take an $L^(2)$ Fourier transform outside $L^(2)$. We therefore use the forward heat operators.] By #(s.ref)("operator-multiplier-correspondence"), we seek a weight $w_(y)$ such that, with $a=|xi|$,
@@ -984,29 +985,148 @@ Every $a>=0$ occurs as $|xi|$ for some $xi in bb(R)$. Thus #(s.ref)("subordinati
 Applying #(s.ref)("subordination") at $a=|xi|$ makes the Poisson multiplier equal to the weighted integral of heat multipliers at every frequency. By #(s.ref)("operator-multiplier-correspondence"), this gives, for $f in L^(2)$,
 $
   e^(-y A)f=integral_(0)^(infinity)w_(y)(t)e^(-t A^(2))f thin d t.
-$
+$ #(s.tag)("subordination-operator")
 The integral converges in $L^(2)$, since the heat operators are contractions and the weight has total mass one. This construction is called *subordination*: a Poisson extension is an average of heat evolutions over different heat times.
 
+#pagebreak(weak: true)
+
 #paragraph_tab
-To construct its spatial kernel, mix the heat kernels from #(s.ref)("heat-kernel") using the same weight. Positivity and unit mass justify interchanging the spatial and time integrals. With $B=y^(2)+|x|^(2)$, we obtain
+#highlighted[We now calculate the $n$-dimensional Poisson kernel from the heat kernel, which is readily obtained as a product of one-dimensional Gaussians in #(s.ref)("heat-kernel").] The weight $w_(y)$ was derived from the one-dimensional Poisson kernel, but #(s.ref)("subordination") holds for every $a>=0$, independently of dimension. Taking $a=|xi|$ lets us use this same weight to average the $n$-dimensional heat kernels and obtain $P_(y)^((n))$, without a new multidimensional Fourier inversion.
+
+#paragraph_tab
+We seek $e^(-y A)f=P_(y)^((n))*f$, where $x=(x_(1),dots,x_(n))$ has $n$ spatial coordinates, $|x|^(2)=sum_(j=1)^(n)x_(j)^(2)$, and $y>0$ is the additional Poisson extension coordinate. Substituting $e^(-t A^(2))f=p_(t)^((n))*f$ into #(s.ref)("subordination-operator") gives
 $
-  P_(y)(x)
-  &=integral_(0)^(infinity)w_(y)(t)p_(t)(x) thin d t \
-  &=frac(y,(4pi)^((n+1)/2))integral_(0)^(infinity)
-      e^(-B/(4t))t^(-(n+3)/2) thin d t \
-  &=frac(y,(4pi)^((n+1)/2))(4/B)^((n+1)/2)
-      integral_(0)^(infinity)e^(-s)s^((n-1)/2) thin d s \
-  &=frac(Gamma((n+1)/2),pi^((n+1)/2))
-      frac(y,(y^(2)+|x|^(2))^((n+1)/2)).
-$ #(s.tag)("poisson-kernel")
-The third line uses $s=B/(4t)$, including the reversed integration limits. The last integral is the defining Gamma integral.
+  e^(-y A)f
+  &=integral_(0)^(infinity)w_(y)(t)(p_(t)^((n))*f) thin d t \
+  &=lr((integral_(0)^(infinity)w_(y)(t)p_(t)^((n)) thin d t))*f.
+$ #(s.tag)("subordination-convolution")
+The second equality interchanges the heat-time integral with the convolution integral.#footnote[First take $f$ smooth and rapidly decreasing. Since $f$ is bounded and $p_(t)^((n))$ has mass one, the absolute double integral at each $x$ is at most $norm(f)_(infinity)integral_(0)^(infinity)w_(y)(t) thin d t=norm(f)_(infinity)$, so Fubini applies. The resulting kernel is nonnegative and has mass one by Tonelli. Both sides of #(s.ref)("subordination-convolution") are contractions on $L^(2)$, so the identity extends to all $L^(2)$ inputs by density.] Thus we define
+$
+  P_(y)^((n))(x):=integral_(0)^(infinity)w_(y)(t)p_(t)^((n))(x) thin d t.
+$ #(s.tag)("subordination-kernel-mixture")
+To evaluate #(s.ref)("subordination-kernel-mixture"), insert the weight from #(s.ref)("subordination-weight") and the heat kernel from #(s.ref)("heat-kernel"). The annotations identify the two formulas being substituted. We then combine their coefficients, powers of $t$, and exponentials separately, with $B:=y^(2)+|x|^(2)>0$:
+#flowbox[
+  #show math.equation: set block(above: 0.5em, below: 0.5em)
+  #local-scope-annotations(m => [
+    #block(breakable: false, above: 1.8em, below: 1.8em)[
+    #v(1em)
+    $
+      P_(y)^((n))(x)=integral_(0)^(infinity)
+        bmark(frac(y,2sqrt(pi))t^(-3/2)e^(-y^(2)/(4t)),
+          tag: #(m.tag)("weight"))
+        dot rmark((4pi t)^(-n/2)e^(-|x|^(2)/(4t)),
+          tag: #(m.tag)("heat-kernel")) thin d t.
+      #annot((m.tag)("weight"), pos: top, dy: -0.7em,
+        leader: true, leader-connect: "elbow",
+        annot-text-props: (size: 0.85em))[
+        weight $w_(y)(t)$ from #(s.ref)("subordination-weight")
+      ]
+      #annot((m.tag)("heat-kernel"), pos: bottom, dy: 0.7em,
+        leader: true, leader-connect: "elbow",
+        annot-text-props: (size: 0.85em))[
+        heat kernel $p_(t)^((n))(x)$ from #(s.ref)("heat-kernel")
+      ]
+    $ #(s.tag)("poisson-kernel-inserted-formulas")
+    ]
+  ], parent: s, name: "subordination-kernel-insertion")
+  $arrow.b$
+  $
+    frac(y,2sqrt(pi))(4pi)^(-n/2)
+    &=frac(y,2sqrt(pi) dot 2^(n)pi^(n/2)) \
+    &=frac(y,2^(n+1)pi^((n+1)/2))
+      =frac(y,(4pi)^((n+1)/2)), \
+    t^(-3/2)t^(-n/2)&=t^(-(n+3)/2), \
+    e^(-y^(2)/(4t))e^(-|x|^(2)/(4t))
+    &=e^(-(y^(2)+|x|^(2))/(4t))=e^(-B/(4t)).
+  $ #(s.tag)("poisson-kernel-product-simplification")
+  $arrow.b$
+  $
+    P_(y)^((n))(x)=frac(y,(4pi)^((n+1)/2))
+      integral_(0)^(infinity)e^(-B/(4t))t^(-(n+3)/2) thin d t.
+  $ #(s.tag)("poisson-kernel-time-integral")
+]
+
+#block(breakable: false)[
 
 #paragraph_tab
-Consequently, $e^(-y A)f=P_(y)*f$. Its multiplier verifies $(partial_(y)^(2)+Delta)P_(y)=0$ for $y>0$. Dominated convergence in frequency space gives $P_(y)*f arrow.r f$ in $L^(2)$ as $y arrow.r 0^(+)$. The kernel has mass one and scales as $P_(y)(x)=y^(-n)P_(1)(x/y)$, so it also approaches $delta_(0)$ distributionally. Its spatial scale is $y$, while that of heat at time $t$ is $sqrt(t)$. In #(s.ref)("subordination-mixture"), the heat profiles use one common scale, so their widening and decreasing peak height are visible. The Poisson profile is the continuous mixture over all positive heat times.
+Next, remove $B$ from the exponential in #(s.ref)("poisson-kernel-time-integral") by setting $s=B/(4t)$. We compute both the differential and the power of $s$ before changing the integral. The limits reverse because $t arrow.r 0^(+)$ gives $s arrow.r infinity$, while $t arrow.r infinity$ gives $s arrow.r 0^(+)$:
+#flowbox[
+  #show math.equation: set block(above: 0.5em, below: 0.5em)
+  $
+    s=frac(B,4t), quad t=frac(B,4s), quad
+    thin d t=frac(B,4)thin d(s^(-1))=-frac(B,4s^(2)) thin d s.
+  $ #(s.tag)("poisson-kernel-time-change")
+  $arrow.b$
+  $
+    t^(-(n+3)/2) thin d t
+    &=lr((frac(B,4s)))^(-(n+3)/2)
+      lr((-frac(B,4s^(2)))) thin d s \
+    &=-lr((frac(4,B)))^((n+3)/2)frac(B,4)
+      s^((n+3)/2-2) thin d s \
+    &=-lr((frac(4,B)))^((n+1)/2)s^((n-1)/2) thin d s.
+  $ #(s.tag)("poisson-kernel-time-differential")
+  $arrow.b$
+  $
+    integral_(0)^(infinity)e^(-B/(4t))t^(-(n+3)/2) thin d t
+    &=-lr((frac(4,B)))^((n+1)/2)
+      integral_(infinity)^(0)e^(-s)s^((n-1)/2) thin d s \
+    &=lr((frac(4,B)))^((n+1)/2)
+      integral_(0)^(infinity)e^(-s)s^((n-1)/2) thin d s.
+  $ #(s.tag)("poisson-kernel-transformed-integral")
+]
+]
 
-#figure(
-  subordination-mixture-diagram(),
-  caption: [Subordination in one spatial dimension with $y=1$. Three unit-mass heat profiles illustrate the family being averaged; the right curve is the exact Poisson profile, not the sum of the three samples. The horizontal and vertical scales agree across the two plots.],
-) #(s.tag)("subordination-mixture")
+#paragraph_tab
+The last equality reverses the limits and cancels the minus sign. The remaining integral is a Gamma integral: its power of $s$ is $(n-1)/2=(n+1)/2-1$, so the definition gives
+$
+  Gamma(alpha)&=integral_(0)^(infinity)e^(-s)s^(alpha-1) thin d s,
+  quad alpha>0, \
+  integral_(0)^(infinity)e^(-s)s^((n-1)/2) thin d s
+  &=Gamma(lr(frac(n+1,2))).
+$ #(s.tag)("poisson-kernel-gamma-integral")
+
+#block(breakable: false)[
+
+#paragraph_tab
+Substituting #(s.ref)("poisson-kernel-transformed-integral") and #(s.ref)("poisson-kernel-gamma-integral") into #(s.ref)("poisson-kernel-time-integral"), we obtain the result by simplifying the coefficient and then replacing $B$:
+#flowbox[
+  #show math.equation: set block(above: 0.5em, below: 0.5em)
+  $
+    P_(y)^((n))(x)=frac(y,(4pi)^((n+1)/2))
+      lr((frac(4,B)))^((n+1)/2)Gamma(lr(frac(n+1,2))).
+  $
+  $arrow.b$
+  $
+    P_(y)^((n))(x)&=frac(y dot 4^((n+1)/2)Gamma((n+1)/2),
+      4^((n+1)/2)pi^((n+1)/2)B^((n+1)/2)) \
+    &=frac(Gamma((n+1)/2),pi^((n+1)/2))
+      frac(y,B^((n+1)/2)).
+  $
+  $arrow.b$
+  $
+    P_(y)^((n))(x)=frac(Gamma((n+1)/2),pi^((n+1)/2))
+      frac(y,(y^(2)+|x|^(2))^((n+1)/2)).
+  $ #(s.tag)("poisson-kernel")
+]
+For $n=1$, $Gamma(1)=1$, so #(s.ref)("poisson-kernel") reduces to $P_(y)^((1))(x)=y/(pi(y^(2)+x^(2)))$, agreeing with #(s.ref)("subordination-known-kernels").
+]
+
+#block(breakable: false)[
+
+#paragraph_tab
+To see explicitly how #(s.ref)("poisson-kernel") gives a convolution, evaluate #(s.ref)("subordination-convolution") at $x$. The convolution inside the heat-time integral places the heat kernel at the displacement $x-z$. Averaging those kernels gives $P_(y)^((n))(x-z)$ by #(s.ref)("subordination-kernel-mixture"), so
+$
+  (e^(-y A)f)(x)
+  &=integral_(bb(R)^(n))P_(y)^((n))(x-z)f(z) thin d z \
+  &=integral_(bb(R)^(n))
+    underbrace(
+      frac(Gamma((n+1)/2),pi^((n+1)/2))
+      frac(y,(y^(2)+|x-z|^(2))^((n+1)/2)),
+      P_(y)^((n))(x-z)
+    )f(z) thin d z \
+  &=(P_(y)^((n))*f)(x).
+$ #(s.tag)("poisson-solution-convolution")
+The underbrace identifies the formula from #(s.ref)("poisson-kernel") with $x$ replaced by $x-z$. The final equality is exactly the convolution integral #(s.ref)("ordinary-convolution-integral") with $k=P_(y)^((n))$: we integrate the translated kernel $P_(y)^((n))(x-z)$ against $f(z)$.
+]
 
 ])
