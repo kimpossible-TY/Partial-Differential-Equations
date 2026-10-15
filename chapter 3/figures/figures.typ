@@ -5,6 +5,399 @@
 #import "@local/cetz-helpers:0.2.0": sample-function
 #import "@local/fletcher-helpers:0.1.0": themed-diagram
 
+#let radial-bessel-routes-diagram() = context {
+  let theme = theme-from-text-fill()
+  set text(size: 10pt)
+  themed-diagram(
+    node((0, 0), [Rotational symmetry], shape: rect),
+    node((-1, 1), [Polar Laplacian\ in the Helmholtz equation], shape: rect),
+    node((1, 1), [Integrate plane waves\ over the unit sphere], shape: rect),
+    node((0, 2), [Radial ODE\ $psi''+(n-1)psi'/s+psi=0$], shape: rect),
+    node((0, 3), [Bessel equation\ order $nu=n/2-1$], shape: rect),
+    edge((0, 0), (-1, 1), "->"), edge((0, 0), (1, 1), "->"),
+    edge((-1, 1), (0, 2), "->"), edge((1, 1), (0, 2), "->"),
+    edge((0, 2), (0, 3), "->"),
+    spacing: (0.7cm, 0.7cm), node-stroke: 0.7pt + theme.rule,
+    node-fill: theme.callouts.note.bg,
+  )
+}
+
+#let radial-geometry-diagram() = context {
+  let theme = theme-from-text-fill()
+  let color = theme.callouts.proposition.border
+  canvas(length: 0.9cm, {
+    import draw: *
+    let o = (-3, 0)
+    content((-3, 3.0), text(size: 10pt, weight: "semibold")[One value on each sphere])
+    for r in (0.75, 1.35, 2.0) {
+      circle(o, radius: r, stroke: (paint: theme.rule, thickness: 0.6pt, dash: "dashed"))
+    }
+    circle(o, radius: 2.0, stroke: 1.2pt + color)
+    line((-5.4, 0), (-0.5, 0), stroke: 0.5pt + theme.muted-text)
+    line((-3, -2.35), (-3, 2.45), stroke: 0.5pt + theme.muted-text)
+    let a = (-3+2*calc.cos(35deg), 2*calc.sin(35deg))
+    let b = (-3+2*calc.cos(115deg), 2*calc.sin(115deg))
+    for p in (a,b) {
+      line(o, p, stroke: 1pt + color, mark: (end: ">"))
+      circle(p, radius: 0.07, fill: color, stroke: none)
+    }
+    content((-2.12, 0.34), text(size: 10pt, fill: color)[$r$])
+    content((a.at(0)+0.18, a.at(1)+0.18), anchor: "west", text(size: 10pt)[$x$])
+    content((b.at(0)-0.18, b.at(1)+0.15), anchor: "east", text(size: 10pt)[$Q x$])
+    content((-3.2, -0.25), text(size: 9pt)[$0$])
+    content((-3, -2.9), text(size: 10pt)[$F(Q x)=F(x)=f(r)$])
+    content((3.55, 3.0), text(size: 10pt, weight: "semibold")[Value at each radius])
+    line((0.7, -1.6), (6.45, -1.6), stroke: 0.7pt + theme.rule, mark: (end: ">"))
+    line((0.7, -1.6), (0.7, 2.2), stroke: 0.7pt + theme.rule, mark: (end: ">"))
+    let pts = range(161).map(j => {
+      let r=4.0*j/160
+      (0.7+1.35*r, -1.6+3.25*calc.exp(-r*r/4))
+    })
+    line(..pts, stroke: 1.5pt + color)
+    let pr=(3.4,-1.6+3.25*calc.exp(-1))
+    line((pr.at(0),-1.6),pr,stroke:(paint:theme.muted-text,thickness:0.6pt,dash:"dashed"))
+    circle(pr,radius:0.07,fill:color,stroke:none)
+    content((3.4,-1.95),text(size:9pt)[$r=2$])
+    content((6.55,-1.65),anchor:"west",text(size:10pt)[$r$])
+    content((0.55,2.4),text(size:10pt)[$f(r)$])
+    content((3.6,2.25),text(size:10pt)[$f(r)=e^(-r^(2)/4)$])
+    content((3.55,-2.9),text(size:10pt)[Integrate shells with $r^(n-1)thin d r$.])
+  })
+}
+
+// Periodic angular quadrature evaluates J_0 directly from its defining circle average.
+#let radial-angular-average-diagram() = context {
+  let theme=theme-from-text-fill()
+  let positive=theme.callouts.proposition.border
+  let negative=theme.callouts.important.border
+  let circle-mean(s)=range(128).map(j => calc.cos(s*calc.cos(2*calc.pi*j/128))).sum()/128
+  canvas(length:0.9cm,{
+    import draw: *
+    content((-3.15,3.0),text(size:10pt,weight:"semibold")[Directional contributions at $s=2$])
+    let o=(-3.15,0.5)
+    circle(o,radius:1.75,stroke:0.5pt+theme.rule)
+    line((-5.25,0.5),(-0.9,0.5),stroke:0.6pt+theme.muted-text,mark:(end:">"))
+    for j in range(48) {
+      let a=2*calc.pi*j/48
+      let c=calc.cos(2*calc.cos(a))
+      circle((-3.15+1.75*calc.cos(a),0.5+1.75*calc.sin(a)),
+        radius:0.035+0.075*calc.abs(c),fill:if c>=0 {positive} else {negative},stroke:none)
+    }
+    content((-0.85,0.75),anchor:"west",text(size:9pt)[$omega_(1)$])
+    circle((-4.65,-1.8),radius:0.07,fill:positive,stroke:none)
+    content((-4.45,-1.8),anchor:"west",text(size:9pt)[positive])
+    circle((-2.55,-1.8),radius:0.07,fill:negative,stroke:none)
+    content((-2.35,-1.8),anchor:"west",text(size:9pt)[negative])
+    content((-3.15,-2.5),text(size:10pt)[$J_(0)(2) approx 0.2239$])
+    content((3.7,3.0),text(size:10pt,weight:"semibold")[Normalized directional averages])
+    let xp(s)=0.55+0.5*s
+    let yp(y)=0.1+2.2*y
+    line((xp(0),yp(0)),(xp(12.35),yp(0)),stroke:0.6pt+theme.rule,mark:(end:">"))
+    line((xp(0),yp(-0.5)),(xp(0),yp(1.12)),stroke:0.6pt+theme.rule)
+    for k in (0,3,6,9,12) {
+      line((xp(k),yp(0)-0.05),(xp(k),yp(0)+0.05),stroke:0.5pt+theme.rule)
+      content((xp(k),yp(-0.61)),text(size:9pt)[#k])
+    }
+    for y in (-0.5,1.0) {
+      line((xp(0),yp(y)),(xp(12),yp(y)),stroke:(paint:theme.rule,thickness:0.35pt,dash:"dotted"))
+      content((xp(0)-0.18,yp(y)),anchor:"east",text(size:9pt)[#y])
+    }
+    let p2=range(241).map(j => {let x=12*j/240; (xp(x),yp(circle-mean(x)))})
+    let p3=range(241).map(j => {let x=12*j/240; (xp(x),yp(if x==0 {1} else {calc.sin(x)/x}))})
+    line(..p2,stroke:1.3pt+positive)
+    line(..p3,stroke:(paint:negative,thickness:1.3pt,dash:"dashed"))
+    content((6.9,yp(0)),text(size:10pt)[$s$])
+    content((3.6,-1.95),text(size:9pt,fill:positive)[$n=2$: $J_(0)(s)$ (solid)])
+    content((3.6,-2.5),text(size:9pt,fill:negative)[$n=3$: $sin(s)/s$ (dashed)])
+  })
+}
+
+// In three dimensions, a band u < omega_1 < u + du has area 2 pi du.
+// Midpoint samples illustrate the phases; the bold arrow uses the exact
+// continuous average sin(rho)/rho rather than a finite quadrature sum.
+#let radial-sphere-phase-diagram() = context {
+  let theme = theme-from-text-fill()
+  let positive = theme.callouts.proposition.border
+  let negative = theme.callouts.important.border
+  let average = theme.callouts.tip.border
+  let radius = 1.35
+  let sphere = (-3.75, 0.45)
+  let plane = (3.45, 0.45)
+  let rho = 2
+  let bands = 8
+  let edge-points(lo, hi, side) = range(25).map(j => {
+    let u = lo + (hi - lo) * j / 24
+    (sphere.at(0) + side * radius * calc.sqrt(calc.max(0, 1 - u * u)),
+      sphere.at(1) + radius * u)
+  })
+  canvas(length: 0.88cm, {
+    import draw: *
+    content((-3.75, 2.85), text(size: 10pt, weight: "semibold")[Equal-area bands on $S^(2)$])
+    content((3.45, 2.85), text(size: 10pt, weight: "semibold")[Complex phases])
+
+    // Side-on orthographic view: height is omega_1, so the band edges
+    // are horizontal. Their projected areas need not be equal.
+    for j in range(bands) {
+      let lo = -1 + 2 * j / bands
+      let hi = -1 + 2 * (j + 1) / bands
+      let paint = if lo >= 0 { positive } else { negative }
+      let outline = edge-points(lo, hi, 1) + edge-points(hi, lo, -1)
+      line(..outline, close: true, fill: paint.transparentize(82%), stroke: none)
+    }
+    for j in range(1, bands) {
+      let u = -1 + 2 * j / bands
+      let half-width = radius * calc.sqrt(1 - u * u)
+      line((sphere.at(0) - half-width, sphere.at(1) + radius * u),
+        (sphere.at(0) + half-width, sphere.at(1) + radius * u),
+        stroke: 0.45pt + theme.rule)
+    }
+    let meridian(start) = range(65).map(j => {
+      let a = start + calc.pi * j / 64
+      (sphere.at(0) + 0.45 * radius * calc.cos(a),
+        sphere.at(1) + radius * calc.sin(a))
+    })
+    line(..meridian(calc.pi / 2),
+      stroke: (paint: theme.muted-text, thickness: 0.45pt, dash: "dotted"))
+    line(..meridian(-calc.pi / 2), stroke: 0.45pt + theme.muted-text)
+    circle(sphere, radius: radius, stroke: 0.8pt + theme.text)
+    line(sphere, (sphere.at(0), 2.23), stroke: 0.8pt + theme.text,
+      mark: (end: ">"))
+    content((-3.53, 2.17), anchor: "west", text(size: 9pt)[$xi=2e_(1)$])
+    line((-5.55, -0.95), (-5.55, 1.93), stroke: 0.55pt + theme.muted-text,
+      mark: (end: ">"))
+    content((-5.55, 2.22), text(size: 9pt)[$u=omega_(1)$])
+    for u in (-1, 0, 1) {
+      let y = sphere.at(1) + radius * u
+      line((-5.61, y), (-5.49, y), stroke: 0.55pt + theme.muted-text)
+      content((-5.73, y), anchor: "east", text(size: 9pt)[$#u$])
+    }
+
+    line((-1.93, 0.45), (1.18, 0.45), stroke: 0.8pt + theme.text,
+      mark: (end: ">"))
+    content((-0.38, 0.97), text(size: 10pt)[$omega mapsto e^(-2i u)$])
+    content((-0.38, -0.02), text(size: 9pt)[unit modulus])
+
+    circle(plane, radius: radius,
+      stroke: (paint: theme.rule, thickness: 0.55pt, dash: "dashed"))
+    line((1.69, plane.at(1)), (5.28, plane.at(1)),
+      stroke: 0.55pt + theme.muted-text, mark: (end: ">"))
+    line((plane.at(0), -1.16), (plane.at(0), 2.16),
+      stroke: 0.55pt + theme.muted-text, mark: (end: ">"))
+    content((5.57, plane.at(1)), text(size: 9pt)[$op("Re")$])
+    content((plane.at(0), 2.39), text(size: 9pt)[$op("Im")$])
+    for j in range(bands) {
+      let u = -1 + 2 * (j + 0.5) / bands
+      let paint = if u > 0 { positive } else { negative }
+      let point = (sphere.at(0) + 0.45 * radius * calc.sqrt(1 - u * u),
+        sphere.at(1) + radius * u)
+      circle(point, radius: 0.048, fill: paint, stroke: none)
+      let phase = (plane.at(0) + radius * calc.cos(rho * u),
+        plane.at(1) - radius * calc.sin(rho * u))
+      line(plane, phase, stroke: 0.8pt + paint.transparentize(18%),
+        mark: (end: ">"))
+      circle(phase, radius: 0.045, fill: paint, stroke: none)
+    }
+    let mean = (plane.at(0) + radius * calc.sin(rho) / rho, plane.at(1))
+    line(plane, mean, stroke: 1.8pt + average, mark: (end: ">"))
+    circle(mean, radius: 0.055, fill: average, stroke: none)
+
+    circle((-4.9, -1.31), radius: 0.05, fill: positive, stroke: none)
+    content((-4.72, -1.31), anchor: "west", text(size: 9pt)[$u>0$])
+    circle((-3.6, -1.31), radius: 0.05, fill: negative, stroke: none)
+    content((-3.42, -1.31), anchor: "west", text(size: 9pt)[$u<0$])
+    content((-3.75, -1.91), text(size: 9pt)[band area $=2pi Delta u$])
+    line((1.75, -1.31), (2.25, -1.31), stroke: 1.8pt + average,
+      mark: (end: ">"))
+    content((2.43, -1.31), anchor: "west", text(size: 9pt)[exact surface average])
+    content((3.45, -1.91), text(size: 9pt)[Imaginary parts cancel])
+    content((0, -2.65), text(size: 10pt)[
+      $frac(Psi_(3)(2e_(1)),4pi)
+      =frac(1,2)integral_(-1)^(1)e^(-2i u) thin d u
+      =frac(sin 2,2) approx 0.455$
+    ])
+  })
+}
+
+// Differentiating the periodic angular average for J_0 gives J_1.
+// The samples are used for drawing only; the chapter gives the exact formulas.
+#let radial-aperture-airy-diagram() = context {
+  let theme = theme-from-text-fill()
+  let aperture-color = theme.callouts.proposition.border
+  let amplitude-color = theme.callouts.important.border
+  let intensity-color = theme.callouts.tip.border
+  let directions = range(128).map(j => calc.cos(2 * calc.pi * j / 128))
+  let amplitude(q) = if q == 0 { 1 } else {
+    2 * directions.map(c => c * calc.sin(q * c)).sum() / (128 * q)
+  }
+  let zero(lo, hi) = {
+    let left = lo
+    let right = hi
+    for _ in range(24) {
+      let middle = (left + right) / 2
+      if amplitude(left) * amplitude(middle) > 0 {
+        left = middle
+      } else {
+        right = middle
+      }
+    }
+    (left + right) / 2
+  }
+  let zeros = ((3, 4), (6, 8), (9, 11)).map(interval => zero(..interval))
+  let samples = range(241).map(j => {
+    let q = 12 * j / 240
+    (q, amplitude(q))
+  })
+  canvas(length: 0.9cm, {
+    import draw: *
+    let aperture-center = (-4.5, 1.15)
+    let aperture-radius = 1.25
+    content((-4.5, 3.25), text(size: 10pt, weight: "semibold")[Circular aperture])
+    circle(aperture-center, radius: aperture-radius,
+      fill: aperture-color.transparentize(72%), stroke: 1pt + aperture-color)
+    line(aperture-center, (-3.25, 1.15), stroke: 1pt + aperture-color,
+      mark: (end: ">"))
+    content((-3.87, 1.4), text(size: 10pt)[$a$])
+    content((-4.5, -0.65), text(size: 10pt)[$f(r)=bold(1)_(lr([0,a]))(r)$])
+    line((-3.05, 1.15), (-1.85, 1.15), stroke: 0.8pt + theme.text,
+      mark: (end: ">"))
+    content((-2.45, 1.55), text(size: 10pt)[$cal(H)_(0)$])
+
+    let xp(q) = -1.55 + 0.425 * q
+    let yp(value) = 0.3 + 2.05 * value
+    content((1.0, 3.25), text(size: 10pt, weight: "semibold")[Radial trace])
+    for (index, root) in zeros.enumerate() {
+      line((xp(root), yp(-0.2)), (xp(root), yp(1.04)),
+        stroke: (paint: theme.rule, thickness: 0.45pt, dash: "dotted"))
+      content((xp(root), 2.7), text(size: 9pt)[$q_(#(index + 1))$])
+    }
+    line((xp(0), yp(0)), (xp(12.35), yp(0)), stroke: 0.7pt + theme.rule,
+      mark: (end: ">"))
+    line((xp(0), yp(-0.22)), (xp(0), yp(1.08)), stroke: 0.7pt + theme.rule)
+    for q in (0, 6, 12) {
+      line((xp(q), yp(0) - 0.05), (xp(q), yp(0) + 0.05),
+        stroke: 0.5pt + theme.rule)
+      content((xp(q), -0.45), text(size: 9pt)[#q])
+    }
+    content((xp(0) - 0.2, yp(1)), anchor: "east", text(size: 9pt)[$1$])
+    content((xp(12.6), yp(0)), text(size: 10pt)[$q$])
+    line(..samples.map(p => (xp(p.at(0)), yp(p.at(1)))),
+      stroke: 1.25pt + amplitude-color)
+    line(..samples.map(p => (xp(p.at(0)), yp(p.at(1) * p.at(1)))),
+      stroke: (paint: intensity-color, thickness: 1.25pt, dash: "dashed"))
+    content((1.0, -1.05), text(size: 9pt, fill: amplitude-color)[$A(q)=frac(2J_(1)(q),q)$ (solid)])
+    content((1.0, -1.65), text(size: 9pt, fill: intensity-color)[$I(q)=|A(q)|^(2)$ (dashed)])
+
+    let image-center = (6.15, 1.15)
+    let image-radius = 1.35
+    content((6.15, 3.25), text(size: 10pt, weight: "semibold")[Frequency plane])
+    // An opaque stack of disks produces annuli with enhanced brightness |A|.
+    for j in range(192, 0, step: -1) {
+      let q = 12 * (j - 0.5) / 192
+      let shade = calc.min(1, calc.abs(amplitude(q)))
+      circle(image-center, radius: image-radius * j / 192, stroke: none,
+        fill: color.mix((theme.page, (1 - shade) * 100%),
+          (intensity-color, shade * 100%)))
+    }
+    circle(image-center, radius: image-radius, fill: none, stroke: 0.5pt + theme.rule)
+    let dark-point = (6.15 + image-radius * zeros.first() / 12 * calc.cos(35deg),
+      1.15 + image-radius * zeros.first() / 12 * calc.sin(35deg))
+    line(dark-point, (7.25, 2.35), stroke: 0.6pt + theme.text)
+    content((7.32, 2.4), anchor: "west", text(size: 9pt)[$q_(1)$])
+    content((6.15, -0.65), text(size: 10pt)[$q=a|xi|$])
+    content((6.15, -1.25), text(size: 9pt)[Brightness $prop sqrt(I)$])
+    content((6.15, -1.85), text(size: 9pt)[$0<=q<=12$])
+  })
+}
+
+// Orthographic projection is linear, so negating a sphere point also negates
+// its projected position. Transparent wireframes expose both hemispheres.
+#let radial-antipodal-measure-diagram() = context {
+  let theme = theme-from-text-fill()
+  let blue = theme.callouts.proposition.border
+  let purple = theme.callouts.important.border
+  let green = theme.callouts.tip.border
+  let radius = 1.65
+  let tilt = 20deg
+  let sphere-point(latitude, longitude) = (
+    calc.cos(latitude) * calc.cos(longitude),
+    calc.cos(latitude) * calc.sin(longitude),
+    calc.sin(latitude),
+  )
+  let project(p, cx, sign) = (
+    cx + sign * radius * p.at(0),
+    sign * radius * (calc.sin(tilt) * p.at(1) + calc.cos(tilt) * p.at(2)),
+  )
+  let patch-boundary(latitude, longitude, half-latitude, half-longitude) = {
+    let lo = longitude - half-longitude
+    let hi = longitude + half-longitude
+    let bottom = latitude - half-latitude
+    let top = latitude + half-latitude
+    let steps = 12
+    (
+      range(steps).map(j => sphere-point(top, lo + (hi - lo) * j / steps)) +
+      range(steps).map(j => sphere-point(top - (top - bottom) * j / steps, hi)) +
+      range(steps).map(j => sphere-point(bottom, hi - (hi - lo) * j / steps)) +
+      range(steps).map(j => sphere-point(bottom + (top - bottom) * j / steps, lo))
+    )
+  }
+  let patches = (
+    (35deg, -25deg, 12deg, 16deg, blue),
+    (10deg, 145deg, 10deg, 15deg, purple),
+    (-45deg, -65deg, 10deg, 13deg, green),
+  )
+  canvas(length: 0.9cm, {
+    import draw: *
+    for (cx, sign, title) in (
+      (-3.1, 1, [Original directions]),
+      (3.1, -1, [Antipodal directions]),
+    ) {
+      content((cx, 2.2), text(size: 10pt, weight: "semibold", title))
+      circle((cx, 0), radius: radius, fill: none, stroke: 0.9pt + theme.text)
+      for latitude in (-45deg, 0deg, 45deg) {
+        let points = range(65).map(j =>
+          project(sphere-point(latitude, 360deg * j / 64), cx, sign))
+        line(..points, stroke: (paint: theme.rule, thickness: 0.5pt, dash: "dotted"))
+      }
+      for longitude in (-55deg, 0deg, 55deg) {
+        let points = range(65).map(j => {
+          let t = 360deg * j / 64
+          project((calc.cos(t) * calc.cos(longitude),
+            calc.cos(t) * calc.sin(longitude), calc.sin(t)), cx, sign)
+        })
+        line(..points, stroke: 0.45pt + theme.rule)
+      }
+      for (latitude, longitude, half-latitude, half-longitude, color) in patches {
+        let points = patch-boundary(latitude, longitude, half-latitude, half-longitude)
+          .map(p => project(p, cx, sign))
+        line(..points, close: true, fill: color.transparentize(65%),
+          stroke: 1pt + color)
+      }
+      for latitude in (-20deg, 20deg) {
+        for longitude in (-165deg, -105deg, -45deg, 15deg, 75deg, 135deg) {
+          circle(project(sphere-point(latitude, longitude), cx, sign),
+            radius: 0.035, fill: theme.muted-text, stroke: none)
+        }
+      }
+      let p = project(sphere-point(35deg, -25deg), cx, sign)
+      line((cx, 0), p, stroke: 1.3pt + blue, mark: (end: ">"))
+      circle((cx, 0), radius: 0.035, fill: theme.text, stroke: none)
+      circle(p, radius: 0.055, fill: blue, stroke: none)
+      content((p.at(0) + sign * 0.22, p.at(1) + sign * 0.32),
+        text(size: 11pt, fill: blue, if sign == 1 { $omega$ } else { $-omega$ }))
+      content((cx, -2.05), text(size: 10pt,
+        if sign == 1 { $omega in S^(2)$ } else { $-omega in S^(2)$ }))
+    }
+    line((-1.15, 0), (1.15, 0), stroke: 0.9pt + theme.text, mark: (end: ">"))
+    content((0, 0.55), text(size: 10pt)[$omega mapsto -omega$])
+    content((0, -0.45), text(size: 9pt)[bijection])
+    content((0, -2.65), text(size: 10pt)[$d S(-omega)=d S(omega)$])
+    content((0, -3.35), text(size: 10pt)[
+      $integral_(S^(2))g(omega) thin d S(omega)
+        =integral_(S^(2))g(-omega) thin d S(omega)$
+    ])
+  })
+}
+
 // Four graphs on the same world-space domain and with the same camera.
 // The OBJ meshes are generated here, so no external 3D assets are required.
 #let coordinate-averaging-surfaces() = context {
