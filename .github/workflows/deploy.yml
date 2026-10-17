@@ -22,6 +22,10 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    env:
+      TYPST_PACKAGE_PATH: ${{ runner.temp }}/typst-packages
+      TYPST_PACKAGE_CACHE_PATH: ${{ runner.temp }}/typst-cache
+      PROJECT_REFERENCE_CATALOG_SHA256: a3a8eda7035aa12e16dad6cc252cb9c6779adcb9f62436e32089cf75340b53fb
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -30,18 +34,34 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: kimpossible-TY/typst-packages
+          ref: 6deccaeb3726335ce6012b2858b33ab33e55aee7
           path: typst-packages
 
       - name: Install Local Typst Packages
         run: |
-          # Typst resolves @local packages from this directory on Linux.
-          mkdir -p "$HOME/.local/share/typst/packages"
-          cp -R typst-packages/local "$HOME/.local/share/typst/packages/"
+          mkdir -p "$TYPST_PACKAGE_PATH"
+          cp -R typst-packages/local "$TYPST_PACKAGE_PATH/"
+          git -C typst-packages rev-parse HEAD
+
+      - name: Install Reference Validation Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils python3-venv fonts-noto-cjk
+          python3 -m venv "$RUNNER_TEMP/reference-verify"
+          "$RUNNER_TEMP/reference-verify/bin/python" -m pip install --disable-pip-version-check pypdf==6.10.0
 
       - name: Setup Typst
         uses: typst-community/setup-typst@v3
         with:
           typst-version: 'v0.15.0'
+
+      - name: Verify Published Reference Catalog
+        run: |
+          "$RUNNER_TEMP/reference-verify/bin/python" typst-packages/tools/project-references/verify_references.py \
+            --catalog "$TYPST_PACKAGE_PATH/local/project-references/0.1.0/projects.json" \
+            --catalog-sha256 "$PROJECT_REFERENCE_CATALOG_SHA256" \
+            --source-root . \
+            --published-dir "$RUNNER_TEMP/reference-pdfs"
 
       - name: Generate Build Metadata
         run: |
@@ -53,6 +73,15 @@ jobs:
         run: |
           # Compiles main.typ using the local fonts folder
           typst compile main.typ main.pdf --font-path ./fonts
+
+      - name: Verify Compiled Reference Text and Links
+        run: |
+          "$RUNNER_TEMP/reference-verify/bin/python" typst-packages/tools/project-references/verify_references.py \
+            --catalog "$TYPST_PACKAGE_PATH/local/project-references/0.1.0/projects.json" \
+            --catalog-sha256 "$PROJECT_REFERENCE_CATALOG_SHA256" \
+            --source-root . \
+            --published-dir "$RUNNER_TEMP/reference-pdfs" \
+            --consumer-pdf main.pdf
 
       - name: Generate Published Version Metadata
         run: python3 typst-packages/tools/pdf-versioning/pdf_version_server.py --root . --write-version-once
@@ -67,10 +96,7 @@ jobs:
             --catalog project-references.json
 
       - name: Generate Note Statistics
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y poppler-utils
-          python3 tools/generate_statistics.py --output-dir .
+        run: python3 tools/generate_statistics.py --output-dir .
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
