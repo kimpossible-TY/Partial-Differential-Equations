@@ -1,5 +1,5 @@
 # Partial Differential Equations
-![Typst](https://img.shields.io/badge/Typst-0.15.0-239DAD?logo=typst)
+![Typst](https://img.shields.io/badge/Typst-0.15.1-239DAD?logo=typst)
 
 > Detailed personal PDE study notes based primarily on Michael E. Taylor’s Partial Differential Equations I.
 
