@@ -23,8 +23,6 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     env:
-      TYPST_PACKAGE_PATH: ${{ runner.temp }}/typst-packages
-      TYPST_PACKAGE_CACHE_PATH: ${{ runner.temp }}/typst-cache
       PROJECT_REFERENCE_CATALOG_SHA256: a3a8eda7035aa12e16dad6cc252cb9c6779adcb9f62436e32089cf75340b53fb
     steps:
       - name: Checkout Repository
@@ -39,8 +37,11 @@ jobs:
 
       - name: Install Local Typst Packages
         run: |
-          mkdir -p "$TYPST_PACKAGE_PATH"
-          cp -R typst-packages/local "$TYPST_PACKAGE_PATH/"
+          package_root="$RUNNER_TEMP/typst-packages"
+          mkdir -p "$package_root"
+          cp -R typst-packages/local "$package_root/"
+          echo "TYPST_PACKAGE_PATH=$package_root" >> "$GITHUB_ENV"
+          echo "TYPST_PACKAGE_CACHE_PATH=$RUNNER_TEMP/typst-cache" >> "$GITHUB_ENV"
           git -C typst-packages rev-parse HEAD
 
       - name: Install Reference Validation Dependencies
