@@ -97,7 +97,7 @@ Use the function `#paragraph_tab`
 // for example
 #paragraph_tab 
 As we know from Proposition 16.33 of _Introduction to Smooth Manifolds_, the divergence operator can be written:
-$ Z_X V = ( op("div") X) omega = d(i_X omega) $
+$ Z_(X) V = ( op("div") X) omega = d(i_(X) omega) $
 ```
 
 ## Equations
@@ -120,11 +120,11 @@ Use `flowbox` for a complicated logical equation argument. Keep algebraic steps 
 ```typst
 #flowbox[
 $ 
-    omega  = sqrt(det(g)) d x_1 and dots and d x_n #dots_space #footnote[by proposition 15.31 of _Introduction to Smooth Manifolds_] 
+    omega  = sqrt(det(g)) d x_(1) and dots and d x_(n) #footnote[by proposition 15.31 of _Introduction to Smooth Manifolds_] 
 $
 $arrow.b$
 
-"How about" $d(i_X omega)$?
+"How about" $d(i_(X) omega)$?
 ]
 ```
 
@@ -169,18 +169,18 @@ for example :
 #proof[$nabla^(U)|_(p)$ is the connection which treats the local vector field and local section, not restricted global section and vector field.
 
 #paragraph_tab
-Now let's think about $tilde(X)$ and $tilde(Y)$ satisfying $tilde(X) = X$ and $tilde(Y) = Y$ only on $p$. In addition, we can extend $X|_U$ and $Y|_U$ via the smooth bump functions. We denote them $X|_U^phi$ and $Y|_U^phi$.
+Now let's think about $tilde(X)$ and $tilde(Y)$ satisfying $tilde(X) = X$ and $tilde(Y) = Y$ only on $p$. In addition, we can extend $X|_(U)$ and $Y|_(U)$ via the smooth bump functions. We denote them $X|_(U)^(phi)$ and $Y|_(U)^(phi)$.
 
 #paragraph_tab
 However, the Lemma 4.1 guarantees:
 
 $
-nabla_(X|_U)^U (Y|_U) &= nabla_(X|_U^phi)^U (Y|_U^phi) \
-&= nabla_(tilde(X)) tilde(Y)|_p #dots_space #footnote[by Lemma 4.1]
+nabla_(X|_(U))^(U) (Y|_(U)) &= nabla_(X|_(U)^(phi))^(U) (Y|_(U)^(phi)) \
+&= nabla_(tilde(X)) tilde(Y)|_(p) #dots_space #footnote[by Lemma 4.1]
 $
 
 #paragraph_tab
-Therefore, the result of $nabla^U$ is unique whatever the vector field and sections locally are. This shows that $nabla^U$ is uniquely defined.
+Therefore, the result of $nabla^(U)$ is unique whatever the vector field and sections locally are. This shows that $nabla^(U)$ is uniquely defined.
 ]
 ```
 
@@ -188,27 +188,84 @@ Leave a blank source line after every closing `#proof[...]` block before the nex
 paragraph, equation, heading, or other block.
 
 ### Footnotes in equation
-```typst
-use `dots_space` before `footnote`.
+Use `dots_space` before `footnote` only in aligned display equations.
 
 for example : 
+```typst
 $
-i_(partial_j) omega &= f [ i_(partial_j) (d x^j) and beta + (-1)^(deg d x^j) d x^j and i_(partial_j) (beta) ] \
+i_(partial_(j)) omega &= f [ i_(partial_(j)) (d x^(j)) and beta + (-1)^(deg d x^(j)) d x^(j) and i_(partial_(j)) (beta) ] \
 &= f beta 
-#dots_space #footnote[by Lemma 14.13 of _Introduction to Smooth Manifolds_ because $d x^j(partial_j) = 1$, $beta$ doesn't have $d x^j$]
+#dots_space #footnote[by Lemma 14.13 of _Introduction to Smooth Manifolds_ because $d x^(j)(partial_(j)) = 1$, $beta$ doesn't have $d x^(j)$]
 $
 ```
 
-If the footnote isn't in equation block or inline equation, don't use `dots_space`.
+If the footnote isn't in an aligned display equation, don't use `dots_space`.
+
+### Footnote placement
+- In prose, place `#footnote[...]` immediately after a comma or period (e.g. `...,#footnote[...]` or `....#footnote[...]`).
+- Inside an aligned display equation (one using `&` or `\`), write `#dots_space #footnote[...]`.
+- Inside a single-line display equation without alignment, and in prose, do NOT use `#dots_space`.
+
+#### Examples
+
+**In prose (place immediately after comma or period):**
+```typst
+// correct
+This identity holds on all chart domains,#footnote[See Theorem 2.4.] and we obtain the global result.#footnote[See Proposition 3.1.]
+```
+```typst
+// incorrect
+This identity holds on all chart domains #footnote[See Theorem 2.4.], and we obtain the global result #footnote[See Proposition 3.1.].
+```
+
+**Inside an aligned display equation (write `#dots_space #footnote[...]`):**
+```typst
+// correct
+$
+  nabla_(X) Y &= nabla_(tilde(X)) tilde(Y) \
+  &= Z #dots_space #footnote[by Lemma 4.1]
+$
+```
+```typst
+// incorrect
+$
+  nabla_(X) Y &= nabla_(tilde(X)) tilde(Y) \
+  &= Z #footnote[by Lemma 4.1]
+$
+```
+
+**Inside a single-line display equation without alignment (do NOT use `#dots_space`):**
+```typst
+// correct
+$
+  omega = sqrt(det(g)) d x_(1) and dots and d x_(n) #footnote[by Proposition 15.31]
+$
+```
+```typst
+// incorrect
+$
+  omega = sqrt(det(g)) d x_(1) and dots and d x_(n) #dots_space #footnote[by Proposition 15.31]
+$
+```
+
+**In prose (do NOT use `#dots_space`):**
+```typst
+// correct
+This follows from the standard compactness argument.#footnote[See Lemma 3.1.]
+```
+```typst
+// incorrect
+This follows from the standard compactness argument.#dots_space #footnote[See Lemma 3.1.]
+```
 
 ### equation alignment
 check what is differnct between Latex's style math alighment and Typst's style math alignment.
 
 ```typst
 $
-(op("div") X) omega &= (op("div") X) sqrt(det(g)) d x_1 and dots and d x_n \
-d(i_X omega) &= ( sum_i partial_i (X^i sqrt(det g)) ) d x^1 and dots and d x^n \
-therefore op("div") X &= 1 / sqrt(det g) partial_j (sqrt(det g) X^j) & 
+(op("div") X) omega &= (op("div") X) sqrt(det(g)) d x_(1) and dots and d x_(n) \
+d(i_(X) omega) &= ( sum_(i) partial_(i) (X^(i) sqrt(det g)) ) d x^(1) and dots and d x^(n) \
+therefore op("div") X &= 1 / sqrt(det g) partial_(j) (sqrt(det g) X^(j)) & 
 #dots_space #footnote["where the summation convention is used."]
 $
 ```
@@ -245,7 +302,7 @@ For equations and figures, use `(s.tag)` only to attach the global label, and us
 ```typst
 #local-tag-scope(s => [
   $
-    E = m c^2
+    E = m c^(2)
   $ #(s.tag)("energy")
 
   The equation is #(s.ref)("energy").
@@ -317,7 +374,7 @@ Do not write raw mannot labels manually unless there is a special reason.
 
 ```typst
 // bad
-mark(nabla_i, tag: #<nabla>)
+mark(nabla_(i), tag: #<nabla>)
 mark(g^(j k), tag: #<g>)
 ```
 
@@ -327,7 +384,7 @@ Instead, use `(s.tag)(...)` inside `mannot-scope`.
 // good
 #mannot-scope(s => [
   $
-    mark(nabla_i, tag: #(s.tag)("nabla"))
+    mark(nabla_(i), tag: #(s.tag)("nabla"))
     mark(g^(j k), tag: #(s.tag)("g"))
   $
 ])
@@ -346,9 +403,9 @@ creates a globally unique label from the local name `"nabla"`.
 ```typst
 #mannot-scope(s => [
   $
-    mark(nabla_i, tag: #(s.tag)("nabla"))
+    mark(nabla_(i), tag: #(s.tag)("nabla"))
     mark(g^(j k), tag: #(s.tag)("g"))
-    mark(nabla_k u, tag: #(s.tag)("u"))
+    mark(nabla_(k) u, tag: #(s.tag)("u"))
 
     #(s.annot)(
       ("nabla", "g", "u"),
@@ -357,7 +414,7 @@ creates a globally unique label from the local name `"nabla"`.
         import cetz.draw: *
         set-style(mark: (end: "straight"))
 
-        // nabla_i acts on g^(j k).
+        // nabla_(i) acts on g^(j k).
         // This term vanishes by metric compatibility.
         bezier-through(
           (s.node)("nabla", "north"),
@@ -366,7 +423,7 @@ creates a globally unique label from the local name `"nabla"`.
           stroke: red,
         )
 
-        // nabla_i acts on nabla_k u.
+        // nabla_(i) acts on nabla_(k) u.
         bezier-through(
           (s.node)("nabla", "south"),
           (rel: (x: 0.8, y: -0.2)),
@@ -437,8 +494,8 @@ Different `mannot-scope` blocks may reuse the same local names.
 ```typst
 #mannot-scope(s => [
   $
-    mark(hat(dx)^i, tag: #(s.tag)("position"))
-    mark(dx^i, tag: #(s.tag)("outside"))
+    mark(hat(dx)^(i), tag: #(s.tag)("position"))
+    mark(dx^(i), tag: #(s.tag)("outside"))
 
     #(s.annot)(
       ("position", "outside"),
@@ -469,7 +526,7 @@ If the annotation needs a stable and readable internal namespace, provide `prefi
 #mannot-scope(
   s => [
     $
-      mark(nabla_i, tag: #(s.tag)("nabla"))
+      mark(nabla_(i), tag: #(s.tag)("nabla"))
       mark(g^(j k), tag: #(s.tag)("g"))
 
       #(s.annot)(
