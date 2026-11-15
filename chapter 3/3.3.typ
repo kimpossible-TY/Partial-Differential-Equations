@@ -874,6 +874,31 @@ $
 is called a *fundamental solution* of $P(D)$.
 ] <definition_of_fundamental_solution>
 
+#note(title: "Fundamental solutions and Green's functions")[
+A fundamental solution on all of $bb(R)^(n)$ is also often called a *Green's function* for $P(D)$. For a boundary-value problem, however, *Green's function* usually refers to a kernel that also incorporates the domain and its boundary conditions. The following comparison describes these common uses, not a universal terminology:
+
+#context {
+  let theme = theme-from-text-fill()
+  text(size: 9pt)[
+    #set par(justify: false)
+    #table(
+      columns: (0.8fr, 1.4fr, 1.5fr),
+      align: left + top,
+      inset: 5pt,
+      stroke: 0.5pt + theme.rule,
+      table.header([*Aspect*], [*Fundamental solution*], [*Green's function / kernel*]),
+      [*Domain*], [In our definition, the whole space $bb(R)^(n)$.], [Often a domain $Omega$ with a prescribed boundary condition; the term is also used on the whole space.],
+      [*Boundary condition*], [Not imposed in our definition.], [For a boundary-value problem, incorporated into the kernel.],
+      [*Equation*], [$P(D)Phi=delta_(0)$ in the distributional sense.], [Typically $P_(x)G(x,z)=delta_(z)$ in $Omega$, together with the prescribed boundary condition in $x$.],
+      [*Translation*], [For constant coefficients, $Phi(x-z)$ gives the response at a source point $z$.], [A boundary generally makes the kernel depend on $x$ and $z$ separately.],
+    )
+  ]
+}
+
+#paragraph_tab
+In the definition above, we begin with a more basic setting: we ask for a point-source response of the operator on the whole space, without prescribing a boundary condition. The identity $P(D)Phi=delta_(0)$ alone need not determine $Phi$ uniquely; if $P(D)h=0$, then $Phi+h$ is another fundamental solution. A Green kernel, in contrast, is often chosen to solve a particular problem, so it also reflects the domain and the prescribed boundary, initial, or growth conditions. These conditions can select a response adapted to that problem. Both objects can be used to build solutions for more general sources, and the names overlap in the literature; #highlighted[the distinction here is between the basic whole-space equation and a kernel adapted to additional conditions, not between two exclusive definitions.]
+]
+
 #theorem(title: "Fundamental solution of the Laplacian")[
 For $Delta = sum_(j=1)^(n) partial_(j)^(2)$, define
 $
