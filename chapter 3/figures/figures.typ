@@ -2912,3 +2912,55 @@
   })
 }
 
+
+#let radial-resolvent-decay-diagram() = context {
+  let theme=theme-from-text-fill()
+  let colors=(theme.muted-text,theme.callouts.proposition.border,theme.callouts.important.border)
+  canvas(length:0.9cm,{
+    import draw: *
+    let xp(r)=1.4*r
+    let yp(y)=3.2*y
+    content((4.2,4.25),text(size:10pt,weight:"semibold")[Removing the common singular factor])
+    content((4.2,3.7),text(size:10pt)[$4pi r R_(lambda)(r)=e^(-lambda r)$])
+    line((0,0),(8.8,0),stroke:0.7pt+theme.rule,mark:(end:">"))
+    line((0,0),(0,3.45),stroke:0.7pt+theme.rule,mark:(end:">"))
+    for j in range(7) {
+      line((xp(j),-0.05),(xp(j),0.05),stroke:0.5pt+theme.rule)
+      content((xp(j),-0.3),text(size:9pt)[#j])
+    }
+    content((-0.25,3.2),text(size:9pt)[$1$])
+    content((9.0,0),text(size:10pt)[$r$])
+    for (idx,damping) in (0.0,0.5,1.0).enumerate() {
+      let points=range(161).map(j => {let r=6*j/160; (xp(r),yp(calc.exp(-damping*r)))})
+      line(..points,stroke:1.3pt+colors.at(idx))
+      content((1.4+2.8*idx,-0.95),text(size:10pt,fill:colors.at(idx))[$lambda=#damping$])
+    }
+    content((4.2,-1.6),text(size:9pt)[Larger $lambda$ gives faster spatial decay.])
+  })
+}
+
+// A planar section of the half-space: equal boundary distances, unequal interior distances.
+
+#let images-to-zeta-diagram() = context {
+  let theme = theme-from-text-fill()
+  set text(size: 10pt)
+  themed-diagram(
+    node((0, 0), [Odd reflection\ $f^("#")(R x)=-f^("#")(x)$], shape: rect),
+    node((1, 0), [Periodization\ $H(t,x)=sum_(k)p_(t)(x+2pi k)$], shape: rect),
+    node((1, 1), [Fourier series\ $H(t,x)=sum_(ell)c_(ell)(t)e^(i ell dot x)$], shape: rect),
+    node((0, 1), [Poisson summation / Jacobi\ $theta(t)=t^(-1/2)theta(1/t)$], shape: rect),
+    node((0, 2), [Mellin transform\ $e^(-pi m^(2)t) arrow.r m^(-s)$], shape: rect),
+    node((1, 2), [Functional equation\ $Lambda(s)=Lambda(1-s)$], shape: rect),
+    edge((0, 0), (1, 0), "->"),
+    edge((1, 0), (1, 1), "->"),
+    edge((1, 1), (0, 1), "->"),
+    edge((0, 1), (0, 2), "->"),
+    edge((0, 2), (1, 2), "->"),
+    spacing: (1.1cm, 1.05cm),
+    node-stroke: 0.7pt + theme.rule,
+    node-fill: theme.callouts.note.bg,
+  )
+}
+
+// Four graphs on the same world-space domain and with the same camera.
+// The OBJ meshes are generated here, so no external 3D assets are required.
