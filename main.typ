@@ -25,5 +25,6 @@
   #include "chapter 1/chapter 1.typ"
   #include "chapter 2/chapter 2.typ"
   #include "chapter 3/chapter_3.typ"
+  #include "chapter 4/chapter_4.typ"
 ]
 #bibliography("references.bib")
