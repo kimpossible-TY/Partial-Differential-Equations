@@ -892,7 +892,7 @@ $
 This induced distribution satisfies
 $
   Delta T_(Phi_(n)) = delta_(0).
-$
+$ <laplacian_fundamental_solution_identity>
 Hence $T_(Phi_(n))$ is a fundamental solution of the Laplacian.
 ] <fundamental_solution_of_laplacian>
 

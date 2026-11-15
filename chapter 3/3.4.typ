@@ -386,7 +386,7 @@ $
   quad (Q Psi)(r):=integral_(bb(R)^(n))Psi(r+z,z) thin d z.
 $ #(s.tag)("translation-kernel-pairing")
 This identity defines the notation $K(x,z)=k(x-z)$ without restricting $K$ to a slice.
-] #(s.tag)("translation-convolution-theorem")
+] <translation-convolution-theorem>
 
 #paragraph_tab
 The continuous-kernel calculation suggests the conclusion, but the proof must now recover $k$ without evaluating $K$ at a point or on a slice. #highlighted[The proposition says that this symmetry is equivalent to describing the whole operator by convolution with a single distribution $k$ of the displacement $r=x-z$.]
@@ -678,7 +678,7 @@ $
 Thus $T tau_(a)f=tau_(a)(T f)$ for every test function $f$, proving the converse.
 ]
 
-#note(title: [Scope of #(s.ref)("translation-convolution-theorem")])[
+#note(title: [Scope of @translation-convolution-theorem])[
 The theorem assumes an operator on $bb(R)^(n)$ that commutes with every translation. The shape of a domain or the imposed boundary conditions may prevent the solution operator from having this symmetry. In that case, the theorem does not apply, and its convolution representation need not hold.
 ]
 
@@ -778,7 +778,7 @@ $ #(s.tag)("translation-l2-isometry")
 The norm preservation in #(s.ref)("translation-l2-isometry") also follows directly by substituting $y=x-a$ in $integral |f(x-a)|^(2) thin d x$.
 
 #paragraph_tab
-Let's return to the translation-invariant operators in #(s.ref)("translation-convolution-theorem"). That theorem gives $T f=k*f$ but does not compute $k$. By #(s.ref)("translation-trigonometric-basis"), translation acts on each Fourier coefficient by multiplication. To understand what commutation with translation implies for $T$, temporarily suppose that $T e_(xi)$ is defined and is a smooth function. Then
+Let's return to the translation-invariant operators in @translation-convolution-theorem. That theorem gives $T f=k*f$ but does not compute $k$. By #(s.ref)("translation-trigonometric-basis"), translation acts on each Fourier coefficient by multiplication. To understand what commutation with translation implies for $T$, temporarily suppose that $T e_(xi)$ is defined and is a smooth function. Then
 $
   T(tau_(a)e_(xi)) &= tau_(a)(T e_(xi)), \
   T(tau_(a)e_(xi)) &= e^(-i a dot xi)T e_(xi).
@@ -966,7 +966,7 @@ $
   e^(-y a)=integral_(0)^(infinity)w_(y)(t)e^(-t a^(2)) thin d t.
 $ #(s.tag)("subordination")
 Moreover, $w_(y)(t)>0$ for $t>0$ and $integral_(0)^(infinity)w_(y)(t) thin d t=1$.
-]
+] <scalar-subordination-identity>
 
 #block(breakable: false)[
 #proof[
