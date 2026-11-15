@@ -26,7 +26,7 @@ $ <1D_example_of_laplacian>
 Now, let's think about $L^2$ inner products. To use it, let's expand $u$ and $v$ as complex plane. Then @1D_example_of_laplacian can be : 
 #flowbox[
   $
-    integral_a^b -u''(x) dash(v(x)) d x &= cancel(0) + integral_a^b u'(x) dash(u(x)) prime dx 
+    integral_a^b -u''(x) dash(v(x)) d x &= cancelmark(0) + integral_a^b u'(x) dash(u(x)) prime dx 
   $
 
   $arrow.b$
@@ -120,7 +120,7 @@ The laplacian is very closely related to Hessian.
     $
       Delta u &= [ mark(nabla_i, tag: #(s.tag)("nabla_lemma_2_9")) ( rmark(g^(j k), tag: #(s.tag)("g_lemma_2_9")) bmark(nabla_k u, tag: #(s.tag)("u_lemma_2_9")))]^i
       \
-      &= [ cancel(nabla_i g^(j k) nabla_k u) + g^(j k) (nabla_i nabla_k u) ]^i
+      &= [ cancelmark(nabla_i g^(j k) nabla_k u) + g^(j k) (nabla_i nabla_k u) ]^i
       #dots_space #footnote[By applying product rule(@basic_properties_of_connection)]
       \
       &= [g^(j k) (nabla_i nabla_k u)]^i  #dots_space #footnote[By the fundamental theorem of Reimannian geometry, $nabla$ is compatible with $g$.]
@@ -255,7 +255,7 @@ See @investigate_L2_norm_of_1-form. At high-school level, we often used integrat
 ]
 As focusing $dash(v) nabla_k (g^(j k) partial_j u)$ and applying the product rule again, we get : 
 $
-  rmark(dash(v) nabla_k (g^(j k) partial_j u)) &= dash(v)[cancel( ( nabla_k g^(j k) partial_j u)) + g^(j k) nabla_k partial_j u]
+  rmark(dash(v) nabla_k (g^(j k) partial_j u)) &= dash(v)[cancelmark( ( nabla_k g^(j k) partial_j u)) + g^(j k) nabla_k partial_j u]
   \
   &= dash(v)]g^(j k) (nabla_k partial_j u)] #dots_space #footnote[by the fundamental theorem of Riemmanian geometry, $nabla$ is compatible with $g$.] 
   \
@@ -357,7 +357,7 @@ Equivalently, the outward unit normal vector field $nu$ along $partial M$ is a s
   $
     chevron.l op("grad") u comma n chevron.r_g &= g_(j k) (op("grad") u)_i n_k
     \
-    &= underbrace(cancel(g_(j k) shell.l g^(i j)), delta_k^j)  partial_j u shell.r n_k #dots_space #footnote[by the cotangent-tangent isomorphsim]
+    &= underbrace(cancelmark(g_(j k) shell.l g^(i j)), delta_k^j)  partial_j u shell.r n_k #dots_space #footnote[by the cotangent-tangent isomorphsim]
     \
     &= (partial_k u ) n_k
     \

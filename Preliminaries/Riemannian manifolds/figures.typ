@@ -1,3 +1,4 @@
+#import "../../Styles/styles.typ": cancelmark
 #import "@preview/cetz:0.4.2": *
 #import "@local/cetz-helpers:0.2.0": description_box, legend_box
 #import "@local/math-blocks:0.2.0": *
@@ -475,7 +476,7 @@
       term1_res_pos,
       anchor: "west",
       name: "first_result",
-    )[#text[$cancel(nabla_X chevron.l Y comma Z chevron.r_g, stroke: #(paint: fuchsia, thickness: 1.5pt, dash: "dashed"))$]]
+    )[#text[$cancelmark(nabla_X chevron.l Y comma Z chevron.r_g, stroke: #(paint: fuchsia, thickness: 1.5pt, dash: "dashed"))$]]
     content((eq_x + 3.2, line3_y), anchor: "center", name: "minus_second")[$-$]
     content(term2_res_pos, anchor: "west", name: "second_result")[#text[$chevron.l nabla_X Y, Z chevron.r_g$]]
     content((eq_x + 6.8, line3_y), anchor: "center")[$-$]
@@ -526,7 +527,7 @@
       #text(
         fill: purple,
         size: 0.6em,
-      )[$= cancel(-nabla_X chevron.l Y comma Z chevron.r_g, stroke: #(paint: fuchsia, thickness: 0.8pt, dash: "dashed"))$ by the compatibility condition.]
+      )[$= cancelmark(-nabla_X chevron.l Y comma Z chevron.r_g, stroke: #(paint: fuchsia, thickness: 0.8pt, dash: "dashed"))$ by the compatibility condition.]
     ]
   })
 }

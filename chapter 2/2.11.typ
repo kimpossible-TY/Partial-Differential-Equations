@@ -26,7 +26,7 @@ Here, $rho$ is the charge density and $J$ the eletric current. Units are chosen 
 #flowbox()[
     from @Ampere_Maxwell_law,
     $
-        cancel(frac(partial E, partial t), stroke: #(paint: red)) - op("curl") B = -4 pi J
+        cancelmark(frac(partial E, partial t)) - op("curl") B = -4 pi J
         \
         arrow.b
         \
@@ -39,7 +39,7 @@ which is valid all quantities involved are independent of time. It breaks down w
     $
       partial_(t) E &- nabla times B = - 4 pi J
       \
-      op("div") (partial_(t) E) &- cancel(op("div") compose op("curl") B, stroke: #(paint: red)) = -4 pi op("div") J
+      op("div") (partial_(t) E) &- cancelmark(op("div") compose op("curl") B) = -4 pi op("div") J
       \
       op("div") (partial_(t) E) &= - 4 pi op("div") J
       \
@@ -247,7 +247,7 @@ Now, let's try to replace $frac(d m , d tau)$ using $f_(c)$. By using 4-momentum
   $arrow.b$
 
   $
-    -2m frac(d m , d t )+ 2 m v frac(d (m v), d t)= 2 m_(0) cancel(frac(d m_(0), d t), stroke: #(paint: red)) #dots_space #footnote[the mass is constant by its definition.]
+    -2m frac(d m , d t )+ 2 m v frac(d (m v), d t)= 2 m_(0) cancelmark(frac(d m_(0), d t)) #dots_space #footnote[the mass is constant by its definition.]
   $
 
   $arrow.b$
@@ -312,7 +312,7 @@ By @orthogonality_and_skew-symmetry, an endomorphism is skew-symmetric if and on
     chevron.l F, u chevron.r_(h)
     &= - F^(0) u^(0) + bold(F) dot bold(u) \
     &= - e (bold(E) dot bold(u)) u^(0) + e (u^(0) bold(E) + bold(u) times bold(B)) dot bold(u) \
-    &= - cancel(e u^(0) (bold(E) dot bold(u)), stroke: #(paint: red)) + cancel(e u^(0) (bold(E) dot bold(u)), stroke: #(paint: red)) + cancel(e ((bold(u) times bold(B)) dot bold(u)), stroke: #(paint: blue)) #dots_space #footnote[by $(bold(u) times bold(B)) dot bold(u) = 0$.] \
+    &= - cancelmark(e u^(0) (bold(E) dot bold(u))) + cancelmark(e u^(0) (bold(E) dot bold(u))) + cancelmark(e ((bold(u) times bold(B)) dot bold(u)), stroke: #(paint: blue)) #dots_space #footnote[by $(bold(u) times bold(B)) dot bold(u) = 0$.] \
     &= 0.
   $
   The first two terms cancel identically, and the cross product $bold(u) times bold(B)$ is perpendicular to $bold(u)$, so $(bold(u) times bold(B)) dot bold(u) = 0$. Therefore, $chevron.l F, u chevron.r_(h) = 0$.
@@ -612,7 +612,7 @@ $
 Thus
 $
   d E_(j) and d x^(j) and d t&=
-  cancel(partial_(t) E_(j) d t and d x^(j) and d t, stroke: #(paint: red)), quad "because" d t and d t=0
+  cancelmark(partial_(t) E_(j) d t and d x^(j) and d t), quad "because" d t and d t=0
   \
   &+ sum_(k) partial_(k) E_(j) d x^(k) and d x^(j) and d t
   \
@@ -658,9 +658,9 @@ Now calculate the magnetric part. By the linearlity of exterior derivative, we h
     \
     & + partial_(1) B_(1) d x^(1) and d x^(2) and d x^(3)
     \
-    &+ cancel(partial_(2) B_(1) d x^(2) and d x^(2) and d x^(3))
+    &+ cancelmark(partial_(2) B_(1) d x^(2) and d x^(2) and d x^(3))
     \
-    &+ cancel(partial_(3) B_(1) d x^(3) and d x^(2) and d x^(3))
+    &+ cancelmark(partial_(3) B_(1) d x^(3) and d x^(2) and d x^(3))
   $ #(s.tag)("expanding d B_1")
 
   $arrow.b$

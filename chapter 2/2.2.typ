@@ -95,7 +95,7 @@ There are other characterizations of the divergence operation, of a more analyti
   $
   By Cartan's magic formula, we have :
   $
-  cal(L)_X d V_g &= X corner.r.b overbrace(cancel(d(d V_g), stroke: #(paint: red)), d^2=0) + d(X corner.r.b d V_g)
+  cal(L)_X d V_g &= X corner.r.b overbrace(cancelmark(d(d V_g)), d^2=0) + d(X corner.r.b d V_g)
   \
   &= d(X corner.r.b d V_g)
   $
@@ -237,7 +237,7 @@ We can know the divergence is deeply related to adjoint operation by the followi
       \
       &= bmark(integral_(partial M) chevron.l u X comma nu chevron.r thin d S)  - integral_M u op("div") X d V
       \
-      &= bmark(cancel(integral_(partial M) u chevron.l  X comma nu chevron.r  thin d S)) - integral_M u op("div") X d V #dots_space #footnote[by the linearity of norm and the condition that $u$ is supported.]
+      &= bmark(cancelmark(integral_(partial M) u chevron.l  X comma nu chevron.r  thin d S)) - integral_M u op("div") X d V #dots_space #footnote[by the linearity of norm and the condition that $u$ is supported.]
     $
 
   ]

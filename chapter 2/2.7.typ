@@ -113,7 +113,7 @@ Remember that the first variation of action induces the Euler-Lagrange equation,
   As combining #(s.ref)("first result") and #(s.ref)("second result"), we have :
   #flowbox()[
     $
-      delta_h sqrt((op("det") h)) &= frac(1,2) sqrt((op("det") h)) dot.c frac(cancel((op("det") h), stroke: #(paint: red)) thin tr(h^(-1) delta_h h), cancel((op("det") h), stroke: #(paint: red)))
+      delta_h sqrt((op("det") h)) &= frac(1,2) sqrt((op("det") h)) dot.c frac(cancelmark((op("det") h)) thin tr(h^(-1) delta_h h), cancelmark((op("det") h)))
       \
       &= frac(1,2) sqrt((op("det") h)) dot.c  tr(h^(-1) delta_h h)
       \
@@ -299,7 +299,7 @@ However there is an remain thing, how can we re-write  @lemma_relationship_of_la
         \
         &= underbrace((nabla_k nabla^j u) nabla^k u, (2)) + nabla^j u (nabla_k nabla^k u) \
         \
-        & cancel(- frac(1,2) nabla_k h^(j k) h^(mu nu) nabla_mu u nabla_nu u - frac(1,2) h^(j k) nabla_k h^(mu nu) nabla_mu u nabla_nu u , stroke: #(paint: red)) \
+        & cancelmark(- frac(1,2) nabla_k h^(j k) h^(mu nu) nabla_mu u nabla_nu u - frac(1,2) h^(j k) nabla_k h^(mu nu) nabla_mu u nabla_nu u ) \
         & - underbrace((frac(1,2) h^(j k) h^(mu nu) ( (nabla_k nabla_mu u) nabla_nu u + nabla_mu u (nabla_k nabla_nu u) )), (1): "the last term")
         
         #(s.annot)(
@@ -421,7 +421,7 @@ However there is an remain thing, how can we re-write  @lemma_relationship_of_la
     \
     &= nabla^j u thin rmark(h^(i k) (nabla_k  nabla_i u))
     \
-    &= (nabla^j u) cancel(rmark(square u), stroke: #(paint: blue,thickness: 0.08em), cross: #true) #dots_space #footnote()[because the wave equation is satisfied(@Lorentizan_style_wave_equation).]
+    &= (nabla^j u) cancelmark(rmark(square u), stroke: #(paint: blue,thickness: 0.08em), cross: #true) #dots_space #footnote()[because the wave equation is satisfied(@Lorentizan_style_wave_equation).]
     \
     &=0
   $
@@ -442,7 +442,7 @@ Then how can we make $X$ which inherit the divergence-free property from $T$? Ag
   $
     nabla_j X^j &= nabla_j (T^(j k) Z^k)
     \
-    &= cancel((nabla_j T^(j k)) Z^k, stroke: #(paint: red)) + T^(j k)(nabla_j Z^k) #dots_space #footnote[by @divergence_free_of_stress-energy_tensor]
+    &= cancelmark((nabla_j T^(j k)) Z^k) + T^(j k)(nabla_j Z^k) #dots_space #footnote[by @divergence_free_of_stress-energy_tensor]
   $ #(s.tag)("1")
   To $X$ is divergence-free, considering #(s.ref)("1"),$nabla_j Z^k$ should be zero. However we can't move forward without additional assumption! The assumption that $op("div") Z= 0$ isn't enough! As considering @Killing_field_is_more_stronger_condition_than_divergence-free, we can't help to introduce the Killing field.
 ]) 
@@ -461,7 +461,7 @@ Then how can we make $X$ which inherit the divergence-free property from $T$? Ag
  $
     nabla_j X^j &= nabla_j (T^(j k) Z^k)
     \
-    &= cancel((nabla_j T^(j k)) Z^k, stroke: #(paint: red)) + rmark(T^(j k)(nabla_j Z^k)) #dots_space #footnote[by @divergence_free_of_stress-energy_tensor]
+    &= cancelmark((nabla_j T^(j k)) Z^k) + rmark(T^(j k)(nabla_j Z^k)) #dots_space #footnote[by @divergence_free_of_stress-energy_tensor]
   $
   To apply the condition that $Z$ is Killing field, let's expand 
   likely to @where_does_the_Killing_field_came_from.
@@ -481,9 +481,9 @@ Then how can we make $X$ which inherit the divergence-free property from $T$? Ag
   ]
   Define $bmark(B):= frac(1,2)T^(j k)[nabla_j Z^k - nabla_k Z^j]$, then #(s.ref)("the reasion why anti-symmetric part is canceled") gives $B=-B$. It means $B=0$. Therefore, we get :
   $
-    T^(j k)(nabla_j Z^k) &=frac(1,2)T^(j k)[nabla_j Z^k + nabla_k Z^j] + cancel(bmark(frac(1,2)T^(j k)[nabla_j Z^k - nabla_k Z^j]))
+    T^(j k)(nabla_j Z^k) &=frac(1,2)T^(j k)[nabla_j Z^k + nabla_k Z^j] + cancelmark(bmark(frac(1,2)T^(j k)[nabla_j Z^k - nabla_k Z^j]))
     \
-    &= cancel(frac(1,2)T^(j k)[nabla_j Z^k + nabla_k Z^j], stroke: #(paint: red))
+    &= cancelmark(frac(1,2)T^(j k)[nabla_j Z^k + nabla_k Z^j])
     \
     &= 0  #dots_space #footnote[by the condition that $Z$ is the Killing field.]
   $

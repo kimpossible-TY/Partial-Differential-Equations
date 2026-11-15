@@ -166,7 +166,7 @@ $ (partial F) / (partial dot(x)^l) = (g_(l j) dot(x)^j) / F $
 Second, let's compute $(partial) / (partial x^l) (g_(i j) dot(x)^i dot(x)^j)$.
 
 $
-partial / (partial x^l) (g_(i j) dot(x)^i dot(x)^j) &= ((partial g_(i j)) / (partial x^l)) (dot(x)^i dot(x)^j) + cancel(g_(i j) (partial / (partial x^l) (dot(x)^i dot(x)^j))) \
+partial / (partial x^l) (g_(i j) dot(x)^i dot(x)^j) &= ((partial g_(i j)) / (partial x^l)) (dot(x)^i dot(x)^j) + cancelmark(g_(i j) (partial / (partial x^l) (dot(x)^i dot(x)^j))) \
 &= ((partial g_(i j)) / (partial x^l)) (dot(x)^i dot(x)^j) 
 #dots_space #footnote[because $dot(x)$ is independent to $x$]
 $
@@ -185,7 +185,7 @@ $ 1 / F d / (d t) (g_(l j) dot(x)^j) = 1 / F [ (partial g_(l j)) / (partial x^m)
 Hence, we get the Euler-Lagrange equation as combining the above works.
 
 $
-cancel(1 / F) [ g_(l j) dot.double(x)^j + (partial g_(l j)) / (partial x^m) dot(x)^m dot(x)^j - 1 / 2 ((partial g_(i j)) / (partial x^l)) (dot(x)^i dot(x)^j) ] = 0 & "Euler-Lagrange equation"
+cancelmark(1 / F) [ g_(l j) dot.double(x)^j + (partial g_(l j)) / (partial x^m) dot(x)^m dot(x)^j - 1 / 2 ((partial g_(i j)) / (partial x^l)) (dot(x)^i dot(x)^j) ] = 0 & "Euler-Lagrange equation"
 \
 =
 g_(l j) dot.double(x)^j + (partial g_(l j)) / (partial x^m) dot(x)^m dot(x)^j - 1 / 2 ((partial g_(i j)) / (partial x^l)) (dot(x)^i dot(x)^j)
@@ -475,7 +475,7 @@ Now, finally we prove that the minimizing curve is related to geodesic.
     $
       markrect(d / (d s) |_(s=0) L_g (Gamma_s),color: #blue, tag:#<minimizing_curve_condition>)
       &= - integral_(a_(i-1))^(a_i) chevron.l V, D_t gamma' chevron.r d t
-      \ & cancel(- chevron.l V(a_i) comma Delta _i gamma' chevron.r)
+      \ & cancelmark(- chevron.l V(a_i) comma Delta _i gamma' chevron.r)
       #dots_space #footnote[Since $Gamma_s$ is proper, $V(a_i)=0$] 
       \
       arrow.b 
@@ -496,7 +496,7 @@ Now, finally we prove that the minimizing curve is related to geodesic.
     $
 
     + $
-    d / (d s) |_(s=0) L_g(Gamma_s) &= - cancel(integral_a^b chevron.l V comma D_t gamma' chevron.r d t) - sum_(i=1)^(k-1) chevron.l V(a_i), Delta_i gamma' chevron.r \
+    d / (d s) |_(s=0) L_g(Gamma_s) &= - cancelmark(integral_a^b chevron.l V comma D_t gamma' chevron.r d t) - sum_(i=1)^(k-1) chevron.l V(a_i), Delta_i gamma' chevron.r \
     &= - chevron.l phi Delta_i gamma', Delta_i gamma' chevron.r #dots_space #footnote[by $phi=0$ outside of $(a_i - epsilon, a_i + epsilon)$ for some $i$] \
     &= 0
   $

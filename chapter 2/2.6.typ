@@ -32,7 +32,7 @@ We start from the energy conservation law for the wave equation(@energy_conserva
       $
       E(t_2)-E(t_1) &= integral_(t_1)^(t_2) integral_M [frac(partial u, partial t) (frac(partial^2 u, partial t^2) - Delta u)] d V d t 
       \
-      &+ mark(cancel(integral_(t_1)^(t_2) integral_(partial M) partial_t u frac(partial u , partial nu) d S d t, stroke: #(paint: red)), tag: #(s.tag)("boundary term"))
+      &+ mark(cancelmark(integral_(t_1)^(t_2) integral_(partial M) partial_t u frac(partial u , partial nu) d S d t), tag: #(s.tag)("boundary term"))
     $ #(s.tag)("above")
     #annot((s.tag)("boundary term"), pos: bottom, dx: 4em)[due to the boundary condition]
   ]
@@ -116,7 +116,7 @@ We start from the energy conservation law for the wave equation(@energy_conserva
   Applying #(m.ref)("definition of projected measures") to #(m.ref)("applied fundamental theorem of calculus and divergence theorem"), we have :
   #flowbox()[
     $
-    cancel(integral_Omega partial_t u thin (partial_t^2 u - Delta u) d V, stroke: #(paint: red)) &=
+    cancelmark(integral_Omega partial_t u thin (partial_t^2 u - Delta u) d V) &=
     frac(1,2) integral_(partial Omega) {
       [
         (partial_t u)^2 + chevron.l d_x u comma d_x u chevron.r

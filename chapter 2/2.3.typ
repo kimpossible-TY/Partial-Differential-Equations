@@ -182,7 +182,7 @@ $
     Moreover, we already know that if torsion free condition is satisfied, then $nabla$ is compatible with $g$. Hence we get :
     $nabla_X (chevron.l U comma V chevron.r_g) = chevron.l nabla_X U comma V chevron.r + chevron.l U comma nabla_X V chevron.r$.
   ] \
-  &= chevron.l cancel(nabla_X U, stroke: #(paint: blue)) - shell.l cancel(nabla_X U, stroke: #(paint: blue)) - nabla_V X shell.r comma V chevron.r + chevron.l U comma cancel(nabla_X V, stroke: #(paint: red)) - shell.l cancel(nabla_X V, stroke: #(paint: red)) - nabla_U X shell.r chevron.r #dots_space #footnote[As we know, the torsion tensor is : $T(X comma V):= nabla_X V - nabla_V X - [X comma V]$. If torsion free condition is satisfied, then $T(X comma V) = 0$ and thus we get : $nabla_X V - nabla_V X = [X comma V]$. By theorem9.38 of @Manifolds, we have : $cal(L)_X V = [X comma V]$. Hence we get : $cal(L)_X V = nabla_X V - nabla_V X$. Similarly, we can get : $cal(L)_X U = nabla_X U - nabla_U X$.] \
+  &= chevron.l cancelmark(nabla_X U, stroke: #(paint: blue)) - shell.l cancelmark(nabla_X U, stroke: #(paint: blue)) - nabla_V X shell.r comma V chevron.r + chevron.l U comma cancelmark(nabla_X V) - shell.l cancelmark(nabla_X V) - nabla_U X shell.r chevron.r #dots_space #footnote[As we know, the torsion tensor is : $T(X comma V):= nabla_X V - nabla_V X - [X comma V]$. If torsion free condition is satisfied, then $T(X comma V) = 0$ and thus we get : $nabla_X V - nabla_V X = [X comma V]$. By theorem9.38 of @Manifolds, we have : $cal(L)_X V = [X comma V]$. Hence we get : $cal(L)_X V = nabla_X V - nabla_V X$. Similarly, we can get : $cal(L)_X U = nabla_X U - nabla_U X$.] \
   &= chevron.l nabla_U X comma V chevron.r + chevron.l U comma nabla_V X chevron.r
 $ <Lie_derivative_of_metric_when_torsion_free>
 
@@ -255,7 +255,7 @@ By the above statement, we can argue the following :
   By the definition of semi-colon convention of covector field(@defining_X_semicolon_j_k_and_X_semicolon_k_j), we have :
   #flowbox[
     $
-      X_(j ; k) - X_(k ; j) & = (partial_k X_j - markul(cancel(sum_l Gamma_(j k)^l X_l, stroke: #(paint: red)), tag: #<cancel_gamma_in_semicolon_convention_of_covector_field_1>)) - (partial_j X_k - markul(cancel(sum_l Gamma_(k j)^l X_l, stroke: #(paint: red)), tag: #<cancel_gamma_in_semicolon_convention_of_covector_field_2>)) #dots_space #footnote[by @defining_X_semicolon_j_k_and_X_semicolon_k_j] \
+      X_(j ; k) - X_(k ; j) & = (partial_k X_j - markul(cancelmark(sum_l Gamma_(j k)^l X_l), tag: #<cancel_gamma_in_semicolon_convention_of_covector_field_1>)) - (partial_j X_k - markul(cancelmark(sum_l Gamma_(k j)^l X_l), tag: #<cancel_gamma_in_semicolon_convention_of_covector_field_2>)) #dots_space #footnote[by @defining_X_semicolon_j_k_and_X_semicolon_k_j] \
       & = partial_k X_j - partial_j X_k
       #annot((<cancel_gamma_in_semicolon_convention_of_covector_field_1>, <cancel_gamma_in_semicolon_convention_of_covector_field_2>), pos: bottom, dx: 8em, dy: 1em)[by $Gamma_(j k)^l = Gamma_(k j)^l$ (@symmetry_of_christoffel_symbols)]
     $

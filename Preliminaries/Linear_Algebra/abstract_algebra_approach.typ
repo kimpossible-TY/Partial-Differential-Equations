@@ -43,11 +43,11 @@ Now, let's expend it to the entire vector space $V$.
     \
     &= chevron.l L v_0 + L v_1 , v_0 chevron.r + chevron.l L v_0 + L v_1 , v_1 chevron.r
     \
-    &= cancel(chevron.l L v_0 comma v_0 chevron.r )
+    &= cancelmark(chevron.l L v_0 comma v_0 chevron.r )
     + chevron.l L v_1, v_0 chevron.r
     \
     &+ chevron.l L v_0, v_1 chevron.r
-    + cancel(chevron.l L v_1 comma v_1 chevron.r)
+    + cancelmark(chevron.l L v_1 comma v_1 chevron.r)
   $
 
   $arrow.b$

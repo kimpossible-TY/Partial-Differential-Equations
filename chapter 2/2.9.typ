@@ -101,11 +101,11 @@ $r(x, lambda)$ is quite cumbersome. let's cancel the residual polynomial. In #(s
   $
     lambda^(-m) e^(-i lambda psi) P(u(x) e^(i lambda psi)) 
     &= [
-      p_m (x, d psi) u (x) cancel(lambda^m lambda^(-m), stroke: #(paint: red)) 
+      p_m (x, d psi) u (x) cancelmark(lambda^m lambda^(-m)) 
       \
       &+ 
       markuw(lambda^(-m)r(x,lambda), color: #olive, tag:#(s.tag)("residual polynomial will be approximated"))
-    ]cancel(e^(i lambda psi)e^(-i lambda psi), stroke: #(paint: red))
+    ]cancelmark(e^(i lambda psi)e^(-i lambda psi))
 
     #annot((s.tag)("residual polynomial will be approximated"), pos: bottom+right)[$cal(O)(lambda^(-1)) arrow.r 0$ when $lambda arrow.r infinity$]
   $
@@ -183,7 +183,7 @@ Integration by parts moves all derivatives from $u^gamma$ onto $C_(alpha,gamma)$
 $
   integral_(cal(O)) C_(alpha,gamma) rmark(D_j w, tag: #(s.tag)("one-derivative-on-w")) thin d x
   &=
-  cancel([C_(alpha,gamma) w]_(partial cal(O)), stroke: #(paint: red))
+  cancelmark([C_(alpha,gamma) w]_(partial cal(O)))
   + kappa_j integral_(cal(O)) markuw(D_j C_(alpha,gamma), color: #olive, tag: #(s.tag)("one-derivative-on-C")) w thin d x
   \
   integral_(cal(O)) C_(alpha,gamma) rmark(D^alpha u^gamma, tag: #(s.tag)("derivatives-on-u")) thin d x
@@ -275,8 +275,8 @@ Now suppose $M$ is a compact, smooth manifold with smooth boundary. We want to o
   $
     (X u , v )- (u, X^* v )&= integral_M [markuw((X u )v + u(X v), tag:#(s.tag)("result of distirbution rule"), color: #olive)+ markul((op("div") X)u v)] d V #dots_space #footnote[Remember the global inner product with scalar functions is : $(u, v ) = integral_M chevron.l u comma v chevron.r _p d V$ and $chevron.l u, v chevron.r := u dash(v)$. If we assume that $u$ and $v$ are real-valued scalar functions, $chevron.l u, v chevron.r := u v$.]
     \
-    &= integral_M [cancel(mark(X u v, color: #olive), stroke: #(paint: red))+ markul(
-      op("div") (u v X)-cancel(X(u v)),
+    &= integral_M [cancelmark(mark(X u v, color: #olive))+ markul(
+      op("div") (u v X)-cancelmark(X(u v)),
       color: #blue
     )] d V #dots_space #footnote[by the product rule of Riemannian divergence(@the_product_rule_of_Riemmanian_divergence)]
     \
@@ -655,10 +655,9 @@ If $a^(j)$ and $b$ are real, the conjugation bars may be omitted. Notice that on
     )
     \
     &quad quad+
-    (cancel(
+    (cancelmark(
       chevron.l b u comma v chevron.r_(tilde(cal(g)))
-      -chevron.l u comma b^dagger v chevron.r_(cal(g)),
-      stroke: #(paint: red)
+      -chevron.l u comma b^dagger v chevron.r_(cal(g))
     )).
   $ #(s.tag)("green-stokes-local-integrand-splitting")
   The last parenthesis in #(s.ref)("green-stokes-local-integrand-splitting") is zero at each point of $M$, because the pointwise adjoint definition #(s.ref)("definition-of-pointwise-fiber-adjoint") gives
@@ -1067,7 +1066,7 @@ We often expand some functions defined on real vector spaces to complex vector s
   $
     op("div") X & = sum_j X_(;j)^j #dots_space #footnote[by @divergence_and_trace]
     \
-    &= sum_j^n partial_j v^j + cancel(Gamma^(j)_(j d) v^j, stroke: #(paint: red)) #dots_space #footnote[because $Gamma^(j)_(j d)=0$ in the Euclidean(flat) space which is $Omega$.]
+    &= sum_j^n partial_j v^j + cancelmark(Gamma^(j)_(j d) v^j) #dots_space #footnote[because $Gamma^(j)_(j d)=0$ in the Euclidean(flat) space which is $Omega$.]
   $
   Since the principal symbol is came from the differential operator, let's construct the differential operator.
   #flowbox()[

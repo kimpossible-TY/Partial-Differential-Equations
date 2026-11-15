@@ -189,7 +189,7 @@ If the connection is *symmetric* (Torsion is zero), we will end up at the exact 
   As seeing, the LHS of the above equation, we can introduce Christoffel symbols by using the parallel coordinate frame $(partial_i)$#footnote[$(partial_i)$ is guaranteed by the definition of manifold. we can extract the frame from the coordinate chart.]. Then we have :
   #flowbox[
     $
-      underbrace(cancel([partial_i, partial_j]), "by the parallelism") &= nabla_(partial_i) partial_j - nabla_(partial_j) partial_i \
+      underbrace(cancelmark([partial_i, partial_j]), "by the parallelism") &= nabla_(partial_i) partial_j - nabla_(partial_j) partial_i \
       &= Gamma^(l)_(i j) partial_l - Gamma^(l)_(j i) partial_l #dots_space #footnote[by the definition of Christoffel symbols(@definition_of_christoffel_symbol)]
       \
       &= 0
@@ -221,9 +221,9 @@ If the connection is *symmetric* (Torsion is zero), we will end up at the exact 
   Using the symmetry condition on the last term in each line, this can be rewritten as :
   $
     cases(
-      X chevron.l Y comma Z chevron.r = markul(chevron.l nabla_X Y comma Z chevron.r, color: #red) + cancel(chevron.l Y comma nabla_Z X chevron.r, stroke: #(paint: blue)) + chevron.l Y comma [X comma Z] chevron.r ,
-      Y chevron.l Z comma X chevron.r = cancel(chevron.l nabla_Y Z comma X chevron.r, stroke: #(paint: green)) + markul(chevron.l Z comma nabla_X Y chevron.r, color: #red) + chevron.l Z comma [Y comma X] chevron.r ,
-      Z chevron.l X comma Y chevron.r = cancel(chevron.l nabla_Z X comma Y chevron.r, stroke: #(paint: blue)) + cancel(chevron.l X comma nabla_Y Z chevron.r, stroke: #(paint: green)) + chevron.l X comma [Z comma Y] chevron.r
+      X chevron.l Y comma Z chevron.r = markul(chevron.l nabla_X Y comma Z chevron.r, color: #red) + cancelmark(chevron.l Y comma nabla_Z X chevron.r, stroke: #(paint: blue)) + chevron.l Y comma [X comma Z] chevron.r ,
+      Y chevron.l Z comma X chevron.r = cancelmark(chevron.l nabla_Y Z comma X chevron.r, stroke: #(paint: green)) + markul(chevron.l Z comma nabla_X Y chevron.r, color: #red) + chevron.l Z comma [Y comma X] chevron.r ,
+      Z chevron.l X comma Y chevron.r = cancelmark(chevron.l nabla_Z X comma Y chevron.r, stroke: #(paint: blue)) + cancelmark(chevron.l X comma nabla_Y Z chevron.r, stroke: #(paint: green)) + chevron.l X comma [Z comma Y] chevron.r
     )
   $
 
@@ -252,7 +252,7 @@ If the connection is *symmetric* (Torsion is zero), we will end up at the exact 
 
   $
     chevron.l nabla^("new")_(partial_i) partial_j comma partial_k chevron.r & = frac(1,2) (partial_i chevron.l partial_j comma partial_k chevron.r + partial_j chevron.l partial_k comma partial_i chevron.r - partial_k chevron.l partial_i comma partial_j chevron.r \ & 
-    - cancel(partial_j chevron.l partial_k comma [partial_i comma partial_j] chevron.r - partial_k chevron.l partial_i comma [partial_j comma partial_k] chevron.r + partial_i chevron.l partial_k comma [partial_j comma partial_i] chevron.r paren.r, stroke: #(paint : red))
+    - cancelmark(partial_j chevron.l partial_k comma [partial_i comma partial_j] chevron.r - partial_k chevron.l partial_i comma [partial_j comma partial_k] chevron.r + partial_i chevron.l partial_k comma [partial_j comma partial_i] chevron.r paren.r)
     \
     & = frac(1,2) paren.l partial_i markrect(chevron.l partial_j comma partial_k chevron.r, color: #blue, tag: #<term_1_theorem5.10>) + partial_j markrect(chevron.l partial_k comma partial_i chevron.r, color: #green, tag: #<term_2_theorem5.10>) - partial_k markrect(chevron.l partial_i comma partial_j chevron.r, color: #purple, tag: #<term_3_theorem5.10>) paren.r
     \
@@ -297,7 +297,7 @@ If the connection is *symmetric* (Torsion is zero), we will end up at the exact 
   #paragraph_tab
   Now, let's check the compatibility with the metric. #highlight[What does it mean "compatible with $g$" intuitively? We already treated it at Proposition 5.5.] Among the statements of Proposition 5.5, @proposition5.5_c will be useful, becuase the Christoffel symbol is used. Thus using @theorem5.10_2 twice, we get :
   $
-    Gamma^(l)_(k i)g_(l j)+Gamma^(l)_(k j)g_(i l) & = frac(1,2) paren.l partial_k g_(i j) + cancel(partial_i g_(k j), stroke: #(paint : red)) - cancel(partial_j g_(k i) paren.r, stroke: #(paint : blue)) + frac(1,2) paren.l partial_k g_(j i) + cancel(partial_j g_(k i), stroke: #(paint : blue)) - cancel(partial_i g_(k j), stroke: #(paint : red)) paren.r
+    Gamma^(l)_(k i)g_(l j)+Gamma^(l)_(k j)g_(i l) & = frac(1,2) paren.l partial_k g_(i j) + cancelmark(partial_i g_(k j)) - cancelmark(partial_j g_(k i) paren.r, stroke: #(paint : blue)) + frac(1,2) paren.l partial_k g_(j i) + cancelmark(partial_j g_(k i), stroke: #(paint : blue)) - cancelmark(partial_i g_(k j)) paren.r
     \
     &= partial_k g_(i j) 
   $ <result_of_compatibility_theorem5.10>

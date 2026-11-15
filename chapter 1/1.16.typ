@@ -77,7 +77,7 @@ sigma|_(M_p) &= sum_(j=1)^n d xi_j and d x_j \
 \
 &= sum_(j, k) frac(partial xi_j, partial x_k) (d x_k and d x_j) #dots_space #footnote[by the basic property of wedge product]
 \
-&= cancel(sum_(j=k) frac(partial xi_j, partial x_k) (d x_k and d x_j))
+&= cancelmark(sum_(j=k) frac(partial xi_j, partial x_k) (d x_k and d x_j))
 +sum_(j<k) frac(partial xi_j, partial x_k) (d x_k and d x_j) + 
 sum_(j>k) frac(partial xi_j, partial x_k) (d x_j and d x_k) #dots_space #footnote[the cancelation is due to $d x_j and d x_j=0 $]
 \
@@ -141,7 +141,7 @@ Defining $phi: (x, xi) |-> (q, p)$ and $tilde(u)(p, q) := u circle phi(x, xi) = 
 #flowbox[
 *Linearization of Hamiltonian vector field*
 $
-H_(tilde(u)_j) &= sum_k (frac(partial tilde(u)_j, partial p_k) frac(partial, partial q_k) - cancel(frac(partial tilde(u)_j, partial q_k) frac(partial, partial p_k)) ) #dots_space #footnote[because $tilde(u)(q, p) = p$ ]
+H_(tilde(u)_j) &= sum_k (frac(partial tilde(u)_j, partial p_k) frac(partial, partial q_k) - cancelmark(frac(partial tilde(u)_j, partial q_k) frac(partial, partial p_k)) ) #dots_space #footnote[because $tilde(u)(q, p) = p$ ]
 \
 &= sum_k (delta_k^j frac(partial, partial q_k)) #dots_space #footnote[because $tilde(u)(q, p) = p$ implies $tilde(u)_j = p_j$] \
 &= frac(partial, partial q_j)
@@ -173,7 +173,7 @@ markrect((sum_k frac(partial xi_j, partial x_k) d x_k + sum_k frac(partial xi_j,
 and d x_j #dots_space #footnote[where $F^*$ is the pullback] 
 #annot(<canonical_form_first>,pos:top+right,dx: 5em)[definition of $d xi_j$ (total differential)]
 \
-= sum_j (cancel(sum_k frac(partial^2 phi, partial x_k partial x_j) d x_k )+ sum_k frac(partial^2 phi, partial p_k partial x_j) d p_k) and d x_j #dots_space #footnote[by substituting $xi_j = frac(partial phi, partial x_j)$] \
+= sum_j (cancelmark(sum_k frac(partial^2 phi, partial x_k partial x_j) d x_k )+ sum_k frac(partial^2 phi, partial p_k partial x_j) d p_k) and d x_j #dots_space #footnote[by substituting $xi_j = frac(partial phi, partial x_j)$] \
 = sum_(j, k) frac(partial^2 phi, partial p_k partial x_j) (d p_k and d x_j) #dots_space #footnote[$sum_k frac(partial^2 phi, partial x_k partial x_j) d x_k and d x_j = sum_(j<k) frac(partial^2 phi, partial x_k partial x_j) d x_k and d x_j + overbrace(underbrace(sum_(j>k) frac(partial^2 phi, partial x_k partial x_j) (-d x_k and d x_j), d x_j and d x_k), "clairaut's theorem and ") = 0$]
 $
 
@@ -269,7 +269,7 @@ markrect(integral frac(partial phi, partial theta), color: #blue, tag: #<example
 $
 2. Differentiate both sides of $phi = L theta + H(r comma E comma L)$ by $r$
 $
-frac(partial phi, partial r) &= cancel(frac(partial, partial r)(L theta)) + frac(partial H, partial r) \
+frac(partial phi, partial r) &= cancelmark(frac(partial, partial r)(L theta)) + frac(partial H, partial r) \
 &= sqrt(2(E - V(r) - frac(L, 2 r^2))) #dots_space #footnote[the cancelation is that we already know that]
 $
 
@@ -292,7 +292,7 @@ $therefore phi &= L theta + integral sqrt(2(E - V - frac(L^2, 2 r^2))) + G(E com
 
 $
 q_1 &:= frac(partial phi, partial E)(r comma theta comma E comma L) \
-&= frac(partial, partial E) [cancel(L theta) + integral sqrt(2(E - V - frac(L^2, 2 r^2))) + G(E comma L)] \
+&= frac(partial, partial E) [cancelmark(L theta) + integral sqrt(2(E - V - frac(L^2, 2 r^2))) + G(E comma L)] \
 &= integral markrect(frac(partial, partial E) sqrt(2(E - V - frac(L^2, 2 r^2))), color: #blue, tag: #<example_fist>) + frac(partial G, partial E)(E comma L) #dots_space #footnote["by Leibniz's rule, insert" $frac(partial, partial E)$ "to integral"] \
 &= integral frac(1, sqrt(2(E - V - frac(L^2, 2 s^2)))) d s + frac(partial G, partial E)
 $

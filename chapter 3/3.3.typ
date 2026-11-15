@@ -957,9 +957,9 @@ The two gradient integrals are equal because each $(partial_(j) a)(partial_(j) b
 $
   integral_(Omega) (a Delta b-b Delta a) thin d x
   &= integral_(partial Omega) a partial_(nu) b thin d S
-    - cancel(G, stroke: #blue) \
+    - cancelmark(G, stroke: #blue) \
   &quad - integral_(partial Omega) b partial_(nu) a thin d S
-    + cancel(G, stroke: #blue) \
+    + cancelmark(G, stroke: #blue) \
   &= integral_(partial Omega)
     (a partial_(nu) b-b partial_(nu) a) thin d S.
     #dots_space #footnote[The equal gradient integrals cancel. This is @Greens_second_identity_with_boundaries with ordinary products, with its signs reversed.]

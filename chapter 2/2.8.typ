@@ -76,7 +76,7 @@
   $
     op("div") T Z &= nabla_k (T^(j k) Z^j) = nabla_k (T^(j k) h _(j l)Z^l)
     \
-    &= nabla_k T(j k) h_(j l) Z^l + T^(j k) cancel((nabla_k h_(j l)) , stroke: #(paint: red))Z^l + T^(j k)h_(j l) (nabla_k Z^l) #dots_space #footnote[By Levi-Civita connection(Torsion-free condition)]
+    &= nabla_k T(j k) h_(j l) Z^l + T^(j k) cancelmark((nabla_k h_(j l)) )Z^l + T^(j k)h_(j l) (nabla_k Z^l) #dots_space #footnote[By Levi-Civita connection(Torsion-free condition)]
     \
     &= nabla_k T^(j k) h _(j l) Z^l + T^(j k) h_(j l) nabla_k Z^(l)
     \

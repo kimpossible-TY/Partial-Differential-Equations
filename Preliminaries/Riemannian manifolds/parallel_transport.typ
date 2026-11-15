@@ -159,7 +159,7 @@ The usual ODE theorem guarantees the existence and uniqueness of a solution for 
   #flowbox[
     The 'decreasing' implies that the biggest value is the initial.
     $
-      e^(-2M t)|V(t)|^2 & lt.eq cancel(e^(-2M t_0))|V(t_0)|^2
+      e^(-2M t)|V(t)|^2 & lt.eq cancelmark(e^(-2M t_0))|V(t_0)|^2
       \
       & lt.eq |V(0)|^2 & "by assuming"^#footnote[This assumption is understandable becuase of the group property of flows.] t_0=0
     $

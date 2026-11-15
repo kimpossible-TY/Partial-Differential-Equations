@@ -530,7 +530,7 @@ The construction proposed in #(s.ref)("primitive-construction-strategy") is now 
 #paragraph_tab
 To use the known derivative identities(#(s.ref)("translation-vanishing-derivative")), we would like to express a test function with zero total integral as $F=sum_(j=1)^(n)partial_(z_(j))H_(j)$ with $H_(j) in cal(D)$: by linearity, #(s.ref)("translation-vanishing-derivative") would then give $chevron.l U,F chevron.r=0$. 
 $
-  cancel(chevron.l U comma partial_(z_1) H_(1) chevron.r) + dots.c cancel(chevron.l partial_(z_n) H_(n) chevron.r) &= chevron.l U comma sum_(j=1)^n partial_(z_j) H_(j) chevron.r \ &= chevron.l U,F chevron.r 
+  cancelmark(chevron.l U comma partial_(z_1) H_(1) chevron.r) + dots.c cancelmark(chevron.l partial_(z_n) H_(n) chevron.r) &= chevron.l U comma sum_(j=1)^n partial_(z_j) H_(j) chevron.r \ &= chevron.l U,F chevron.r 
   \
   &=0 #dots_space #footnote[becuase of #(s.ref)("translation-vanishing-derivative")]
 $ #(s.tag)("multi-variable-pairing") 
