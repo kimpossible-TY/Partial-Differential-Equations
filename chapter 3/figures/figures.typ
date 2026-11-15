@@ -2227,3 +2227,688 @@
     content((0, -2.6), text(size: 9pt)[Support only: no curve or shading represents a kernel's height.])
   })
 }
+
+#let grounded-plane-images-diagram() = context {
+  let theme = theme-from-text-fill()
+  let source = theme.callouts.proposition.border
+  let image = theme.callouts.important.border
+  canvas(length: 0.85cm, {
+    import draw: *
+    rect((-3.1, -2.15), (3.1, 0), fill: theme.callouts.note.bg, stroke: none)
+    line((-3.2, 0), (3.2, 0), stroke: 1.1pt + theme.rule)
+    let z = (-1.6, 1.65)
+    let zs = (-1.6, -1.65)
+    let b = (1.1, 0)
+    let x = (1.65, 1.6)
+    line(z, b, stroke: 1.2pt + source)
+    line(zs, b, stroke: 1.2pt + image)
+    line(z, x, stroke: (paint: source, thickness: 0.8pt, dash: "dashed"))
+    line(zs, x, stroke: (paint: image, thickness: 0.8pt, dash: "dashed"))
+    line(z, zs, stroke: (paint: theme.muted-text, thickness: 0.5pt, dash: "dotted"))
+    circle(z, radius: 0.11, fill: source, stroke: none)
+    circle(zs, radius: 0.11, fill: theme.page, stroke: 1.3pt + image)
+    for pt in (b, x) { circle(pt, radius: 0.07, fill: theme.text, stroke: none) }
+    content((-1.8, 1.9), anchor: "south-east", text(size: 10pt, fill: source)[$z, +q$])
+    content((-1.8, -1.9), anchor: "north-east", text(size: 10pt, fill: image)[$z^(*), -q$])
+    content((1.15, -0.2), anchor: "north", text(size: 10pt)[$b$])
+    content((1.9, 1.65), anchor: "west", text(size: 10pt)[$x$])
+    content((-0.2, 1.1), text(size: 9pt, fill: source)[$d$])
+    content((-0.2, -1.1), text(size: 9pt, fill: image)[$d$])
+    content((-2.95, 0.2), anchor: "south-west", text(size: 9pt)[$x_(3)=0$])
+    content((0, 2.6), text(size: 10pt, weight: "semibold")[Physical region $Omega$])
+    content((0, -2.7), text(size: 9pt)[The image lies outside $Omega$.])
+    content((4.0, 1.4), anchor: "west", text(size: 10pt)[$|b-z|=|b-z^(*)|$])
+    content((4.0, 0.65), anchor: "west", text(size: 10pt)[$V(b)=0$])
+    content((4.0, -0.55), anchor: "west", text(size: 10pt)[$|x-z| != |x-z^(*)|$])
+    content((4.0, -1.3), anchor: "west", text(size: 9pt)[Cancellation occurs on the wall.])
+  })
+}
+
+// Equal distances from the reflection center, followed by the composition.
+
+#let reflection-center-and-translation-diagram() = context {
+  let theme = theme-from-text-fill()
+  let original = theme.callouts.proposition.border
+  let reflected = theme.callouts.important.border
+  let a = 2
+  let x = 0.75
+  canvas(length: 0.9cm, {
+    import draw: *
+    content((a, 3.8), text(size: 10pt, weight: "semibold")[Reflection at $a$])
+    line((-0.2, 2.3), (4.2, 2.3), stroke: 0.6pt + theme.muted-text,
+      mark: (end: ">"))
+    line((a, 1.95), (a, 3.35),
+      stroke: (paint: theme.rule, thickness: 0.8pt, dash: "dashed"))
+    for pos in (x, 2 * a - x) {
+      line((pos, 2.4), (pos, 2.97),
+        stroke: (paint: theme.muted-text, thickness: 0.5pt, dash: "dotted"))
+    }
+    for (left, right) in ((x, a), (a, 2 * a - x)) {
+      line((left, 2.92), (right, 2.92), stroke: 0.7pt + theme.text)
+      for pos in (left, right) {
+        line((pos, 2.84), (pos, 3.0), stroke: 0.7pt + theme.text)
+      }
+      content(((left+right)/2, 3.18), text(size: 10pt)[$d$])
+    }
+    circle((x, 2.3), radius: 0.075, fill: original, stroke: none)
+    circle((2 * a - x, 2.3), radius: 0.075, fill: reflected, stroke: none)
+    content((x, 1.97), text(size: 10pt, fill: original)[$x$])
+    content((a, 1.97), text(size: 10pt)[$a$])
+    content((2 * a - x, 1.97), text(size: 10pt, fill: reflected)[$R_(a)x$])
+    content((a, 1.28), text(size: 10pt)[$R_(a)x-a=a-x=d quad arrow.r quad R_(a)x=2a-x$])
+
+    content((a, 0.45), text(size: 10pt, weight: "semibold")[Two successive reflections])
+    line((-1.2, -1.3), (5.3, -1.3), stroke: 0.6pt + theme.muted-text,
+      mark: (end: ">"))
+    for (pos, label) in ((0, $0$), (a, $a$), (2*a, $2a$)) {
+      line((pos, -1.41), (pos, -1.19), stroke: 0.7pt + theme.rule)
+      content((pos, -1.65), text(size: 9pt, label))
+    }
+    for wall in (0, a) {
+      line((wall, -1.1), (wall, -0.75),
+        stroke: (paint: theme.rule, thickness: 0.7pt, dash: "dashed"))
+    }
+    // R_0 sends x to -x; R_a then sends -x to x+2a.
+    bezier((x, -1.18), (-x, -1.18), (x, 0.02), (-x, 0.02),
+      stroke: 0.9pt + reflected, mark: (end: ">"))
+    content((0, -0.08), text(size: 9pt, fill: reflected)[$R_(0)$])
+    bezier((-x, -1.42), (x+2*a, -1.42), (-x, -3.25), (x+2*a, -3.25),
+      stroke: 0.9pt + original, mark: (end: ">"))
+    content((a, -3.04), text(size: 9pt, fill: original)[$R_(a)$])
+    for (pos, color) in ((x, original), (-x, reflected), (x+2*a, original)) {
+      circle((pos, -1.3), radius: 0.075, fill: color, stroke: none)
+    }
+    content((x+0.15, -0.99), anchor: "south-west", text(size: 10pt, fill: original)[$x$])
+    content((-x - 0.15, -0.99), anchor: "south-east", text(size: 10pt, fill: reflected)[$-x$])
+    content((x+2*a, -0.94), text(size: 10pt, fill: original)[$x+2a$])
+    line((x, -3.6), (x+2*a, -3.6), stroke: 0.9pt + theme.text,
+      mark: (end: ">"))
+    for pos in (x, x+2*a) {
+      line((pos, -3.48), (pos, -3.72), stroke: 0.6pt + theme.text)
+    }
+    content((x+a, -3.94), text(size: 10pt)[$2a$])
+  })
+}
+
+
+#let reflected-cell-images-diagram() = context {
+  let theme = theme-from-text-fill()
+  let plus = theme.callouts.proposition.border
+  let minus = theme.callouts.important.border
+  canvas(length: 0.8cm, {
+    import draw: *
+    let a = 2.4
+    let z = 0.72
+    content((1.2, 3.25), text(size: 10pt, weight: "semibold")[Repeated sources on the line])
+    rect((0, 1.15), (a, 2.65), fill: theme.callouts.proposition.bg, stroke: none)
+    line((-3.0, 1.9), (6.0, 1.9), stroke: 0.6pt + theme.muted-text)
+    for wall in (0, a) {
+      line((wall, 1.1), (wall, 2.7), stroke: 1.1pt + theme.rule)
+    }
+    for (pos, label, positive) in (
+      (-z, $-z$, false), (z, $z$, true),
+      (2*a - z, $2a-z$, false), (2*a+z, $2a+z$, true),
+    ) {
+      let color = if positive { plus } else { minus }
+      circle((pos, 1.9), radius: 0.1,
+        fill: if positive { color } else { theme.page }, stroke: 1pt + color)
+      content((pos, 2.35), text(size: 10pt, fill: color)[#if positive { [+] } else { [−] }])
+      content((pos, 1.45), text(size: 9pt, label))
+    }
+    content((0, 0.8), text(size: 9pt)[$0$])
+    content((a, 0.8), text(size: 9pt)[$a$])
+    content((-2.75, 1.9), text(size: 12pt)[$dots$])
+    content((5.95, 1.9), text(size: 12pt)[$dots$])
+    content((1.2, 0.1), text(size: 10pt)[$R_(a)R_(0)x=x+2a$: two reflections preserve sign])
+    let w = 1.6
+    let h = 1.05
+    for j in range(-1, 2) {
+      for i in range(-1, 2) {
+        let x0 = -1.8 + i*w
+        let y0 = -2.3 + j*h
+        let positive = calc.rem(i+j, 2) == 0
+        let color = if positive { plus } else { minus }
+        rect((x0, y0), (x0+w, y0+h),
+          fill: if positive { theme.callouts.proposition.bg } else { theme.callouts.important.bg },
+          stroke: 0.5pt + theme.rule)
+        let cx = x0 + w/2
+        let cy = y0 + h/2
+        let sx = if calc.rem(i, 2) == 0 { 1 } else { -1 }
+        let sy = if calc.rem(j, 2) == 0 { 1 } else { -1 }
+        line((cx - 0.17, cy - 0.08), (cx - 0.17+sx*0.37, cy - 0.08),
+          stroke: 0.9pt + color, mark: (end: ">"))
+        line((cx - 0.17, cy - 0.08), (cx - 0.17, cy - 0.08+sy*0.3),
+          stroke: 0.9pt + color, mark: (end: ">"))
+        content((x0 + w - 0.23, y0 + h - 0.22), text(size: 10pt, fill: color)[#if positive { [+] } else { [−] }])
+      }
+    }
+    rect((-1.8, -2.3), (-0.2, -1.25), stroke: 1.7pt + theme.text, fill: none)
+    content((2.35, -1.05), anchor: "west", text(size: 10pt, weight: "semibold")[Rectangular extension])
+    content((2.35, -1.85), anchor: "west", text(size: 9pt)[One reflection reverses sign.])
+    content((2.35, -2.55), anchor: "west", text(size: 9pt)[Two reverse it twice.])
+    content((2.35, -3.25), anchor: "west", text(size: 9pt)[The outlined cell is $Omega$.])
+  })
+}
+
+// Compare the same point-source response before and after antisymmetrization.
+// Both panels use a = 1, z = 0.35, t = 0.06 and identical axis scales.
+
+#let periodic-dirichlet-kernel-comparison-diagram() = context {
+  let theme = theme-from-text-fill()
+  let direct-color = theme.callouts.proposition.border
+  let image-color = theme.callouts.important.border
+  let a = 1
+  let z = 0.35
+  let t = 0.06
+  let p(r) = calc.exp(-r*r/(4*t))/calc.sqrt(4*calc.pi*t)
+  // The omitted Gaussian tails are far below plotting precision.
+  let h(r) = range(-4, 5).map(k => p(r+2*k*a)).sum()
+  let direct(x) = h(x - z)
+  let image(x) = h(x+z)
+  let dirichlet(x) = direct(x)-image(x)
+  canvas(length: 0.9cm, {
+    import draw: *
+    let width = 5.2
+    let yp(value) = 2.2*value
+    let direct-stroke = (paint: direct-color, thickness: 1.2pt, dash: "dotted")
+    let image-stroke = (paint: image-color, thickness: 1.1pt, dash: "dashed")
+    let kernel-stroke = 1.7pt + theme.text
+
+    for (left, with-walls) in ((-6.4, false), (1.2, true)) {
+      let xp(x) = left+width*x/a
+      let center = left+width/2
+      content((center, 3.8), text(size: 10pt, weight: "semibold",
+        if with-walls { [Interval: two zero-temperature walls] } else { [Circle of length $2a$: no walls] }))
+      content((center, 3.22), text(size: 10pt,
+        if with-walls { [$K_(D,a)(t;x,z)$] } else { [$H_(2a)(t,x-z)$] }))
+
+      // In the left panel these are only reference locations on the circle;
+      // in the right panel they are the actual boundary of (0,a).
+      for endpoint in (0, a) {
+        line((xp(endpoint), -0.06), (xp(endpoint), 2.8), stroke: if with-walls {
+          0.9pt + theme.muted-text
+        } else {
+          (paint: theme.muted-text, thickness: 0.5pt, dash: "dashed")
+        })
+      }
+      line((xp(0)-0.14, 0), (xp(a)+0.27, 0),
+        stroke: 0.6pt + theme.muted-text, mark: (end: ">"))
+      content((xp(a)+0.4, -0.04), text(size: 9pt)[$x$])
+      for value in (0.5, 1.0) {
+        line((xp(0)-0.06, yp(value)), (xp(0)+0.06, yp(value)),
+          stroke: 0.6pt + theme.muted-text)
+        content((xp(0)-0.16, yp(value)), anchor: "east", text(size: 8.5pt)[#value])
+      }
+      for (pos, label) in ((0, $0$), (z, $z$), (a, $a$)) {
+        line((xp(pos), -0.06), (xp(pos), 0.06), stroke: 0.6pt + theme.muted-text)
+        content((xp(pos), -0.3), text(size: 9pt, label))
+      }
+      line((xp(z), 0.12), (xp(z), 2.72),
+        stroke: (paint: theme.rule, thickness: 0.45pt, dash: "dotted"))
+
+      let points(fn) = sample-function(fn, 0, a, segments: 200).map(pt =>
+        (xp(pt.at(0)), yp(pt.at(1))))
+      line(..points(direct), stroke: direct-stroke)
+      if with-walls {
+        line(..points(image), stroke: image-stroke)
+        line(..points(dirichlet), stroke: kernel-stroke)
+      }
+      for endpoint in (0, a) {
+        circle((xp(endpoint), yp(direct(endpoint))), radius: 0.065,
+          fill: theme.page, stroke: 1.1pt + direct-color)
+        if with-walls {
+          circle((xp(endpoint), 0), radius: 0.075, fill: theme.text, stroke: none)
+        }
+      }
+      content((center, -0.88), text(size: 9pt,
+        if with-walls { [$K_(D,a)(t;0,z)=K_(D,a)(t;a,z)=0$] }
+        else { [$H_(2a)(t,-z)>0, quad H_(2a)(t,a-z)>0$] }))
+      content((center, -2.25), text(size: 9pt,
+        if with-walls { [Use with the original datum $f$ on $(0,a)$.] }
+        else { [Use with the odd extension $f^("#")$ on $(-a,a)$.] }))
+    }
+
+    for (left, label, curve-stroke) in (
+      (-6.25, $H_(2a)(t,x-z)$, direct-stroke),
+      (-1.25, $H_(2a)(t,x+z)$, image-stroke),
+      (3.75, $K_(D,a)(t;x,z)$, kernel-stroke),
+    ) {
+      line((left, -1.6), (left+0.65, -1.6), stroke: curve-stroke)
+      content((left+0.85, -1.6), anchor: "west", text(size: 9pt, label))
+    }
+  })
+}
+
+// A polynomial factor can be absorbed by a slower Gaussian.
+
+#let gaussian-polynomial-decay-diagram() = context {
+  let theme = theme-from-text-fill()
+  let gaussian-color = theme.callouts.proposition.border
+  let polynomial-color = theme.callouts.important.border
+  let bound-color = theme.text
+  let bound-constant = 16 * calc.exp(-2)
+  let gaussian(r) = calc.exp(-r*r)
+  let weighted(r) = calc.pow(r, 4) * gaussian(r)
+  let envelope(r) = bound-constant * calc.exp(-r*r/2)
+  canvas(length: 0.8cm, {
+    import draw: *
+    let xp(r) = 1.9*r
+    let yp(value) = 1.55*value
+    content((6.15, 4.25), text(size: 10pt, weight: "semibold")[Polynomial factors preserve Gaussian decay])
+    rect((xp(2), 0), (xp(4), yp(2.3)), fill: theme.callouts.note.bg, stroke: none)
+    content((xp(3), yp(2.12)), text(size: 9pt, fill: theme.muted-text)[tail])
+    for value in (0.5, 1.0, 1.5, 2.0) {
+      line((0, yp(value)), (xp(4), yp(value)),
+        stroke: (paint: theme.rule, thickness: 0.35pt, dash: "dotted"))
+      line((-0.07, yp(value)), (0.07, yp(value)), stroke: 0.6pt + theme.muted-text)
+      content((-0.22, yp(value)), anchor: "east", text(size: 9pt)[#value])
+    }
+    line((0, 0), (xp(4)+0.25, 0), stroke: 0.7pt + theme.muted-text,
+      mark: (end: ">"))
+    line((0, 0), (0, yp(2.3)+0.18), stroke: 0.7pt + theme.muted-text,
+      mark: (end: ">"))
+    content((xp(4)+0.4, -0.04), text(size: 10pt)[$r$])
+    for r in range(5) {
+      line((xp(r), -0.06), (xp(r), 0.06), stroke: 0.6pt + theme.muted-text)
+      content((xp(r), -0.31), text(size: 9pt)[#r])
+    }
+    for (fn, color, dashed) in (
+      (gaussian, gaussian-color, false),
+      (weighted, polynomial-color, false),
+      (envelope, bound-color, true),
+    ) {
+      let points = sample-function(fn, 0, 4, segments: 240).map(pt => (xp(pt.at(0)), yp(pt.at(1))))
+      line(..points, stroke: if dashed {
+        (paint: color, thickness: 1pt, dash: "dashed")
+      } else { 1.25pt + color })
+    }
+    for k in range(5) {
+      circle((xp(k), yp(envelope(k))), radius: 0.045, fill: bound-color, stroke: none)
+    }
+    for (height, label, color, dashed) in (
+      (3.05, $e^(-r^(2))$, gaussian-color, false),
+      (2.15, $r^(4)e^(-r^(2))$, polynomial-color, false),
+      (1.25, $C e^(-r^(2)/2)$, bound-color, true),
+    ) {
+      line((8.25, height), (9.15, height), stroke: if dashed {
+        (paint: color, thickness: 1pt, dash: "dashed")
+      } else { 1.25pt + color })
+      content((9.35, height), anchor: "west", text(size: 10pt, fill: color, label))
+    }
+    content((10.3, 0.55), text(size: 9pt)[$C=16e^(-2)$])
+    content((10.3, -0.08), text(size: 8.5pt)[Dots: integer $r$])
+  })
+}
+
+// Actual profiles and coefficients for the same one-dimensional periodic kernel.
+
+#let rectangular-dirichlet-domain-diagram() = context {
+  let theme = theme-from-text-fill()
+  let boundary = theme.callouts.proposition.border
+  set text(size: 10pt)
+  canvas(length: 0.8cm, {
+    import draw: *
+    let w = 4.4
+    let h = 2.5
+
+    line((-0.3, 0), (w + 0.95, 0),
+      stroke: 0.6pt + theme.muted-text, mark: (end: ">"))
+    line((0, -0.3), (0, h + 0.85),
+      stroke: 0.6pt + theme.muted-text, mark: (end: ">"))
+    rect((0, 0), (w, h), fill: theme.callouts.proposition.bg,
+      stroke: 1.1pt + boundary)
+
+    content((w / 2, h / 2), [$Omega$])
+    content((-0.15, -0.18), anchor: "north-east", [$0$])
+    content((w + 1.08, 0), anchor: "west", [$x_(1)$])
+    content((0, h + 0.98), anchor: "south", [$x_(2)$])
+    content((w, -0.22), anchor: "north", [$a_(1)$])
+    content((-0.22, h), anchor: "east", [$a_(2)$])
+
+    content((w / 2, -0.28), anchor: "north", text(fill: boundary)[$u=0$])
+    content((w / 2, h + 0.28), anchor: "south", text(fill: boundary)[$u=0$])
+    content((-0.28, h / 2), anchor: "east", text(fill: boundary)[$u=0$])
+    content((w + 0.28, h / 2), anchor: "west", text(fill: boundary)[$u=0$])
+  })
+}
+
+// One example datum, its zero extension, and its lattice-periodic extension.
+
+#let rectangular-period-lattice-diagram() = context {
+  let theme = theme-from-text-fill()
+  let positive = theme.callouts.proposition.border
+  let negative = theme.callouts.important.border
+  let period = theme.callouts.tip.border
+  canvas(length: 0.8cm, {
+    import draw: *
+    let a1 = 1.25
+    let a2 = 1.05
+    let xlo = -2*a1
+    let xhi = 2*a1
+    let ylo = -2*a2
+    let yhi = 2*a2
+
+    // Four interval cells in each direction show how odd reflection
+    // changes sign at every wall and returns to the same sign after 2a_j.
+    for j in range(-2, 2) {
+      for i in range(-2, 2) {
+        let same-sign = calc.rem(i+j, 2) == 0
+        rect((i*a1, j*a2), ((i+1)*a1, (j+1)*a2),
+          fill: if same-sign { theme.callouts.proposition.bg } else { theme.callouts.important.bg },
+          stroke: none)
+        if i == 0 and j == 0 {
+          content(((i+0.5)*a1, (j+0.5)*a2),
+            text(size: 10pt, weight: "semibold", fill: positive)[$Omega$])
+        } else {
+          content(((i+0.5)*a1, (j+0.5)*a2),
+            text(size: 10pt, fill: if same-sign { positive } else { negative })[
+              #if same-sign { [+] } else { [−] }
+            ])
+        }
+      }
+    }
+
+    // Γ has spacing a_j; its highlighted even-even points form 2Γ.
+    for i in range(-2, 3) {
+      let x = i*a1
+      let is-period-line = calc.rem(i, 2) == 0
+      line((x, ylo), (x, yhi), stroke: if is-period-line {
+        (paint: period, thickness: 1.05pt)
+      } else {
+        (paint: theme.rule, thickness: 0.55pt)
+      })
+    }
+    for j in range(-2, 3) {
+      let y = j*a2
+      let is-period-line = calc.rem(j, 2) == 0
+      line((xlo, y), (xhi, y), stroke: if is-period-line {
+        (paint: period, thickness: 1.05pt)
+      } else {
+        (paint: theme.rule, thickness: 0.55pt)
+      })
+    }
+    for i in range(-2, 3) {
+      for j in range(-2, 3) {
+        let point = (i*a1, j*a2)
+        if calc.rem(i, 2) == 0 and calc.rem(j, 2) == 0 {
+          circle(point, radius: 0.075, fill: theme.page, stroke: 1.1pt + period)
+        } else {
+          circle(point, radius: 0.035, fill: theme.muted-text, stroke: none)
+        }
+      }
+    }
+
+    // Outline the original box and one fundamental cell of the period lattice.
+    rect((0, 0), (a1, a2), fill: none, stroke: 1.6pt + positive)
+    rect((0, 0), (2*a1, 2*a2), fill: none, stroke: 1.5pt + period)
+
+    // Show the two generators of 2Γ outside the tiled cells.
+    line((0, ylo - 0.42), (2*a1, ylo - 0.42),
+      stroke: 1pt + period, mark: (end: ">"))
+    content((a1, ylo - 0.68), text(size: 9pt, fill: period)[$2a_1$])
+    line((xlo - 0.42, 0), (xlo - 0.42, 2*a2),
+      stroke: 1pt + period, mark: (end: ">"))
+    content((xlo - 0.7, a2), anchor: "east", text(size: 9pt, fill: period)[$2a_2$])
+
+    // A compact legend distinguishes Γ from its period sublattice 2Γ.
+    circle((xhi + 0.55, 1.25), radius: 0.035, fill: theme.muted-text, stroke: none)
+    content((xhi + 0.78, 1.25), anchor: "west", text(size: 9pt)[$Gamma$: spacing $a_j$])
+    circle((xhi + 0.55, 0.62), radius: 0.075, fill: theme.page, stroke: 1.1pt + period)
+    content((xhi + 0.78, 0.62), anchor: "west", text(size: 9pt)[$2Gamma$: periods $2a_j$])
+  })
+}
+
+// Images on an interval and the sign/orientation pattern of a rectangular tiling.
+
+#let torus-edge-identification-diagram() = context {
+  let theme = theme-from-text-fill()
+  let first = theme.callouts.proposition.border
+  let second = theme.callouts.important.border
+  let ellipse-points(cx, cy, rx, ry) = range(65).map(i => {
+    let theta = 360deg * i / 64
+    (cx + rx * calc.cos(theta), cy + ry * calc.sin(theta))
+  })
+  canvas(length: 1cm, {
+    import draw: *
+    content((5.65, 6.35), text(size: 10pt)[
+      $Gamma={ (k_(1)a_(1),dots,k_(n)a_(n)):k in bb(Z)^(n)}$
+    ])
+    content((5.65, 5.8), text(size: 10pt)[
+      $Q=product_(j=1)^(n)[0,a_(j)), quad a_(j)>0$
+    ])
+
+    // A two-dimensional instance: the dots are lattice vectors, while
+    // the two marked interior points belong to one quotient class.
+    rect((1.5, 2.9), (3, 4.1), fill: theme.callouts.note.bg, stroke: none)
+    for i in range(4) {
+      line((1.5*i, 2.9), (1.5*i, 5.3), stroke: 0.5pt + theme.rule)
+    }
+    for j in range(3) {
+      line((0, 2.9+1.2*j), (4.5, 2.9+1.2*j), stroke: 0.5pt + theme.rule)
+    }
+    for i in range(4) {
+      for j in range(3) {
+        circle((1.5*i, 2.9+1.2*j), radius: 0.035, fill: theme.text, stroke: none)
+      }
+    }
+    line((1.5, 4.1), (1.5, 2.9), (3, 2.9), stroke: 1pt + first)
+    line((1.5, 4.1), (3, 4.1), (3, 2.9),
+      stroke: (paint: first, thickness: 1pt, dash: "dashed"))
+    content((2.7, 3.2), text(size: 10pt)[$Q$])
+    content((1.5, 2.65), text(size: 8pt)[$0$])
+    for pt in ((1.9, 3.25), (3.4, 4.45)) {
+      circle(pt, radius: 0.055, fill: second, stroke: none)
+    }
+    content((1.9, 3.02), text(size: 9pt)[$x$])
+    content((3.75, 4.65), text(size: 9pt)[$x+gamma$])
+    line((2.02, 3.35), (3.28, 4.35), stroke: 1pt + second, mark: (end: ">"))
+    content((2.5, 4.25), text(size: 9pt, fill: second)[$gamma$])
+    line((4.85, 4.1), (6, 4.1), stroke: 0.8pt + theme.text, mark: (end: ">"))
+    content((8.65, 4.95), text(size: 10pt)[$x tilde x+gamma quad (gamma in Gamma)$])
+    content((8.65, 4.1), text(size: 10pt)[$[x]=x+Gamma$])
+    content((8.65, 3.35), text(size: 10pt)[$[x] in bb(R)^(2)/Gamma$])
+    line((1.1, 2.65), (1.1, 2.05), stroke: 0.8pt + theme.text, mark: (end: ">"))
+
+    // The colors pair edges; arrows give the same direction on each pair.
+    rect((0, 0), (2.2, 1.8), fill: theme.callouts.note.bg, stroke: none)
+    for x in (0, 2.2) {
+      line((x, 0), (x, 1.8), stroke: 1.4pt + first)
+      line((x, 0.72), (x, 1.08), stroke: 1.4pt + first, mark: (end: ">"))
+    }
+    for y in (0, 1.8) {
+      line((0, y), (2.2, y), stroke: 1.4pt + second)
+      line((0.9, y), (1.3, y), stroke: 1.4pt + second, mark: (end: ">"))
+    }
+    content((1.1, 0.9), text(size: 11pt)[$Q$])
+    content((1.1, -0.35), text(size: 9pt)[$a_1$])
+    content((-0.28, 0.9), text(size: 9pt)[$a_2$])
+    content((1.1, -0.95), text(size: 9pt)[Fundamental cell])
+    line((2.75, 0.9), (4.05, 0.9), stroke: 0.8pt + theme.text, mark: (end: ">"))
+    content((3.4, 1.45), text(size: 8pt)[glue $x_1=0,a_1$])
+
+    // After the first gluing, the two remaining boundary circles are paired.
+    rect((4.55, 0.2), (6.55, 1.65), fill: theme.callouts.note.bg, stroke: none)
+    line((4.55, 0.2), (4.55, 1.65), stroke: 0.9pt + theme.rule)
+    line((6.55, 0.2), (6.55, 1.65), stroke: 0.9pt + theme.rule)
+    line(..ellipse-points(5.55, 1.65, 1.0, 0.28), close: true,
+      fill: theme.page, stroke: 1.2pt + second)
+    line(..ellipse-points(5.55, 0.2, 1.0, 0.28), close: true,
+      stroke: 1.2pt + second)
+    content((5.55, -0.95), text(size: 9pt)[Cylinder])
+    line((7.05, 0.9), (8.35, 0.9), stroke: 0.8pt + theme.text, mark: (end: ">"))
+    content((7.7, 1.45), text(size: 8pt)[glue $x_2=0,a_2$])
+
+    // A topological schematic: a flat torus need not inherit this donut metric.
+    line(..ellipse-points(10.0, 0.9, 1.35, 0.83), close: true,
+      fill: theme.callouts.note.bg, stroke: 1pt + theme.rule)
+    line(..ellipse-points(10.0, 1.08, 0.60, 0.27), close: true,
+      fill: theme.page, stroke: 0.8pt + theme.rule)
+    let tube-loop = range(65).map(i => {
+      let theta = 360deg * i / 64
+      (10.975 + 0.375 * calc.cos(theta),
+        0.99 - 0.09 * calc.cos(theta) + 0.30 * calc.sin(theta))
+    })
+    line(..tube-loop, close: true, stroke: 1.1pt + second)
+    content((10.0, -0.95), text(size: 9pt)[$bb(R)^(2)/Gamma ≅ S^1 times S^1$])
+  })
+}
+
+// Coordinate reflections create an alternating sign pattern that repeats
+// after two interval lengths in each direction.
+
+#let torus-periodization-diagram() = context {
+  let theme = theme-from-text-fill()
+  let cell = theme.callouts.proposition.border
+  let peak = theme.callouts.important.border
+  canvas(length: 0.85cm, {
+    import draw: *
+    let w = 0.95
+    let sample(x, y) = {
+      circle((x + 0.34*w, y + 0.36*w), radius: 0.20*w,
+        fill: peak, stroke: none)
+      circle((x + 0.73*w, y + 0.72*w), radius: 0.12*w,
+        fill: peak, stroke: none)
+    }
+    let grid(x) = {
+      for i in range(4) {
+        line((x + i*w, 0), (x + i*w, 3*w), stroke: 0.55pt + theme.rule)
+        line((x, i*w), (x + 3*w, i*w), stroke: 0.55pt + theme.rule)
+      }
+      rect((x+w, w), (x+2*w, 2*w), stroke: 1.3pt + cell)
+    }
+    content((1.425, 3.55), text(size: 10pt)[Datum $f$ on $Q$])
+    content((5.725, 3.55), text(size: 10pt)[Zero extension $f^(0)$])
+    content((10.025, 3.55), text(size: 10pt)[Periodic extension $f^(b)$])
+
+    rect((w, w), (2*w, 2*w), stroke: 1.3pt + cell)
+    sample(w, w)
+    content((1.24*w, 1.76*w), text(size: 9pt)[$Q$])
+    content((1.5*w, 0.48*w), text(size: 9pt)[$[0,a_(1)) times [0,a_(2))$])
+
+    grid(4.3)
+    for i in range(3) {
+      for j in range(3) {
+        if i == 1 and j == 1 {
+          sample(4.3+w, w)
+        } else {
+          content((4.3+(i+0.5)*w, (j+0.5)*w), text(size: 9pt)[$0$])
+        }
+      }
+    }
+    content((4.3+1.24*w, 1.76*w), text(size: 9pt)[$Q$])
+
+    grid(8.6)
+    for i in range(3) {
+      for j in range(3) { sample(8.6+i*w, j*w) }
+    }
+    content((8.6+1.24*w, 1.76*w), text(size: 9pt)[$Q$])
+    line((3.0, 1.42), (4.1, 1.42), stroke: 0.8pt + theme.text, mark: (end: ">"))
+    line((7.3, 1.42), (8.4, 1.42), stroke: 0.8pt + theme.text, mark: (end: ">"))
+    content((5.725, -0.35), text(size: 9pt)[$f^(0)=0$ outside $Q$])
+    content((10.025, -0.35), text(size: 9pt)[$f^(b)(x)=sum_(gamma in Gamma) f^(0)(x+gamma)$])
+  })
+}
+
+// A fundamental rectangle becomes a torus after its opposite edges are identified.
+
+#let periodic-heat-duality-diagram() = context {
+  let theme = theme-from-text-fill()
+  let source = theme.callouts.proposition.border
+  let image = theme.callouts.important.border
+  let t = 1.5
+  let p(x) = calc.exp(-x*x/(4*t))/calc.sqrt(4*calc.pi*t)
+  canvas(length: 0.85cm, {
+    import draw: *
+    content((-3.3, 3.05), text(size: 10pt, weight: "semibold")[Spatial periodization])
+    content((3.5, 3.05), text(size: 10pt, weight: "semibold")[Fourier coefficients])
+    let left = -6.0
+    let right = -0.6
+    rect((left, 0), (right, 2.4), fill: theme.callouts.note.bg, stroke: none)
+    line((left, 0), (right+0.15, 0), stroke: 0.6pt + theme.muted-text)
+    for (j, label) in ((0, $0$), (1, $pi$), (2, $2pi$)) {
+      let xx = left+j*2.7
+      line((xx, -0.05), (xx, 0.05), stroke: 0.6pt + theme.muted-text)
+      content((xx, -0.28), text(size: 9pt, label))
+    }
+    let xcoord(x) = left+5.4*x/(2*calc.pi)
+    for (k, color) in ((0, source), (-1, image)) {
+      let points = range(161).map(j => {
+        let x = 2*calc.pi*j/160
+        (xcoord(x), 8*p(x+2*calc.pi*k))
+      })
+      line(..points, stroke: (paint: color, thickness: 1.1pt, dash: "dashed"))
+    }
+    let total = range(161).map(j => {
+      let x = 2*calc.pi*j/160
+      let density = range(-5, 6).map(k => p(x+2*calc.pi*k)).sum()
+      (xcoord(x), 8*density)
+    })
+    line(..total, stroke: 1.5pt + theme.text)
+    content((-3.3, 2.55), text(size: 9pt)[$H(t,x)$: solid])
+    content((-3.3, -0.8), text(size: 9pt)[Dashed: $p_(t)^((1))(x)$ and $p_(t)^((1))(x-2pi)$])
+    line((0.55, 0), (6.5, 0), stroke: 0.6pt + theme.muted-text)
+    for ell in range(-3, 4) {
+      let xx = 3.5+ell*0.85
+      let yy = 13*calc.exp(-t*ell*ell)/(2*calc.pi)
+      line((xx, 0), (xx, yy), stroke: 1.2pt + source)
+      circle((xx, yy), radius: 0.065, fill: source, stroke: none)
+      content((xx, -0.28), text(size: 9pt)[#ell])
+    }
+    content((3.5, 2.55), text(size: 9pt)[$c_(ell)=(2pi)^(-1)e^(-t ell^(2))$])
+    content((3.5, -0.8), text(size: 9pt)[$ell in bb(Z)$; each coefficient weights $e^(i ell x)$])
+    content((0, -1.55), text(size: 10pt)[One kernel: translated sources or discrete modes])
+  })
+}
+
+// Jacobi's transformation replaces a slowly decaying small-parameter theta sum
+// with a rapidly decaying sum at the reciprocal parameter.
+
+#let jacobi-small-tau-diagram() = context {
+  let theme = theme-from-text-fill()
+  let slow-color = theme.callouts.important.border
+  let fast-color = theme.callouts.proposition.border
+  let tau-value = 0.04
+  let reciprocal-value = 1 / tau-value
+  let baseline = 0
+  let yscale = 2.2
+  let xcoord(center, m) = center + 2.55*m/8
+  canvas(length: 0.85cm, {
+    import draw: *
+    content((-3.75, 3.45), text(size: 10pt, weight: "semibold")[Small parameter: $τ=1/25$])
+    content((-3.75, 2.92), text(size: 9pt)[$e^(-pi m^(2)τ)$])
+    content((3.75, 3.45), text(size: 10pt, weight: "semibold")[Reciprocal: $1/τ=25$])
+    content((3.75, 2.92), text(size: 9pt)[$e^(-pi m^(2)/τ)$])
+
+    for (center, q, color) in ((-3.75, tau-value, slow-color), (3.75, reciprocal-value, fast-color)) {
+      let curve = range(641).map(i => {
+        let u = -8 + i / 40
+        (xcoord(center, u), baseline + yscale * calc.exp(-calc.pi * q * u * u))
+      })
+      line(..curve, stroke: 0.8pt + color.transparentize(50%))
+      line((center - 2.65, baseline), (center + 2.65, baseline),
+        stroke: 0.65pt + theme.muted-text)
+      for m in range(-8, 9) {
+        let value = calc.exp(-calc.pi*q*m*m)
+        if value > 0.004 {
+          let x = xcoord(center, m)
+          let y = baseline + yscale*value
+          line((x, baseline), (x, y), stroke: 1.15pt + color)
+          circle((x, y), radius: 0.055, fill: color, stroke: none)
+        }
+      }
+      for (m, label) in ((-8, $-8$), (0, $0$), (8, $8$)) {
+        let x = xcoord(center, m)
+        line((x, baseline - 0.06), (x, baseline + 0.06),
+          stroke: 0.55pt + theme.muted-text)
+        content((x, -0.34), text(size: 8.5pt, label))
+      }
+      content((center, -0.72), text(size: 9pt)[$m$])
+    }
+
+    line((-0.72, 1.35), (0.72, 1.35), stroke: 0.9pt + theme.muted-text,
+      mark: (end: ">"))
+    content((0, 1.72), text(size: 9pt, weight: "semibold")[Jacobi])
+    content((0, 0.9), text(size: 8.5pt)[$τ^(-1/2)=5$])
+  })
+}
+
