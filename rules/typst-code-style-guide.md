@@ -311,6 +311,12 @@ For equations and figures, use `(s.tag)` only to attach the global label, and us
 
 This keeps the call local (`"energy"`) while the actual Typst reference goes through the globally scoped label, so the displayed reference follows the normal equation or figure rule.
 
+For when and how to mention a target in mathematical prose, follow
+[the reference-writing guidance](../.agents/skills/math-writing-and-logic/SKILL.md#mentions-that-reconnect-the-reader-to-the-mathematics).
+The [Typst mention example](../.agents/skills/my-typst-style/SKILL.md#mentions-within-a-document)
+shows how to combine a symbol, its reference, and the property used without
+changing this API.
+
 ### Using mannot/CeTZ inside a local tag scope
 
 You can use `annot-cetz-local` directly inside `local-tag-scope` by passing labels from `(s.tags)` and anchors from `(s.anchor)`.
